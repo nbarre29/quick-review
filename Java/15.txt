@@ -1,0 +1,137 @@
+-> 
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
+public class Mistakes {
+    public static void main(String[] args) {
+        concurrentModificationException();
+    }
+
+    private static void concurrentModificationException() {
+        List<String> words = new ArrayList<>(
+                Arrays.asList("Hello", "World", "Java", "Programming", "B")
+        );
+
+        // This will throw ConcurrentModificationException
+        // In Java, modifying a collection while iterating over it using methods like forEach, for-each loop,
+        // or an explicit iterator without using the iterator's remove method is not allowed.
+        // This is because the internal state of the iterator becomes inconsistent with the collection, causing the ConcurrentModificationException to be thrown.
+//        words.forEach(word -> {
+//            if (word.equals("B")) {
+//                words.remove(word);
+//            }
+//        });
+
+        // Correct way to remove elements during iteration
+        //https://docs.oracle.com/en/java/javase/23/docs/api/java.base/java/util/Iterator.html
+        Iterator<String> iterator = words.iterator();
+        while (iterator.hasNext()) {
+            String word = iterator.next();
+            if (word.equals("B")) {
+                iterator.remove(); // Correct way to remove elements during iteration
+            }
+        }
+
+        System.out.println(words);
+
+    }
+}
+------------------------------------------------------------------------------------
+Iterator<String> iterator = words.iterator();
+        while (iterator.hasNext()) {
+            String word = iterator.next();
+            if (word.equals("B")) {
+                iterator.remove(); // Correct way to remove elements during iteration
+            }
+        }
+		
+// above block can be simplified 
+words.removeIf(word -> word.equals("B"));
+
+
+_____________________________________________________________________________________
+
+-> 
+
+public class Mistakes {
+    public static void main(String[] args) {
+        System.out.println(equalsTest());
+    }
+
+    // Strings compared using equals() method do not use == operator
+    // == operator compares the reference of the objects, not the content
+    // equals() method compares the content of the objects
+    private static boolean equalsTest() {
+        var brand = "Naveen";
+        var brand2 = "Naveen";
+        return brand.equals(brand2);
+    }
+}
+
+_____________________________________________________________________________________
+
+->  
+//bad code
+public class Mistakes {
+    public static void main(String[] args) {
+         System.out.println(ifs());
+    }
+
+    private static boolean ifs() {
+        var bool = "a".equals("A");
+
+        if(bool == true) {
+            return true;
+        }
+        if(bool == false) {
+            return false;
+        }
+        return false;
+    }
+}
+------------------------------------------------------------------------------------
+// better code 
+private static boolean ifs() {
+        var bool = "a".equals("A");
+
+        if (bool) {
+            return true;
+        }
+        if (!bool) {
+            return false;
+        }
+
+        return false;
+
+    }
+	
+------------------------------------------------------------------------------------
+//more simplified code
+private static boolean ifs() {
+        return "a".equals("A");
+    }
+_____________________________________________________________________________________
+
+-> public class Mistakes {
+    public static void main(String[] args) {
+        System.out.println(ternary(20));
+    }
+
+    private static String ternary(int age) {
+        if(age >= 18) {
+            return "Adult";
+        } else {
+            return "Child";
+        }
+    }
+}
+------------------------------------------------------------------------------------
+
+private static String ternary(int age) {
+        return age >= 18 ? "Adult" : "Child";
+    }
+	
+_____________________________________________________________________________________

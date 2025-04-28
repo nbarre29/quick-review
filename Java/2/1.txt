@@ -1,0 +1,480 @@
+-> 
+= (assignment) Operator:     Put the value on the right‑hand side into the variable on the left
+
+Typical operands: A variable on the left, any expression on the right
+
+
+== (equality/identity test) Operator:  Evaluate whether the two operands are identical
+
+• Primitives → compares the actual numeric/boolean/char values.
+• Object references → compares whether both references point to exactly the same object in memory.
+
+Result type:  boolean
+
+Common Pitfalls:  Using == on objects when you really want logical equality (contents), which should be done with .equals() (e.g., two different String objects containing "hello" are not == but they are equals).
+
+
+public class Main {
+    public static void main(String[] args) {
+        // = (assignment)
+        int a = 3;          // a now holds the value 3
+        int b = a;          // b gets a copy of 3
+        b = b + 2;          // b reassigned to 5; a is still 3
+
+        System.out.println(a);  // 3
+        System.out.println(b);  // 5
+
+       // == with primitives
+        int x = 7;
+        int y = 7;
+        System.out.println(x == y);   // true  (same numeric value)
+
+        // == with object references
+        String s1 = new String("hi");
+        String s2 = new String("hi");
+        System.out.println(s1 == s2);      // false (different objects)
+        System.out.println(s1.equals(s2)); // true  (same characters)
+
+        // Beware of Boolean assignment in conditions
+        boolean flag = false;
+
+        // if (flag = true) { ... }   // compiles and always runs, bug!
+        // if (flag == true) { ... }  // comparison, but better:
+
+        //This is considered idiomatic because it is the simplest and most readable way to check if a boolean variable (flag) is true.
+        // It avoids unnecessary comparisons like if (flag == true) or potential bugs like if (flag = true) (which is an assignment, not a comparison).
+        if (flag) {  // idiomatic
+            System.out.println("Flag is true");
+        } else {
+            System.out.println("Flag is false");
+        }
+
+    }
+}
+
+Rules of thumb
+
+    Use = only to store a value.
+
+    Use == for primitives and to check if two references point to the same object (identity).
+
+    Use .equals() for logical/content equality between objects (Strings, collections, your own classes, etc.).
+	
+------------------------------------------------------------------------------------	
+class Person {
+    String name;
+    Person(String name) { this.name = name; }
+}
+
+public class ReferencePitfall {
+    public static void main(String[] args) {
+        Person p1 = new Person("Bob");
+        Person p2 = p1;          // ← just copies the *reference*
+
+        p2.name = "Alice";       // mutate through p2
+
+        System.out.println(p1.name); // prints "Alice"!
+        System.out.println(p2.name); // prints "Alice"
+        System.out.println(p1 == p2); // true  – same object identity
+    }
+}
+
+What happened?
+
+    new Person("Bob") allocates one Person object.
+
+    p1 holds the address of that object.
+
+    p2 = p1 copies that address — no new Person is created.
+
+    Changing p2.name changes the single shared object, so p1.name shows the same update.
+
+------------------------------------------------------------------------------------
+
+//A collection example you might hit in real code
+import java.util.ArrayList;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        List<String> listA = new ArrayList<>();
+        listA.add("one");
+
+        List<String> listB = listA;   // same list instance
+        listB.add("two");
+
+        System.out.println(listA);    // [one, two]
+        System.out.println(listB);    // [one, two]
+
+    }
+}
+Many beginners expect listB to be an independent copy; instead, both variables view the same underlying ArrayList.
+------------------------------------------------------------------------------------
+//How to get an independent copy (clone vs. copy‑constructor)
+import java.util.ArrayList;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        List<String> listA = new ArrayList<>();
+        listA.add("one");
+
+        List<String> listB = new ArrayList<>(listA); // copy‑constructor
+        listB.add("two");
+
+        System.out.println(listA); // [one]
+        System.out.println(listB); // [one, two]
+
+    }
+}
+
+Copy constructor / factory (preferred): create a new object initialized from the old one.
+
+clone(): rarely used directly today; if you implement it, remember it gives only a shallow copy unless you deep‑clone internal fields yourself.
+_____________________________________________________________________________________
+
+-> java.util.function.Supplier<T> at a glance
+
+What it is : A functional interface with a single method T get(); that returns a value and accepts no arguments.
+
+import java.util.function.Supplier;
+import java.util.Random;
+
+public class SupplierDemo {
+    public static void main(String[] args) {
+        Random randomGenerator = new Random();
+
+        Supplier<Integer> randomInt = () -> randomGenerator.nextInt(100); // 0‑99
+
+        System.out.println("Random #1: " + randomInt.get());
+        System.out.println("Random #2: " + randomInt.get());
+    }
+}
+
+Output:
+Random #1: 50
+Random #2: 81
+------------------------------------------------------------------------------------
+
+The Function interface takes an input and produces an output, so we can use it to pass the upper bound for the random number generation. 
+Same functionality as above but using Function instead of Supplier
+
+import java.util.Random;
+import java.util.function.Function;
+
+public class FunctionDemo {
+    public static void main(String[] args) {
+        Random randomGenerator = new Random();
+
+        
+        Function<Integer, Integer> randomInt = bound -> randomGenerator.nextInt(bound); // 0‑99
+		//Function<Integer, Integer> randomInt = randomGenerator::nextInt; // we can replace the above lambda with method reference
+
+        System.out.println("Random #1: " + randomInt.apply(100));
+        System.out.println("Random #2: " + randomInt.apply(100));
+    }
+}
+
+_____________________________________________________________________________________
+
+-> java.util.function.Supplier<T> can be used as a factory in Streams
+
+import java.util.List;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class SupplierDemo {
+    public static void main(String[] args) {
+        Supplier<Stream<String>> nameStream = () -> Stream.of("Ana", "Bob", "Cleo");
+
+        List<String> upper   = nameStream.get()
+                .map(String::toUpperCase)
+                .collect(Collectors.toList());
+
+        List<String> filtered = nameStream.get()
+                .filter(s -> s.length() <= 3)
+                .collect(Collectors.toList());
+
+        System.out.println(upper);     // [ANA, BOB, CLEO]
+        System.out.println(filtered);  // [Ana, Bob]
+    }
+}
+
+Why a Supplier<Stream>? Streams are single‑use; using a supplier lets you obtain a fresh stream each time.
+Java Streams are designed to be single-use: Once you perform a terminal operation on a stream, the stream is considered consumed and cannot be used again.
+
+
+Key takeaways
+
+    Supplier produces, never consumes.
+
+    Great for factory patterns
+_____________________________________________________________________________________
+
+-> java.util.function.Function<T, R> vs java.util.function.BiFunction<T, U, R>
+
+    Aspect:
+
+        Function<T, R>: Represents an operation on one input that produces a result.
+
+        BiFunction<T, U, R>: Represents an operation on two inputs that produces a result.
+
+    Purpose:
+
+        Function<T, R>: Used to represent an operation on one input that results in an output.
+
+        BiFunction<T, U, R>: Used for an operation on two inputs, producing a result.
+
+    Method Signature:
+
+        Function<T, R>: R apply(T t)
+
+        BiFunction<T, U, R>: R apply(T t, U u)
+
+    Generics:
+
+        Function<T, R>: 2 type parameters: input, result.
+
+        BiFunction<T, U, R>: 3 type parameters: first input, second input, result.
+
+    Key Default Methods:
+
+        Function<T, R>: andThen(Function) - chain unary functions.
+
+        BiFunction<T, U, R>: andThen(Function) - post-process the result of the bi-operation.
+
+    Typical Stream Use:
+
+        Function<T, R>: Commonly used with map to transform elements one-by-one.
+
+        BiFunction<T, U, R>: Rarely used inside streams (needs two separate elements), but common in collectors, Map.compute, reduce, etc.
+
+    Analogy:
+
+        Function<T, R>: "Mapper"
+
+        BiFunction<T, U, R>: "Combiner" / "Merger"
+		
+-----------------------------------------------------------------------------------------------------	
+1) Function - transform a single value
+import java.util.function.Function;
+
+public class Main {
+    public static void main(String[] args) {
+        Function<String, Integer> lengthFn = s -> s.length();
+		//Function<String, Integer> lengthFn = String::length;   // replace above lambda with method reference
+
+        int len = lengthFn.apply("ChatGPT"); // → 7
+        System.out.println("Length of 'ChatGPT': " + len);
+
+    }
+}
+-----------------------------------------------------------------------------------------------------
+2) BiFunction – combine two values
+
+import java.util.function.BiFunction;
+
+public class Main {
+    public static void main(String[] args) {
+        BiFunction<Integer, Integer, Integer> add = (a, b) -> a + b;
+
+        int sum = add.apply(3, 4); // → 7
+        System.out.println("Sum: " + sum);
+
+    }
+}
+_____________________________________________________________________________________
+
+-> Implementing the Supplier<T> Interface
+https://dev.java/learn/lambdas/functional-interfaces/
+
+import java.util.function.Supplier;
+
+public class SupplierExample {
+    public static void main(String[] args) {
+        // Create a Supplier that returns a String
+        Supplier<String> supplier = () -> "Hello Duke!";
+
+        // Call get() method to retrieve the value
+        String message = supplier.get();
+
+        System.out.println(message);  // Hello Duke!
+    }
+}
+_____________________________________________________________________________________
+
+-> Implementing the Supplier<T> Interface
+https://dev.java/learn/lambdas/functional-interfaces/
+
+import java.util.Random;
+import java.util.function.Supplier;
+
+public class RandomSupplierExample {
+    public static void main(String[] args) {
+        // Create a Random object seeded with 314L
+        Random random = new Random(314L);
+
+        // Create a Supplier that returns random integers between 0 and 9
+        Supplier<Integer> newRandom = () -> random.nextInt(10);
+
+        // Generate and print 5 random numbers
+        for (int index = 0; index < 5; index++) {
+            System.out.println(newRandom.get() + " ");
+        }
+    }
+}
+
+Output:
+1 
+5 
+3 
+0 
+2 
+
+Random(314L) → You created a Random object with a fixed seed (314), meaning the random numbers will always be the same sequence every time you run the program (good for testing).
+----------------------------------------------------------------------------------
+-> Refactored above to avoid boxing / unboxing with the usage of IntSupplier interface
+
+import java.util.Random;
+import java.util.function.IntSupplier;
+
+public class RandomSupplierExample {
+    public static void main(String[] args) {
+        // Create a Random object seeded with 314L
+        Random random = new Random(314L);
+
+        IntSupplier newRandom = () -> random.nextInt(10);
+
+        for (int index = 0; index < 5; index++) {
+            System.out.println(newRandom.getAsInt() + " ");
+        }
+    }
+}
+
+The result of running this code is the same, but this time no boxing / unboxing occurred: this code is more performant than the previous one.
+
+_____________________________________________________________________________________
+
+-> Consuming Objects with Consumer<T>
+https://dev.java/learn/lambdas/functional-interfaces/
+
+A consumer does the opposite of the supplier: it takes an argument and does not return anything.
+
+import java.util.function.Consumer;
+
+public class RandomSupplierExample {
+    public static void main(String[] args) {
+
+        Consumer<String> printer = s -> System.out.println(s);
+
+        // Test the Consumer with some sample strings
+        printer.accept("Hello, World!");
+        printer.accept("Testing Consumer in Java.");
+        printer.accept("This is a test message.");
+    }
+}
+
+Output:
+Hello, World!
+Testing Consumer in Java.
+This is a test message.
+
+--------------
+Replace lambda with method reference:
+Consumer<String> printer = System.out::println;
+--------------
+
+_____________________________________________________________________________________
+
+-> Mapping Objects to Other Objects with Function<T, R>
+https://dev.java/learn/lambdas/functional-interfaces/
+
+Represents a function that accepts one argument and produces a result.
+
+import java.util.function.Function;
+
+public class Main {
+    public static void main(String[] args) {
+        Function<String, Integer> toLength = s -> s.length();
+		// Function<String, Integer> toLength = String::length;  // replace lambda with method reference
+        String word = "Hello, world!";
+        Integer length = toLength.apply(word);
+        System.out.println("The length of the word \"" + word + "\" is: " + length);
+    }
+}
+
+Output:
+The length of the word "Hello, world!" is: 13
+
+What is happening with \"?
+
+    The backslash \ is the escape character in Java strings.
+    It tells Java: "The next character should be treated specially."
+    In this case, \" means: Insert a double quote " character inside the string, not end the string.
+
+✅ Otherwise, if you wrote a " without escaping, Java would get confused and think the string ends there.
+_____________________________________________________________________________________
+-> Testing Objects with Predicate<T>
+https://dev.java/learn/lambdas/functional-interfaces/
+A predicate is used to test an object. It is used for filtering streams in the Stream API.
+It takes an object and returns a boolean value.
+
+import java.util.function.Predicate;
+
+public class Main {
+    public static void main(String[] args) {
+        Predicate<String> length3 = s -> s.length() == 3;
+        String word = "cat";
+        boolean isOfLength3 = length3.test(word);
+        System.out.println("Is of length 3? " + isOfLength3);  // Is of length 3? true
+    }
+}
+
+_____________________________________________________________________________________
+
+-> Testing Two Elements with a BiPredicate
+https://dev.java/learn/lambdas/functional-interfaces/
+
+import java.util.function.BiPredicate;
+
+public class Main {
+    public static void main(String[] args) {
+        BiPredicate<String, Integer> isOfLength = (word, length) -> word.length() == length;
+        String word = "cat";
+        int length = 3;
+        boolean isWordOfLength3 = isOfLength.test(word, length);
+        System.out.println("Is the word '" + word + "' of length " + length + "? " + isWordOfLength3);   // Is the word 'cat' of length 3? true
+    }
+}
+_____________________________________________________________________________________
+-> Passing a Predicate to a Collection
+https://dev.java/learn/lambdas/functional-interfaces/
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+
+public class Main {
+    public static void main(String[] args) {
+        List<String> immutableStrings =
+                List.of("one", "two", "three", "four", "five");
+        List<String> strings = new ArrayList<>(immutableStrings);
+        Predicate<String> isEvenLength = s -> s.length() % 2 == 0;
+        strings.removeIf(isEvenLength);
+        System.out.println("strings = " + strings);
+
+    }
+}
+
+Output:
+strings = [one, two, three]
+_____________________________________________________________________________________
+
+
+
+
+
+
+
+

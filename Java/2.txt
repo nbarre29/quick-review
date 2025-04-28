@@ -1,0 +1,735 @@
+Summary of SOLID
+
+    Single Responsibility Principle (SRP): One class = One responsibility.
+    Open/Closed Principle (OCP): Extend behavior without modifying existing code.
+    Liskov Substitution Principle (LSP): Subtypes must honor parent class behavior.
+    Interface Segregation Principle (ISP): Don’t force classes to implement unused methods.
+    Dependency Inversion Principle (DIP): Depend on abstractions, not concrete implementations.
+	
+	
+Benefits of SOLID Principles
+
+    Maintainability: Easier to make changes without breaking existing code.
+    Scalability: Easy to extend the system with new features.
+    Flexibility: Decoupled systems are easier to adapt to changing requirements.
+    Testability: Smaller, focused classes are easier to test in isolation.
+______________________________________________________________________________________________________	
+-> provide an example to demonstrate Single Responsibility Principle (SRP)
+
+The Single Responsibility Principle (SRP) states that a class should have only one reason to change, meaning it should have only one job or responsibility.
+Here's an example in Java to demonstrate SRP:
+
+public class User {
+    private final String name;
+    private final String email;
+
+    // Constructor
+    public User(String name, String email) {
+        this.name = name;
+        this.email = email;
+    }
+
+    // Getters
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+}
+
+-----------------------------------------------------------------------------------------------------
+import java.util.ArrayList;
+import java.util.List;
+
+public class UserRepository {
+    private final List<User> users = new ArrayList<>();
+
+    // Method to add a user
+    public void addUser(User user) {
+        users.add(user);
+    }
+
+    // Method to get all users
+    public List<User> getAllUsers() {
+        return users;
+    }
+}
+-----------------------------------------------------------------------------------------------------
+
+public class UserService {
+    private final UserRepository userRepository;
+
+    // Constructor
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    // Method to register a user
+    public void registerUser(String name, String email) {
+        User user = new User(name, email);
+        userRepository.addUser(user);
+    }
+
+    // Method to display all users
+    public void displayAllUsers() {
+        for (User user : userRepository.getAllUsers()) {
+            System.out.println("Name: " + user.getName() + ", Email: " + user.getEmail());
+        }
+    }
+
+}
+
+-----------------------------------------------------------------------------------------------------
+
+public class Main {
+
+    public static void main(String[] args) {
+        UserRepository userRepository = new UserRepository();
+        UserService userService = new UserService(userRepository);
+
+        userService.registerUser("John Doe", "john@example.com");
+        userService.registerUser("Jane Smith", "jane@example.com");
+
+        userService.displayAllUsers();
+    }
+}
+
+//Output:
+Name: John Doe, Email: john@example.com
+Name: Jane Smith, Email: jane@example.com
+
+
+Explanation:
+Class User: Manages user data.
+Class UserRepository: Manages data storage and retrieval.
+Class UserService: Manages business logic related to users.
+Each class has a single responsibility, adhering to the SRP.
+
+
+
+Refactoring:
+
+1) User.java can be converted to record
+public record User(String name, String email) {
+   
+}
+
+2) UserService.java
+System.out.println("Name: " + user.name() + ", Email: " + user.email());
+
+
+______________________________________________________________________________________________________
+
+-> provide an example to demonstrate Open/Closed Principle (OCP)
+
+The Open/Closed Principle (OCP) states that software entities (classes, modules, functions, etc.) should be open for extension but closed for modification. This means you should be able to add new functionality without changing existing code.
+
+Here's an example in Java to demonstrate OCP:
+Class Shape: An abstract class representing a shape.
+Class Rectangle: A concrete class extending Shape.
+Class Circle: Another concrete class extending Shape.
+Class AreaCalculator: A class that calculates the area of shapes.
+
+//we can also declare Shape as an interface here instead of abstract class
+public abstract class Shape {
+    public abstract double calculateArea();
+}
+-----------------------------------------------------------------------------------------------------
+
+public class Rectangle extends Shape {
+    private final double width;
+    private final double height;
+
+    public Rectangle(double width, double height) {
+        this.width = width;
+        this.height = height;
+    }
+
+    @Override
+    public double calculateArea() {
+        return width * height;
+    }
+}
+-----------------------------------------------------------------------------------------------------
+
+public class Circle extends Shape {
+    private final double radius;
+
+    public Circle(double radius) {
+        this.radius = radius;
+    }
+
+    @Override
+    public double calculateArea() {
+        return Math.PI * radius * radius;
+    }
+}
+-----------------------------------------------------------------------------------------------------
+
+import java.util.List;
+
+public class AreaCalculator {
+    public double calculateTotalArea(List<Shape> shapes) {
+        double totalArea = 0;
+        for (Shape shape : shapes) {
+            totalArea += shape.calculateArea();
+        }
+        return totalArea;
+    }
+
+    public static void main(String[] args) {
+        List<Shape> shapes = List.of(
+            new Rectangle(5, 10),
+            new Circle(7)
+        );   // we can also use Arrays.asList instead of List.of 
+
+        AreaCalculator calculator = new AreaCalculator();
+        double totalArea = calculator.calculateTotalArea(shapes);
+        System.out.println("Total Area: " + totalArea); // Output: Total Area: 203.93804002589985
+    }
+}
+-----------------------------------------------------------------------------------------------------
+
+Class Shape: An abstract class with an abstract method calculateArea().
+Class Rectangle and Class Circle: Concrete implementations of Shape that provide specific implementations of calculateArea().
+Class AreaCalculator: Uses the Shape interface to calculate the total area of a list of shapes without needing to know the specific types of shapes.
+
+This design adheres to the OCP because new shapes can be added by creating new subclasses of Shape without modifying the existing code in AreaCalculator.
+______________________________________________________________________________________________________
+-> Example without Open/Closed Principle (OCP)  (Violation)
+
+Suppose we have a PaymentProcessor class that handles payments for different payment methods (e.g., Credit Card, PayPal).
+public class PaymentProcessor {
+    public void processPayment(String paymentType) {
+        if (paymentType.equals("CreditCard")) {    //Use if ("CreditCard".equals(paymentType)) is a best practice
+            // to avoid a NullPointerException, especially when there is a possibility that the paymentType variable might be null
+            System.out.println("Processing Credit Card payment...");
+        } else if (paymentType.equals("PayPal")) {
+            System.out.println("Processing PayPal payment...");
+        } else {
+            System.out.println("Unknown payment type.");
+        }
+    }
+
+    public static void main(String[] args) {
+        PaymentProcessor paymentProcessor = new PaymentProcessor();
+        paymentProcessor.processPayment("CreditCard");
+        paymentProcessor.processPayment("PayPal");
+        paymentProcessor.processPayment("Cash");
+    }
+}
+
+Output:
+Processing Credit Card payment...
+Processing PayPal payment...
+Unknown payment type.
+
+Problem:
+
+    If a new payment method (e.g., Bitcoin) needs to be added, the processPayment method must be modified.
+    This violates OCP because the class is not closed for modification—you need to change existing code every time a new payment method is added.
+	
+-----------------------------------------------------------------------------------------------------	
+Refactored Code (Follows OCP)
+
+We can refactor the code to follow OCP by using polymorphism and interfaces. Instead of modifying the PaymentProcessor class, we can extend its functionality by adding new payment types as separate classes.
+Code:
+
+1)   Define an Interface for Payment:
+	
+public interface Payment {
+    void process();
+}
+
+2) Create Concrete Payment Implementations:
+
+public class CreditCardPayment implements Payment {
+    @Override
+    public void process() {
+        System.out.println("Processing Credit Card payment...");
+    }
+}
+
+public class PayPalPayment implements Payment {
+    @Override
+    public void process() {
+        System.out.println("Processing PayPal payment...");
+    }
+}
+
+3) Add a New Payment Method Without Modifying Existing Code:
+
+public class BitcoinPayment implements Payment {
+    @Override
+    public void process() {
+        System.out.println("Processing Bitcoin payment...");
+    }
+}
+
+4) Refactor PaymentProcessor to Use Polymorphism:
+
+public class PaymentProcessor {
+    public void processPayment(Payment payment) {
+        payment.process();
+    }
+}
+
+5) Main Class to Demonstrate OCP:
+
+public class Main {
+    public static void main(String[] args) {
+        PaymentProcessor processor = new PaymentProcessor();
+
+        Payment creditCardPayment = new CreditCardPayment();
+        Payment payPalPayment = new PayPalPayment();
+        Payment bitcoinPayment = new BitcoinPayment();
+
+        processor.processPayment(creditCardPayment); // Output: Processing Credit Card payment...
+        processor.processPayment(payPalPayment);    // Output: Processing PayPal payment...
+        processor.processPayment(bitcoinPayment);   // Output: Processing Bitcoin payment...
+    }
+}
+
+Why This Follows OCP
+
+    The PaymentProcessor class is closed for modification:
+        The logic inside the PaymentProcessor class never changes, even if new payment methods are added.
+    The PaymentProcessor class is open for extension:
+        New payment methods (e.g., BitcoinPayment) can be added without modifying existing classes, simply by implementing the Payment interface.
+		
+		
+Benefits of Following OCP
+
+    Flexibility: New features can be added without modifying existing code.
+    Maintainability: Existing functionality is less likely to break when adding new features.
+    Scalability: The system can grow without becoming more complex or tightly coupled.
+
+______________________________________________________________________________________________________
+-> Another example that violates OCP
+
+Code Without OCP:
+
+public class ShapeDrawer {
+    public void drawShape(String shapeType) {
+        if (shapeType.equals("Circle")) {
+            System.out.println("Drawing a Circle...");
+        } else if (shapeType.equals("Rectangle")) {
+            System.out.println("Drawing a Rectangle...");
+        } else {
+            System.out.println("Unknown shape!");
+        }
+    }
+    
+    public static void main(String[] args) {
+        ShapeDrawer drawer = new ShapeDrawer();
+        drawer.drawShape("Circle");
+        drawer.drawShape("Rectangle");
+        drawer.drawShape("Triangle");
+    }
+}
+
+Output:
+Drawing a Circle...
+Drawing a Rectangle...
+Unknown shape!
+
+Issues
+
+    If a new shape (e.g., Triangle) is introduced, the drawShape method must be modified, which violates OCP.
+    As the number of shapes increases, the code becomes harder to maintain.
+-----------------------------------------------------------------------------------------------------	
+Refactored Code (Follows OCP)
+
+To adhere to OCP, we can refactor the code to use polymorphism. We create a common abstraction for all shapes and make the ShapeDrawer class depend on this abstraction.
+
+Step 1: Define a Shape Interface
+
+public interface Shape {
+    void draw();
+}
+
+Step 2: Implement Specific Shapes
+
+public class Circle implements Shape {
+    @Override
+    public void draw() {
+        System.out.println("Drawing a Circle...");
+    }
+}
+
+public class Rectangle implements Shape {
+    @Override
+    public void draw() {
+        System.out.println("Drawing a Rectangle...");
+    }
+}
+
+Step 3: Add a New Shape Without Modifying Existing Code
+
+public class Triangle implements Shape {
+    @Override
+    public void draw() {
+        System.out.println("Drawing a Triangle...");
+    }
+}
+
+Step 4: Update the ShapeDrawer to Work with Abstractions
+
+public class ShapeDrawer {
+    public void drawShape(Shape shape) {
+        shape.draw(); // Delegates drawing to the specific shape
+    }
+}
+
+Step 5: Demonstrate the Refactored Code in Action
+
+public class Main {
+    public static void main(String[] args) {
+        ShapeDrawer drawer = new ShapeDrawer();
+
+        Shape circle = new Circle();
+        Shape rectangle = new Rectangle();
+        Shape triangle = new Triangle(); // New shape
+
+        drawer.drawShape(circle);       // Output: Drawing a Circle...
+        drawer.drawShape(rectangle);    // Output: Drawing a Rectangle...
+        drawer.drawShape(triangle);     // Output: Drawing a Triangle...
+    }
+}
+
+
+Why This Follows OCP
+
+    Closed for Modification:
+        The ShapeDrawer class does not need to be modified when new shapes are added.
+        It depends on the Shape interface, which remains unchanged.
+
+    Open for Extension:
+        New shapes (e.g., Triangle) can be added simply by implementing the Shape interface without altering existing code.
+
+Comparison of OCP Adherence
+
+    Before Refactoring: Adding a new shape requires modifying the ShapeDrawer class.
+    After Refactoring: Adding a new shape only requires creating a new class that implements Shape.
+______________________________________________________________________________________________________
+	
+-> Liskov Substitution Principle (LSP)
+
+The Liskov Substitution Principle (LSP) states that objects of a superclass should be replaceable with objects of a subclass without affecting the correctness of the program. This means that a subclass should honor the behavior of its parent class.
+
+Correct Example
+
+public class Bird {
+    public void fly() {
+        System.out.println("This bird is flying.");
+    }
+}
+
+
+public class Sparrow extends Bird {
+    @Override
+    public void fly() {
+        System.out.println("Sparrow is flying.");
+    }
+}
+
+
+public class Main {
+    public static void main(String[] args) {
+        Bird bird = new Sparrow(); // Subtype used in place of parent
+        bird.fly(); // Output: Sparrow is flying.
+    }
+}
+
+This adheres to LSP because the subclass (Sparrow) behaves as expected when substituted for the parent class (Bird).
+
+
+Violation of LSP
+Problem:
+
+Suppose we introduce an Ostrich subclass of Bird, but Ostrich cannot fly. If we override the fly method to throw an exception, it violates LSP.
+
+class Ostrich extends Bird {
+    @Override
+    public void fly() {
+        throw new UnsupportedOperationException("Ostrich cannot fly.");
+    }
+}
+
+
+Issue:
+
+Using Ostrich in place of Bird causes the program to behave incorrectly:
+
+
+Bird bird = new Ostrich();
+bird.fly(); // Throws an exception, violating LSP
+
+
+Fix:
+
+To avoid violating LSP, separate flying and non-flying behavior into different abstractions (e.g., Flyable interface). This ensures Ostrich does not inherit a behavior it cannot fulfill.
+
+-----------------------------------------------------------------------------------------------------
+
+Refactoring to Honor LSP
+
+To fix the LSP violation:
+
+    Split the behavior of Bird into a Flyable interface for flying birds.
+    Keep non-flying birds separate.
+
+Step 1: Define Separate Interfaces for Behaviors
+
+interface Flyable {
+    void fly();
+}
+
+class Bird {
+    public void eat() {
+        System.out.println("This bird is eating.");
+    }
+}
+
+
+Step 2: Implement Flyable for Birds That Can Fly
+
+class Sparrow extends Bird implements Flyable {
+    @Override
+    public void fly() {
+        System.out.println("Sparrow is flying.");
+    }
+}
+
+Step 3: Handle Non-Flying Birds Without Flyable
+
+class Ostrich extends Bird {
+    public void walk() {
+        System.out.println("Ostrich is walking.");
+    }
+}
+
+Testing the Refactored Code
+
+public class Main {
+    public static void main(String[] args) {
+        // Flying bird
+        Flyable sparrow = new Sparrow();
+        sparrow.fly(); // Output: Sparrow is flying.
+
+        // Non-flying bird
+        Bird ostrich = new Ostrich();
+        ostrich.eat(); // Output: This bird is eating.
+
+        // Ostrich-specific behavior
+        Ostrich specificOstrich = new Ostrich();
+        specificOstrich.walk(); // Output: Ostrich is walking.
+    }
+}
+
+How This Respects LSP
+
+    Honors Parent Class Behavior:
+        Sparrow implements Flyable because it can fly, ensuring that substituting a Flyable object (e.g., Sparrow) works as expected.
+        Ostrich does not implement Flyable, so it does not violate the expected behavior of Bird.
+
+    Polymorphism Works Correctly:
+        The Flyable interface ensures only flying birds implement fly, while Bird still encapsulates shared behavior (like eat).
+
+    No Unsupported Operations:
+        Avoids throwing exceptions like UnsupportedOperationException, which would break LSP.
+		
+
+Summary
+
+This design respects the Liskov Substitution Principle because:
+
+    Subtypes (Sparrow and Ostrich) honor the behavior of their parent type (Bird) or the contract of the Flyable interface.
+    Polymorphism is correctly used, and replacing instances of Bird or Flyable doesn’t result in unexpected behavior.
+	
+______________________________________________________________________________________________________
+
+-> Interface Segregation Principle (ISP): Don’t force classes to implement unused methods.
+
+Example
+Let's consider an example where we have a Worker interface that includes methods for both work and eat. Not all workers need to implement both methods.
+Step 1: Define a General Interface (Violating ISP)
+
+public interface Worker {
+    void work();
+    void eat();
+}
+
+Step 2: Implement the Interface in Classes
+
+public class HumanWorker implements Worker {
+    @Override
+    public void work() {
+        System.out.println("Human is working.");
+    }
+
+    @Override
+    public void eat() {
+        System.out.println("Human is eating.");
+    }
+}
+
+public class RobotWorker implements Worker {
+    @Override
+    public void work() {
+        System.out.println("Robot is working.");
+    }
+
+    @Override
+    public void eat() {
+        // Robots do not eat, but we are forced to implement this method
+        throw new UnsupportedOperationException("Robots do not eat.");
+    }
+}
+
+In this example, RobotWorker is forced to implement the eat method, which it does not need, violating the ISP.
+
+
+public class Main {
+
+    public static void main(String[] args) {
+        Worker robot = new RobotWorker();
+        Worker human = new HumanWorker();
+
+        robot.work();
+        human.work();
+
+        // robot.eat(); // This will throw an exception
+        human.eat();
+    }
+}
+
+
+Step 3: Refactor to Follow ISP
+We can split the Worker interface into two more specific interfaces: Workable and Eatable.
+
+public interface Workable {
+    void work();
+}
+
+public interface Eatable {
+    void eat();
+}
+
+
+Step 4: Implement the Specific Interfaces in Classes
+
+public class HumanWorker implements Workable, Eatable {
+    @Override
+    public void work() {
+        System.out.println("Human is working.");
+    }
+
+    @Override
+    public void eat() {
+        System.out.println("Human is eating.");
+    }
+}
+
+public class RobotWorker implements Workable {
+    @Override
+    public void work() {
+        System.out.println("Robot is working.");
+    }
+}
+
+Now, RobotWorker only implements the Workable interface and is not forced to implement the eat method, adhering to the Interface Segregation Principle.
+
+public class Main {
+    public static void main(String[] args) {
+        // Create instances of HumanWorker and RobotWorker
+        Workable humanWorker = new HumanWorker();
+        Workable robotWorker = new RobotWorker();
+
+        // Test HumanWorker
+        System.out.println("Testing HumanWorker:");
+        humanWorker.work(); // Output: Human is working.
+		
+		/*  // Cast to Eatable to test eating behavior
+        if (humanWorker instanceof Eatable) {
+            Eatable eatableHuman = (Eatable) humanWorker;
+            eatableHuman.eat(); // Output: Human is eating.
+        }*/
+        
+        // Cast to Eatable to test eating behavior
+        Eatable eatableHuman = (Eatable) humanWorker;
+        eatableHuman.eat(); // Output: Human is eating.
+
+        // Test RobotWorker
+        System.out.println("\nTesting RobotWorker:");
+        robotWorker.work(); // Output: Robot is working.
+    }
+}
+
+______________________________________________________________________________________________________
+
+-> Dependency Inversion Principle (DIP): Depend on abstractions, not concrete implementations.
+
+dependencies are managed through abstractions rather than concrete implementations.
+
+Step 1: Define an Abstraction
+Create an interface MessageService that defines the contract for sending messages.
+
+public interface MessageService {
+    void sendMessage(String message, String recipient);
+}
+
+Step 2: Implement the Abstraction
+Create concrete implementations of the MessageService interface.
+
+public class EmailService implements MessageService {
+    @Override
+    public void sendMessage(String message, String recipient) {
+        System.out.println("Email sent to " + recipient + " with message: " + message);
+    }
+}
+
+public class SMSService implements MessageService {
+    @Override
+    public void sendMessage(String message, String recipient) {
+        System.out.println("SMS sent to " + recipient + " with message: " + message);
+    }
+}
+
+Step 3: Use the Abstraction 
+Create a Notification class that depends on the MessageService abstraction.
+
+public class Notification {
+    private final MessageService messageService;
+
+    public Notification(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    public void notifyUser(String message, String recipient) {
+        messageService.sendMessage(message, recipient);
+    }
+}
+
+Step 4: Demonstrate Dependency Inversion in Main Class
+Create a main class to demonstrate the Dependency Inversion Principle.
+
+public class Main {
+    public static void main(String[] args) {
+        MessageService emailService = new EmailService();
+        Notification emailNotification = new Notification(emailService);
+        emailNotification.notifyUser("Hello via Email!", "email@example.com");
+
+        MessageService smsService = new SMSService();
+        Notification smsNotification = new Notification(smsService);
+        smsNotification.notifyUser("Hello via SMS!", "123-456-7890");
+    }
+}
+
+In this example, the Notification class depends on the MessageService abstraction rather than concrete implementations like EmailService or SMSService. This allows for flexibility and easier maintenance, adhering to the Dependency Inversion Principle.
+
+______________________________________________________________________________________________________
+
+

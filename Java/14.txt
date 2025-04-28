@@ -1,0 +1,655 @@
+-> Example of Generic Class
+
+/**
+ * A generic class that can hold a single object of any type.
+ *
+ * @param <T> the type of the object to be stored
+ */
+class Box<T> {
+    private T t;
+
+    /**
+     * Sets the value of the box.
+     *
+     * @param t the value to set
+     */
+    public void set(T t) {
+        this.t = t;
+    }
+
+    /**
+     * Retrieves the value stored in the box.
+     *
+     * @return the stored value
+     */
+    public T get() {
+        return t;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        // Create and use a Box for Integers
+        Box<Integer> integerBox = new Box<>();
+        integerBox.set(42);
+        System.out.println("Integer Box contains: " + integerBox.get());
+
+        // Create and use a Box for Strings
+        Box<String> stringBox = new Box<>();
+        stringBox.set("Hello Generics!");
+        System.out.println("String Box contains: " + stringBox.get());
+    }
+}
+
+Output:
+Integer Box contains: 42
+String Box contains: Hello Generics!
+
+Explanation:
+
+    We create two boxes, one for Integer and another for String.
+
+    Each box is used to store and retrieve data of its specific type (Integer or String), all verified at compile time
+	
+	
+-> Example of Generic method.
+
+
+
+public class GenericMethodDemo {
+
+    // Generic method to print elements of an array
+    public static <E> void printArray(E[] inputArray) {
+        for (E element : inputArray) {
+            System.out.print(element + " ");
+        }
+        System.out.println();
+    }
+
+    public static void main(String[] args) {
+        
+        // Arrays of different types
+        Integer[] intArray = { 1, 2, 3, 4, 5 };
+        Double[] doubleArray = { 1.1, 2.2, 3.3, 4.4 };
+        String[] stringArray = { "Hello", "Generic", "Methods" };
+        
+        // Call the generic method with different types
+        System.out.println("Array integerArray contains:");
+        printArray(intArray);
+
+        System.out.println("Array doubleArray contains:");
+        printArray(doubleArray);
+
+        System.out.println("Array stringArray contains:");
+        printArray(stringArray);
+    }
+}
+
+Output:
+Array integerArray contains:
+1 2 3 4 5 
+Array doubleArray contains:
+1.1 2.2 3.3 4.4 
+Array stringArray contains:
+Hello Generic Methods 
+
+
+Explanation:
+
+    The <E> before the return type void lets the compiler know this method is generic.
+
+    Any type used in place of E must be a reference type (for example, Integer, String, etc.), but you can handle arrays of any such type.
+
+    In the main method, we create different arrays—Integer[], Double[], and String[]—then call the same printArray method on each one.
+
+
+-> A simplified Java example demonstrating different ways of declaring generics, wildcards, and their bounds. Read through the comments carefully to understand each case.
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class GenericExamples {
+    
+    // 1. <T>: Simple generic type method
+    //    This method can take any type T and will treat 'param' as that T.
+    //    The type T is "fixed" once it's inferred or declared.
+    public static <T> void simpleGenericMethod(T param) {
+        System.out.println("simpleGenericMethod() received: " + param);
+    }
+
+    // 2. <?>: Unbounded wildcard
+    //    The parameter can be any List of any type, but you don't know what type that is.
+    //    In practice, you can only do operations valid for "List of unknown".
+    public static void unboundedWildcard(List<?> list) {
+        // You can read from it as Objects:
+        for (Object obj : list) {
+            System.out.println("Item in unbounded list: " + obj);
+        }
+        
+        // list.add(new Object()); // Not allowed, because we don't know the element type.
+    }
+
+    // 3. <? extends T>: Upper-bounded wildcard
+    //    The list's elements are some subclass (or the same) of T.
+    //    Typically used when you want to "read" from the structure.
+    //    You know the elements are at least T, so you can safely get them as T.
+    public static void upperBoundedWildcard(List<? extends Number> list) {
+        // We can read elements as Numbers safely
+        for (Number num : list) {
+            System.out.println("Number from list: " + num);
+        }
+        
+        // list.add(123); // Not allowed! Because the list could be a List<Double> internally.
+        // The compiler doesn’t let you add an Integer to a possibly-List<Double>.
+    }
+
+    // 4. <? super T>: Lower-bounded wildcard
+    //    The list’s elements are some supertype of T (could be T itself, or a parent class).
+    //    Typically used when you want to "write/insert" into the structure.
+    //    You know it’s safe to add T (or any subclass of T), but reading is not type-specific.
+    public static void lowerBoundedWildcard(List<? super Integer> list) {
+        // We can safely add Integer (or its subclass, if any) to the list,
+        // because we know the list can handle at least Integer.
+        list.add(100);
+        list.add(999);
+        
+        // Reading from the list only gives us Objects (we lose type specificity).
+        for (Object obj : list) {
+            System.out.println("Item in lower bounded wildcard list: " + obj);
+        }
+    }
+
+    public static void main(String[] args) {
+        
+        // 1. <T> (simple generic method) usage:
+        simpleGenericMethod("Hello");   // T is inferred as String
+        simpleGenericMethod(123);       // T is inferred as Integer
+        
+        // 2. <?> (unbounded wildcard)
+        List<String> stringList = new ArrayList<>();
+        stringList.add("alpha");
+        stringList.add("beta");
+        unboundedWildcard(stringList);  // Valid: it's a List of unknown type (in this case, String)
+
+        // 3. <? extends T> (upper bounded wildcard)
+        List<Integer> intList = new ArrayList<>();
+        intList.add(10);
+        intList.add(20);
+        upperBoundedWildcard(intList);  // Valid: Integer extends Number
+        // The method can read elements as Number, but cannot safely add new elements.
+
+        // 4. <? super T> (lower bounded wildcard)
+        List<Number> numberList = new ArrayList<>();
+        numberList.add(3.14);
+        numberList.add(42);
+        lowerBoundedWildcard(numberList);  // Valid: Number is a supertype of Integer
+        // The method can safely add Integers to the list (since Number is a super of Integer).
+    }
+}
+
+
+Explanation Recap
+
+    <T>: A simple generic type placeholder. It’s fixed when the method is called. For example, <T> void foo(T param) can take foo("aString") (where T is String) or foo(123) (where T is Integer).
+
+    <?>: An unbounded wildcard. It says “any type goes here, but I have no idea which type.” So you can only do operations valid for any possible type (like reading elements as Object).
+
+    <? extends T>: An upper-bounded wildcard. The generic type is “some subclass of T (or T itself).” This is often used for reading. In the example, List<? extends Number> ensures any element you get out is at least a Number, so reading them as Number is safe. But you cannot put arbitrary Number objects back in, because the list could be specifically a List<Integer> or a List<Double>.
+
+    <? super T>: A lower-bounded wildcard. The generic type is “some supertype of T (or T itself).” This is often used for writing. For example, List<? super Integer> means you can safely insert Integer (or any subclass, if that existed), but reading elements from it only yields Object because the collection could be a List<Object> in the worst case.
+	
+	
+Use the above patterns whenever you need more flexible APIs, depending on whether you want to consume values (write into a collection) or produce values (read from a collection).
+______________________________________________________________________________________________________________________
+
+-> import java.util.HashMap;
+import java.util.Map;
+
+public class WildcardExample {
+
+    // A simple interface to represent a Login type
+    interface Login {
+        void login();
+    }
+
+    // Some classes implementing the Login interface
+    static class EmailLogin implements Login {
+        @Override
+        public void login() {
+            System.out.println("Email login");
+        }
+    }
+
+    static class GoogleLogin implements Login {
+        @Override
+        public void login() {
+            System.out.println("Google login");
+        }
+    }
+
+    // An enum for possible login providers
+    enum LoginProvider {
+        EMAIL, GOOGLE
+    }
+
+    // A method returning a map whose values are some subtype of Login
+    private static Map<LoginProvider, ? extends Login> createLoginMap() {
+        // In practice, you might build or fetch this map from somewhere else.
+        // For demonstration, we hardcode different Login types here.
+        // IMPORTANT: We'll actually create a concrete map with 'Login' as the value type
+        // and return it as 'Map<LoginProvider, ? extends Login>'.
+        Map<LoginProvider, Login> map = new HashMap<>();
+        map.put(LoginProvider.EMAIL, new EmailLogin());
+        map.put(LoginProvider.GOOGLE, new GoogleLogin());
+        return map;
+    }
+
+    public static void main(String[] args) {
+        Map<LoginProvider, ? extends Login> loginMap = createLoginMap();
+
+        // We can read from the map and safely treat the values as Login:
+        Login emailLogin = loginMap.get(LoginProvider.EMAIL);
+        emailLogin.login();  // This will print "Email login"
+
+        Login googleLogin = loginMap.get(LoginProvider.GOOGLE);
+        googleLogin.login(); // This will print "Google login"
+
+        // But notice we CANNOT add new entries like this:
+        // loginMap.put(LoginProvider.EMAIL, new EmailLogin());
+        // ^ This will cause a compilation error, because ? extends Login
+        //   means the values might be any specific subtype of Login,
+        //   and the compiler won't let you insert something that might violate it.
+
+        // Also note that loginMap is effectively read-only from your code's perspective,
+        // even though the underlying map might be modifiable if it was typed differently.
+    }
+}
+----------------------------------------------------------------------------------------------------------------------
+-> Convert inner classes from above to lambda expressions.
+
+The EmailLogin and GoogleLogin classes can be converted to lambda expressions since they implement a functional interface (Login).
+
+Replace the inner classes with lambda expressions in the createLoginMap method.
+
+// Before
+map.put(LoginProvider.EMAIL, new EmailLogin());
+map.put(LoginProvider.GOOGLE, new GoogleLogin());
+
+// After
+map.put(LoginProvider.EMAIL, () -> System.out.println("Email login"));
+map.put(LoginProvider.GOOGLE, () -> System.out.println("Google login"));
+
+
+Complete Fixed Code:
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class WildcardExample {
+
+    // A simple interface to represent a Login type
+    interface Login {
+        void login();
+    }
+
+    // An enum for possible login providers
+    enum LoginProvider {
+        EMAIL, GOOGLE
+    }
+
+    // A method returning a map whose values are some subtype of Login
+    private static Map<LoginProvider, ? extends Login> createLoginMap() {
+        // In practice, you might build or fetch this map from somewhere else.
+        // For demonstration, we hardcode different Login types here.
+        // IMPORTANT: We'll actually create a concrete map with 'Login' as the value type
+        // and return it as 'Map<LoginProvider, ? extends Login>'.
+        Map<LoginProvider, Login> map = new HashMap<>();
+        map.put(LoginProvider.EMAIL, () -> System.out.println("Email login"));
+        map.put(LoginProvider.GOOGLE, () -> System.out.println("Google login"));
+        return map;
+    }
+
+    public static void main(String[] args) {
+        Map<LoginProvider, ? extends Login> loginMap = createLoginMap();
+
+        // We can read from the map and safely treat the values as Login:
+        Login emailLogin = loginMap.get(LoginProvider.EMAIL);
+        emailLogin.login();  // This will print "Email login"
+
+        Login googleLogin = loginMap.get(LoginProvider.GOOGLE);
+        googleLogin.login(); // This will print "Google login"
+
+        // But notice we CANNOT add new entries like this:
+        // loginMap.put(LoginProvider.EMAIL, new EmailLogin());
+        // ^ This will cause a compilation error, because ? extends Login
+        //   means the values might be any specific subtype of Login,
+        //   and the compiler won't let you insert something that might violate it.
+
+        // Also note that loginMap is effectively read-only from your code's perspective,
+        // even though the underlying map might be modifiable if it was typed differently.
+    }
+}
+
+______________________________________________________________________________________________________________________
+
+https://docs.oracle.com/javase/tutorial/java/generics/upperBounded.html
+
+import java.util.Arrays;
+import java.util.List;
+
+public class Main {
+    // method that works on lists of Number and the subtypes of Number, such as Integer, Double, and Float, you would specify List<? extends Number>.
+    public static double sumOfList(List<? extends Number> list) {
+        double s = 0.0;
+        for (Number n : list)
+            s += n.doubleValue();
+        return s;
+    }
+
+    public static void main(String[] args) {
+
+        List<Integer> li = Arrays.asList(1, 2, 3);
+        System.out.println("sum = " + sumOfList(li));
+
+        List<Double> ld = Arrays.asList(1.2, 2.3, 3.5);
+        System.out.println("sum = " + sumOfList(ld));
+
+        List<Float> lf = Arrays.asList(1.2f, 2.3f, 3.5f);
+        System.out.println("sum = " + sumOfList(lf));
+
+    }
+}
+
+
+Output:
+sum = 6.0
+sum = 7.0
+sum = 7.0
+
+https://docs.oracle.com/en/java/javase/23/docs/api/java.base/java/lang/Integer.html
+https://docs.oracle.com/en/java/javase/23/docs/api/java.base/java/lang/Double.html
+https://docs.oracle.com/en/java/javase/23/docs/api/java.base/java/lang/Float.html
+https://docs.oracle.com/en/java/javase/23/docs/api/java.base/java/lang/Number.html
+______________________________________________________________________________________________________________________
+
+https://docs.oracle.com/javase/tutorial/java/generics/lowerBounded.html
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Main {
+    // allow the list to accept `Integer` values or any of its supertypes, such as `Number` or `Object`
+    public static void addNumbers(List<? super Integer> list) {
+        for (int i = 1; i <= 10; i++) {
+            list.add(i);
+        }
+    }
+
+    public static void main(String[] args) {
+        List<Number> numberList = new ArrayList<>();
+
+        // Add numbers 1 to 10 using the lower-bounded wildcard method
+        addNumbers(numberList);
+
+        // Print the list
+        System.out.println("Numbers in the list: " + numberList);
+
+        // Sum the numbers
+        double sum = 0.0;
+        for (Object obj : numberList) {
+            if (obj instanceof Number) {
+                sum += ((Number) obj).doubleValue();
+            }
+        }
+
+        System.out.println("Sum of numbers: " + sum);
+    }
+}
+
+Output:
+Numbers in the list: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+Sum of numbers: 55.0
+
+
+Explanation:
+
+    List<Number> is used to match List<? super Integer>.
+
+    Numbers 1–10 are added.
+
+    The list is printed, and values are summed using safe type checks.
+
+----------------------------------------------------------------------------------------------------------------------
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Main {
+
+    public static void addIntegers(List<? super Integer> list) {
+        list.add(1);
+        list.add(2);
+        list.add(3);
+    }
+
+    public static double sumOfList(List<? super Integer> list) {
+        double sum = 0.0;
+        for (Object obj : list) {
+            if (obj instanceof Number) {
+                sum += ((Number) obj).doubleValue();
+            }
+        }
+        return sum;
+    }
+
+    public static void main(String[] args) {
+
+        List<Number> numberList = new ArrayList<>();
+        addIntegers(numberList);
+
+        System.out.println("sum = " + sumOfList(numberList));
+    }
+}
+
+
+### Adding Integers to a List
+The `addIntegers` method is designed to add a predefined set of integers (`1`, `2`, and `3`) to a list. The method uses a wildcard with the `super` keyword (`List<? super Integer>`) to allow the list to accept `Integer` values or any of its supertypes, such as `Number` or `Object`. This ensures flexibility in the types of lists that can be passed to the method.
+
+### Calculating the Sum of a List
+The `sumOfList` method calculates the sum of all numeric elements in a list. It accepts a `List<? super Integer>` as a parameter, iterates through its elements, and checks if each element is an instance of `Number`. If so, it casts the element to `Number` and adds its `doubleValue()` to the running total. This approach ensures that the method can handle lists containing numeric types beyond just `Integer`.
+
+### Main Method Execution
+The `main` method demonstrates the usage of the above methods. It creates a `List<Number>` to store numeric values, calls `addIntegers` to populate the list with integers, and then calculates the sum of the list using `sumOfList`. Finally, it prints the calculated sum to the console.
+
+### Key Points
+1. **Generics with Wildcards**: The use of `List<? super Integer>` allows flexibility in the types of lists that can be passed to the methods.
+2. **Type Checking**: The `sumOfList` method uses `instanceof` to ensure that only numeric elements are included in the sum.
+3. **Reusability**: The methods are designed to work with a variety of list types, making them reusable in different contexts.
+______________________________________________________________________________________________________________________
+
+🔼 Upper-Bounded Wildcards (? extends T)
+
+✅ Use When: You only need to read from a collection (you don’t add to it).
+
+public void printNumbers(List<? extends Number> list) {
+    for (Number n : list) {
+        System.out.println(n);
+    }
+}
+
+📌 Why? You can guarantee that everything in the list is at least a Number, so you can read safely as Number, but you can't add anything except null.
+
+
+
+🔽 Lower-Bounded Wildcards (? super T)
+
+✅ Use When: You only need to write (add) elements to a collection.
+
+public void addIntegers(List<? super Integer> list) {
+    list.add(1);
+    list.add(2);
+}
+
+📌 Why? You can safely add Integer values, because the list accepts that type or its supertypes (e.g., Object, Number). But you can’t read elements as anything more specific than Object.
+
+----------------------------------------------------------------------------------------------------------------------
+
+🔼 ? extends T (Upper Bound Wildcard)
+
+    Direction: Used for reading or consuming data from a collection.
+
+    Can add elements?: ❌ No — you cannot add elements (except null) to the list, because the exact subtype is unknown at compile-time.
+
+    Can read elements as T?: ✅ Yes — you can safely read elements and treat them as type T.
+
+    Use this when: You want to iterate through or read elements from a list without modifying it.
+
+    Common scenario: Reading from a list like List<? extends Number> where you don’t care about the exact subtype but want to safely read numbers.
+	
+
+🔽 ? super T (Lower Bound Wildcard)
+
+    Direction: Used for writing or producing data into a collection.
+
+    Can add elements?: ✅ Yes — you can safely add elements of type T and its subclasses.
+
+    Can read elements as T?: ❌ No — you can only read elements as Object because the compiler doesn't know how specific the type is.
+
+    Use this when: You want to add or insert elements into a list.
+
+    Common scenario: Writing to a list like List<? super Integer> where you're only concerned with putting Integer values into it.
+	
+______________________________________________________________________________________________________________________
+
+🔼 ? extends Animal — Upper Bound (Read-Only)
+✅ Scenario: I want to read animals and make them speak.
+
+
+
+
+public class Animal {
+    void speak() {
+        System.out.println("Animal speaks");
+    }
+}
+
+
+
+public class Dog extends Animal {
+    void bark() {
+        System.out.println("Dog barks");
+    }
+}
+
+
+
+public class Cat extends Animal {
+    void meow() {
+        System.out.println("Cat meows");
+    }
+}
+
+
+
+
+import java.util.List;
+
+public class Main {
+
+    public static void makeAllSpeak(List<? extends Animal> animals) {
+        for (Animal a : animals) {
+            a.speak();  // ✅ Safe: they are at least Animals
+        }
+
+        // ❌ animals.add(new Dog()); // Compiler error
+    }
+
+
+    public static void main(String[] args) {
+
+        List<Dog> dogs = List.of(new Dog(), new Dog());
+        makeAllSpeak(dogs);  // ✅ OK because Dog extends Animal
+
+        List<Cat> cats = List.of(new Cat());
+        makeAllSpeak(cats);  // ✅ OK
+
+
+    }
+}
+
+Output:
+Animal speaks
+Animal speaks
+Animal speaks
+
+
+You can read, but cannot write to the list — Java doesn’t know the specific subtype at compile-time.
+
+______________________________________________________________________________________________________________________
+
+🔽 ? super Dog — Lower Bound (Write-Only)
+✅ Scenario: I want to add Dogs into a collection.
+
+
+
+public class Animal {
+    void speak() {
+        System.out.println("Animal speaks");
+    }
+}
+
+
+
+public class Dog extends Animal {
+    void bark() {
+        System.out.println("Dog barks");
+    }
+}
+
+
+
+public class Cat extends Animal {
+    void meow() {
+        System.out.println("Cat meows");
+    }
+}
+
+
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Main {
+
+    public static void addSomeDogs(List<? super Dog> list) {
+        list.add(new Dog());  // ✅ Safe: list accepts Dog or its supertype
+        list.add(new Dog());
+
+        // Cannot call list.get(index) as Dog, only as Object
+        Object obj = list.get(0);  // ✅ Safe, but not specific
+        System.out.println("Object: " + obj);
+    }
+
+
+    public static void main(String[] args) {
+
+        List<Animal> animals = new ArrayList<>();
+        addSomeDogs(animals);  // ✅ Animal is a supertype of Dog
+
+        List<Object> objects = new ArrayList<>();
+        addSomeDogs(objects);  // ✅ Object is a supertype of Dog
+
+
+    }
+}
+
+Output:
+Object: org.example.Dog@776ec8df
+Object: org.example.Dog@4eec7777
+
+You can write Dog into the list, but you can’t read it back as a Dog — only as Object.
+______________________________________________________________________________________________________________________
+
+
+
+

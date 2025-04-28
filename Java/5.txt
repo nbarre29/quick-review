@@ -1,0 +1,328 @@
+->
+package org.example;
+
+public class Test {
+    public static void main(String[] args) {
+        try {
+            int a = 10;
+            int b = 0;
+            int result = a / b;
+            System.out.println("Result: " + result);
+        } catch (ArithmeticException e) {
+//            System.out.println("Exception caught: " + e.getMessage());
+//            e.printStackTrace();
+//            throw new ArithmeticException("Division by zero is not allowed");
+            throw new RuntimeException(e);
+        }
+
+    }
+}
+--------------------------------------------
+
+-> best practices for exception handling in Java?
+
+1. Use Specific Exceptions Instead of Catching Exception or Throwable
+
+    Catching general exceptions (Exception or Throwable) can mask real issues and make debugging harder.
+    Instead, catch specific exceptions like IOException, SQLException, or NullPointerException.
+
+try {
+    FileReader file = new FileReader("file.txt");
+} catch (FileNotFoundException e) {
+    System.err.println("File not found: " + e.getMessage());
+}
+--------------------------------------------
+
+2. Avoid Swallowing Exceptions
+
+    Always handle exceptions properly or rethrow them instead of silently ignoring them.
+
+Bad practice:
+
+try {
+    someMethod();
+} catch (IOException e) {
+    // Do nothing (bad practice)
+}
+
+
+Better approach:
+
+try {
+    someMethod();
+} catch (IOException e) {
+    throw new RuntimeException("Error processing file", e);
+}
+--------------------------------------------
+
+
+3. Use Custom Exceptions Where Appropriate
+
+    If standard exceptions do not fit your scenario, define custom exceptions.
+
+public class InvalidInputException extends Exception {
+    public InvalidInputException(String message) {
+        super(message);
+    }
+}
+
+    Use custom exceptions to make error handling more meaningful.
+
+if (userInput == null) {
+    throw new InvalidInputException("User input cannot be null");
+}
+
+--------------------------------------------
+4. Use finally to Release Resources
+
+    Ensure resources like database connections, file streams, and sockets are closed properly.
+    Use try-with-resources for auto-closing resources.
+
+try (BufferedReader br = new BufferedReader(new FileReader("file.txt"))) {
+    System.out.println(br.readLine());
+} catch (IOException e) {
+    System.err.println("Error reading file: " + e.getMessage());
+}
+--------------------------------------------
+
+5. Log Exceptions Properly
+
+    Use a logging framework like SLF4J with Logback or Log4j instead of System.out.println.
+
+
+private static final Logger logger = LoggerFactory.getLogger(MyClass.class);
+
+try {
+    someMethod();
+} catch (IOException e) {
+    logger.error("Error processing file", e);
+}
+--------------------------------------------
+
+6. Avoid Catching Exceptions Just to Log and Rethrow
+
+    Rethrow exceptions instead of catching them only for logging.
+
+Bad practice:
+
+try {
+    someMethod();
+} catch (IOException e) {
+    logger.error("Error occurred", e);
+    throw e;
+}
+
+Better approach:
+
+try {
+    someMethod();
+} catch (IOException e) {
+    throw new CustomException("Error in processing", e);
+}
+--------------------------------------------
+
+7. Prefer Checked Exceptions for Recoverable Errors and Runtime Exceptions for Programming Errors
+
+    Use checked exceptions (Exception) for recoverable issues like network failures.
+    Use unchecked exceptions (RuntimeException) for programming errors like NullPointerException.
+
+public void readFile(String fileName) throws IOException {
+    if (fileName == null) {
+        throw new IllegalArgumentException("Filename cannot be null");
+    }
+    // Read file logic
+}
+--------------------------------------------
+
+8. Avoid Using Exceptions for Control Flow
+
+    Do not use exceptions for normal logic, such as checking for an element in a collection.
+
+Bad practice:
+
+try {
+    int value = list.get(index);
+} catch (IndexOutOfBoundsException e) {
+    // Handle missing element
+}
+
+Better approach:
+
+if (index < list.size()) {
+    int value = list.get(index);
+}
+--------------------------------------------
+
+9. Document Exceptions Using Javadoc
+
+    Clearly document expected exceptions in method signatures.
+
+/**
+ * Reads a file and returns its content.
+ * @param fileName the name of the file
+ * @return file content
+ * @throws IOException if an error occurs during file reading
+ */
+public String readFile(String fileName) throws IOException {
+    // Read file logic
+}
+
+--------------------------------------------
+
+10. Centralize Exception Handling (For Web Apps & APIs)
+
+    Use a global exception handler in Spring Boot applications.
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(InvalidInputException.class)
+    public ResponseEntity<String> handleInvalidInput(InvalidInputException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleGeneralException(Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+    }
+}
+--------------------------------------------
+
+11. Use Optional to Avoid NullPointerException
+
+    Instead of returning null, return an Optional to indicate the possibility of missing values.
+
+public Optional<User> findUserById(String userId) {
+    return userRepository.findById(userId);
+}
+
+    Usage:
+
+Optional<User> user = findUserById("123");
+user.ifPresent(System.out::println);
+
+_________________________________________________________________________________
+
+-> Option 1: Simple Rethrow Without Logging
+
+try {
+    someMethod();
+} catch (IOException e) {
+    throw new CustomException("Error in processing", e);
+}
+
+Pros:
+
+    Keeps the exception handling clean and minimal.
+    Avoids duplicate logging if the caller already logs the exception.
+    Preserves the original exception (IOException) by wrapping it in CustomException.
+
+Cons:
+
+    No log entry at this point, making it harder to debug if no other layer logs the error.
+
+
+
+Option 2: Logging Before Rethrowing
+
+try {
+    someMethod();
+} catch (IOException e) {
+    logger.error("Error in processing method someMethod, reason: {}", e.getMessage());
+    throw new CustomException("Error in processing", e);
+}
+
+Pros:
+
+    Provides immediate logging, which helps in debugging when tracing failures.
+    Adds context to the logs (method name, reason).
+    Still preserves the original exception by passing it to CustomException.
+
+Cons:
+
+    Possible duplicate logging: If the caller (or global exception handler) logs it again, this could lead to redundant logs.
+    Unnecessary logging in cases where the higher layers handle and log the error.
+	
+	
+Which One is Preferred, Option 1 OR Option 2 discussed above ?
+
+It depends on the logging strategy of your application:
+
+    Use Option 1 if:
+        The caller (or a global exception handler) is responsible for logging errors.
+        You want to avoid log duplication and keep the stack trace clean.
+
+    Use Option 2 if:
+        You need immediate logging for debugging purposes.
+        The exception might be swallowed at higher levels (e.g., silent failure in an API).
+        You are in a low-level module where logging errors before throwing them is useful.
+		
+		
+Recommended Approach:
+
+If global exception handling is in place (e.g., Spring Boot's @ControllerAdvice for REST APIs), Option 1 is preferred to avoid duplicate logs.
+
+However, if this is a critical method where failures need to be logged for debugging, Option 2 is better.
+
+
+Best of Both Worlds: Use Conditional Logging
+
+If you want to log only when necessary, use a debug flag:
+
+try {
+    someMethod();
+} catch (IOException e) {
+    if (logger.isDebugEnabled()) {
+        logger.debug("Error in processing method someMethod, reason: {}", e.getMessage(), e);
+    }
+    throw new CustomException("Error in processing", e);
+}
+
+    logger.isDebugEnabled() ensures that logging is done only when debugging is needed.
+    Logging at DEBUG level prevents unnecessary logs in production while retaining useful logs for development.
+	
+	
+Final Verdict
+
+🔹 Option 1 (No Logging) is preferred if global logging is already handled.
+🔹 Option 2 (Logging) is useful for debugging but should be used carefully to avoid log duplication.
+
+_________________________________________________________________________________
+
+-> Avoid Catching Exceptions Just to Log and Rethrow
+
+    Rethrow exceptions instead of catching them only for logging.
+
+Bad practice:
+
+try {
+    someMethod();
+} catch (IOException e) {
+    logger.error("Error occurred", e); // Logs the exception
+    throw e; // Rethrows the same exception
+}
+
+
+Why is this bad?
+
+    The IOException is logged here and then immediately rethrown.
+    If the calling method also logs the exception, the same error appears multiple times in the logs.
+    This duplicates information without adding any value.
+
+
+Better approach:
+
+try {
+    someMethod();
+} catch (IOException e) {
+    throw new CustomException("Error in processing", e);
+}
+
+
+Why is this better?
+
+    Instead of logging and rethrowing the original exception, we wrap it inside a CustomException with a meaningful message.
+    This improves readability and makes debugging easier because the custom exception provides context.
+    Logging should be done at the appropriate layer—typically at the topmost level where the exception is handled.
+	
+_________________________________________________________________________________

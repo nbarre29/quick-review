@@ -1,0 +1,509 @@
+->
+public class DivisionCalculator {
+
+    public static void divide(int a, int b) throws ArithmeticException {  // //throws ArithmeticException is redundant, remove it
+        if (b == 0) {
+            throw new ArithmeticException("Division by zero is not allowed");
+        }
+        int result = a / b;
+        System.out.println("Result: " + result);
+    }
+
+    public static void main(String[] args) {
+        try {
+            divide(10, 2); // Expected output: Result: 5
+            divide(10, 0); // This will throw an exception
+        } catch (ArithmeticException e) {
+            System.out.println("Exception caught: " + e.getMessage());
+        }
+    }
+}
+
+Output:
+Result: 5
+Exception caught: Division by zero is not allowed
+
+
+"throws ArithmeticException" in the above program is redundant. In Java, unchecked exceptions (subclasses of RuntimeException, such as ArithmeticException) do not need to be declared in a throws clause. Declaring them is optional and can make the code unnecessarily verbose.
+
+
+Here’s the comparison between throw and try-catch
+
+Purpose:
+
+    The throw keyword is used to explicitly throw an exception. It signals an error condition in the program.
+    The try-catch block is used to catch and handle exceptions that occur during the program execution.
+
+When to Use:
+
+    Use throw when you want to indicate an error condition that needs to be handled by the calling code or a higher level in the program.
+    Use try-catch when you want to deal with potential errors gracefully without terminating the program.
+
+Control Flow:
+
+    The throw keyword interrupts the current method execution and propagates the exception to the caller or a suitable try-catch block.
+    The try-catch block prevents the program from crashing by catching the exception and allowing the program to continue execution.
+
+Example Usage:
+
+    Common scenarios for throw include validating inputs or throwing custom exceptions to indicate specific errors.
+    Common scenarios for try-catch include handling exceptions that may occur during file I/O operations, network communication, or other risky operations.
+
+Code Placement:
+
+    The throw keyword is typically used inside a method or block of code where the error occurs.
+    The try-catch block surrounds the code that might throw exceptions to handle them appropriately.
+	
+______________________________________________________________________________________________________
+-> In Java, exceptions are categorized into checked and unchecked exceptions.
+
+Checked Exceptions
+
+    Definition:
+        These are exceptions that are checked at compile-time.
+        The compiler forces the programmer to either handle them using a try-catch block or declare them in the method signature with throws.
+
+    Examples:
+        IOException
+        SQLException
+        FileNotFoundException
+
+    Purpose:
+        Used for conditions that are expected to occur during the program's execution and can be recovered from (e.g., file not found, database connection issues).
+
+    Handling Requirement:
+        Must either be caught using a try-catch block or declared in the throws clause of the method.
+        Failing to handle or declare them results in a compile-time error.
+		
+Unchecked Exceptions
+
+    Definition:
+        These are exceptions that are not checked at compile-time but are instead checked at runtime.
+        They are subclasses of RuntimeException.
+
+    Examples:
+        NullPointerException
+        ArrayIndexOutOfBoundsException
+        ArithmeticException
+
+    Purpose:
+        Used for programming errors or bugs that can be avoided with proper code (e.g., accessing a null reference, dividing by zero).
+
+    Handling Requirement:
+        No need to declare them in the throws clause or catch them explicitly.
+        It's the programmer's responsibility to avoid these exceptions by writing robust code.
+		
+		
+When to Use Checked vs. Unchecked Exceptions
+
+    Checked Exceptions:
+        Use for situations where the caller can reasonably be expected to recover, such as missing files or database connectivity issues.
+    Unchecked Exceptions:
+        Use for programming logic errors (e.g., invalid array index, null references) that can be avoided with better coding practices.
+______________________________________________________________________________________________________
+
+-> 
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class FileReaderUtility {
+
+    // Method that throws a checked exception (IOException)
+    public static void readFile(String filePath) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(filePath));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            System.out.println(line);
+        }
+        reader.close();
+    }
+
+    public static void main(String[] args) {
+        try {
+            readFile("C:\\Users\\shrav\\Desktop\\Drools.txt");
+        } catch (IOException e) {
+            System.out.println("Exception caught: " + e.getMessage());
+        }
+    }
+}
+
+------------------------------------------------------------------------------------------------------------
+
+-> Refactor the above code: the try-with-resources statement is used to ensure that the BufferedReader is closed automatically after the try block is executed, which simplifies resource management and reduces the risk of resource leaks.
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class FileReaderUtility {
+
+    // Method that throws a checked exception (IOException)
+    public static void readFile(String filePath) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+            readFile("C:\\Users\\shrav\\Desktop\\Drools.txt");
+        } catch (IOException e) {
+            System.out.println("Exception caught: " + e.getMessage());
+        }
+    }
+}
+
+______________________________________________________________________________________________________
+
+-> Here's an example demonstrating how to rethrow an exception to the caller when the method cannot handle it meaningfully:
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class RethrowExceptionExample {
+
+    // Method that cannot meaningfully handle the exception
+    public static void readFile(String filePath) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+        }
+    }
+
+    // Caller method that handles the exception
+    public static void main(String[] args) {
+        try {
+            // Attempt to read a file that doesn't exist
+            readFile("C:\\Users\\shrav\\Desktop\\Drool.txt");
+        } catch (IOException e) {
+            // Handle the exception meaningfully here
+            System.err.println("An error occurred while trying to read the file: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+
+Sample Output (for a non-existent file):
+An error occurred while trying to read the file: C:\Users\shrav\Desktop\Drool.txt (The system cannot find the file specified)
+java.io.FileNotFoundException: C:\Users\shrav\Desktop\Drool.txt (The system cannot find the file specified)
+	at java.base/java.io.FileInputStream.open0(Native Method)
+	at java.base/java.io.FileInputStream.open(FileInputStream.java:216)
+	
+	
+Explanation:
+
+    Method readFile
+        Declares throws IOException, meaning it can throw an IOException to its caller.
+        It doesn't attempt to handle the exception because it cannot determine what action to take if the file is not found or unreadable.
+
+    Caller Method main
+        Calls readFile inside a try block.
+        Catches the IOException thrown by readFile.
+        Handles the exception by logging an error message and printing the stack trace.
+		
+Why Rethrowing Exceptions is Useful:
+
+    Delegates Responsibility:
+        The method readFile is focused on reading the file and doesn't make assumptions about how to handle errors.
+        It leaves error-handling decisions to the caller (main in this case).
+
+    Separation of Concerns:
+        readFile handles the core functionality of reading a file.
+        main is responsible for dealing with the consequences of failures.
+
+    Flexibility:
+        The caller has the flexibility to handle the exception differently based on the context (e.g., log the error, retry, show a UI message).
+
+This approach is especially useful in larger applications where different parts of the system may handle exceptions differently.
+
+______________________________________________________________________________________________________
+
+-> Exception handling best Practices:
+
+1) Catch Specific Exceptions First: Handle exceptions in a hierarchy, catching specific exceptions before general ones.
+
+try {
+    // Code
+} catch (IOException e) {
+    // Handle IOException
+} catch (Exception e) {
+    // Handle all other exceptions
+}
+
+2) Avoid Catching Throwable: Catch only Exception or its subclasses, as Throwable includes Error which should not typically be caught.
+3) Use Custom Messages: Provide clear and meaningful messages when throwing or logging exceptions.
+4) Avoid Swallowing Exceptions: Always handle or rethrow exceptions; do not silently ignore them.
+
+try {
+    BufferedReader reader = new BufferedReader(new FileReader(filePath));
+    // Do something
+} catch (IOException e) {
+    // Swallowing the exception: no logging, no feedback
+}
+
+This approach silently ignores the exception, making it hard to debug or understand why the code failed.
+______________________________________________________________________________________________________
+
+->
+
+public class CustomException extends RuntimeException {
+
+    public CustomException(String message, Throwable cause) {
+        super(message, cause);
+    }
+}
+
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class FileReaderUtility {
+
+    public static void readFile(String filePath) throws CustomException {    
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (IOException e) {
+            throw new CustomException("Error reading file: " + filePath, e);
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+            readFile("C:\\Users\\shrav\\Desktop\\Drools.txt");
+        } catch (CustomException e) {
+            System.out.println("Exception caught: " + e.getMessage());
+            System.out.println("Original cause: " + e.getCause());
+        }
+    }
+}
+
+Output:
+Exception caught: Error reading file: C:\Users\shrav\Desktop\Drools.txt
+Original cause: java.io.FileNotFoundException: C:\Users\shrav\Desktop\Drools.txt (The system cannot find the path specified)
+
+Observations in above code:
+1) throws CustomException on readFile method is redundant, we can remove it as CustomException extends RuntimeException
+2) If CustomException extends Exception then throws CustomException on readFile method is required
+
+To trace the original cause of the exception when Throwable cause is used, you can use the getCause() method of the CustomException class. This method returns the original exception that caused the CustomException.
+
+
+Extending RuntimeException instead of Exception means that the custom exception is an unchecked exception. Unchecked exceptions do not need to be declared in a method or constructor's throws clause. This can simplify error handling in the code, as it allows the exception to propagate up the call stack without requiring explicit handling or declaration.
+
+In contrast, extending Exception makes the custom exception a checked exception, which must be either caught or declared in the throws clause of any method that can throw it. This enforces more rigorous error handling at compile time.  
+
+Here is a brief comparison:  
+
+RuntimeException (unchecked):  
+Does not need to be declared in throws clause.
+Can be thrown without being explicitly caught.
+Used for programming errors, such as logic errors or improper use of an API.
+
+Exception (checked):
+Must be declared in throws clause.
+Must be caught or declared to be thrown.
+Used for recoverable conditions and application-level exceptions.
+
+
+Choosing between extending RuntimeException and Exception depends on the intended use of the custom exception. Extending RuntimeException is appropriate if the exception represents a programming error or an unexpected condition that should not be explicitly handled by the caller. On the other hand, extending Exception is suitable if the exception represents a recoverable condition that should be explicitly handled by the caller.  
+
+In above example, extending RuntimeException is the right choice because it simplifies error handling and allows the exception to propagate without requiring explicit handling or declaration.
+
+
+diagrammatic representation of the Java Exception Hierarchy:
+
+                 Throwable
+                    │
+        ┌───────────┴───────────┐
+        │                       │
+     Exception              Error
+        │                       │
+        │                (JVM Errors)
+        │
+    ┌───┴──────────────────────────────────────────┐
+    │                                              │
+  IOException                               RuntimeException
+    │                                              │
+    │                                              ├── ArithmeticException
+    │                                              ├── NullPointerException
+    │                                              ├── IndexOutOfBoundsException
+    │                                              ├── IllegalArgumentException
+    │                                              ├── ClassCastException
+    │                                              ├── CustomException (User-defined)
+    │                                              └── ...
+    │
+  IOException
+  FileNotFoundException
+  EOFException
+  ...
+
+______________________________________________________________________________________________________
+
+->
+
+public class CustomException extends RuntimeException {
+    public CustomException(String message) {
+        super(message);
+    }
+}
+
+When to Use It?
+
+    When you want to provide a custom error message without tracking the underlying cause.
+    If the exception is self-explanatory and doesn’t originate from another exception.
+    Typically used when throwing exceptions due to application-specific validation failures.
+
+Example Usage
+
+if (userInput == null) {
+    throw new CustomException("User input cannot be null");
+}
+
+✅ Pros:
+
+    Simple and easy to use.
+    Does not carry unnecessary stack traces if no underlying exception exists.
+
+❌ Cons:
+
+    Lacks information about the original cause if it resulted from another exception.
+
+---------------------------------------------------------
+
+-> 
+
+public class CustomException extends RuntimeException {
+    public CustomException(String message, Throwable cause) {
+        super(message, cause);
+    }
+}
+
+
+When to Use It?
+
+    When you are wrapping an existing exception to provide more context while preserving the original stack trace.
+    Useful when rethrowing exceptions from lower layers (e.g., I/O errors, database failures).
+    Helps in debugging since it retains the original cause.
+
+Example Usage
+
+try {
+    Files.readAllLines(Paths.get("nonexistent_file.txt"));
+} catch (IOException e) {
+    throw new CustomException("Failed to read file", e);
+}
+
+✅ Pros:
+
+    Preserves the original exception details for debugging.
+    Useful when catching and transforming exceptions.
+
+❌ Cons:
+
+    Slightly more verbose.
+    If overused, can lead to unnecessary wrapping when the original exception is sufficient.
+	
+______________________________________________________________________________________________________
+
+-> Should Your CustomException Extend Exception or RuntimeException?
+
+The choice depends on whether you want your exception to be checked or unchecked.
+1) Extending Exception (Checked Exception)
+
+public class CustomCheckedException extends Exception {
+    public CustomCheckedException(String message) {
+        super(message);
+    }
+}
+
+When to Use?
+
+    When the exception represents an expected issue that the caller must handle.
+    Requires explicit handling using try-catch or throws in method signatures.
+    Examples:
+        Business rule violations (e.g., invalid bank transactions).
+        Recoverable errors (e.g., missing configuration, validation failures).
+
+Example: Checked Exception Usage
+
+public void processPayment(double amount) throws CustomCheckedException {
+    if (amount <= 0) {
+        throw new CustomCheckedException("Invalid payment amount!");
+    }
+}
+
+✅ Pros:
+
+    Forces callers to handle the exception properly.
+    Makes error handling explicit and predictable.
+
+❌ Cons:
+
+    More boilerplate code (try-catch or throws declaration needed).
+    Can lead to "exception chaining", making code harder to read.
+
+2) Extending RuntimeException (Unchecked Exception)
+
+public class CustomRuntimeException extends RuntimeException {
+    public CustomRuntimeException(String message) {
+        super(message);
+    }
+}
+
+When to Use?
+
+    When the exception is due to a programming error (e.g., invalid state).
+    Does not require explicit try-catch blocks or throws declaration.
+    Examples:
+        Illegal arguments (e.g., negative age).
+        Unexpected failures (e.g., network failures, database connection loss).
+
+Example: Unchecked Exception Usage
+
+public void validateUserAge(int age) {
+    if (age < 18) {
+        throw new CustomRuntimeException("User must be 18 or older.");
+    }
+}
+
+✅ Pros:
+
+    Cleaner code since the caller does not need to explicitly catch it.
+    More flexibility for handling exceptions at a higher level.
+
+❌ Cons:
+
+    Might cause application crashes if not handled properly.
+    Can make debugging harder if used excessively.
+
+
+📌 Best Practice Recommendation
+
+    Use Exception (Checked Exception) when:
+        The caller must handle it to prevent failures (e.g., file not found, invalid input).
+        The error is recoverable, and you want to enforce handling.
+
+    Use RuntimeException (Unchecked Exception) when:
+        The exception results from a bug (e.g., NullPointerException, invalid state).
+        The caller should not be forced to handle it explicitly.
+
+General Rule of Thumb
+
+✔ Use checked exceptions (extends Exception) for business logic validation (e.g., invalid payments, missing configurations).
+✔ Use unchecked exceptions (extends RuntimeException) for programming errors (e.g., invalid arguments, data corruption).
+
+In most modern Java applications, unchecked exceptions (RuntimeException) are preferred unless strict handling is required.
+
+______________________________________________________________________________________________________

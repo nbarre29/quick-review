@@ -1,0 +1,559 @@
+->  What is computeIfAbsent?
+
+    It's a Map method that says:
+
+        "If the key is already there, return its value.
+        If the key is missing, create a new value, put it in the map, and return it."		
+
+✅ You don't have to check manually whether the key exists.
+
+
+computeIfAbsent is the cleanest, safest and zero-boilerplate way to build high-speed in-memory caching for almost anything in modern Java apps.
+It can be combined this with Spring Boot @Service layer caching (with annotations like @Cacheable) — the real way Java developers cache in production-grade projects
+
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class Main {
+    public static void main(String[] args) {
+        Map<String, List<String>> courseStudents = new HashMap<>();
+
+        // Adding students to courses
+        addStudent(courseStudents, "Math", "Alice");
+        addStudent(courseStudents, "Science", "Bob");
+        addStudent(courseStudents, "Math", "Charlie");
+        addStudent(courseStudents, "History", "David");
+        addStudent(courseStudents, "Science", "Eva");
+
+        // Print the map
+        for (Map.Entry<String, List<String>> entry : courseStudents.entrySet()) {
+            System.out.println("Course: " + entry.getKey() + " → Students: " + entry.getValue());
+        }
+    }
+
+    private static void addStudent(Map<String, List<String>> map, String course, String student) {
+        // Key = course name
+        // Value = list of students
+        map.computeIfAbsent(course, k -> new ArrayList<>())
+           .add(student);
+    }
+}
+
+Output:
+Course: Science → Students: [Bob, Eva]
+Course: History → Students: [David]
+Course: Math → Students: [Alice, Charlie]
+
+
+What happened inside computeIfAbsent(course, k -> new ArrayList<>())?
+
+    If courseStudents already had "Math" → it returns the existing list.
+
+    If "Math" wasn't there → it creates a new ArrayList, puts it under "Math", and then returns it.
+
+    Then .add(student) is safely done without a null pointer!
+
+-------------------------------------
+
+map.computeIfAbsent(course, k -> new ArrayList<>())
+           .add(student);
+
+//Above line of code is put in multiple statements, for my easy understanding.
+List<String> students = map.computeIfAbsent(course, k -> new ArrayList<>());
+students.add(student);
+-------------------------------------
+______________________________________________________________________________
+
+-> 
+import java.util.HashMap;
+import java.util.Map;
+
+public class ComputeIfAbsentExample {
+    public static void main(String[] args) {
+        Map<String, Integer> wordCounts = new HashMap<>();
+
+        // Using computeIfAbsent to count word occurrences
+        String[] words = {"apple", "banana", "apple", "orange", "banana", "apple"};
+        for (String word : words) {
+            wordCounts.computeIfAbsent(word, k -> 0);
+            wordCounts.put(word, wordCounts.get(word) + 1);
+        }
+
+        // Print the word counts
+        wordCounts.forEach((word, count) -> System.out.println(word + ": " + count));
+    }
+}
+
+Output:
+orange: 1
+banana: 2
+apple: 3
+______________________________________________________________________________
+
+-> 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+
+public class ComputeIfAbsentExample {
+    public static void main(String[] args) {
+
+        // Using computeIfAbsent with a more complex function
+        Map<Integer, String> numberStrings = new HashMap<>();
+        Function<Integer, String> numberToStringFunction = n -> "Number: " + n;
+
+        // Compute and store if absent
+        String result1 = numberStrings.computeIfAbsent(5, numberToStringFunction);
+        System.out.println("Result 1: " + result1); // Output: Result 1: Number: 5
+        System.out.println("Map after computeIfAbsent(5): " + numberStrings);
+
+        // Retrieve existing value
+        String result2 = numberStrings.computeIfAbsent(5, numberToStringFunction);
+        System.out.println("Result 2: " + result2); // Output: Result 2: Number: 5
+        System.out.println("Map after computeIfAbsent(5) again: " + numberStrings);
+
+        // Compute and store if absent for a new key
+        String result3 = numberStrings.computeIfAbsent(10, numberToStringFunction);
+        System.out.println("Result 3: " + result3); // Output: Result 3: Number: 10
+        System.out.println("Map after computeIfAbsent(10): " + numberStrings);
+    }
+}
+
+Output:
+Result 1: Number: 5
+Map after computeIfAbsent(5): {5=Number: 5}
+Result 2: Number: 5
+Map after computeIfAbsent(5) again: {5=Number: 5}
+Result 3: Number: 10
+Map after computeIfAbsent(10): {5=Number: 5, 10=Number: 10}
+
+
+Breakdown of Your Code: 
+
+    You create a HashMap where:
+        Key = Integer (e.g., 5, 10)
+        Value = String (e.g., "Number: 5")
+
+Function<Integer, String> numberToStringFunction = n -> "Number: " + n;
+
+    You define a Function (Java 8 Functional Interface) that converts an Integer to a String.
+
+    For example:
+        If you input 5, it returns "Number: 5".
+        If you input 10, it returns "Number: 10".
+		
+
+🔥 Step-by-Step Explanation of computeIfAbsent
+➡️ First Call:
+
+String result1 = numberStrings.computeIfAbsent(5, numberToStringFunction);
+
+    Map does NOT have the key 5.
+
+    So computeIfAbsent calls the function numberToStringFunction.apply(5).
+
+    It returns "Number: 5".
+
+    The map now has an entry:
+
+    {5=Number: 5}
+
+    result1 becomes "Number: 5".
+
+
+✅ Output:
+
+Result 1: Number: 5
+Map after computeIfAbsent(5): {5=Number: 5}
+
+➡️ Second Call (Same Key):
+
+String result2 = numberStrings.computeIfAbsent(5, numberToStringFunction);
+
+    Map already has the key 5.
+
+    So computeIfAbsent does NOT call the function.
+
+    It just returns the existing value "Number: 5".
+
+    No change to the map.
+
+
+✅ Output:
+
+Result 2: Number: 5
+Map after computeIfAbsent(5) again: {5=Number: 5}
+
+➡️ Third Call (New Key):
+
+String result3 = numberStrings.computeIfAbsent(10, numberToStringFunction);
+
+    Map does NOT have the key 10.
+
+    So it calls numberToStringFunction.apply(10).
+
+    It returns "Number: 10".
+
+    The map now contains:
+
+{5=Number: 5, 10=Number: 10}
+
+result3 becomes "Number: 10".
+------------------------------------------------------------------------------
+
+-> refactored the above
+
+    Extract repeated printing into a helper method.
+    Group logically related operations.
+    Use meaningful method names.
+    Make the Function inline for clarity.
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class ComputeIfAbsentExample {
+    public static void main(String[] args) {
+        Map<Integer, String> numberStrings = new HashMap<>();
+
+        processNumber(numberStrings, 5);
+        processNumber(numberStrings, 5); // Should retrieve existing value
+        processNumber(numberStrings, 10); // New value
+    }
+
+    private static void processNumber(Map<Integer, String> map, Integer key) {
+        String value = map.computeIfAbsent(key, n -> "Number: " + n);
+        System.out.println("Result for key " + key + ": " + value);
+        System.out.println("Map after computeIfAbsent(" + key + "): " + map);
+        System.out.println("---------------------------------------------");
+    }
+}
+
+
+
+Output:
+Result for key 5: Number: 5
+Map after computeIfAbsent(5): {5=Number: 5}
+---------------------------------------------
+Result for key 5: Number: 5
+Map after computeIfAbsent(5): {5=Number: 5}
+---------------------------------------------
+Result for key 10: Number: 10
+Map after computeIfAbsent(10): {5=Number: 5, 10=Number: 10}
+---------------------------------------------
+
+
+What Changed:
+    Extracted the repeating block into a method processNumber(Map, key).
+    Used inline lambda n -> "Number: " + n directly inside computeIfAbsent (no need for a separate Function variable unless it's reused heavily).
+    Cleaner output separation with lines (---------------------------------------------).
+    More maintainable: you can now easily test with different keys!
+
+______________________________________________________________________________
+
+-> Simple Java Caching Example using computeIfAbsent
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class CacheExample {
+    private static final Map<Integer, Integer> cache = new HashMap<>();
+
+    public static void main(String[] args) {
+        System.out.println("Square of 5: " + getSquare(5));
+        System.out.println("Square of 10: " + getSquare(10));
+        System.out.println("Square of 5 again (cached): " + getSquare(5));
+        System.out.println("Cache contents: " + cache);
+    }
+
+    private static int getSquare(int number) {
+        return cache.computeIfAbsent(number, n -> {
+            System.out.println("Calculating square for: " + n); // Log only when calculating
+            return n * n;
+        });
+    }
+}
+
+Output:
+Calculating square for: 5
+Square of 5: 25
+Calculating square for: 10
+Square of 10: 100
+Square of 5 again (cached): 25
+Cache contents: {5=25, 10=100}
+
+
+computing square of numbers (expensive for large calculations):
+
+Why this is powerful:
+    The first time you ask for 5, it calculates 5*5 = 25 and stores it.
+    The next time you ask for 5, it immediately fetches 25 from cache.
+    No recomputation is needed!
+	
+⚡ Fast and efficient!
+
+Real-world scenarios where caching with computeIfAbsent is useful:
+    Database queries: Cache the result of expensive queries.
+    API results: Cache external API call results.
+    File reads: Cache file contents after reading once.
+______________________________________________________________________________
+
+-> Advanced Example: Caching Employee Objects
+
+
+public class Employee {
+    private final int id;
+    private final String name;
+    private final String department;
+
+    public Employee(int id, String name, String department) {
+        this.id = id;
+        this.name = name;
+        this.department = department;
+    }
+
+    @Override
+    public String toString() {
+        return "Employee{id=" + id + ", name='" + name + "', department='" + department + "'}";
+    }
+}
+
+public class EmployeeDatabase {
+    // Simulate a slow database lookup
+    public static Employee getEmployeeFromDB(int id) {
+        System.out.println("Fetching Employee " + id + " from database...");
+        try {
+            Thread.sleep(1000); // Simulate delay (1 second)
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return new Employee(id, "Employee" + id, "Department" + id);
+    }
+}
+
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class EmployeeCacheExample {
+    private static final Map<Integer, Employee> employeeCache = new HashMap<>();
+
+    public static void main(String[] args) {
+        System.out.println(getEmployee(1));
+        System.out.println(getEmployee(2));
+        System.out.println(getEmployee(3));
+        System.out.println(getEmployee(4));
+        System.out.println(getEmployee(5));
+        System.out.println(getEmployee(1)); // This will be cached!
+        System.out.println(getEmployee(3)); // This will be cached!
+        System.out.println(getEmployee(4)); // This will be cached!
+
+        System.out.println("\nCache Contents:");
+        employeeCache.forEach((id, employee) -> System.out.println(id + " => " + employee));
+    }
+
+    private static Employee getEmployee(int id) {
+	    // return employeeCache.computeIfAbsent(id, idKey -> EmployeeDatabase.getEmployeeFromDB(idKey));
+        return employeeCache.computeIfAbsent(id, EmployeeDatabase::getEmployeeFromDB);
+    }
+}
+
+
+Output:
+Fetching Employee 1 from database...
+Employee{id=1, name='Employee1', department='Department1'}
+Fetching Employee 2 from database...
+Employee{id=2, name='Employee2', department='Department2'}
+Fetching Employee 3 from database...
+Employee{id=3, name='Employee3', department='Department3'}
+Fetching Employee 4 from database...
+Employee{id=4, name='Employee4', department='Department4'}
+Fetching Employee 5 from database...
+Employee{id=5, name='Employee5', department='Department5'}
+Employee{id=1, name='Employee1', department='Department1'}
+Employee{id=3, name='Employee3', department='Department3'}
+Employee{id=4, name='Employee4', department='Department4'}
+
+Cache Contents:
+1 => Employee{id=1, name='Employee1', department='Department1'}
+2 => Employee{id=2, name='Employee2', department='Department2'}
+3 => Employee{id=3, name='Employee3', department='Department3'}
+4 => Employee{id=4, name='Employee4', department='Department4'}
+5 => Employee{id=5, name='Employee5', department='Department5'}
+
+
+Only first time for Employee 1, Employee 2,Employee 3,Employee 4 and Employee 5 it hits the "database" (simulated delay).
+
+Second call for Employee 1, Employee 3 and Employee 4 is instant — because it's retrieved from cache!
+
+
+--------------------------
+refactor Employee class as a record 
+
+public record Employee(int id, String name, String department) {
+}
+--------------------------
+
+______________________________________________________________________________
+
+-> Practical Example: Country → Capital City Lookup with Caching
+
+Imagine:
+
+    You have a system where users frequently request the capital city of countries.
+    You don't want to hit external APIs or databases every time.
+    You cache the results using computeIfAbsent.
+	
+public class CountryService {
+    // Simulate an external service or database
+    public static String fetchCapitalFromServer(String country) {
+        System.out.println("Fetching capital for: " + country);
+        try {
+            Thread.sleep(1000); // Simulate network/database delay
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        switch (country.toLowerCase()) {
+            case "usa": return "Washington, D.C.";
+            case "india": return "New Delhi";
+            case "france": return "Paris";
+            case "japan": return "Tokyo";
+            default: return "Unknown Capital";
+        }
+    }
+}
+
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class CountryCapitalCacheExample {
+    private static final Map<String, String> countryCapitalCache = new HashMap<>();
+
+    public static void main(String[] args) {
+        System.out.println(getCapital("India"));
+        System.out.println(getCapital("USA"));
+        System.out.println(getCapital("India")); // Cached call (faster)
+        System.out.println(getCapital("France"));
+        System.out.println(getCapital("Japan"));
+        System.out.println(getCapital("USA")); // Cached call again
+
+        System.out.println("\nCache Contents:");
+        countryCapitalCache.forEach((country, capital) -> 
+            System.out.println(country + " → " + capital));
+    }
+
+    private static String getCapital(String country) {
+        return countryCapitalCache.computeIfAbsent(country, CountryService::fetchCapitalFromServer);
+    }
+}
+
+Output:
+Fetching capital for: India
+New Delhi
+Fetching capital for: USA
+Washington, D.C.
+New Delhi
+Fetching capital for: France
+Paris
+Fetching capital for: Japan
+Tokyo
+Washington, D.C.
+
+Cache Contents:
+USA → Washington, D.C.
+Japan → Tokyo
+France → Paris
+India → New Delhi
+
+
+Why this is super realistic
+
+    In real backend services, you often lookup metadata (like capitals, currencies, language codes, etc.)
+    Instead of hitting slow services repeatedly, you cache the results.
+    First call is slow (network or database).
+    Next call is instant from memory.
+	
+	
+-------------------------
+Refactor: 
+Switch statement above can be replaced with enhanced 'switch' 
+Replace with switch expression
+		
+		
+1) Traditional Switch Statement (what we're used to)
+
+switch (country.toLowerCase()) {
+    case "usa":
+        return "Washington, D.C.";
+    case "india":
+        return "New Delhi";
+    case "france":
+        return "Paris";
+    case "japan":
+        return "Tokyo";
+    default:
+        return "Unknown Capital";
+}
+
+    Switch decides which code block to execute.
+    return is needed manually inside each case.
+    break is usually needed (here return replaces it).
+	Fall-through danger? Yes, easily
+
+2) Enhanced Switch Expression (new and better,   Java 14 stable)
+
+return switch (country.toLowerCase()) {
+    case "usa" -> "Washington, D.C.";
+    case "india" -> "New Delhi";
+    case "france" -> "Paris";
+    case "japan" -> "Tokyo";
+    default -> "Unknown Capital";
+};
+
+    switch itself becomes an expression that returns a value.
+    No break needed.
+    No repetition of return inside each case.
+    Much cleaner and safer.
+	Fall-through danger? No, impossible
+-------------------------
+______________________________________________________________________________
+
+-> We can also write multi-label cases in enhanced switch:
+
+
+public class CountryCapitalSwitchTest {
+
+    public static void main(String[] args) {
+        // Simulate test cases
+        printCapitalForCountry("USA");
+        printCapitalForCountry("united states");
+        printCapitalForCountry("UK");
+        printCapitalForCountry("england");
+        printCapitalForCountry("India");  // Not mapped, should return default
+    }
+
+    private static void printCapitalForCountry(String country) {
+        String capital = getCapitalCity(country);
+        System.out.println("Country: " + country + " → Capital: " + capital);
+    }
+
+    private static String getCapitalCity(String country) {
+        return switch (country.toLowerCase()) {
+            case "usa", "united states" -> "Washington, D.C.";
+            case "uk", "england" -> "London";
+            default -> "Unknown Capital";
+        };
+    }
+}
+
+Output:
+Country: USA → Capital: Washington, D.C.
+Country: united states → Capital: Washington, D.C.
+Country: UK → Capital: London
+Country: england → Capital: London
+Country: India → Capital: Unknown Capital
+______________________________________________________________________________
+

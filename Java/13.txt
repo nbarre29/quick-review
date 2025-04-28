@@ -1,0 +1,59 @@
+-> 
+1) Name Change:
+Microsoft rebranded Azure AD to Microsoft Entra ID.   
+This change is part of Microsoft's effort to unify its identity and network access product family under the Microsoft Entra umbrella.   
+
+Functionality:
+2) The underlying functionality and capabilities of Azure AD remain the same in Microsoft Entra ID.   
+This is purely a name change, and existing features, licensing, and service level agreements are unaffected.
+
+3) Purpose:
+Microsoft Entra ID continues to be an identity and access management solution that helps organizations secure and manage identities in cloud and on-premises environments.   
+
+_________________________________________________________________________
+
+-> Let's break down the roles of the different components in your React frontend, Spring Boot backend, and Azure Entra ID setup:
+
+1. Azure Entra ID (Formerly Azure Active Directory)
+
+Authorization Server (and Identity Provider - IdP):
+Azure Entra ID is the central authority that manages user identities and issues security tokens.
+It handles user authentication (verifying usernames and passwords, etc.).
+It issues access tokens, ID tokens, and refresh tokens.
+It defines the authorization policies and permissions.
+In essence, Entra ID is the one that says "Yes, this user is who they say they are, and they are allowed to do these things."
+
+2. React Frontend Application
+
+Client Application (or Relying Party - RP):
+Your React application is the client that wants to access protected resources (your Spring Boot APIs).
+It initiates the authentication process by redirecting the user to Azure Entra ID.
+It receives the tokens (access and ID) from Azure Entra ID.
+It sends the access token to the Spring Boot backend in the Authorization header of API requests.
+It uses the Id token to get user information to display on the front end.
+
+
+3. Spring Boot Backend Application
+
+Resource Server:
+Your Spring Boot application hosts the protected resources (your APIs).
+It receives the access token from the React frontend.
+It validates the access token against Azure Entra ID to ensure its authenticity and validity.
+It authorizes the user based on the permissions granted in the access token.
+It serves the data that the front end application requests.
+
+Key Points
+
+Trust Relationship: Your Spring Boot backend trusts Azure Entra ID to issue valid tokens.
+OAuth 2.0: The communication between these components follows the OAuth 2.0 authorization code grant flow.
+JWTs: The tokens issued by Azure Entra ID are typically JSON Web Tokens (JWTs).
+Decoupling: This setup decouples authentication and authorization from your applications, making it more secure and maintainable.
+
+In summary:
+
+Azure Entra ID: The "gatekeeper" that verifies user identities and issues tokens.
+React Frontend: The "messenger" that requests and uses the tokens.
+Spring Boot Backend: The "resource provider" that protects its resources and verifies the tokens.
+_________________________________________________________________________
+
+   

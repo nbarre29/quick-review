@@ -1,0 +1,652 @@
+-> you're using a React frontend with NextAuth.js and Azure AD to authenticate users, and you're sending a JWT as a Bearer token to your Spring Boot backend.
+
+Here’s a complete answer covering:
+
+    ✅ What your backend needs to do
+
+    📦 Libraries to use
+
+    ⚙️ Configurations to accept & process the token
+
+    🧠 Bonus: Verifying token issuer & claims
+
+✅ Backend Responsibilities
+
+Your Spring Boot app should:
+
+    Accept Authorization: Bearer <JWT> headers
+
+    Validate the JWT token:
+
+        Signature
+
+        Issuer (iss)
+
+        Audience (aud)
+
+        Expiration
+
+    Extract user claims (e.g., email, roles, name)
+
+    Optionally apply role-based access control (RBAC)
+
+📦 Required Libraries (Spring Boot 3.x or 2.x)
+
+Use the following dependencies in your pom.xml (for Maven):
+
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+
+<!-- Optional: if using custom JWT claims -->
+<dependency>
+  <groupId>org.springframework.security</groupId>
+  <artifactId>spring-security-oauth2-jose</artifactId>
+</dependency>
+
+⚙️ Configuration: Accept & Validate JWT from Azure AD
+application.yml
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://login.microsoftonline.com/<TENANT_ID>/v2.0
+
+    Replace <TENANT_ID> with your Azure AD tenant ID.
+
+🔐 Security Configuration
+
+If you're using Spring Boot 3 or Spring Security 6:
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/public/**").permitAll()
+                .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .jwt()
+            );
+        return http.build();
+    }
+}
+
+🧠 Bonus: Custom JWT Claim Mapping (Optional)
+
+If your token includes custom claims (like roles or groups), you can extract them using a custom JwtAuthenticationConverter:
+
+@Bean
+public JwtAuthenticationConverter jwtAuthenticationConverter() {
+    JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+    grantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
+    grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
+
+    JwtAuthenticationConverter authenticationConverter = new JwtAuthenticationConverter();
+    authenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+    return authenticationConverter;
+}
+
+Hook this into your config:
+
+.oauth2ResourceServer(oauth2 -> oauth2
+    .jwt(jwt -> jwt
+        .jwtAuthenticationConverter(jwtAuthenticationConverter())
+    )
+);
+
+🔁 End-to-End Flow Recap
+
+    User logs in via NextAuth → Authenticated by Azure AD
+
+    Azure AD returns an ID token or access token (JWT)
+
+    Frontend sends this as:
+
+    Authorization: Bearer <token>
+
+    Spring Boot backend:
+
+        Validates the token via Azure's issuer
+
+        Extracts user claims (email, name, etc.)
+
+        Applies access control
+
+        Returns protected data
+
+Would you like a working sample project or endpoint handler that demonstrates this setup with a dummy JWT?
+_________________________________________________________________
+
+-> Provide working sample project or endpoint handler that demonstrates this setup with a dummy JWT?
+
+ Here's a working sample Spring Boot 3 backend with one protected endpoint that:
+
+    Accepts a JWT Bearer Token
+
+    Parses the JWT
+
+    Validates it (via issuer)
+
+    Extracts user info (like email, sub, etc.)
+
+    Demonstrates it with a dummy JWT for local testing
+
+🔧 Dependencies (pom.xml)
+
+<dependencies>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+  </dependency>
+</dependencies>
+
+🛠 application.yml
+
+For now, let’s allow a dummy JWT by providing a local public key instead of using Azure for this test:
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: classpath:public.pem
+
+    You'll need a public.pem file (see below) to verify JWT signatures.
+
+🛡️ SecurityConfig.java
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/public").permitAll()
+                .requestMatchers("/api/protected").authenticated()
+            )
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .jwt()
+            );
+        return http.build();
+    }
+}
+
+🎯 Sample Controller
+
+@RestController
+@RequestMapping("/api")
+public class DemoController {
+
+    @GetMapping("/public")
+    public String publicEndpoint() {
+        return "This is a public endpoint.";
+    }
+
+    @GetMapping("/protected")
+    public String protectedEndpoint(@AuthenticationPrincipal Jwt jwt) {
+        String subject = jwt.getSubject();
+        String email = jwt.getClaimAsString("email");
+        return "Hello " + email + " (sub: " + subject + ") — you accessed a protected endpoint!";
+    }
+}
+
+🔐 Generate JWT for Local Testing
+
+You can generate a JWT using a local key pair:
+1. Generate Keys
+
+openssl genrsa -out private.pem 2048
+openssl rsa -in private.pem -pubout -out public.pem
+
+Put public.pem in your src/main/resources/ folder.
+2. Create JWT using jsonwebtoken in Node.js
+
+Install jsonwebtoken:
+
+npm install jsonwebtoken
+
+const jwt = require("jsonwebtoken");
+const fs = require("fs");
+
+const privateKey = fs.readFileSync("private.pem");
+
+const token = jwt.sign(
+  {
+    sub: "1234567890",
+    email: "user@example.com",
+    name: "Test User",
+    roles: ["USER"]
+  },
+  privateKey,
+  {
+    algorithm: "RS256",
+    expiresIn: "1h",
+    issuer: "local-test"
+  }
+);
+
+console.log("JWT Token:", token);
+
+🧪 Test with curl
+
+curl -H "Authorization: Bearer <your-token>" http://localhost:8080/api/protected
+
+Should return:
+
+Hello user@example.com (sub: 1234567890) — you accessed a protected endpoint!
+
+✅ Production Mode with Azure AD
+
+Replace this line in application.yml:
+
+public-key-location: classpath:public.pem
+
+With this for Azure AD:
+
+issuer-uri: https://login.microsoftonline.com/<tenant-id>/v2.0
+
+And make sure the token you're testing with is issued by Azure and includes aud, iss, etc.
+
+
+Want me to zip up and give you a complete working Spring Boot project with this setup?
+
+
+-> yes please zip up and give me a complete working spring boot project with the above setup
+ChatGPT said:
+
+Here you go! 🎁 Download the complete working Spring Boot JWT demo project below:
+
+👉 Download jwt-demo.zip
+✅ What’s Inside:
+
+    GET /api/public: Open to everyone
+
+    GET /api/protected: Requires a valid JWT Bearer token
+
+    Uses a local RSA public key (public.pem) to verify JWTs
+
+    Fully working Spring Boot 3 setup
+
+Let me know if you want me to add Azure AD integration or a sample token generation script too! ​
+
+_________________________________________________________________
+
+-> Here's a complete working Spring Boot backend that:
+
+✅ Receives the Bearer token from a React frontend
+✅ Validates the token against Azure Entra ID (Azure AD)
+✅ Authorizes the user based on roles or scopes in the token
+✅ Returns protected data to the frontend
+
+Step 1: Add Dependencies in pom.xml
+
+<dependencies>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+  </dependency>
+
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+  </dependency>
+
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+  </dependency>
+</dependencies>
+
+⚙️ Step 2: Configure Azure Entra ID in application.yml
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://login.microsoftonline.com/<TENANT_ID>/v2.0
+
+    🔁 Replace <TENANT_ID> with your Azure Entra ID tenant ID (GUID).
+
+🔐 Step 3: Spring Security Config (SecurityConfig.java)
+
+package com.example.demo.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/public").permitAll()
+                .requestMatchers("/api/protected").hasAuthority("SCOPE_access_as_user")
+                .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+            );
+
+        return http.build();
+    }
+
+    private JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setAuthorityPrefix("SCOPE_"); // Azure scopes start with this
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("scp");
+
+        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+        converter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return converter;
+    }
+}
+
+🎯 Step 4: Protected REST Controller (DemoController.java)
+
+package com.example.demo.controller;
+
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api")
+public class DemoController {
+
+    @GetMapping("/public")
+    public String publicEndpoint() {
+        return "Hello from the public endpoint!";
+    }
+
+    @GetMapping("/protected")
+    public String protectedEndpoint(@AuthenticationPrincipal Jwt jwt) {
+        String userId = jwt.getSubject();
+        String email = jwt.getClaimAsString("preferred_username");
+
+        return "✅ Authenticated user: " + email + " (sub: " + userId + ")";
+    }
+}
+
+✅ Access Token Example
+
+Ensure your frontend (React + NextAuth.js) is requesting a token with the proper scope (e.g., access_as_user) and sends it like this:
+
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGci...
+
+🧪 Test
+Public Endpoint:
+
+curl http://localhost:8080/api/public
+
+Protected Endpoint:
+
+curl -H "Authorization: Bearer <your-access-token>" http://localhost:8080/api/protected
+
+📌 Notes
+
+    You can adjust required scopes in .hasAuthority("SCOPE_access_as_user")
+
+    If you're using groups/roles from Azure, change scp to roles or groups in the config
+
+    You can inspect the Azure-issued JWT at jwt.ms (https://jwt.ms/)
+	
+------------------------------------------------------------------------------------
+
+instead of manually handling the JWT in each controller method, you can implement a filter or use a custom AuthenticationPrincipal strategy to automatically process the token and inject user data for all protected endpoints.
+
+Here are 2 clean approaches, with full examples:
+✅ Option 1: Custom Spring Security Filter (Recommended for Centralized Auth Logic)
+
+You can define a OncePerRequestFilter that will run after JWT validation, for all protected endpoints.
+🔧 Example: JwtAuthFilter.java
+
+package com.example.demo.security;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+
+@Component
+public class JwtAuthFilter extends OncePerRequestFilter {
+
+    @Override
+    protected void doFilterInternal(
+        HttpServletRequest request,
+        HttpServletResponse response,
+        FilterChain filterChain
+    ) throws ServletException, IOException {
+
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication instanceof JwtAuthenticationToken jwtAuth) {
+            Jwt jwt = jwtAuth.getToken();
+            String email = jwt.getClaimAsString("preferred_username");
+            String userId = jwt.getSubject();
+
+            // You can log or add to request attributes
+            request.setAttribute("email", email);
+            request.setAttribute("userId", userId);
+        }
+
+        filterChain.doFilter(request, response);
+    }
+}
+
+🧩 Register Filter in SecurityConfig.java
+
+Update your SecurityConfig:
+
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
+    http
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/api/public").permitAll()
+            .anyRequest().authenticated()
+        )
+        .oauth2ResourceServer(oauth2 -> oauth2.jwt())
+        .addFilterAfter(jwtAuthFilter, SecurityFilterChain.class); // Register filter after security
+
+    return http.build();
+}
+
+✅ Use in Any Controller
+
+Now in your controller, access the user info from the request attributes:
+
+@GetMapping("/protected")
+public String protectedEndpoint(HttpServletRequest request) {
+    String email = (String) request.getAttribute("email");
+    String userId = (String) request.getAttribute("userId");
+
+    return "✅ Hello " + email + " (userId: " + userId + ")";
+}
+
+🔁 Option 2: Define a Custom @CurrentUser Annotation (Advanced, Elegant)
+
+If you'd like to inject the user directly into controller methods, I can show that pattern too (using HandlerMethodArgumentResolver). But the filter-based approach above is straightforward and ideal for most projects.
+
+_________________________________________________________________
+
+-> (This is as how we have in MTU implementation ) just an appoach is given here to handle a Bearer token (received from Azure Entra ID) in your Spring Boot backend, and to extract, validate, decode, and propagate the token's payload, you can use Spring Security with OAuth2 Resource Server support.
+
+Here's a step-by-step guide to implement this:
+✅ 1. Add Required Dependencies
+
+Add these to your pom.xml:
+
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+
+✅ 2. application.yml / application.properties
+
+Use your Azure Entra ID (previously Azure AD) info to validate tokens.
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://login.microsoftonline.com/{tenant-id}/v2.0
+
+Replace {tenant-id} with your actual Azure Entra tenant ID.
+
+
+✅ 3. Security Configuration
+
+Spring Security will now automatically extract and validate the Bearer token from the Authorization header.
+
+But if you want to manually extract and decode payload data for logging or to attach it to the request object, you can create a custom filter:
+✅ 4. Custom Filter to Extract and Decode JWT Payload
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+
+@Component
+public class JwtPayloadFilter extends OncePerRequestFilter {
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
+                                    throws ServletException, IOException {
+
+        if (SecurityContextHolder.getContext().getAuthentication() instanceof JwtAuthenticationToken jwtAuthToken) {
+            Jwt jwt = jwtAuthToken.getToken();
+
+            // You can extract claims like this:
+            String username = jwt.getClaimAsString("preferred_username");
+            String email = jwt.getClaimAsString("email");
+            String roles = jwt.getClaimAsString("roles");
+
+            // Optionally, set attributes for downstream use
+            request.setAttribute("username", username);
+            request.setAttribute("email", email);
+            request.setAttribute("roles", roles);
+        }
+
+        filterChain.doFilter(request, response);
+    }
+}
+
+✅ 5. Register the Filter
+
+Ensure the filter is registered after Spring Security:
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.context.annotation.Bean;
+
+@Configuration
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests(authz -> authz
+                .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .jwt()
+            );
+
+        return http.build();
+    }
+}
+
+Spring Boot will now:
+
+    Automatically extract the bearer token
+
+    Validate it against the issuer (Azure Entra ID)
+
+    Decode the payload
+
+    Allow you to access the JWT claims from SecurityContext or inject into filters/controllers
+
+✅ 6. Access Claims in Controllers
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class ProfileController {
+
+    @GetMapping("/profile")
+    public String getProfile(@AuthenticationPrincipal Jwt jwt) {
+        String username = jwt.getClaimAsString("preferred_username");
+        return "Hello " + username;
+    }
+}
+_________________________________________________________________
+
+REFERENCES:
+Here are some YouTube tutorials that demonstrate integrating Spring Boot applications with Azure Active Directory (Azure AD) for authentication and authorization:
+
+https://www.youtube.com/watch?v=7EhCzp3MhlQ
+
+https://www.youtube.com/watch?v=m6NH0DIuj9o
+
+https://www.youtube.com/watch?v=V3uKh6oaJT8
+
+https://www.youtube.com/watch?v=NxUqijLbcDI
+
+https://www.youtube.com/watch?v=jEiXcMedHFs
+​

@@ -1,0 +1,32 @@
+1)
+
+2)
+
+3) Text Blocks
+
+4) Using a labeled continue with for loops
+Using a labeled break with for loops
+
+5) Exception handling
+
+6) Dependency injection
+
+7) JSON Web Tokens (JWTs)
+
+8) Threads
+
+9) Threads Interview questions
+
+10) Design Patterns
+
+11) Exception handling 
+
+12) Integrate OKTA Single Sign-On (SSO) with your React frontend and Spring Boot backend using your company's Active Directory
+
+13) 
+
+14) Generics
+
+15) https://www.youtube.com/watch?v=rjDUpxtUPAE (10 Most Common Java Developer Mistakes)
+
+

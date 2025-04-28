@@ -1,0 +1,242 @@
+-> demonstrates reading values from a List
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class ListIterationExample {
+
+    public static void main(String[] args) {
+        List<String> fruits = new ArrayList<>();
+        fruits.add("Apple");
+        fruits.add("Banana");
+        fruits.add("Mango");
+
+        // Iterating using traditional for loop
+        System.out.println("Iterating using for loop");
+        for (int i = 0; i < fruits.size(); i++) {
+            System.out.println(fruits.get(i));
+        }
+
+        // Iterating using enhanced for loop
+        for(String fruit : fruits) {
+            System.out.println(fruit);
+        }
+
+        // Iterating using forEach method
+        System.out.println("Iterating using forEach method");
+        fruits.forEach(fruit -> System.out.println(fruit));
+
+        // Iterating using forEach method with method reference
+        System.out.println("Iterating using forEach method with method reference");
+        fruits.forEach(System.out::println);
+    }
+}
+_________________________________________________________________________________
+-> create a Map and iterate through its keys and values using different methods.
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class MapIterationExample {
+    public static void main(String[] args) {
+        // Create and initialize a Map
+        Map<Integer, String> fruitsMap = new HashMap<>();
+        fruitsMap.put(1, "Apple");
+        fruitsMap.put(2, "Banana");
+        fruitsMap.put(3, "Cherry");
+        fruitsMap.put(4, "Date");
+
+        System.out.println("Iterating through values using for-each and values():");
+        // Method 1: Iterating through values directly
+        for (String value : fruitsMap.values()) {
+            System.out.println("Value: " + value);
+        }
+		
+		// Iterate through the keys of the map and print each key
+		for (Integer key : fruitsMap.keySet()) {
+           System.out.println("Key: " + key);
+        }
+
+        System.out.println("\nIterating through entries and accessing values:");
+        // Method 2: Iterating through entrySet and accessing values
+        for (Map.Entry<Integer, String> entry : fruitsMap.entrySet()) {
+            System.out.println("Key: " + entry.getKey() + ", Value: " + entry.getValue());
+        }
+
+        System.out.println("\nIterating through keys and accessing values:");
+        // Method 3: Iterating through keys and accessing values
+        for (Integer key : fruitsMap.keySet()) {
+            System.out.println("Key: " + key + ", Value: " + fruitsMap.get(key));
+        }
+
+        System.out.println("\nIterating through keys and values using forEach method:");
+        // Method 4: Iterating through keys and values using forEach method
+        fruitsMap.forEach((key, value) -> System.out.println("Key: " + key + ", Value: " + value));
+
+        System.out.println("\nIterating through keys and values using forEach method with lambda expression:");
+        // Method 5: Iterating through keys and values using forEach method with lambda expression
+        fruitsMap.forEach((key, value) -> System.out.println("Key: " + key + ", Value: " + value));
+
+        System.out.println("\nIterating through keys using forEach method with method reference:");
+        // Method 6: Iterating through keys using forEach method with method reference
+        fruitsMap.keySet().forEach(System.out::println);
+
+        System.out.println("\nIterating through values using forEach method with method reference:");
+        // Method 7: Iterating through values using forEach method with method reference
+        fruitsMap.values().forEach(System.out::println);
+
+        System.out.println("\nIterating through entries using forEach method with method reference:");
+        // Method 8: Iterating through entries using forEach method with method reference
+        fruitsMap.entrySet().forEach(System.out::println);
+
+
+    }
+}
+_________________________________________________________________________________
+
+-> Traditional for loop, reading values from an array
+
+public class ForLoopExample {
+    public static void main(String[] args) {
+        int[] numbers = {1, 2, 3, 4, 5};
+
+        // Traditional for loop
+        for (int i = 0; i < numbers.length; i++) {
+            System.out.println("Element at index " + i + ": " + numbers[i]);
+        }
+    }
+}
+---------------------------------------------------------------------------------
+
+-> Enhanced for Loop
+
+
+public class EnhancedForLoopExample {
+    public static void main(String[] args) {
+        int[] numbers = {1, 2, 3, 4, 5};
+
+        // Enhanced for loop (for-each loop)
+        for (int num : numbers) {
+            System.out.println("Element: " + num);
+        }
+    }
+}
+---------------------------------------------------------------------------------
+-> Using forEach by converting array to stream
+
+import java.util.Arrays;
+
+public class ForEachExample {
+    public static void main(String[] args) {
+        int[] numbers = {1, 2, 3, 4, 5};
+
+        // Using forEach by converting array to stream
+        Arrays.stream(numbers)
+              .forEach(num -> System.out.println("Element: " + num));
+    }
+}
+
+
+forEach method is part of the Iterable interface, which is available in collections like List, Set, etc. However, arrays do not directly support the forEach method, but you can convert an array to a stream using the Arrays.stream() method to use forEach with arrays.
+
+
+https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/stream/IntStream.html#forEach(java.util.function.IntConsumer)
+https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Iterable.html#forEach(java.util.function.Consumer)
+
+---------------------------------------------------------------------------------
+
+-> forEach method is part of the IntStream class when working with primitive int arrays, and other primitive streams like DoubleStream or LongStream.
+
+In the case of IntStream, it is a specialized stream for handling primitive int values, and it allows methods like forEach to be used directly on an array of primitive int values.
+
+Here's a quick breakdown:
+
+    IntStream: A stream that deals with primitive int values.
+    forEach: A terminal operation available in streams, including IntStream, that processes each element of the stream.
+
+
+import java.util.stream.IntStream;
+
+public class ForEachWithIntStreamExample {
+    public static void main(String[] args) {
+        int[] numbers = {1, 2, 3, 4, 5};
+
+        // Using IntStream and forEach
+        IntStream.of(numbers)
+                 .forEach(num -> System.out.println("Element: " + num));				 
+		
+		// IntStream.of(1,2,3,4,5).forEach(System.out::println);
+    }
+}
+
+_________________________________________________________________________________
+
+-> Using a labeled continue with for loops
+
+public class Main {
+    public static void main(String[] args) {
+
+        // The first for statement is labeled "loop1"
+        loop1:
+        for (int i = 0; i < 3; i++) {
+            // The second for statement is labeled "loop2"
+            loop2:
+            for (int j = 0; j < 3; j++) {
+                if (i == 1 && j == 1) {
+                    continue loop1;
+                }
+                System.out.println("i: " + i + ", j: " + j);
+            }
+        }
+    }
+}
+
+Output:
+i: 0, j: 0
+i: 0, j: 1
+i: 0, j: 2
+i: 1, j: 0
+i: 2, j: 0
+i: 2, j: 1
+i: 2, j: 2
+
+Notice how it skips both "i = 1, j = 1" and "i = 1, j = 2".
+
+there are two nested for loops. The outer loop is labeled as loop1, and the inner loop is labeled as loop2. The outer loop iterates over the variable i from 0 to 2, and the inner loop iterates over the variable j from 0 to 2.
+
+Inside the inner loop, there is a conditional statement that checks if i is equal to 1 and j is equal to 1. If this condition is met, the continue statement is used with the label loop1. This causes the control to skip the current iteration of the outer loop, effectively continuing with the next iteration of i.
+
+---------------------------------------------------------------------------------
+-> Using a labeled break with for loops
+
+Notice the difference with the previous continue example: when break loop1 is encountered, the execution of the outer loop is terminated, so there are no further logs beyond "i = 1, j = 0"; when continue loop1 is encountered, the execution of the outer loop continues at the next iteration, so only "i = 1, j = 1" and "i = 1, j = 2" are skipped.
+
+
+public class Main {
+    public static void main(String[] args) {
+
+        // The first for statement is labeled "loop1"
+        loop1:
+        for (int i = 0; i < 3; i++) {
+            // The second for statement is labeled "loop2"
+            loop2:
+            for (int j = 0; j < 3; j++) {
+                if (i == 1 && j == 1) {
+                    break loop1;
+                }
+                System.out.println("i: " + i + ", j: " + j);
+            }
+        }
+    }
+}
+
+Output:
+i: 0, j: 0
+i: 0, j: 1
+i: 0, j: 2
+i: 1, j: 0
+
+Inside the inner loop, there is a conditional statement that checks if i is equal to 1 and j is equal to 1. If this condition is met, the break statement is used with the label loop1. This causes the control to break out of the outer loop, effectively terminating both loops.
+
+_________________________________________________________________________________
+

@@ -1,0 +1,875 @@
+->
+
+public class ThreadDemo {
+
+    public static void main(String[] args) {
+        Runnable runnable = () -> {
+            System.out.println("Running in: " + Thread.currentThread().getName());
+        };
+
+//        Thread thread = new Thread(runnable);
+//        thread.start();
+
+        // This will run the runnable in a new thread
+//        new Thread(runnable).start();  // Running in: Thread-0
+
+        // This will run the runnable in the current thread
+        runnable.run(); // Running in: main
+
+    }
+}
+____________________________________________________________________________________
+
+-> Explain the concept of a race condition.
+
+A race condition occurs when two or more threads access and modify shared data concurrently, leading to unpredictable results.
+
+Example of a Race Condition
+
+Let’s consider an example where multiple threads increment a shared counter:
+
+
+public class RaceConditionExample {
+
+    private static int counter = 0;
+
+    public static void main(String[] args) throws InterruptedException {
+        Runnable incrementTask = () -> {
+            for (int i = 0; i < 10000; i++) {
+                counter++; // Shared resource, no synchronization
+            }
+        };
+
+        // Create two threads
+        Thread thread1 = new Thread(incrementTask);
+        Thread thread2 = new Thread(incrementTask);
+
+        // Start the threads
+        thread1.start();
+        thread2.start();
+
+        // Wait for both threads to finish
+        thread1.join();
+        thread2.join();
+
+        // Expected result: 20000, Actual result may vary
+        System.out.println("Final Counter Value: " + counter);
+    }
+}
+
+Explanation
+
+    Expected Behavior:
+        Each thread increments the counter 10000 times, so the final value should be 20000.
+
+    Race Condition:
+        Both threads access and modify the counter variable simultaneously without synchronization.
+        The increment operation (counter++) is not atomic:
+            Read: The thread reads the current value of counter.
+            Increment: Adds 1 to the value.
+            Write: Updates counter with the new value.
+        If two threads interleave their execution during these steps, they can overwrite each other's updates, leading to an incorrect final value.
+
+    Output:
+        The output is non-deterministic and may vary, depending on thread scheduling.
+		
+		
+Fixing the Race Condition
+
+To fix the race condition, synchronize access to the shared resource:
+1. Using synchronized
+
+public class RaceConditionFixed {
+
+    private static int counter = 0;
+
+    public static synchronized void increment() {
+        counter++;
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        Runnable incrementTask = () -> {
+            for (int i = 0; i < 10000; i++) {
+                increment(); // Synchronized method
+            }
+        };
+
+        Thread thread1 = new Thread(incrementTask);
+        Thread thread2 = new Thread(incrementTask);
+
+        thread1.start();
+        thread2.start();
+
+        thread1.join();
+        thread2.join();
+
+        System.out.println("Final Counter Value: " + counter); // Guaranteed to be 2000
+    }
+}
+
+
+2. Using ReentrantLock
+
+
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+public class RaceConditionFixedWithLock {
+
+    private static int counter = 0;
+    private static Lock lock = new ReentrantLock();
+
+    public static void increment() {
+        lock.lock(); // Acquire the lock
+        try {
+            counter++;
+        } finally {
+            lock.unlock(); // Ensure the lock is released
+        }
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        Runnable incrementTask = () -> {
+            for (int i = 0; i < 10000; i++) {
+                increment();
+            }
+        };
+
+        Thread thread1 = new Thread(incrementTask);
+        Thread thread2 = new Thread(incrementTask);
+
+        thread1.start();
+        thread2.start();
+
+        thread1.join();
+        thread2.join();
+
+        System.out.println("Final Counter Value: " + counter); // Guaranteed to be 2000
+    }
+}
+
+
+Key Takeaways
+
+    Race Condition Occurs When:
+        Threads access shared resources without proper synchronization.
+        Multiple threads perform non-atomic operations on shared data.
+
+    Fix Race Conditions:
+        Use synchronized blocks or methods.
+        Use thread-safe classes (e.g., AtomicInteger or ConcurrentHashMap).
+        Use explicit locks (ReentrantLock).
+
+By synchronizing access, you can ensure thread safety and avoid unpredictable behavior caused by race conditions.
+
+______________________________________________________________________________________________________
+
+-> Fix the race condition using AtomicInteger, a thread-safe class from the java.util.concurrent.atomic package.
+
+package demo;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class RaceConditionExample {
+
+    private static AtomicInteger counter = new AtomicInteger(0); // Thread-safe counter
+
+    public static void main(String[] args) throws InterruptedException {
+        Runnable incrementTask = () -> {
+            for (int i = 0; i < 10000; i++) {
+                counter.incrementAndGet(); // Thread-safe increment
+            }
+        };
+
+        // Create two threads
+        Thread thread1 = new Thread(incrementTask);
+        Thread thread2 = new Thread(incrementTask);
+
+        // Start the threads
+        thread1.start();
+        thread2.start();
+
+        // Wait for both threads to finish
+        thread1.join();
+        thread2.join();
+
+        // Expected result: 20000
+        System.out.println("Final Counter Value: " + counter.get());
+    }
+}
+
+Explanation
+
+    AtomicInteger:
+        A thread-safe class for managing integers without explicit synchronization.
+        Uses low-level atomic operations (like compare-and-swap) for better performance in multithreaded environments.
+
+    incrementAndGet():
+        Atomically increments the value by 1 and returns the updated value.
+        Ensures that no two threads can simultaneously read and write to the counter.
+
+    get():
+        Retrieves the current value of the AtomicInteger.
+
+Why Use AtomicInteger?
+
+    It eliminates the need for explicit synchronization (synchronized or ReentrantLock), reducing boilerplate code.
+    It is more efficient than traditional synchronization mechanisms in many scenarios, especially for simple operations like increments.
+
+
+______________________________________________________________________________________________________
+
+-> Here’s an example of a race condition when multiple threads update a shared HashMap, followed by a solution using a ConcurrentHashMap.
+
+package demo;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class RaceConditionExample {
+
+    private static Map<String, Integer> map = new HashMap<>();
+
+    public static void main(String[] args) throws InterruptedException {
+        Runnable task = () -> {
+            for (int i = 0; i < 1000; i++) {
+                map.put("key", map.getOrDefault("key", 0) + 1); // Non-thread-safe operation
+            }
+        };
+
+        // Create two threads
+        Thread thread1 = new Thread(task);
+        Thread thread2 = new Thread(task);
+
+        // Start the threads
+        thread1.start();
+        thread2.start();
+
+        // Wait for threads to finish
+        thread1.join();
+        thread2.join();
+
+        // Print the result
+        System.out.println("Final value for 'key': " + map.get("key"));
+    }
+}
+
+What Happens?
+
+    Expected Result: key value should be 2000.
+    Actual Result: Due to the race condition, the value is often less than 2000 because both threads can simultaneously read and write to the HashMap, leading to lost updates.
+
+	
+	
+Fix Using ConcurrentHashMap
+
+Replace the HashMap with a ConcurrentHashMap, which is thread-safe and designed for concurrent access.
+
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+public class RaceConditionFixed {
+
+    private static ConcurrentMap<String, Integer> map = new ConcurrentHashMap<>();
+
+    public static void main(String[] args) throws InterruptedException {
+        Runnable task = () -> {
+            for (int i = 0; i < 1000; i++) {
+                map.merge("key", 1, Integer::sum); // Thread-safe operation
+            }
+        };
+
+        // Create two threads
+        Thread thread1 = new Thread(task);
+        Thread thread2 = new Thread(task);
+
+        // Start the threads
+        thread1.start();
+        thread2.start();
+
+        // Wait for threads to finish
+        thread1.join();
+        thread2.join();
+
+        // Print the result
+        System.out.println("Final value for 'key': " + map.get("key"));
+    }
+}
+
+
+Explanation
+
+    Using ConcurrentHashMap:
+        ConcurrentHashMap allows multiple threads to access the map concurrently without causing inconsistencies.
+
+    Using merge:
+        The merge method atomically updates the value:
+
+    map.merge(key, 1, Integer::sum);
+
+        key: The key to update.
+        1: The value to add.
+        Integer::sum: Combines the existing value with the new one.
+
+Thread-Safety:
+
+    ConcurrentHashMap ensures thread-safe access and updates, preventing the race condition.
+______________________________________________________________________________________________________
+
+-> What is the difference between synchronized keyword and volatile keyword?
+
+1. Using volatile for Visibility
+
+The volatile keyword ensures that all threads see the latest value of a variable. However, it does not guarantee atomicity.
+
+public class VolatileExample {
+    private static volatile boolean flag = false;
+
+    public static void main(String[] args) {
+        Thread writer = new Thread(() -> {
+            try {
+                Thread.sleep(1000); // Simulate some work
+                flag = true; // Update the volatile variable
+                System.out.println("Flag set to true by writer thread.");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        Thread reader = new Thread(() -> {
+            while (!flag) { // Loop until flag is updated
+                // Busy waiting
+            }
+            System.out.println("Reader thread detected flag change!");
+        });
+
+        writer.start();
+        reader.start();
+    }
+}
+
+Output:
+Flag set to true by writer thread.
+Reader thread detected flag change!
+
+Explanation:
+
+    The volatile keyword ensures the reader thread sees the change made to the flag variable by the writer thread.
+	
+	
+2. Using synchronized for Mutual Exclusion and Visibility
+
+The synchronized keyword ensures that only one thread can execute the critical section at a time and also ensures visibility.
+
+
+
+Here are the differences between synchronized and volatile 
+
+    Purpose:
+        synchronized: Ensures mutual exclusion and visibility of changes to a variable.
+        volatile: Ensures visibility of changes to a variable across threads.
+
+    Scope:
+        synchronized: Can be used to synchronize access to critical sections (methods or blocks).
+        volatile: Only works with variables.
+
+    Thread Safety:
+        synchronized: Provides both mutual exclusion and visibility.
+        volatile: Provides visibility only.
+
+    Performance:
+        synchronized: Slower, as it involves acquiring and releasing locks.
+        volatile: Faster, as it does not involve locking.
+
+    Use Case:
+        synchronized: Used when multiple threads modify shared data and operations must be atomic.
+        volatile: Used when a variable is shared between threads, and changes must be immediately visible.
+
+    Atomicity:
+        synchronized: Guarantees atomicity.
+        volatile: Does not guarantee atomicity.
+
+    Locks Required:
+        synchronized: Uses locks internally.
+        volatile: Does not use locks.
+		
+______________________________________________________________________________________________________
+
+-> Use CountDownLatch, CyclicBarrier, Semaphore, and Future to solve common concurrency problems.
+
+1. CountDownLatch
+
+A CountDownLatch is used to block a thread until a set of other threads have completed their tasks. It works by maintaining a counter that can be decremented using the countDown() method. The waiting thread calls await() to wait for the latch to reach zero.
+
+Use Case:
+
+    Waiting for multiple services to complete initialization before proceeding.
+
+Example:	
+	
+import java.util.concurrent.CountDownLatch;
+
+public class CountDownLatchExample {
+    public static void main(String[] args) throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(3);
+
+        Runnable worker = () -> {
+            System.out.println(Thread.currentThread().getName() + " is doing some work...");
+            try {
+                Thread.sleep(1000); // Simulate work
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println(Thread.currentThread().getName() + " finished work.");
+            latch.countDown(); // Decrement latch count
+        };
+
+        // Start three worker threads
+        new Thread(worker, "Worker-1").start();
+        new Thread(worker, "Worker-2").start();
+        new Thread(worker, "Worker-3").start();
+
+        System.out.println("Main thread is waiting for workers to finish...");
+        latch.await(); // Wait until count reaches zero
+        System.out.println("All workers have finished. Main thread proceeding.");
+    }
+}
+
+Output:
+Main thread is waiting for workers to finish...
+Worker-1 is doing some work...
+Worker-2 is doing some work...
+Worker-3 is doing some work...
+Worker-1 finished work.
+Worker-2 finished work.
+Worker-3 finished work.
+All workers have finished. Main thread proceeding.
+
+
+2. CyclicBarrier
+
+A CyclicBarrier is used to make threads wait at a common barrier point until all threads have reached that point. It can be reused (cyclic behavior).
+Use Case:
+
+    Coordinating a fixed number of threads to perform tasks in phases.
+
+Example:
+
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+
+public class CyclicBarrierExample {
+    public static void main(String[] args) {
+        CyclicBarrier barrier = new CyclicBarrier(3, () -> {
+            System.out.println("All threads have reached the barrier. Proceeding...");
+        });
+
+        Runnable worker = () -> {
+            System.out.println(Thread.currentThread().getName() + " is doing some work...");
+            try {
+                Thread.sleep(1000); // Simulate work
+                System.out.println(Thread.currentThread().getName() + " reached the barrier.");
+                barrier.await(); // Wait for other threads
+            } catch (InterruptedException | BrokenBarrierException e) {
+                e.printStackTrace();
+            }
+        };
+
+        // Start three worker threads
+        new Thread(worker, "Worker-1").start();
+        new Thread(worker, "Worker-2").start();
+        new Thread(worker, "Worker-3").start();
+    }
+}
+
+Output:
+Worker-1 is doing some work...
+Worker-2 is doing some work...
+Worker-3 is doing some work...
+Worker-1 reached the barrier.
+Worker-2 reached the barrier.
+Worker-3 reached the barrier.
+All threads have reached the barrier. Proceeding...
+
+
+3. Semaphore
+
+A Semaphore controls access to a resource by multiple threads. It uses a counter to limit the number of threads that can access the resource simultaneously.
+Use Case:
+
+    Limiting concurrent access to a fixed-size pool of resources.
+
+Example:
+
+import java.util.concurrent.Semaphore;
+
+public class SemaphoreExample {
+    public static void main(String[] args) {
+        Semaphore semaphore = new Semaphore(2); // Allow 2 threads to access simultaneously
+
+        Runnable worker = () -> {
+            try {
+                System.out.println(Thread.currentThread().getName() + " is waiting for a permit...");
+                semaphore.acquire(); // Acquire a permit
+                System.out.println(Thread.currentThread().getName() + " acquired a permit.");
+                Thread.sleep(2000); // Simulate work
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } finally {
+                System.out.println(Thread.currentThread().getName() + " released a permit.");
+                semaphore.release(); // Release the permit
+            }
+        };
+
+        // Start multiple threads
+        new Thread(worker, "Worker-1").start();
+        new Thread(worker, "Worker-2").start();
+        new Thread(worker, "Worker-3").start();
+        new Thread(worker, "Worker-4").start();
+    }
+}
+
+
+Output:
+Worker-1 is waiting for a permit...
+Worker-2 is waiting for a permit...
+Worker-1 acquired a permit.
+Worker-2 acquired a permit.
+Worker-3 is waiting for a permit...
+Worker-4 is waiting for a permit...
+Worker-1 released a permit.
+Worker-3 acquired a permit.
+Worker-2 released a permit.
+Worker-4 acquired a permit.
+
+
+4. Future
+
+A Future represents the result of an asynchronous computation. It allows you to retrieve the result once the computation is complete.
+Use Case:
+
+    Executing tasks asynchronously and retrieving the result later.
+
+Example:
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+public class FutureExample {
+    public static void main(String[] args) {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        Callable<Integer> task = () -> {
+            System.out.println("Task is running...");
+            Thread.sleep(2000); // Simulate work
+            return 42; // Return a result
+        };
+
+        Future<Integer> future = executor.submit(task);
+
+        System.out.println("Main thread is doing other work...");
+
+        try {
+            Integer result = future.get(); // Wait for the result
+            System.out.println("Result of the task: " + result);
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        } finally {
+            executor.shutdown();
+        }
+    }
+}
+
+Output:
+Main thread is doing other work...
+Task is running...
+Result of the task: 42
+
+
+Summary of Use Cases
+
+    CountDownLatch: Wait for a group of threads to complete before proceeding.
+    CyclicBarrier: Synchronize threads at a common barrier point (phased execution).
+    Semaphore: Limit concurrent access to a shared resource.
+    Future: Perform asynchronous computations and retrieve results.
+	
+______________________________________________________________________________________________________
+
+-> CompletableFuture: A Powerful Tool for Asynchronous Programming in Java
+
+A CompletableFuture is a class in Java's java.util.concurrent package that represents a future result of an asynchronous computation. It provides a way to write non-blocking, asynchronous code, significantly improving application performance and responsiveness.
+
+Allows us to execute tasks asynchronously, freeing up the main thread for other work.   
+Leverages thread pools to efficiently manage concurrent tasks.   
+
+
+Example:
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
+public class CompletableFutureExample {
+
+    public static void main(String[] args) {
+        System.out.println("Main thread starts...");
+
+        // 1. Create an asynchronous task
+        CompletableFuture<Void> emailTask = CompletableFuture.runAsync(() -> {
+            sendEmail();
+        });
+
+        CompletableFuture<Void> logTask = CompletableFuture.runAsync(() -> {
+            logOrder();
+        });
+
+        // 2. Combine tasks and wait for their completion
+        CompletableFuture<Void> combinedTasks = CompletableFuture.allOf(emailTask, logTask);
+
+        // 3. Block the main thread until all tasks are done
+        try {
+            combinedTasks.get(); // Waits for all tasks to complete
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Main thread ends...");
+    }
+
+    private static void sendEmail() {
+        try {
+            System.out.println("Sending email... (Thread: " + Thread.currentThread().getName() + ")");
+            Thread.sleep(2000); // Simulate delay
+            System.out.println("Email sent!");
+        } catch (InterruptedException e) {
+            System.out.println("Error in sending email: " + e.getMessage());
+        }
+    }
+
+    private static void logOrder() {
+        try {
+            System.out.println("Logging order... (Thread: " + Thread.currentThread().getName() + ")");
+            Thread.sleep(1000); // Simulate delay
+            System.out.println("Order logged!");
+        } catch (InterruptedException e) {
+            System.out.println("Error in logging order: " + e.getMessage());
+        }
+    }
+}
+
+Output:
+Main thread starts...
+Sending email... (Thread: ForkJoinPool.commonPool-worker-1)
+Logging order... (Thread: ForkJoinPool.commonPool-worker-2)
+Order logged!
+Email sent!
+Main thread ends...
+
+
+
+What the Code Does
+
+    Creates Asynchronous Tasks:
+        sendEmail() and logOrder() are executed asynchronously using CompletableFuture.runAsync().
+        Each task runs in a separate thread.
+
+    Combines Tasks:
+        CompletableFuture.allOf(emailTask, logTask) ensures that the main thread waits until both tasks are completed.
+
+    Blocks Main Thread (Optional):
+        The get() method blocks the main thread until all tasks are done. This is for testing purposes; in real applications, you might avoid blocking.
+		
+		
+Enhancements
+
+    Custom Thread Pool: You can define a custom thread pool to limit the number of threads:
+	
+Executor executor = Executors.newFixedThreadPool(2);
+CompletableFuture.runAsync(() -> sendEmail(), executor);
+CompletableFuture.runAsync(() -> logOrder(), executor);
+
+
+2. Error Handling: Handle exceptions gracefully:
+
+emailTask.exceptionally(ex -> {
+    System.out.println("Error in email task: " + ex.getMessage());
+    return null;
+});
+
+______________________________________________________________________________________________________
+
+-> What is CompletableFuture in Java?
+
+CompletableFuture is a class in the java.util.concurrent package that allows you to write asynchronous, non-blocking code in Java. It represents a future result of an asynchronous computation and provides a way to:
+
+    Execute tasks asynchronously.
+    Combine multiple asynchronous tasks.
+    Handle results and exceptions in a non-blocking way.
+
+Introduced in Java 8, it builds on the Future interface but is more powerful and flexible due to its ability to compose tasks and chain callbacks.
+Key Features
+
+    Asynchronous Execution:
+        You can run tasks on separate threads without blocking the main thread.
+    Task Composition:
+        Combine multiple tasks (sequentially or in parallel).
+    Callback Chaining:
+        Attach callbacks to handle results or exceptions once the task completes.
+    Non-Blocking:
+        You can attach handlers instead of blocking the calling thread to wait for the result.
+    Exception Handling:
+        Provides built-in mechanisms to handle exceptions.
+
+Detailed Example: Asynchronous API Simulation
+
+Let’s simulate a real-world scenario where:
+
+    You fetch user data from a database (asynchronously).
+    You fetch the user's order details (asynchronously based on user data).
+    Then you combine the results and display them.
+	
+	
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
+public class CompletableFutureExample {
+
+    public static void main(String[] args) {
+        System.out.println("Starting asynchronous tasks...");
+
+        // Step 1: Fetch user details (asynchronous)
+        CompletableFuture<String> userFuture = CompletableFuture.supplyAsync(() -> {
+            System.out.println("Fetching user details... (Thread: " + Thread.currentThread().getName() + ")");
+            sleep(2000); // Simulating delay
+            return "User123";
+        });
+
+        // Step 2: Fetch orders for the user (asynchronous and depends on user details)
+        CompletableFuture<String> ordersFuture = userFuture.thenApplyAsync(userId -> {
+            System.out.println("Fetching orders for " + userId + "... (Thread: " + Thread.currentThread().getName() + ")");
+            sleep(3000); // Simulating delay
+            return "Order456, Order789";
+        });
+
+        // Step 3: Combine results and display (chaining)
+        CompletableFuture<Void> resultFuture = ordersFuture.thenAccept(orders -> {
+            System.out.println("User orders retrieved: " + orders);
+        });
+
+        // Step 4: Exception Handling
+        resultFuture.exceptionally(ex -> {
+            System.out.println("An error occurred: " + ex.getMessage());
+            return null;
+        });
+
+        // Block main thread to wait for all tasks (only for demonstration)
+        try {
+            resultFuture.get(); // Wait until all tasks complete
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("All tasks completed.");
+    }
+
+    // Simulates a delay for asynchronous tasks
+    private static void sleep(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+}
+
+Output:
+Starting asynchronous tasks...
+Fetching user details... (Thread: ForkJoinPool.commonPool-worker-1)
+Fetching orders for User123... (Thread: ForkJoinPool.commonPool-worker-2)
+User orders retrieved: Order456, Order789
+All tasks completed.
+
+
+Explanation of the Code
+
+    CompletableFuture.supplyAsync():
+        Executes a task asynchronously and returns a CompletableFuture holding the result.
+        Example:
+
+    CompletableFuture<String> userFuture = CompletableFuture.supplyAsync(() -> "User123");
+
+thenApplyAsync():
+
+    Chains a task that depends on the result of a previous task.
+    Example:
+
+    CompletableFuture<String> ordersFuture = userFuture.thenApplyAsync(userId -> "Order456, Order789");
+
+thenAccept():
+
+    Consumes the result of a previous task but doesn't return a new result.
+    Example:
+
+    ordersFuture.thenAccept(orders -> System.out.println("Orders: " + orders));
+
+exceptionally():
+
+    Handles exceptions that occur during task execution.
+    Example:
+
+    resultFuture.exceptionally(ex -> {
+        System.out.println("Error: " + ex.getMessage());
+        return null;
+    });
+
+get():
+
+    Blocks the main thread to wait for the result of the CompletableFuture. (Not recommended for real-world applications unless necessary.)
+	
+	
+Key Concepts Highlighted
+
+    Asynchronous Execution:
+        userFuture and ordersFuture run on separate threads provided by the ForkJoinPool.
+
+    Chaining Tasks:
+        ordersFuture depends on the result of userFuture and executes only after it completes.
+
+    Non-Blocking Design:
+        The main thread is not blocked while the tasks execute.
+
+    Exception Handling:
+        If an exception occurs during task execution, it is handled by the exceptionally() block.
+
+Advantages of CompletableFuture
+
+    Simplifies asynchronous programming.
+    Enables writing cleaner and non-blocking code.
+    Provides powerful chaining and exception handling mechanisms.
+	
+______________________________________________________________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

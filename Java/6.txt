@@ -1,0 +1,53 @@
+-> Dependency injection (DI) is a process whereby objects define their dependencies (that is, the other objects with which they work) only through constructor arguments. provide example code to explain this statement
+
+public interface MessageService {
+    void sendMessage(String message, String recipient);
+}
+
+public class EmailService implements MessageService {
+    @Override
+    public void sendMessage(String message, String recipient) {
+        System.out.println("Email sent to " + recipient + " with message: " + message);
+    }
+}
+
+public class MessageProcessor {
+    private final MessageService messageService;
+
+    // Constructor injection
+    public MessageProcessor(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    public void processMessage(String message, String recipient) {
+        messageService.sendMessage(message, recipient);
+    }
+}
+
+
+public class Main {
+    public static void main(String[] args) {
+        // Inject the dependency via the constructor
+        MessageService emailService = new EmailService();
+        MessageProcessor processor = new MessageProcessor(emailService);
+
+        // Use the processor to send a message
+        processor.processMessage("Hello, World!", "example@example.com");
+    }
+}
+
+Output:
+Email sent to example@example.com with message: Hello, World!
+
+
+1. Dependency Injection: The MessageProcessor class depends on the MessageService interface to perform its function, and this dependency is injected through the constructor. This pattern is known as constructor injection, a common form of dependency injection.
+
+2. Loose Coupling: By depending on the MessageService interface rather than a specific implementation (like EmailService), the MessageProcessor class is loosely coupled to the MessageService implementation. This allows you to swap EmailService with another implementation of MessageService without changing the MessageProcessor code.
+
+3. Easier Testing: Because MessageProcessor depends on an interface, you can easily substitute a mock or stub implementation of MessageService in tests. This enables isolated testing of MessageProcessor’s behavior without relying on a specific MessageService implementation.
+______________________________________________________________________________________________________
+
+
+
+------------------------------------------------------------------------------------------------------
+

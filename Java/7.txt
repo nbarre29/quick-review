@@ -1,0 +1,754 @@
+-> JSON Web Tokens (JWTs) are commonly used as a form of user identification issued after the initial authentication of a user.
+
+How JWT Works in User Authentication and Identification:
+
+1) User Authentication:
+
+    The user provides their credentials (e.g., username and password) to the authentication server.
+    The server validates the credentials against its database or identity provider.
+
+2) JWT Issuance:
+
+    If the credentials are valid, the server generates a JWT.
+    The token is typically signed using a secret (HMAC) or a public/private key pair (RSA or ECDSA) to ensure its authenticity and integrity.
+
+3) JWT as User Identification:
+
+    The JWT contains claims that represent the user's identity and other information (e.g., user ID, roles, permissions).
+	Example of a decoded JWT payload:
+	
+{
+  "sub": "1234567890",       // Subject (User ID)
+  "name": "John Doe",        // User's name
+  "email": "johndoe@example.com", // User's email
+  "role": "admin",           // Role or permissions
+  "iat": 1627817763,         // Issued at time
+  "exp": 1627821363          // Expiration time
+}
+
+4) JWT Usage:
+
+    The client (e.g., browser or mobile app) stores the JWT, typically in:
+        Memory or localStorage (in browsers).
+        Secure storage (in mobile apps).
+    For subsequent requests, the client sends the JWT (usually in the Authorization header as a Bearer token) to identify itself.
+	
+5) Server Verifies JWT:
+
+    The server validates the JWT by checking its signature and claims.
+    If valid, the server uses the claims in the token to identify the user and their permissions.
+	
+	
+-> JWT claims are the core information that JWTs transmit (kinda like the letter inside a sealed envelope). The JWT claims included in the payload determine which information the JWT communicates (i.e., user identity, permissions, expiration of JWT, to name a few).
+
+-> Key Points About JWT and User Identification
+
+    Issued After Authentication:
+        A JWT is issued after the user is authenticated to serve as a proof of identity for subsequent requests.
+
+    Stateless:
+        JWTs are stateless, meaning the server does not need to store user sessions. All necessary information is encoded within the token itself.
+
+    Self-Contained:
+        The token contains all the information needed to identify the user (e.g., user ID, roles, etc.), reducing the need for additional database lookups.
+
+    Secure:
+        JWTs are signed to ensure that they cannot be tampered with. However, it’s crucial to:
+            Use secure storage (e.g., avoid storing JWTs in localStorage when possible).
+            Set a reasonable expiration time (exp) to reduce risk in case of token leakage.
+
+    Not Encrypted by Default:
+        By default, JWTs are not encrypted. They are base64-encoded, so anyone who intercepts the token can read its claims. Sensitive data should not be stored in a JWT unless encrypted.
+		
+-> Advantages of Using JWT for User Identification:
+
+    Scalability:
+        Statelessness makes JWTs ideal for distributed systems, as they eliminate the need for a central session store.
+    Efficiency:
+        No server-side session lookup is needed; the token itself contains all user information.
+    Cross-Domain Authentication:
+        JWTs work well for Single Sign-On (SSO) across multiple services.
+
+Disadvantages and Risks:
+
+    Token Size:
+        JWTs can be large, which may increase the payload size in HTTP headers.
+    Replay Attacks:
+        If a token is stolen, it can be reused until it expires. Solutions include token rotation or using short-lived tokens with refresh tokens.
+		
+		
+-> Summary
+
+JWTs are indeed a form of user identification issued after the user has been authenticated. They provide a secure, stateless way to transmit user information between the client and server, reducing the need for session management and enabling scalability in modern applications.
+______________________________________________________________________________________________________
+
+-> Access Token: Short-lived
+
+    Purpose: Used for authentication to access protected resources (e.g., APIs).
+    Lifespan: Typically short (e.g., a few minutes to a few hours).
+    Why short? To minimize risk if the token is compromised.
+
+Refresh Token: Long-lived
+
+    Purpose: Used to obtain new access tokens without requiring the user to log in again.
+    Lifespan: Typically longer (e.g., days, weeks, or even months).
+    Why long? To maintain user sessions without frequent reauthentication.
+
+Workflow Example:
+
+    A user logs in, and the system issues both an access token and a refresh token.
+    The access token is used to authenticate requests.
+    Once the access token expires, the refresh token can be sent to get a new access token (without needing the user to log in again).
+    If the refresh token also expires, the user must log in again to get new tokens.
+
+This mechanism is common in OAuth 2.0 and other authentication frameworks.
+______________________________________________________________________________________________________
+
+-> While OAuth 2.0 is often used in scenarios that involve authentication, OAuth 2.0 is not primarily an authentication protocol. It is an authorization protocol, designed specifically to grant applications limited access to a user's resources without exposing their credentials.
+
+Difference Between Authentication and Authorization
+
+    Authentication: Verifying the identity of a user. "Who are you?"
+    Authorization: Determining what permissions the user has. "What are you allowed to do?"
+	
+OAuth 2.0 and Authentication
+
+OAuth 2.0 does not inherently perform authentication. However, it is commonly misused or extended to simulate authentication. This happens because the OAuth flow often provides information about the user (e.g., through the access token or an additional ID token in OpenID Connect).
+Why OAuth 2.0 Is Not Authentication by Itself
+
+    OAuth 2.0 focuses on granting a third-party application access to resources hosted on a resource server.
+    OAuth 2.0 tokens (e.g., access tokens) are designed to provide access, not prove a user's identity.
+	
+
+-> How Authentication Is Achieved with OAuth 2.0
+
+Authentication can be implemented using extensions or additional protocols built on top of OAuth 2.0:
+1. OpenID Connect (OIDC):
+
+    OIDC is a standard built on top of OAuth 2.0 that adds authentication capabilities.
+    It introduces the concept of an ID token, a JWT (JSON Web Token) that contains information about the user (e.g., user ID, email, name).
+    Example Flow:
+        The user authenticates with the Authorization Server.
+        The client receives an ID token along with an access token.
+        The ID token is used to verify the user's identity.
+		
+		
+-> When OAuth 2.0 Appears to Be Used for Authentication
+
+    Social Login:
+        Services like "Login with Google" or "Login with Facebook" use OAuth 2.0 to grant applications access to basic profile information.
+        While it seems like "authentication," OAuth is being used to fetch user details, not to verify identity directly.
+
+    Access Token Misuse:
+        Some developers misuse access tokens for authentication. This can lead to security vulnerabilities because access tokens are meant for resource access, not identity verification.
+		
+		
+-> Risks of Using OAuth 2.0 for Authentication
+
+    Security Issues:
+        Misusing access tokens for authentication can result in token leakage or confusion attacks.
+        OAuth 2.0 does not define a way to ensure the authenticity of tokens (e.g., validating who the token was issued for).
+
+    Incompatibility:
+        OAuth 2.0 flows may not handle all authentication use cases (e.g., password-less authentication or multifactor authentication).
+		
+		
+-> Best Practices for Authentication
+
+If you need authentication:
+
+    Use OpenID Connect (OIDC) for a standardized and secure approach to authentication.
+    Avoid using OAuth 2.0 access tokens for identity verification.
+	
+	
+-> Summary
+
+While OAuth 2.0 can be adapted or extended to handle authentication in certain cases, it is primarily an authorization protocol. For true authentication capabilities, it is best to use OpenID Connect (OIDC) or other dedicated authentication protocols.
+______________________________________________________________________________________________________
+
+
+-> Why Access Tokens Should Be Sent as JSON and Stored in Memory:
+
+    Stored in Memory (Not Local Storage or Cookies):
+        Security Risk in Local Storage:
+            Local storage is accessible through JavaScript, which makes it vulnerable to cross-site scripting (XSS) attacks.
+        Cookies Risk:
+            Cookies are prone to cross-site request forgery (CSRF) attacks, even with secure flags.
+        In-Memory Storage Advantage:
+            Tokens stored in memory are transient and only available during the application's lifecycle, reducing the attack surface.
+
+    Sent as JSON:
+        JSON format makes it easier to parse and handle in modern client-side applications.
+        JSON aligns well with the REST API and OAuth 2.0 conventions.
+
+Best Practices Summary:
+
+    Access Tokens:
+        Store in memory (e.g., in a variable or state management library).
+        Use them for short-lived authentication.
+        Avoid persistent storage (local storage, session storage, cookies).
+
+    Refresh Tokens:
+        Should not be stored in memory because they are long-lived.
+        Store securely in HttpOnly cookies, which are inaccessible to JavaScript and thus safer against XSS.
+		
+Additional Notes:
+
+If your application is vulnerable to XSS attacks, storing access tokens even in memory won't fully protect them. Always secure your application against XSS by sanitizing inputs, using Content Security Policy (CSP), and avoiding inline scripts.
+
+______________________________________________________________________________________________________
+-> OAuth 2.0 works by delegating user authentication to an Authorization Server and then using that authentication to grant limited access to resources. Let’s break this down to clarify how OAuth 2.0 delegates authentication:
+
+How OAuth 2.0 Delegates Authentication
+
+    OAuth 2.0’s Role in Authentication:
+        OAuth 2.0 itself is primarily an authorization protocol, not an authentication protocol.
+        However, it delegates user authentication to a trusted Authorization Server (e.g., Google, Facebook, or your organization's identity provider).
+        The Authorization Server performs the actual authentication of the user (e.g., verifying their credentials like username and password).
+
+    Authorization Server’s Role:
+        Once the user is authenticated, the Authorization Server issues an access token to the client application.
+        Optionally, if using OpenID Connect (OIDC) (an extension of OAuth 2.0), it may also issue an ID token, which provides authentication details about the user.
+
+    Delegation Example:
+        A third-party app (the client) does not directly handle user authentication.
+        Instead, it redirects the user to the Authorization Server (e.g., Google) to authenticate.
+        After successful authentication, the Authorization Server grants the app an access token (and possibly an ID token for authentication purposes).
+		
+		
+-> Workflow of Delegated Authentication Using OAuth 2.0
+
+    User Requests Access:
+        A user wants to access a resource or service via a third-party application.
+        Example: A user wants to log in to an app using their Google account.
+
+    App Redirects to Authorization Server:
+        The app redirects the user to the Authorization Server (e.g., Google's login page).
+
+    User Authenticates with the Authorization Server:
+        The user enters their credentials (e.g., email and password) directly with the Authorization Server.
+        The third-party app does not see or manage the credentials.
+
+    Authorization Server Verifies Authentication:
+        If the user's credentials are valid, the Authorization Server generates an access token (and optionally an ID token if using OIDC).
+
+    Tokens Are Sent to the App:
+        The Authorization Server redirects the user back to the app with the tokens.
+
+    App Uses the Access Token:
+        The app uses the access token to make authorized API calls to the Resource Server to access the user's data.
+		
+		
+-> Why Delegation Is Useful
+
+    Security:
+        The app does not handle or store user credentials, reducing the risk of data breaches.
+        Authentication is handled by a trusted Authorization Server.
+
+    Separation of Concerns:
+        The app focuses on functionality and leaves authentication to a specialized service.
+
+    Single Sign-On (SSO):
+        Users can authenticate with a single identity provider and access multiple apps without re-entering credentials.
+		
+		
+-> OAuth 2.0 in the Context of Delegation vs Authentication
+
+    OAuth 2.0 Delegates Authentication:
+        The Authorization Server handles authentication and informs the client application that the user is authenticated by issuing tokens.
+        The client trusts the Authorization Server's decision.
+
+    OAuth 2.0 Does Not Authenticate Users Directly:
+        OAuth 2.0 itself doesn’t define how the user is authenticated (e.g., username/password, biometrics, etc.).
+        This is left to the Authorization Server’s implementation.
+		
+		
+-> OpenID Connect: Extending OAuth 2.0 for Authentication
+
+To explicitly handle authentication, OpenID Connect (OIDC) extends OAuth 2.0 by adding:
+
+    ID Tokens: A signed JWT that contains user identity details (e.g., name, email, user ID).
+    An authentication flow built on top of OAuth 2.0.
+	
+	
+-> Summary
+
+OAuth 2.0 delegates user authentication to a trusted Authorization Server, which authenticates the user and then issues tokens (e.g., access tokens, ID tokens). This approach enhances security and scalability by separating authentication from the application and relying on a trusted server to handle it. However, for explicit authentication workflows, OpenID Connect is the preferred extension of OAuth 2.0.
+
+______________________________________________________________________________________________________
+
+1. What is a Bearer Token?
+
+    Definition
+        A bearer token is essentially a string (often a JSON Web Token, or JWT) that proves you have the right to access a particular resource or API.
+
+    “Bearer” Semantics
+        Anyone holding (bearing) this token is assumed to be authorized.
+        No additional verification (like a password or client secret) is required once the token has been issued.
+
+    Typical Use in OAuth 2.0
+        Access tokens in OAuth 2.0 are often implemented as bearer tokens.
+        A user or client authenticates once (e.g., via username/password or a trusted third-party), and the server issues a bearer token for future requests.
+
+2. How to Use a Bearer Token
+Step 1: Acquire the Token
+
+    Typically obtained after a successful login or OAuth 2.0 authorization flow.
+    The server issues a token that the client can store (e.g., in memory, localStorage, sessionStorage, or a secure HTTP-only cookie).
+
+Step 2: Include the Token in Requests
+
+    When making an HTTP request to a protected resource, include an Authorization header with the value:
+
+    Authorization: Bearer <token>
+
+Example (using fetch in JavaScript):
+
+fetch("https://api.example.com/protected-endpoint", {
+  method: "GET",
+  headers: {
+    "Authorization": "Bearer YOUR_ACCESS_TOKEN"
+  }
+})
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error(error));
+
+    Most backend frameworks or API gateways check this header to decide if the request is authorized.
+
+Step 3: Token Validation
+
+    On the server side, the token is validated (e.g., by verifying its signature, expiry time, issuer, audience, etc., if it’s a JWT).
+    If valid, the server processes the request; if invalid or expired, the server typically returns an HTTP 401 (Unauthorized) error.
+
+3. Best Practices
+
+    Use HTTPS
+        Always use TLS (HTTPS) to protect the token in transit. Since the bearer token is all that is needed to access the resource, sending it over unencrypted HTTP can expose the token to interception.
+
+    Store Tokens Securely
+        Avoid storing tokens in insecure places (e.g., plain cookies without secure flags, localStorage in some contexts, or code repositories).
+        Consider security implications (e.g., XSS attacks) for where you store the token on the client side.
+
+    Refresh Tokens
+        If the bearer token expires, you’ll need a new one. OAuth 2.0 often uses a refresh token to obtain new access tokens without requiring the user to re-login.
+
+    Token Revocation
+        If a bearer token is compromised, you need a mechanism to invalidate or revoke it (e.g., a token blacklist or short expiration times plus frequent refresh).
+
+4. Example Overview
+
+Scenario: You have a web app that needs to call a protected API.
+
+    User Logs In – The user enters credentials on your website.
+    Obtain Access Token – Your server (or front-end, depending on flow) gets a bearer token from an OAuth 2.0 provider (or your own authentication server).
+    Store the Token – The token is stored safely on the client or server (e.g., in memory or a secure cookie).
+    Make Requests – Each time the client calls a protected endpoint, it includes:
+
+    Authorization: Bearer <ACCESS_TOKEN>
+
+    Validate – The server checks the token’s validity (issuer, signature, expiry) before responding.
+    Handle Expiration – When the token expires, either prompt the user to log in again or use a refresh token to get a new access token.
+
+Key Points
+
+    Bearer tokens give “bearer” access, so protect them like passwords.
+    Send them in the Authorization header (most common pattern).
+    Use HTTPS and good security practices (e.g., short token lifetimes, secure storage, refresh tokens, revocation strategies).
+
+That’s the high-level explanation of what bearer tokens are and how to use them in an HTTP-based application or API.
+______________________________________________________________________________________________________
+
+-> Few multiple-choice questions about bearer tokens
+
+1. Which HTTP header is typically used to include a bearer token in a request?
+
+A. Content-Type: Bearer <token>
+B. Bearer-Token: <token>
+C. Authorization: Bearer <token>
+D. X-Auth-Token: Bearer <token>
+
+Answer: C
+Explanation: When using bearer tokens, the standard approach is to place them in the Authorization header as Authorization: Bearer <token>.
+
+
+2. Why is it called a “bearer” token?
+
+A. Because the token is attached to a “bearer” email address
+B. Because whoever “bears” (possesses) the token can access the protected resources
+C. Because it needs to be included in the body of the request
+D. Because it is part of the OAuth 1.0 specification
+
+Answer: B
+Explanation: A bearer token essentially means whoever holds the token can use it to make requests to protected resources—no extra proof of identity is required.
+
+
+3. In Postman, how should you configure a request that requires a bearer token?
+
+A. Paste the token into the request URL
+B. Use the Authorization tab, select “Bearer Token,” and enter the token
+C. Add the token under the Headers tab with the key “Bearer”
+D. Include the token in the request body as JSON
+
+Answer: B
+Explanation: The recommended (and most user-friendly) way in Postman is to open the Authorization tab, select Bearer Token from the dropdown, and place your token in the provided field.
+
+
+4. What is the primary security risk if you embed a bearer token in the request URL?
+
+A. The token may never reach the server
+B. The URL is always encrypted, so there is no risk
+C. The token could be exposed in server logs and browser history
+D. The token cannot be validated
+
+Answer: C
+Explanation: Placing tokens in the URL can lead to logging or caching of URLs (in servers, proxies, and browser history), exposing sensitive credentials.
+
+
+5. Which of the following is not a best practice for handling bearer tokens?
+
+A. Using HTTPS to protect tokens in transit
+B. Storing tokens in a secure, short-lived manner
+C. Sharing the token with untrusted third parties for convenience
+D. Refreshing tokens before they expire
+
+Answer: C
+Explanation: Tokens should never be shared with untrusted third parties. They are as sensitive as a password—anyone who has the token can access the protected resources.
+
+
+6. A bearer token is typically obtained after:
+
+A. A successful authentication or OAuth 2.0 flow
+B. Opening any HTTP connection without credentials
+C. Subscribing to a public RSS feed
+D. Sending an HTTP OPTIONS request
+
+Answer: A
+Explanation: Bearer tokens are issued as proof of authentication—often via OAuth 2.0, OpenID Connect, or a custom login flow on the server.
+
+
+7. If a bearer token expires, what should the client do?
+
+A. Reuse the same expired token
+B. Immediately reset the user’s password
+C. Request a new token (e.g., using a refresh token or re-authentication)
+D. Change the endpoint URL to bypass authentication
+
+Answer: C
+Explanation: When tokens expire, the client usually requests a new one—commonly via a refresh token flow or by prompting the user to log in again.
+______________________________________________________________________________________________________
+
+-> End-to-End Flow for OKTA/Azure SSO with React Frontend and Spring Boot Backend
+
+🔹 Full Architecture Diagram
+
++-------------+                     +-------------------+                     +---------------------+
+|             |                     |                   |                     |                     |
+|   React     | <--(1) Login-------->|  OKTA / Azure AD  |                     | Spring Boot Backend |
+|   Frontend  |                     | (SSO Authentication)                     | (JWT + OAuth2.0)   |
+|             |                     |                   |                     |                     |
++-------------+                     +-------------------+                     +---------------------+
+       |                                     |                                         |             
+       | (2) Redirect User to Login          |                                         |             
+       | -----------------------------------> |                                         |             
+       |                                     | (3) User Authenticates with AD           |             
+       |                                     | ---------------------------------------> |             
+       |                                     | (4) OKTA/Azure issues Authorization Code |             
+       |                                     | <--------------------------------------- |             
+       | (5) Authorization Code Received     |                                         |             
+       | <---------------------------------- |                                         |             
+       |                                     |                                         |             
+       | (6) Exchange Code for Tokens        |                                         |             
+       | -----------------------------------> |                                         |             
+       |                                     | (7) OKTA/Azure issues:                   |             
+       |                                     |    - ID Token (User identity)            |             
+       |                                     |    - Access Token (API Authorization)    |             
+       |                                     |    - Refresh Token (Optional)            |             
+       |                                     | <--------------------------------------- |             
+       | (8) Store Tokens Securely           |                                         |             
+       |                                     |                                         |             
+       | (9) Send API Call with AccessToken  |                                         |             
+       | -----------------------------------> |                                         |             
+       |                                     | (10) Validate JWT                        |             
+       |                                     | ---------------------------------------> |             
+       |                                     | (11) Decode JWT & Verify Signature       |             
+       |                                     | (12) Extract Claims & Roles              |             
+       |                                     |                                         |             
+       |                                     | (13) Return Secured API Response         |             
+       |                                     | <-------------------------------------- |             
+       | (14) Render Secured Data            |                                         |             
+       | <---------------------------------- |                                         |   
+
+
+
+🔹 Summary
+Step	Action
+1-4		User logs in via React → OKTA/Azure AD authenticates
+5-7		React exchanges Authorization Code → Gets ID Token & Access Token
+8-10	React sends API request with Access Token → Backend validates JWT
+11-14	Backend returns secured data → React renders it	   
+
+
+This solution involves Single Sign-On (SSO) via OKTA or Azure Active Directory (AD) in a React frontend, while the Spring Boot backend handles authentication, JWT validation, and OAuth 2.0 authorization.
+🔹 Overview of Authentication Flow
+
+    User accesses the React frontend.
+    React redirects the user to OKTA/Azure AD login page.
+    User logs in using company credentials (Active Directory).
+    OKTA/Azure AD authenticates the user and redirects back to React with an authorization code.
+    React exchanges the authorization code for an access token and ID token.
+    React sends the access token in the request to the Spring Boot backend.
+    Spring Boot validates the JWT (access token) and processes the request.
+
+🔹 Step-by-Step Flow with Diagram
+1️) User Authentication via OKTA/Azure AD
+
+    The React app redirects the user to the OKTA/Azure AD authentication page.
+    The user logs in with their company credentials.
+    OKTA/Azure AD validates credentials and issues an Authorization Code.
+
+📌 Authorization Code Flow:
+
+React (Client) --> OKTA/Azure AD --> User Logs In --> OKTA/Azure AD Redirects Back to React with Authorization Code
+
+
+2) React Exchanges Authorization Code for Tokens
+
+    React makes a request to OKTA/Azure AD to exchange the Authorization Code for:
+        ID Token (User identity)
+        Access Token (Used to access backend services)
+        Refresh Token (Optional)
+
+Example Request:
+
+POST https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=authorization_code
+&client_id=YOUR_CLIENT_ID
+&client_secret=YOUR_CLIENT_SECRET
+&redirect_uri=http://localhost:3000/callback
+&code=AUTHORIZATION_CODE
+
+
+📌 Result:
+
+{
+  "access_token": "eyJhbGciOi...",
+  "id_token": "eyJhbGciOi...",
+  "token_type": "Bearer",
+  "expires_in": 3600
+}
+
+
+3) React Sends Access Token to Spring Boot Backend
+
+    React stores the tokens securely (e.g., in HTTP-only cookies or local storage).
+    React includes the access token in the Authorization header for all API calls.
+
+📌 Request to Backend API:
+
+GET /api/user
+Authorization: Bearer ACCESS_TOKEN
+
+
+4) Spring Boot Validates JWT Token
+
+    Spring Boot validates the token using OAuth 2.0 security filters.
+    Decodes the JWT to verify:
+        Signature
+        Expiry
+        User Roles (claims)
+
+📌 Spring Security Configuration (SecurityConfig.java)
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests(auth -> auth
+                .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt); // Enable JWT authentication
+
+        return http.build();
+    }
+}
+
+📌 JWT Validation via JwtDecoder
+
+@Bean
+public JwtDecoder jwtDecoder() {
+    return NimbusJwtDecoder.withJwkSetUri("https://login.microsoftonline.com/{tenant_id}/discovery/v2.0/keys")
+            .build();
+}
+
+
+5) Backend Responds with Secured Data
+
+    If the JWT is valid, Spring Boot processes the request.
+    Returns user-specific data to React.
+
+📌 Example Backend Response:
+
+{
+  "username": "john.doe",
+  "roles": ["ROLE_USER"],
+  "email": "john.doe@company.com"
+}
+
+
+🔹 Summary of Key Components
+1	User logs in via React (Redirects to OKTA/Azure AD)
+2	OKTA/Azure AD validates credentials and returns an Authorization Code
+3	React exchanges Authorization Code for an Access Token
+4	React sends API requests with the Access Token
+5	Spring Boot validates JWT token and processes requests
+6	Spring Boot sends secured data back to React
+
+🔹 Next Steps
+
+1 Implement OKTA/Azure SSO in React using @okta/okta-auth-js or @azure/msal-react
+2 Secure Spring Boot backend with OAuth 2.0 & JWT
+3 Deploy & Test with real company AD users
+--------------------------------------------------------------------------------------------------------------------
+
+-> Detailed Explanation of Each Step from above Architecture Diagram
+
+Step 1: User Clicks "Login" in React Frontend
+
+    The React app detects that the user is not authenticated and redirects them to the OKTA/Azure AD login page.
+
+
+
++-------------+                     +-------------------+                     +---------------------+
+|             |                     |                   |                     |                     |
+|   React     | <--(1) Login-------->|  OKTA / Azure AD  |                     | Spring Boot Backend |
+|   Frontend  |                     | (SSO Authentication)                     | (JWT + OAuth2.0)   |
+|             |                     |                   |                     |                     |
++-------------+                     +-------------------+                     +---------------------+
+
+
+Step 2: Redirect to OKTA / Azure AD for Authentication
+
+    The React app constructs a login URL and redirects the user to OKTA or Azure AD.
+    The request includes:
+        Client ID (Identifies the React app).
+        Redirect URI (Where OKTA/Azure AD will send the user after login).
+        Response Type: code (Asks for an authorization code).
+        Scope: openid profile email (Requests user information).
+		
+       |                                     |                                         |             
+       | (2) Redirect User to Login          |                                         |             
+       | -----------------------------------> |                                         |             
+
+
+📌 Example URL:
+
+https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/authorize
+?client_id=YOUR_CLIENT_ID
+&redirect_uri=http://localhost:3000/callback
+&response_type=code
+&scope=openid profile email
+
+
+Step 3: User Logs in with Company Credentials
+
+    The user enters their corporate email & password.
+    OKTA/Azure AD validates the credentials against the Active Directory.
+	
+       |                                     | (3) User Authenticates with AD           |             
+       |                                     | ---------------------------------------> |             
+
+
+Step 4: Authorization Code is Issued
+
+    If authentication is successful, OKTA/Azure AD redirects the user back to React with an Authorization Code.
+	
+	
+       |                                     | (4) OKTA/Azure issues Authorization Code |             
+       |                                     | <--------------------------------------- |             
+
+
+📌 Example Response:
+
+http://localhost:3000/callback?code=AUTHORIZATION_CODE
+
+
+Step 5: React Exchanges Authorization Code for Tokens
+
+    The React app sends the Authorization Code to OKTA/Azure AD's Token Endpoint.
+	
+       | (5) Authorization Code Received     |                                         |             
+       | <---------------------------------- |                                         |    
+
+📌 Example Token Exchange Request:
+
+POST https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=authorization_code
+&client_id=YOUR_CLIENT_ID
+&client_secret=YOUR_CLIENT_SECRET
+&redirect_uri=http://localhost:3000/callback
+&code=AUTHORIZATION_CODE	   
+
+
+Step 6: OKTA/Azure AD Issues Tokens
+
+    ID Token → Contains user details.
+    Access Token → Used to authenticate API calls.
+    Refresh Token (optional) → Used to get new access tokens.
+	
+	
+Step 7: Securely Store Tokens in React
+
+    Tokens are stored in HTTP-only cookies or local storage (for Single Page Applications).
+	
+	
+Step 8: React Calls Spring Boot API with Access Token
+
+    The React app sends API requests with the access token in the Authorization header.
+	
+	
+Step 9: Spring Boot Validates JWT
+
+    The Spring Boot backend validates the JWT:
+        Signature validation → Ensures the token is from OKTA/Azure AD.
+        Expiry validation → Checks if the token is still valid.
+        Scopes & claims → Extracts user roles.
+		
+		
+📌 Spring Security Validation
+
+@Bean
+public JwtDecoder jwtDecoder() {
+    return NimbusJwtDecoder.withJwkSetUri("https://login.microsoftonline.com/{tenant_id}/discovery/v2.0/keys")
+            .build();
+}
+		
+		
+Step 10: API Responds with Secure Data
+
+    If the JWT is valid, Spring Boot sends user-specific data to React.
+
+📌 Example API Response:
+
+{
+  "username": "john.doe",
+  "roles": ["ROLE_USER"],
+  "email": "john.doe@company.com"
+}
+
+       |                                     | (13) Return Secured API Response         |             
+       |                                     | <-------------------------------------- |             
+       | (14) Render Secured Data            |                                         |             
+       | <---------------------------------- |                                         |             
+
+Step 11: React Renders the Data
+
+    React displays user details and restricts content based on roles and permissions.
+	
+______________________________________________________________________________________________________

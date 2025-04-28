@@ -1,0 +1,7 @@
+1) 
+
+2) demonstrated a joint account that Alice and Bob shares and code refactoring
+
+3)
+
+4) Map.computeIfAbsent , Enhanced Switch Expression (new and better,   Java 14 stable)

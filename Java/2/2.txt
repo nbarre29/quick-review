@@ -1,0 +1,350 @@
+-> 
+
+public class Account {
+    private double balance;
+
+    public void deposit(double amount) {
+        if (amount > 0) {
+            balance += amount;
+        } else {
+            throw new IllegalArgumentException("Deposit amount must be positive");
+        }
+    }
+
+    public void withdraw(double amount) {
+        if (amount > 0 && amount <= balance) {
+            balance -= amount;
+        } else {
+            throw new IllegalArgumentException("Withdrawal amount must be positive and less than or equal to the balance");
+        }
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+
+}
+
+-------------------------------------
+
+
+public class Customer {
+
+    String name;
+
+    Account account;
+
+    Customer(String name, Account account) {
+        this.name = name;
+        this.account = account;
+    }
+
+}
+
+
+-------------------------------------
+
+public class JointAccountDemo {
+    public static void main(String[] args) {
+        Account jointAccount = new Account();
+        Customer alice = new Customer("Alice", jointAccount);
+        Customer bob = new Customer("Bob", jointAccount);
+
+        alice.account.deposit(1000);
+        bob.account.withdraw(200);
+
+        System.out.println("Alice's balance: " + alice.account.getBalance()); // 800.0
+        System.out.println("Bob's balance: " + bob.account.getBalance()); // 800.0
+        System.out.println(alice.account == bob.account); // true
+    }
+}
+
+______________________________________________________________________________
+-> same functionality as above, some refactoring is done
+Changes: 
+1) Customer.java   
+a) fields are private final
+b) constructor is made public
+
+2) JointAccountDemo.java
+a) use the public getAccount() instead of access private field
+
+public class Account {
+    private double balance;
+
+    public void deposit(double amount) {
+        if (amount > 0) {
+            balance += amount;
+        } else {
+            throw new IllegalArgumentException("Deposit amount must be positive");
+        }
+    }
+
+    public void withdraw(double amount) {
+        if (amount > 0 && amount <= balance) {
+            balance -= amount;
+        } else {
+            throw new IllegalArgumentException("Withdrawal amount must be positive and less than or equal to the balance");
+        }
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+
+}
+
+-------------------------------------
+
+public class Customer {
+
+    private final String name;
+
+    private final Account account;
+
+    public Customer(String name, Account account) {
+        this.name = name;
+        this.account = account;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Account getAccount() {
+        return account;
+    }
+}
+
+-------------------------------------
+
+
+public class JointAccountDemo {
+    public static void main(String[] args) {
+        Account jointAccount = new Account();
+        Customer alice = new Customer("Alice", jointAccount);
+        Customer bob = new Customer("Bob", jointAccount);
+
+        alice.getAccount().deposit(1000);
+        bob.getAccount().withdraw(200);
+
+        System.out.println("Alice's balance: " + alice.getAccount().getBalance()); // 800.0
+        System.out.println("Bob's balance: " + bob.getAccount().getBalance()); // 800.0
+        System.out.println(alice.getAccount() == bob.getAccount()); // true
+    }
+}
+
+______________________________________________________________________________
+
+-> same functionality as above, some more refactoring
+Changes: 
+1) Customer.java   
+a) record is used
+b) a compact constructor is added to enforce name validation.
+
+2) JointAccountDemo.java
+a) notice how getAccount() is replaced here
+
+
+public class Account {
+    private double balance;
+
+    public void deposit(double amount) {
+        if (amount > 0) {
+            balance += amount;
+        } else {
+            throw new IllegalArgumentException("Deposit amount must be positive");
+        }
+    }
+
+    public void withdraw(double amount) {
+        if (amount > 0 && amount <= balance) {
+            balance -= amount;
+        } else {
+            throw new IllegalArgumentException("Withdrawal amount must be positive and less than or equal to the balance");
+        }
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+
+}
+
+-------------------------------------
+
+public record Customer(String name, Account account) {
+
+    public Customer {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be null or empty");
+        }
+    }
+}
+
+-------------------------------------
+
+
+public class JointAccountDemo {
+    public static void main(String[] args) {
+        Account jointAccount = new Account();
+        Customer alice = new Customer("Alice", jointAccount);
+        Customer bob = new Customer("Bob", jointAccount);
+
+        alice.account().deposit(1000);
+        bob.account().withdraw(200);
+
+        System.out.println("Alice's balance: " + alice.account().getBalance()); // 800.0
+        System.out.println("Bob's balance: " + bob.account().getBalance()); // 800.0
+        System.out.println(alice.account() == bob.account()); // true
+    }
+}
+
+______________________________________________________________________________
+-> updated Account.java with proper synchronized blocks to ensure thread-safe access to the shared state (balance) in concurrent environments:
+
+
+This ensures:
+
+    Mutual exclusion: Only one thread at a time can enter any of these methods on the same Account instance.
+
+    Race conditions are avoided, maintaining data integrity across concurrent deposit/withdraw operations.
+	
+
+
+public class Account {
+    private double balance;
+
+    public synchronized void deposit(double amount) {
+        if (amount > 0) {
+            balance += amount;
+        } else {
+            throw new IllegalArgumentException("Deposit amount must be positive");
+        }
+    }
+
+    public synchronized void withdraw(double amount) {
+        if (amount > 0 && amount <= balance) {
+            balance -= amount;
+        } else {
+            throw new IllegalArgumentException("Withdrawal amount must be positive and less than or equal to the balance");
+        }
+    }
+
+    public synchronized double getBalance() {
+        return balance;
+    }
+}
+______________________________________________________________________________
+
+-> updated Account.java using ReentrantLock instead of synchronized for finer-grained concurrency control. This allows you to manage locking more explicitly and flexibly (e.g. timed locks, try-locks, etc.).
+
+package org.example;
+
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+public class Account {
+    private double balance;
+    private final Lock lock = new ReentrantLock();
+
+    public void deposit(double amount) {
+        lock.lock();
+        try {
+            if (amount > 0) {
+                balance += amount;
+            } else {
+                throw new IllegalArgumentException("Deposit amount must be positive");
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void withdraw(double amount) {
+        lock.lock();
+        try {
+            if (amount > 0 && amount <= balance) {
+                balance -= amount;
+            } else {
+                throw new IllegalArgumentException("Withdrawal amount must be positive and less than or equal to the balance");
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public double getBalance() {
+        lock.lock();
+        try {
+            return balance;
+        } finally {
+            lock.unlock();
+        }
+    }
+}
+
+______________________________________________________________________________
+-> Updated JointAccountDemo.java with multithreading:
+
+updated JointAccountDemo.java that simulates concurrent access to the same account by Alice and Bob using Java threads.
+
+What it demonstrates:
+
+    Alice and Bob concurrently deposit and withdraw money from the same account.
+
+    Since Account uses ReentrantLock, balance updates are thread-safe.
+
+    Logs will show interleaved execution depending on thread scheduling.
+	
+	
+
+public class JointAccountDemo {
+    public static void main(String[] args) throws InterruptedException {
+        Account jointAccount = new Account();
+        Customer alice = new Customer("Alice", jointAccount);
+        Customer bob = new Customer("Bob", jointAccount);
+
+        // Thread for Alice: deposit 1000 and withdraw 300
+        Thread aliceThread = new Thread(() -> {
+            try {
+                alice.account().deposit(1000);
+                System.out.println("Alice deposited 1000");
+                Thread.sleep(100); // simulate delay
+                alice.account().withdraw(300);
+                System.out.println("Alice withdrew 300");
+            } catch (Exception e) {
+                System.err.println("Alice error: " + e.getMessage());
+            }
+        });
+
+        // Thread for Bob: deposit 500 and withdraw 200
+        Thread bobThread = new Thread(() -> {
+            try {
+                bob.account().deposit(500);
+                System.out.println("Bob deposited 500");
+                Thread.sleep(50); // simulate delay
+                bob.account().withdraw(200);
+                System.out.println("Bob withdrew 200");
+            } catch (Exception e) {
+                System.err.println("Bob error: " + e.getMessage());
+            }
+        });
+
+        // Start both threads
+        aliceThread.start();
+        bobThread.start();
+
+        // Wait for both threads to finish
+        aliceThread.join();
+        bobThread.join();
+
+        // Final result
+        System.out.println("Final balance: " + jointAccount.getBalance()); // Should be 1000
+        System.out.println("Alice and Bob share the same account: " + (alice.account() == bob.account()));
+    }
+}
+______________________________________________________________________________

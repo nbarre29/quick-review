@@ -1,0 +1,146 @@
+-> Builder Pattern
+
+The Builder Design Pattern is a creational design pattern used to construct complex objects step by step. It allows you to create different types and representations of an object using the same construction code.
+Key Concepts
+
+    Separation of Construction and Representation:
+        The Builder pattern separates the logic of building an object from its representation.
+    Step-by-Step Construction:
+        You can build an object step by step, and the process can vary depending on the requirements.
+    Fluent Interface:
+        The Builder pattern often uses a fluent interface (method chaining) for better readability.
+
+When to Use the Builder Pattern
+
+    When creating an object with many optional parameters or configurations.
+    When the object construction process is complex and needs to be separated for clarity and reusability.
+    When you want the same construction process to create different representations of an object.
+
+Example Scenario
+
+Let’s create an example of a "Car" object using the Builder pattern. The car will have several optional and required attributes (e.g., engine, seats, color, GPS).
+Implementation
+1. Define the Car Class
+
+The Car class is the object we want to build.
+
+public class Car {
+    // Required attributes
+    private String engine;
+    private int seats;
+
+    // Optional attributes
+    private String color;
+    private boolean hasGPS;
+
+    // Private constructor
+    private Car(CarBuilder builder) {
+        this.engine = builder.engine;
+        this.seats = builder.seats;
+        this.color = builder.color;
+        this.hasGPS = builder.hasGPS;
+    }
+
+    // Getters
+    public String getEngine() {
+        return engine;
+    }
+
+    public int getSeats() {
+        return seats;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public boolean hasGPS() {
+        return hasGPS;
+    }
+
+    // Builder Class
+    public static class CarBuilder {
+        // Required attributes
+        private String engine;
+        private int seats;
+
+        // Optional attributes
+        private String color;
+        private boolean hasGPS;
+
+        // Constructor for required attributes
+        public CarBuilder(String engine, int seats) {
+            this.engine = engine;
+            this.seats = seats;
+        }
+
+        // Methods to set optional attributes
+        public CarBuilder setColor(String color) {
+            this.color = color;
+            return this;
+        }
+
+        public CarBuilder setGPS(boolean hasGPS) {
+            this.hasGPS = hasGPS;
+            return this;
+        }
+
+        // Build method to create the Car object
+        public Car build() {
+            return new Car(this);
+        }
+    }
+}
+
+
+2. Use the Builder to Create a Car
+
+Here’s how to use the CarBuilder to create Car objects with different configurations.
+
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a Car with all attributes
+        Car sportsCar = new Car.CarBuilder("V8 Engine", 2)
+                .setColor("Red")
+                .setGPS(true)
+                .build();
+
+        // Create a simple Car with required attributes only
+        Car basicCar = new Car.CarBuilder("V4 Engine", 4)
+                .build();
+
+        // Print car details
+        System.out.println("Sports Car: Engine = " + sportsCar.getEngine() + 
+                           ", Seats = " + sportsCar.getSeats() + 
+                           ", Color = " + sportsCar.getColor() + 
+                           ", GPS = " + sportsCar.hasGPS());
+
+        System.out.println("Basic Car: Engine = " + basicCar.getEngine() + 
+                           ", Seats = " + basicCar.getSeats() + 
+                           ", Color = " + basicCar.getColor() + 
+                           ", GPS = " + basicCar.hasGPS());
+    }
+}
+
+
+Advantages of Builder Pattern
+
+    Readability:
+        The construction process is clear and readable due to method chaining.
+    Immutability:
+        Once the object is built, it is immutable (if designed as such).
+    Flexibility:
+        Allows different configurations of the same object.
+    Separation of Concerns:
+        Construction logic is separated from the representation.
+
+Disadvantages
+
+    More Boilerplate Code:
+        The builder class can add extra complexity for simple objects.
+    Complexity:
+        Overhead of maintaining the builder if the object has too many attributes.
+
+The Builder design pattern is especially useful for creating objects with many optional parameters or for objects requiring detailed construction logic. 
+______________________________________________________________________________________________________

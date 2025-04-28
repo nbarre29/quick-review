@@ -1,0 +1,1397 @@
+-> Inheritance: The IS-A relationship is implemented through inheritance, where a subclass inherits the properties and methods of a superclass.
+
+
+class Animal {
+    void eat() {
+        System.out.println("This animal eats food.");
+    }
+}
+
+-----------------------------------------------------------------------------------------------------
+
+class Dog extends Animal {
+    void bark() {
+        System.out.println("The dog barks.");
+    }
+}
+
+-----------------------------------------------------------------------------------------------------
+
+public class IsARelationshipExample {
+    public static void main(String[] args) {
+        Dog dog = new Dog();
+        dog.eat();  // Inherited method from Animal // output: This animal eats food.
+        dog.bark(); // Method specific to Dog  // output: The dog barks.
+    }
+}
+
+IS-A Relationship: Represents inheritance, where a subclass is a specialized form of a superclass.
+Example: Dog IS-A Animal, meaning Dog inherits properties and behaviors from Animal.
+
+______________________________________________________________________________________________________
+
+-> Composition is a design principle in object-oriented programming where a class is composed of one or more objects from other classes, implying a "has-a" relationship.  Here's an example to illustrate composition:
+Class Engine: Represents an engine with a method to start it.
+Class Car: Represents a car that has an engine.
+-----------------------------------------------------------------------------------------------------
+// Engine.java
+public class Engine {
+    public void start() {
+        System.out.println("Engine started.");
+    }
+}
+-----------------------------------------------------------------------------------------------------
+
+// Car.java
+public class Car {
+    private final Engine engine;
+
+    // Constructor
+    public Car() {
+        this.engine = new Engine(); // Car has an Engine
+    }
+
+    public void startCar() {
+        engine.start(); // Using the Engine's start method
+        System.out.println("Car started.");
+    }
+
+    public static void main(String[] args) {
+        Car car = new Car();
+        car.startCar();
+    }
+}
+
+Output:
+Engine started.
+Car started.
+
+In this example:
+The Car class has an Engine object, demonstrating composition.
+The Car class uses the Engine class to start the engine when the car starts
+
+
+Option 1: Default Constructor Instantiating
+
+public Car() {
+    this.engine = new Engine();
+}
+
+
+Pros:
+
+    Simple and Self-Contained:
+        The Car class is responsible for creating its own Engine object.
+        This can be useful in simple scenarios where you don't need external control over the Engine.
+
+    Less Configuration:
+        No need to pass an Engine object when creating a Car. This simplifies usage in cases where every Car always needs the same type of Engine.
+
+Cons:
+
+    Tight Coupling:
+        The Car class is tightly coupled to the Engine class. If you need a different Engine (e.g., a mock for testing or a custom engine type), you would have to modify the Car class.
+
+    Harder to Test:
+        You cannot easily pass a mock or alternative implementation of Engine for testing purposes, as the Engine instance is created inside the Car constructor.
+
+    Reduced Flexibility:
+        If different Car instances need different Engine implementations, this approach doesn't allow for that flexibility.
+		
+	
+	
+Summary
+
+This example demonstrates composition because:
+
+    The Car class creates and owns the Engine instance.
+    The Engine is tightly coupled to the Car and cannot be reused independently in the current design.
+    The Engine's lifecycle is tied to the Car that owns it.
+
+If you want to make the relationship aggregation, you would need to allow the Engine to be created externally and passed into the Car constructor, making it reusable and decoupled.
+
+-----------------------------------------------------------------------------------------------------
+//// Car.java  one more way to pass a parameter to Car constructor and is Aggregation
+public class Car {
+    private final Engine engine;
+
+    // // Constructor accepts an Engine
+    public Car(Engine engine) {
+        this.engine = engine;   // // Aggregation: Car has an Engine, but doesn't own it
+    }
+
+    public void startCar() {
+        engine.start(); // Using the Engine's start method
+        System.out.println("Car started.");
+    }
+
+    public static void main(String[] args) {
+        Engine engine = new Engine();   // Engine exists independently
+
+        Car car = new Car(engine);
+        car.startCar();
+    }
+}
+
+Option 2: Parameterized Constructor (Dependency Injection)
+
+public Car(Engine engine) {
+    this.engine = engine;
+}
+
+
+Pros:
+
+    Loose Coupling:
+        The Car class is not responsible for creating the Engine instance. Instead, the responsibility is passed to the code that creates the Car object (caller).
+        Makes the Car class more flexible and reusable.
+
+    Improved Testability:
+        You can easily pass a mock Engine for testing purposes, making unit testing more straightforward.
+
+    Flexibility:
+        Allows you to use different implementations of Engine (e.g., ElectricEngine, DieselEngine) without modifying the Car class.
+
+    Supports Dependency Injection:
+        This approach aligns with dependency injection principles, which are widely used in modern applications to promote modularity and scalability.
+
+Cons:
+
+    More Configuration:
+        Requires the caller to provide an Engine instance when creating a Car object. This adds a slight overhead in some cases.
+
+    Extra Complexity for Simple Scenarios:
+        In simple cases where the Car class will always use the same Engine implementation, this may feel unnecessarily verbose.
+______________________________________________________________________________________________________
+
+-> diff b/w composition and inheritance
+
+Composition:
+1) Definition: Composition is a design principle where a class is composed of one or more objects of other classes, implying a "has-a" relationship.
+2) Flexibility: More flexible as it allows changing the behavior of a class at runtime by composing it with different objects.
+3) Encapsulation: Promotes better encapsulation as each class focuses on a single responsibility.
+4) Reuse: Encourages code reuse by combining existing classes to create more complex functionality.
+5) Coupling: Results in loosely coupled systems, making them easier to maintain and extend.
+
+Inheritance:
+1) Definition: Inheritance is a mechanism where a new class inherits properties and behaviors from an existing class, implying an "is-a" relationship.
+2) Extensibility: Allows extending existing classes to add new functionality without modifying the base class.
+3) Polymorphism: Supports polymorphism, enabling objects of different classes to be treated as objects of a common base class.
+4) Code Organization: Helps organize code in a hierarchical manner, making it easier to understand and maintain.
+5) Coupling: Can lead to tightly coupled systems, making them harder to maintain and extend.
+
+In the context of the SOLID principles, composition is generally preferred over inheritance. This preference aligns with several of the SOLID principles, particularly the Single Responsibility Principle (SRP), the Open/Closed Principle (OCP), and the Dependency Inversion Principle (DIP).
+______________________________________________________________________________________________________
+
+-> Composition vs Aggregation
+
+Composition
+
+    Definition: It represents a strong "has-a" relationship where the "part" cannot exist independently of the "whole."
+    Ownership: The "whole" class owns the "part" class and manages its lifecycle.
+    Lifetime Dependency: The lifecycle of the "part" is tightly bound to the "whole." If the "whole" is destroyed, the "part" is often destroyed as well.
+    Use Case: Suitable when the "part" is inherently tied to the "whole." For instance, in a House, the Rooms belong to the House and cannot exist independently of it.
+    Example: A Car contains an Engine. In this relationship, the Engine is created and managed by the Car, and its lifecycle is tied to the Car.
+
+Aggregation
+
+    Definition: It represents a weaker "has-a" relationship where the "part" can exist independently of the "whole."
+    Ownership: The "whole" class holds a reference to the "part," but the "part" can exist independently and is not tightly coupled.
+    Lifetime Dependency: The lifecycle of the "part" is independent of the "whole." If the "whole" is destroyed, the "part" can continue to exist and be reused elsewhere.
+    Use Case: Suitable when the "part" can exist independently and may be shared among multiple "whole" objects. For example, in a Library, the Books can exist independently and be shared with other libraries or entities.
+    Example: A Team has Players. The Players can exist without the Team and may even belong to multiple teams.
+
+Conclusion
+
+    Use Composition when the "part" is integral to the "whole" and cannot or should not exist independently.
+    Use Aggregation when the "part" can exist independently and might be shared among different "whole" objects.
+
+______________________________________________________________________________________________________
+
+Arrays.asList
+Description:
+
+    Arrays.asList creates a fixed-size list backed by the provided array.
+    Changes to the list reflect changes to the underlying array and vice versa.
+
+Key Characteristics:
+
+    Mutable List:
+        You can modify elements in the list (e.g., set), but you cannot add or remove elements because the size is fixed.
+        Example:
+
+    List<String> list = Arrays.asList("a", "b", "c");
+    list.set(0, "x"); // Works
+    list.add("d");    // Throws UnsupportedOperationException
+
+Backed by Array:
+
+    The list is backed by the array, meaning changes to the array are reflected in the list, and vice versa.
+    Example:
+
+        String[] array = {"a", "b", "c"};
+        List<String> list = Arrays.asList(array);
+        array[0] = "x";
+        System.out.println(list); // Output: [x, b, c]
+
+    Performance:
+        Minimal overhead because the list is directly backed by the array (no copying).
+
+    Nullable Elements:
+        Arrays.asList allows null elements.
+
+
+When to Use:
+
+    When you need a fixed-size list backed by an array.
+    When you need a mutable list to modify elements but not its size.
+    For quick creation of test data or utilities where immutability is not required.
+
+2. List.of
+Description:
+
+    List.of creates an immutable list introduced in Java 9 as part of the java.util package.
+
+Key Characteristics:
+
+    Immutable List:
+        The list cannot be modified (no add, remove, or set operations are allowed).
+        Example:
+
+    List<String> list = List.of("a", "b", "c");
+    list.add("d");    // Throws UnsupportedOperationException
+    list.set(0, "x"); // Throws UnsupportedOperationException
+
+Not Backed by Array:
+
+    The list is not tied to any underlying array. Any changes to the original array (if used to create the list) do not affect the list.
+
+No null Elements:
+
+    List.of does not allow null elements.
+    Example:
+
+    List<String> list = List.of("a", null, "c"); // Throws NullPointerException
+
+Performance:
+
+    Slightly more overhead than Arrays.asList because it internally creates a new immutable list.
+
+
+When to Use:
+
+    When you need an immutable list.
+    When you want to ensure null safety (disallow null elements).
+    For creating constant lists in modern Java applications.
+
+
+Which One Should You Use?
+
+    Use List.of for modern applications if:
+        You need an immutable list.
+        You want to avoid bugs caused by modifying lists accidentally.
+        You're working in a null-safe environment.
+
+    Use Arrays.asList if:
+        You need a mutable but fixed-size list.
+        Performance is critical, and you want minimal overhead.
+        You're working with Java versions prior to 9.
+
+For most modern Java applications, List.of is preferred for its simplicity, immutability, and safety.
+______________________________________________________________________________________________________
+-> Library and Book (Aggregation Example)
+
+
+// Book class
+public class Book {
+    private final String title;
+    private final String author;
+
+    // Constructor
+    public Book(String title, String author) {
+        this.title = title;
+        this.author = author;
+    }
+
+    // Getters
+    public String getTitle() {
+        return title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    @Override
+    public String toString() {
+        return "Book{title='" + title + "', author='" + author + "'}";
+    }
+}
+
+
+// Library class (Aggregation relationship with Book)
+import java.util.ArrayList;
+import java.util.List;
+
+public class Library {
+    private List<Book> books;
+
+    // Constructor initializes the list of books
+    public Library() {
+        this.books = new ArrayList<>();
+    }
+
+    // Add a book to the library (no ownership)
+    public void addBook(Book book) {
+        books.add(book);
+    }
+
+    // Display all books in the library
+    public void displayBooks() {
+        if (books.isEmpty()) {
+            System.out.println("The library is empty.");
+        } else {
+            System.out.println("Books in the library:");
+            for (Book book : books) {
+                System.out.println(book);
+            }
+        }
+    }
+}
+
+
+// Main class
+public class LibraryManagement {
+    public static void main(String[] args) {
+        // Create some books (independent of the Library)
+        Book book1 = new Book("To Kill a Mockingbird", "Harper Lee");
+        Book book2 = new Book("1984", "George Orwell");
+        Book book3 = new Book("The Great Gatsby", "F. Scott Fitzgerald");
+
+        // Create two libraries
+        Library library1 = new Library();
+        Library library2 = new Library();
+
+        // Add books to both libraries (shared books - aggregation)
+        library1.addBook(book1);
+        library1.addBook(book2);
+
+        library2.addBook(book2); // Shared book
+        library2.addBook(book3);
+
+        // Display books in both libraries
+        System.out.println("Library 1:");
+        library1.displayBooks();
+
+        System.out.println("\nLibrary 2:");
+        library2.displayBooks();
+    }
+}
+
+What Makes This Aggregation?
+
+    Shared Objects:
+        The Book object book2 is shared between library1 and library2.
+        This demonstrates that the Library does not own the Book objects. Instead, the Library only refers to existing Book objects.
+
+    Independent Lifecycles:
+        If a Library object is destroyed, the Book objects remain unaffected.
+        For example, book1, book2, and book3 exist independently of any Library.
+		
+		
+		
+Refactoring:
+
+// Book class can be a record class
+public record Book(String title, String author) {
+
+}
+______________________________________________________________________________________________________
+
+-> Library and Book (Composition Example)
+
+package demo;
+
+import java.util.ArrayList;
+import java.util.List;
+
+// Book class
+class Book {
+    private final String title;
+    private final String author;
+
+    // Constructor
+    public Book(String title, String author) {
+        this.title = title;
+        this.author = author;
+    }
+
+    // Getters
+    public String getTitle() {
+        return title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    @Override
+    public String toString() {
+        return "Book{title='" + title + "', author='" + author + "'}";
+    }
+}
+
+// Library class (Composition relationship with Book)
+class Library {
+    private final List<Book> books;
+
+    // Constructor initializes the list of books
+    public Library() {
+        this.books = new ArrayList<>();
+    }
+
+    // Create and add a new book to the library (ownership)
+    public void addBook(String title, String author) {
+        Book book = new Book(title, author); // Library creates the Book
+        books.add(book);
+    }
+
+    // Display all books in the library
+    public void displayBooks() {
+        if (books.isEmpty()) {
+            System.out.println("The library is empty.");
+        } else {
+            System.out.println("Books in the library:");
+            for (Book book : books) {
+                System.out.println(book);
+            }
+        }
+    }
+
+    // Clear all books in the library
+    public void clearLibrary() {
+        books.clear(); // Destroy the contained books
+    }
+}
+
+// Main class
+public class LibraryManagement {
+    public static void main(String[] args) {
+        // Create a Library
+        Library library = new Library();
+
+        // Add books to the library (Library creates and owns the books)
+        library.addBook("To Kill a Mockingbird", "Harper Lee");
+        library.addBook("1984", "George Orwell");
+        library.addBook("The Great Gatsby", "F. Scott Fitzgerald");
+
+        // Display books in the library
+        library.displayBooks();
+
+        // Destroy the library's books (illustrating composition)
+        System.out.println("\nClearing the library...");
+        library.clearLibrary();
+
+        // Attempt to display books after clearing
+        library.displayBooks();
+    }
+}
+
+Key Points in Composition:
+
+    Ownership:
+        The Library class creates and manages the Book objects.
+        Book objects do not exist independently of the Library.
+
+    Lifecycle Dependency:
+        If the Library is destroyed (or cleared using clearLibrary()), the Book objects are also destroyed (i.e., they cannot exist outside the Library).
+
+    Implementation Changes:
+        Library has a method addBook that takes the details (e.g., title, author) and creates the Book objects internally. The Library is responsible for the Book's lifecycle.
+
+    No External Shared Objects:
+        Unlike aggregation, where Book objects could exist independently or be shared between multiple Library instances, here the Book objects are tightly coupled with a single Library.
+		
+What Makes This Composition?
+
+    The Library creates and owns the Book objects.
+    The Book objects have no existence outside the Library.
+    Clearing or destroying the Library destroys its Book objects.
+______________________________________________________________________________________________________
+
+-> Records in Java
+Definition: Records are a special kind of class in Java introduced in Java 14 (as a preview feature) and officially in Java 16. They are designed to be a concise way to create immutable data classes. Records automatically generate boilerplate code such as constructors, equals(), hashCode(), and toString() methods.
+
+1) Conciseness: Records reduce the amount of boilerplate code needed for data classes.
+2) Immutability: Fields in a record are final by default, making the record immutable. This promotes safer and more predictable code, especially in concurrent applications.
+3) Clarity: Records clearly express the intent of the class as a simple data carrier. This improves code readability and maintainability.
+
+
+Here are some best practices for using records in Java:  
+1) Use Records for Simple Data Carriers: Records are ideal for classes that primarily serve as simple data carriers. If your class is mainly used to store data and does not require complex behavior, consider using a record.  
+2) Immutability: Leverage the immutability of records. Since records are immutable by default, they are thread-safe and can be safely shared across multiple threads without additional synchronization.  
+3) Avoid Business Logic: Keep business logic out of records. Records should primarily be used to store data. If you need to add complex behavior or business logic, consider using a regular class.  
+4) Validation in Constructors: Perform validation in the canonical constructor. Since records generate a canonical constructor, you can add validation logic to ensure the integrity of the data. 
+______________________________________________________________________________________________________
+
+-> demonstrate the validation in the canonical constructor of the record:
+
+In Java, a canonical constructor in a record is the constructor that takes all the components (fields) of the record as parameters. This constructor is automatically generated by the compiler, but you can also define it explicitly if you need to add custom logic, such as validation.
+
+public record Point(int x, int y) {
+    public Point {
+        if (x < 0 || y < 0) {
+            throw new IllegalArgumentException("Coordinates must be non-negative");
+        }
+    }
+}
+-----------------------------------------------------------------------------------------------------
+
+public class PointDemo {
+    public static void main(String[] args) {
+        try {
+            Point validPoint = new Point(5, 10);
+            System.out.println(validPoint); // Output: Point[x=5, y=10]
+
+            Point invalidPoint = new Point(-5, 10); // This will throw an exception
+        } catch (IllegalArgumentException e) {
+            System.err.println(e.getMessage()); // Output: Coordinates must be non-negative
+        }
+    }
+}
+
+In this example:
+The Point record has a canonical constructor that takes x and y as parameters.
+Validation logic is added inside the constructor to ensure that both x and y are non-negative.
+If either x or y is negative, an IllegalArgumentException is thrown.
+______________________________________________________________________________________________________
+
+What is a Record?
+
+A Record in Java is a special kind of class that:
+
+    Is primarily used for modeling immutable data.
+    Automatically generates:
+        A constructor.
+        Accessor methods (getters).
+        equals(), hashCode(), and toString() implementations.
+	
+	
+// Define a record to represent a data structure
+public record Person(String name, int age) {
+}
+
+This creates an immutable data class Person with two fields: name (String) and age (int).
+The record keyword automatically generates:
+
+    A constructor: Person(String name, int age)
+    Getters: name() and age()
+    equals(), hashCode(), and toString().
+	
+public class RecordExample {
+    public static void main(String[] args) {
+        // Create a new record instance
+        Person person = new Person("Alice", 25);
+
+        // Access fields using auto-generated methods
+        System.out.println("Name: " + person.name()); // Output: Name: Alice
+        System.out.println("Age: " + person.age());  // Output: Age: 25
+
+        // Automatically generated toString()
+        System.out.println(person); // Output: Person[name=Alice, age=25]
+
+        // Equality check (uses auto-generated equals())
+        Person anotherPerson = new Person("Alice", 25);
+        System.out.println(person.equals(anotherPerson)); // Output: true
+
+        // Hash code (uses auto-generated hashCode())
+        System.out.println(person.hashCode()); // Output: HashCode based on name and age
+    }
+}
+
+Key Features of Records
+
+1)    Immutable Data:
+        Fields in a record are final by default.        
+
+2)    Concise Syntax:
+        No need to manually write constructors, getters, or override methods like equals() and toString().
+
+3)    Accessor Methods:
+        Fields in a record can be accessed using auto-generated getter methods, which are named after the fields (e.g., name() for name).
+
+4)    Custom Methods in Records:
+        You can define custom methods in a record just like a regular class.
+
+public record Rectangle(double length, double width) {
+    public double area() {
+        return length * width;
+    }
+}
+
+public static void main(String[] args) {
+    Rectangle rect = new Rectangle(5, 10);
+    System.out.println("Area: " + rect.area()); // Output: Area: 50.0
+}
+
+5)    Custom Validation:
+
+You can add validation logic in the compact constructor:
+
+		
+public record Employee(String name, double salary) {
+    public Employee {
+        if (salary < 0) {
+            throw new IllegalArgumentException("Salary cannot be negative");
+        }
+    }
+}
+
+
+public class Main {
+    public static void main(String[] args) {
+        Employee emp = new Employee("John", 5000); // Works
+        Employee invalidEmp = new Employee("Jane", -1000); // Throws IllegalArgumentException
+    }
+}
+
+
+Limitations of Records
+
+    Immutability:
+        Fields in a record are always final and cannot be modified after initialization.
+
+    Cannot Extend Other Classes:
+        Records implicitly extend java.lang.Record and cannot extend any other class.
+        Example: public record MyRecord() extends AnotherClass is not allowed.
+
+    Not for Complex Behavior:
+        Records are primarily for data modeling and not for classes with significant behavior.
+		
+______________________________________________________________________________________________________
+
+-> When defining a record, we can specify either a canonical constructor or a compact constructor, depending on our needs.
+
+Canonical Constructor
+
+A canonical constructor is automatically generated by the compiler when you declare a record. It matches the fields of the record and provides a straightforward way to initialize them. If you want to customize it, you must explicitly declare it, and it must match the exact signature of the automatically generated constructor (i.e., include all the components of the record).
+
+public record Person(String name, int age) {
+    public Person(String name, int age) {
+        if (age < 0) {
+            throw new IllegalArgumentException("Age must be non-negative");
+        }
+        this.name = name;
+        this.age = age;
+    }
+}
+
+
+Key points about the canonical constructor:
+
+    Must include all fields of the record in its parameter list.
+    Allows validation or preprocessing logic before assigning fields.
+    Explicitly assigns values to fields via this.
+
+Compact Constructor
+
+A compact constructor is a shorthand introduced to reduce verbosity when customizing the canonical constructor. With a compact constructor, you can skip explicitly declaring the parameter list and assigning field values, as the compiler generates this code for you.
+
+public record Person(String name, int age) {
+    public Person {
+        if (age < 0) {
+            throw new IllegalArgumentException("Age must be non-negative");
+        }
+        // The compiler automatically assigns `name` and `age`.
+    }
+}
+
+
+Key points about the compact constructor:
+
+    No parameter list is specified; the compiler implicitly uses the record components.
+    Field assignments are handled automatically.
+    You only need to focus on validation or custom logic, making the code more concise.
+	
+
+
+Here are the differences between canonical and compact constructors.
+
+    Syntax:
+    A canonical constructor requires specifying all parameters explicitly and assigning values to fields. In contrast, a compact constructor skips the parameter list and field assignments, relying on the compiler to handle these.
+
+    Boilerplate:
+    Canonical constructors are more verbose because you must explicitly define the parameter list and manually assign values to fields. Compact constructors are more concise and readable as they handle this automatically.
+
+    Field Initialization:
+    In a canonical constructor, you must explicitly handle field initialization using this. Compact constructors automatically initialize fields, so you don’t need to explicitly assign values.
+
+    Customization:
+    Both types allow for validation and preprocessing. However, canonical constructors are used when you need to fully customize the constructor, while compact constructors focus on simple validation or preprocessing logic.
+
+    Use Case:
+    Canonical constructors are best for scenarios where detailed control is required or when extra logic unrelated to the fields is involved. Compact constructors are more suitable for straightforward validation or preprocessing without additional field handling.
+
+
+______________________________________________________________________________________________________
+
+-> an example demonstrating the Singleton design pattern
+
+public class Singleton {
+    // The single instance of the class
+    private static final Singleton INSTANCE = new Singleton();
+
+    // Private constructor to prevent instantiation
+    private Singleton() {}
+
+    // Method to get the single instance of the class
+    public static Singleton getInstance() {
+        return INSTANCE;
+    }
+
+    // Example method to demonstrate functionality
+    public void showMessage() {
+        System.out.println("Hello from Singleton!");
+    }
+
+    public static void main(String[] args) {
+        // Get the single instance of Singleton
+        Singleton singleton = Singleton.getInstance();
+
+        // Call a method on the Singleton instance
+        singleton.showMessage();
+    }
+}
+
+In this example:
+The Singleton class has a private static final instance INSTANCE.
+The constructor is private to prevent instantiation from outside the class.
+The getInstance method returns the single instance of the class.
+
+-----------------------------------------------------------------------------------------------------
+
+-> In the above example, the Singleton pattern is implemented using a class. However, using an enum to implement the Singleton pattern is often considered a better approach due to its simplicity and built-in protection against serialization and reflection attacks.  Here is how you can implement the Singleton pattern using an enum:
+Explanation:
+Simplicity: The enum syntax is straightforward and concise.
+Serialization: Enums handle serialization automatically, ensuring that the Singleton property is maintained.
+Thread Safety: Enums are inherently thread-safe.
+Reflection Safety: Enums are immune to reflection attacks that can break the Singleton property.
+
+
+public enum Singleton {
+    INSTANCE;
+
+    public void showMessage() {
+        System.out.println("Hello from Singleton!");
+    }
+
+    public static void main(String[] args) {
+
+        Singleton.INSTANCE.showMessage();
+    }
+}
+
+______________________________________________________________________________________________________
+
+-> To demonstrate how the clone method can break the Singleton pattern, you can override the clone method in the Singleton class. By default, the clone method creates a new instance of the class, which can break the Singleton property.
+
+public class Singleton implements Cloneable {
+    // The single instance of the class
+    private static final Singleton INSTANCE = new Singleton();
+
+    // Private constructor to prevent instantiation
+    private Singleton() {}
+
+    // Method to get the single instance of the class
+    public static Singleton getInstance() {
+        return INSTANCE;
+    }
+
+    // Override the clone method to demonstrate breaking the Singleton
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
+    public void showMessage() {
+        System.out.println("Hello from Singleton!");
+    }
+
+    public static void main(String[] args) {
+        try {
+            // Get the single instance of Singleton
+            Singleton singleton1 = Singleton.getInstance();
+            singleton1.showMessage();
+
+            // Clone the Singleton instance
+            Singleton singleton2 = (Singleton) singleton1.clone();
+            singleton2.showMessage();
+
+            // Check if both instances are the same
+            System.out.println("Are both instances the same? " + (singleton1 == singleton2));
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+______________________________________________________________________________________________________
+
+-> Lazy initialization is a method of creating a Singleton instance where the instance is created only when it is needed. This approach can save resources if the Singleton instance is not always required.
+
+Explanation:
+Lazy Initialization: The Singleton instance is created only when it is first requested.
+Thread Safety: To ensure thread safety, synchronization is used when creating the instance.
+Efficiency: This approach avoids the overhead of creating the instance if it is never used.
+
+
+public class Singleton {
+    // The single instance of the class, initially null
+    private static Singleton instance;
+
+    // Private constructor to prevent instantiation
+    private Singleton() {}
+
+    // Method to get the single instance of the class, with lazy initialization
+    public static synchronized Singleton getInstance() {
+        if (instance == null) {
+            instance = new Singleton();
+        }
+        return instance;
+    }
+
+    // Example method to demonstrate functionality
+    public void showMessage() {
+        System.out.println("Hello from Singleton!");
+    }
+
+    public static void main(String[] args) {
+        // Get the single instance of Singleton
+        Singleton singleton = Singleton.getInstance();
+
+        // Call a method on the Singleton instance
+        singleton.showMessage();
+    }
+}
+______________________________________________________________________________________________________
+
+-> The Singleton design pattern offers several advantages:
+1) Controlled Access to a Single Instance: Ensures that a class has only one instance and provides a global point of access to it.
+2) Reduced Memory Usage: Since only one instance of the class is created, it can save memory, especially if the instance is heavy.
+3) Consistency: Ensures that all parts of the application use the same instance, maintaining consistency.
+4) Lazy Initialization: The instance can be created only when it is needed, which can improve performance if the instance is not always required.
+5) Thread Safety: Properly implemented Singleton can ensure thread safety, preventing multiple threads from creating multiple instances.
+6) Global Access Point: Provides a single point of access to the instance, making it easier to manage and use across the application.
+______________________________________________________________________________________________________
+
+-> Common use cases for the Singleton design pattern include:
+
+Configuration Settings: Managing application-wide configuration settings that need to be accessed globally.
+
+Logging: Implementing a centralized logging mechanism to ensure consistent logging throughout the application.
+
+Database Connections: Managing a single instance of a database connection to ensure efficient resource usage.
+
+Caching: Implementing a global cache to store frequently accessed data.
+
+Thread Pool Management: Managing a single instance of a thread pool to control the number of threads in the application.
+
+Resource Management: Managing access to shared resources like file systems or network connections.
+
+Service Locator: Implementing a service locator to provide a single point of access to various services in the application.
+______________________________________________________________________________________________________
+
+-> The Singleton design pattern has several disadvantages:
+
+Global State: Singletons introduce a global state into an application, which can make it harder to understand and debug.
+
+Hidden Dependencies: Dependencies on the Singleton instance are not explicit, making the code harder to test and maintain.
+
+Concurrency Issues: Improper implementation can lead to concurrency issues in a multithreaded environment.
+
+Difficult Testing: Singletons can make unit testing difficult because they carry state across tests, leading to potential test interdependencies.
+
+Inflexibility: Singletons can make it difficult to change the design or extend the class, as they enforce a single instance.
+
+Resource Management: If not properly managed, the Singleton instance can hold onto resources for the lifetime of the application, leading to potential memory leaks.
+______________________________________________________________________________________________________
+
+-> The benefits of using Optional in Java include:  
+
+Avoid NullPointerException: Optional helps to avoid NullPointerException by providing a clear way to represent the absence of a value.
+  
+Expressive Code: It makes the code more expressive and readable by clearly indicating that a value might be absent.  
+
+Functional Operations: Optional provides functional-style methods like ifPresent, orElse, orElseGet, and orElseThrow to handle the presence or absence of a value in a more concise and readable manner.  
+
+Encourages Best Practices: It encourages developers to think about the possibility of null values and handle them appropriately, leading to more robust and error-free code.
+  
+Improved API Design: Using Optional in method return types makes the API more informative and helps the users of the API understand that the method might return an absent value.
+
+https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html
+
+
+import java.util.Optional;
+
+public class OptionalExample {
+
+    public static void main(String[] args) {
+        OptionalExample example = new OptionalExample();
+
+        // Example with a non-null value
+        Optional<String> nonEmptyOptional = example.getValue("Hello, World!");
+        nonEmptyOptional.ifPresent(value -> System.out.println("Value is present: " + value));
+
+        // Example with a null value
+        Optional<String> emptyOptional = example.getValue(null);
+        emptyOptional.ifPresentOrElse(
+            value -> System.out.println("Value is present: " + value),
+            () -> System.out.println("Value is absent")
+        );
+    }
+
+    public Optional<String> getValue(String input) {
+        return Optional.ofNullable(input);
+    }
+}
+
+Output:
+Value is present: Hello, World!
+Value is absent
+-----------------------------------------------------------------------------------------------------
+-> In this modified code from above:
+orElseThrow is used to throw an exception if the value is absent.
+A try-catch block is used to handle the exception for the case where the value is absent.
+
+
+https://docs.oracle.com/javase/10/docs/api/java/util/OptionalInt.html#orElseThrow() 
+Since:
+10
+
+import java.util.Optional;
+
+public class OptionalExample {
+
+    public static void main(String[] args) {
+        OptionalExample example = new OptionalExample();
+
+        // Example with a non-null value
+        Optional<String> nonEmptyOptional = example.getValue("Hello, World!");
+        System.out.println("Value is present: " + nonEmptyOptional.orElseThrow());
+
+        // Example with a null value
+        Optional<String> emptyOptional = example.getValue(null);
+        try {
+            System.out.println("Value is present: " + emptyOptional.orElseThrow());
+        } catch (NoSuchElementException e) {
+            System.out.println("Value is absent");
+        }
+    }
+
+    public Optional<String> getValue(String input) {
+        return Optional.ofNullable(input);
+    }
+}
+
+Output:
+Value is present: Hello, World!
+Value is absent
+______________________________________________________________________________________________________
+
+-> 
+
+import java.util.Optional;
+
+public class OptionalExample {
+    public static void main(String[] args) {
+        String value1 = "Hello, World!";
+        String value2 = null;
+
+        // Using Optional.ofNullable() - wraps the value in an Optional
+        Optional<String> optional1 = Optional.ofNullable(value1);
+        Optional<String> optional2 = Optional.ofNullable(value2);
+
+        // Using ifPresent() to print if a value is present
+        optional1.ifPresent(val -> System.out.println("Value1: " + val)); // "Hello, World!"
+        optional2.ifPresent(val -> System.out.println("Value2: " + val)); // Won't print anything
+
+        // Using orElse() to provide a default value if null
+        System.out.println("Value1 (orElse): " + optional1.orElse("Default Value")); // "Hello, World!"
+        System.out.println("Value2 (orElse): " + optional2.orElse("Default Value")); // "Default Value"
+
+        // Using map() to transform the value
+        System.out.println("Uppercase Value1: " + optional1.map(String::toUpperCase).orElse("No Value")); // "HELLO, WORLD!"
+        System.out.println("Uppercase Value2: " + optional2.map(String::toUpperCase).orElse("No Value")); // "No Value"
+    }
+}
+______________________________________________________________________________________________________
+
+-> Few alternatives to using Optional in Java?
+
+1) Null Checks: Traditional null checks can be used to handle the absence of a value.  
+
+String value = getValue();
+if (value != null) {
+    System.out.println("Value is present: " + value);
+} else {
+    System.out.println("Value is absent");
+}
+
+2) Exceptions: Throwing exceptions to indicate the absence of a value.  
+
+String value = getValue();
+if (value == null) {
+    throw new NoSuchElementException("Value is absent");
+}
+System.out.println("Value is present: " + value);
+______________________________________________________________________________________________________
+
+-> Examples demonstrating the use of lambda expressions in Java:
+
+1) Iterating over a List
+
+import java.util.Arrays;
+import java.util.List;
+
+public class LambdaExample1 {
+    public static void main(String[] args) {
+        List<String> strings = Arrays.asList("one", "two", "three", "four");
+        strings.forEach(s -> System.out.println(s));
+    }
+}
+-----------------------------------------------------------------------------------------------------
+1a)  Lambda can be replaced with method reference 
+
+import java.util.Arrays;
+import java.util.List;
+
+public class LambdaExample1 {
+    public static void main(String[] args) {
+        List<String> strings = Arrays.asList("one", "two", "three", "four");
+        strings.forEach(System.out::println);
+    }
+}
+-----------------------------------------------------------------------------------------------------
+
+2) Using a Comparator
+
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
+public class LambdaExample2 {
+    public static void main(String[] args) {
+        List<String> strings = Arrays.asList("one", "two", "three", "four");
+        strings.sort((s1, s2) -> s1.compareTo(s2));
+        strings.forEach(System.out::println);
+    }
+}
+-----------------------------------------------------------------------------------------------------
+2a)  
+Lambda can be replaced with method reference 
+
+import java.util.Arrays;
+import java.util.List;
+
+public class LambdaExample2 {
+    public static void main(String[] args) {
+        List<String> strings = Arrays.asList("one", "two", "three", "four");
+        strings.sort(String::compareTo);   // sorts the list in natural order
+        strings.forEach(System.out::println);
+    }
+}
+-----------------------------------------------------------------------------------------------------
+2b) To replace the custom comparator with Comparator.naturalOrder(), you can modify the sort method call as follows:
+
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
+public class LambdaExample2 {
+    public static void main(String[] args) {
+        List<String> strings = Arrays.asList("one", "two", "three", "four");
+        strings.sort(Comparator.naturalOrder());
+        strings.forEach(System.out::println);
+    }
+}
+-----------------------------------------------------------------------------------------------------
+
+2c) To sort the list in reverse order, you need to use a comparator that reverses the natural order.
+ 
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
+public class LambdaExample2 {
+    public static void main(String[] args) {
+        List<String> strings = Arrays.asList("one", "two", "three", "four");
+        strings.sort(Comparator.reverseOrder());
+        strings.forEach(System.out::println);
+    }
+}
+-----------------------------------------------------------------------------------------------------
+3) Filtering a Collection
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class LambdaExample3 {
+    public static void main(String[] args) {
+        List<String> strings = Arrays.asList("one", "two", "three", "four");
+        List<String> filtered = strings.stream()
+                                       .filter(s -> s.startsWith("t"))
+                                       .collect(Collectors.toList());
+        filtered.forEach(System.out::println);
+    }
+}
+
+Output:
+two
+three
+-----------------------------------------------------------------------------------------------------
+3a) replace .collect(Collectors.toList()) with .toList()
+
+https://docs.oracle.com/en/java/javase/16/docs/api/java.base/java/util/stream/Stream.html#toList()
+Since:
+16
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class LambdaExample3 {
+    public static void main(String[] args) {
+        List<String> strings = Arrays.asList("one", "two", "three", "four");
+        List<String> filtered = strings.stream()
+                                       .filter(s -> s.startsWith("t"))
+                                       .toList();
+        filtered.forEach(System.out::println);
+    }
+}
+-----------------------------------------------------------------------------------------------------
+4) Transforming a Collection
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class LambdaExample4 {
+    public static void main(String[] args) {
+        List<String> strings = Arrays.asList("one", "two", "three", "four");
+        List<Integer> lengths = strings.stream()
+                                       .map(String::length)
+                                       .toList();
+        lengths.forEach(System.out::println);
+    }
+}
+
+Output:
+3
+3
+5
+4
+-----------------------------------------------------------------------------------------------------
+
+5) Implementing Functional Interfaces
+Using lambda expressions to implement functional interfaces such as Runnable.
+
+public class LambdaExample5 {
+    public static void main(String[] args) {
+        Runnable runnable = () -> System.out.println("Hello from a lambda!");
+        new Thread(runnable).start();
+    }
+}
+-----------------------------------------------------------------------------------------------------
+6) Custom Functional Interfaces
+Using lambda expressions to implement custom functional interfaces.
+
+@FunctionalInterface
+interface MathOperation {
+    int operate(int a, int b);
+}
+
+public class LambdaExample6 {
+    public static void main(String[] args) {
+        MathOperation addition = (a, b) -> a + b;
+        MathOperation multiplication = (a, b) -> a * b;
+
+        System.out.println("Addition: " + addition.operate(5, 3));
+        System.out.println("Multiplication: " + multiplication.operate(5, 3));
+    }
+}
+
+Output:
+Addition: 8
+Multiplication: 15
+-----------------------------------------------------------------------------------------------------
+6a) Lambda can be replaced with method reference 
+
+@FunctionalInterface
+interface MathOperation {
+    int operate(int a, int b);
+}
+
+public class LambdaExample6 {
+    public static void main(String[] args) {
+        MathOperation addition = Integer::sum;     // Lambda can be replaced with method reference 
+        MathOperation multiplication = (a, b) -> a * b;
+
+        System.out.println("Addition: " + addition.operate(5, 3));
+        System.out.println("Multiplication: " + multiplication.operate(5, 3));
+    }
+}
+-----------------------------------------------------------------------------------------------------
+7) Using Built-in Functional Interfaces
+Using lambda expressions with built-in functional interfaces such as BiFunction.
+
+https://docs.oracle.com/javase/8/docs/api/java/util/function/BiFunction.html
+
+import java.util.function.BiFunction;
+
+public class LambdaExample7 {
+    public static void main(String[] args) {
+        BiFunction<Integer, Integer, Integer> add = Integer::sum;
+        BiFunction<Integer, Integer, Integer> multiply = (a, b) -> a * b;
+
+        System.out.println("Addition: " + add.apply(5, 3));
+        System.out.println("Multiplication: " + multiply.apply(5, 3));
+    }
+}
+
+Addition: 8
+Multiplication: 15
+______________________________________________________________________________________________________
+
+-> Default methods in interfaces, introduced in Java 8, provide several benefits:
+Backward Compatibility: They allow adding new methods to interfaces without breaking the existing implementations of these interfaces.
+Code Reusability: They enable sharing common code among multiple classes that implement the interface, reducing code duplication.
+Flexibility: They allow interfaces to have method implementations, which can be overridden by implementing classes if needed.
+
+interface MyInterface {
+    void existingMethod();
+
+    default void newDefaultMethod() {
+        System.out.println("Default implementation of newDefaultMethod");
+    }
+}
+
+class MyClass implements MyInterface {
+    @Override
+    public void existingMethod() {
+        System.out.println("Implementation of existingMethod");
+    }
+
+    // Optionally override the default method
+    @Override
+    public void newDefaultMethod() {
+        System.out.println("Overridden implementation of newDefaultMethod");
+    }
+}
+
+public class DefaultMethodExample {
+    public static void main(String[] args) {
+        MyClass myClass = new MyClass();
+        myClass.existingMethod(); // Output: Implementation of existingMethod
+        myClass.newDefaultMethod(); // Output: Overridden implementation of newDefaultMethod
+    }
+}
+______________________________________________________________________________________________________
+
+-> Static methods in interfaces, introduced in Java 8, provide several benefits:
+Utility Methods: They allow defining utility methods related to the interface, which can be called without an instance of a class implementing the interface.
+Code Organization: They help in organizing related methods within the interface itself, rather than in separate utility classes.
+Default Implementations: They can provide default implementations that can be used directly or overridden by implementing classes.
+
+interface MathOperations {
+    static int add(int a, int b) {
+        return a + b;
+    }
+
+    static int subtract(int a, int b) {
+        return a - b;
+    }
+}
+
+public class StaticMethodExample {
+    public static void main(String[] args) {
+        int sum = MathOperations.add(5, 3);
+        int difference = MathOperations.subtract(5, 3);
+
+        System.out.println("Sum: " + sum);  //Sum: 8
+        System.out.println("Difference: " + difference);  //Difference: 2
+    }
+}
+______________________________________________________________________________________________________
+
+-> Differences Between Default and Static Methods in Interfaces
+
+1) Invocation:  
+Default Methods: Invoked on instances of the implementing class.
+Static Methods: Invoked on the interface itself, not on instances.
+
+2) Purpose:  
+Default Methods: Provide default behavior that can be overridden by implementing classes.
+Static Methods: Provide utility methods that are related to the interface but do not require an instance.
+
+3) Overriding:  
+Default Methods: Can be overridden by implementing classes.
+Static Methods: Cannot be overridden by implementing classes.
+
+4) Access:
+Default Methods: Can access instance methods and fields of the implementing class.
+Static Methods: Cannot access instance methods and fields; can only access other static methods and fields.
+______________________________________________________________________________________________________
+
+-> An inner class in Java is a class defined within another class. Here is an example:
+
+ public class OuterClass {
+    private String outerField = "Outer field";
+
+    // Inner class
+    public class InnerClass {
+        public void display() {
+            System.out.println("Accessing from inner class: " + outerField);
+        }
+    }
+
+    public void createInnerClassInstance() {
+        InnerClass inner = new InnerClass();
+        inner.display();
+    }
+
+    public static void main(String[] args) {
+        OuterClass outer = new OuterClass();
+        outer.createInnerClassInstance();
+    }
+}
+
+Output:
+Accessing from inner class: Outer field
+
+Explanation:
+InnerClass is an inner class defined within OuterClass.
+The InnerClass has access to the members of the OuterClass, including private fields.
+An instance of InnerClass is created and used within a method of OuterClass.
+-----------------------------------------------------------------------------------------------------
+
+-> To replace the inner class with a lambda expression, you can use a functional interface. Since the InnerClass in the provided code does not match any existing functional interface, you can define a custom functional interface.
+
+public class OuterClass {
+    private String outerField = "Outer field";
+
+    @FunctionalInterface
+    interface Displayable {
+        void display();
+    }
+
+    public void createInnerClassInstance() {
+        Displayable displayable = () -> System.out.println("Accessing from lambda: " + outerField);
+        displayable.display();
+    }
+
+    public static void main(String[] args) {
+        OuterClass outer = new OuterClass();
+        outer.createInnerClassInstance();
+    }
+}
+______________________________________________________________________________________________________

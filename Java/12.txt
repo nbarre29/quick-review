@@ -1,0 +1,483 @@
+-> To integrate OKTA Single Sign-On (SSO) with your React frontend and Spring Boot backend using your company's Active Directory, follow these steps:
+
+✅ Step 1: Set Up OKTA with Active Directory
+
+    Log in to OKTA Admin Console
+
+    Integrate Active Directory (AD) with OKTA:
+        Navigate to Directory > Directory Integrations.
+        Click Add Directory > Select Active Directory.
+        Install OKTA AD Agent on a domain-joined Windows Server.
+        Connect it to your OKTA tenant.
+        Sync AD users and groups to OKTA.
+
+    Create an OIDC Application in OKTA:
+        Go to Applications > Create App Integration.
+        Select OIDC - OpenID Connect and choose Web Application.
+        Configure:
+            Sign-in Redirect URIs: http://localhost:3000/login/callback   
+            Logout Redirect URIs:  http://localhost:3000
+
+        Assign the app to your Active Directory users.
+
+    Copy OKTA Credentials:
+        Copy the following from OKTA Application Settings:
+            Client ID
+            Client Secret
+            OKTA Domain (e.g., https://dev-123456.okta.com)
+
+✅ Step 2: Configure Spring Boot Backend with OKTA
+1) Add Dependencies
+
+Modify your pom.xml:
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-oauth2-client</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.okta.spring</groupId>
+    <artifactId>okta-spring-boot-starter</artifactId>
+    <version>3.0.5</version>
+</dependency>
+
+2) Configure application.yml
+
+server:
+  port: 8080
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          okta:
+            client-id: YOUR_CLIENT_ID
+            client-secret: YOUR_CLIENT_SECRET
+            scope: openid, profile, email
+        provider:
+          okta:
+            issuer-uri: https://YOUR_OKTA_DOMAIN/oauth2/default
+
+Replace:
+
+    YOUR_CLIENT_ID → OKTA Client ID
+    YOUR_CLIENT_SECRET → OKTA Client Secret
+    YOUR_OKTA_DOMAIN → OKTA Domain URL (https://dev-123456.okta.com)
+
+3) Secure REST APIs in Spring Boot
+Secure Endpoints (SecurityConfig.java)
+
+package com.example.oktasso.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
+import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+
+import java.net.URI;
+
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, ClientRegistrationRepository clientRegistrationRepository) throws Exception {
+        http
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/public/**").permitAll()  // Public APIs
+                .anyRequest().authenticated()  // Secure all other APIs
+            )
+            .oauth2Login() // Enable OAuth2 Login with OKTA
+            .and()
+            .logout(logout -> logout
+                .logoutSuccessHandler(new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository))
+            );
+
+        return http.build();
+    }
+}
+
+4) Create a User Controller (UserController.java)
+
+package com.example.oktasso.controller;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/user")
+public class UserController {
+
+    @GetMapping
+    public Map<String, Object> getUserInfo(OAuth2AuthenticationToken authentication) {
+        return authentication.getPrincipal().getAttributes();
+    }
+}
+
+✅ Step 3: Configure React Frontend
+1) Install OKTA SDK in React
+
+Run:
+npm install @okta/okta-auth-js @okta/okta-react react-router-dom
+
+2) Create OKTA Config (oktaConfig.js)
+
+Create a new file src/oktaConfig.js:
+
+export const oktaConfig = {
+    clientId: "YOUR_CLIENT_ID",
+    issuer: "https://YOUR_OKTA_DOMAIN/oauth2/default",
+    redirectUri: "http://localhost:3000/login/callback",
+    scopes: ["openid", "profile", "email"],
+};
+
+Replace YOUR_CLIENT_ID and YOUR_OKTA_DOMAIN with your OKTA credentials.
+
+
+3) Setup OKTA in App.js
+
+Modify src/App.js:
+
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { Security, LoginCallback } from "@okta/okta-react";
+import Home from "./Home";
+import ProtectedRoute from "./ProtectedRoute";
+import Dashboard from "./Dashboard";
+import { oktaConfig } from "./oktaConfig";
+
+function App() {
+    return (
+        <Router>
+            <Security {...oktaConfig}>
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/login/callback" element={<LoginCallback />} />
+                    <Route path="/dashboard" element={<ProtectedRoute component={Dashboard} />} />
+                </Routes>
+            </Security>
+        </Router>
+    );
+}
+
+export default App;
+
+4) Implement Login and Logout
+
+Modify src/Home.js:
+
+import React from "react";
+import { useOktaAuth } from "@okta/okta-react";
+
+const Home = () => {
+    const { authState, oktaAuth } = useOktaAuth();
+
+    const login = async () => oktaAuth.signInWithRedirect();
+    const logout = async () => oktaAuth.signOut();
+
+    return (
+        <div>
+            <h1>Welcome to the App</h1>
+            {authState?.isAuthenticated ? (
+                <>
+                    <button onClick={logout}>Logout</button>
+                    <a href="/dashboard">Go to Dashboard</a>
+                </>
+            ) : (
+                <button onClick={login}>Login</button>
+            )}
+        </div>
+    );
+};
+
+export default Home;
+
+5) Protect Routes (ProtectedRoute.js)
+
+import React from "react";
+import { useOktaAuth } from "@okta/okta-react";
+import { Navigate } from "react-router-dom";
+
+const ProtectedRoute = ({ component: Component }) => {
+    const { authState } = useOktaAuth();
+
+    return authState?.isAuthenticated ? <Component /> : <Navigate to="/" />;
+};
+
+export default ProtectedRoute;
+
+✅ Step 4: Run and Test
+Start Backend
+
+mvn spring-boot:run
+
+Start Frontend
+
+npm start
+
+🎉 Done! You Now Have OKTA SSO with React and Spring Boot
+
+    Users can log in via OKTA using their Active Directory credentials.
+    After login, they can access protected routes in the frontend.
+    The backend secures API endpoints using JWT from OKTA.
+	
+____________________________________________________________________________________
+
+-> To integrate Microsoft Azure Single Sign-On (SSO) with your React frontend and Spring Boot backend using your company's Active Directory (AD), follow these steps:
+
+✅ Step 1: Set Up Azure AD (Active Directory)
+1) Register an Application in Azure AD
+
+    Log in to Azure Portal:
+        Go to Azure Portal.
+        Navigate to Azure Active Directory.
+
+    Register a New Application:
+        Click on App Registrations > New Registration.
+        Provide a Name (e.g., React-SpringBoot-SSO).
+        Choose Supported Account Type:
+            ✅ Select Accounts in this organizational directory only (Single tenant).
+        Under Redirect URIs, add:
+
+        http://localhost:3000/login/callback
+
+        Click Register.
+
+    Copy Important Values:
+        From the App Overview page, copy:
+            Application (client) ID
+            Directory (tenant) ID
+
+    Create a Client Secret:
+        Go to Certificates & secrets > New client secret.
+        Copy the client secret value (you won’t be able to see it again).
+
+✅ Step 2: Configure API Permissions
+
+    Go to API Permissions in Azure AD.
+    Click Add a Permission > Microsoft Graph > Delegated Permissions.
+    Select:
+        openid
+        email
+        profile
+        User.Read
+    Click Grant Admin Consent.
+
+✅ Step 3: Configure Spring Boot Backend
+1) Add Dependencies (pom.xml)
+
+Add the required Spring Security & Azure AD dependencies:
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-oauth2-client</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.azure.spring</groupId>
+    <artifactId>azure-spring-boot-starter-active-directory</artifactId>
+    <version>3.14.0</version>
+</dependency>
+
+2) Configure application.yml
+
+Replace CLIENT_ID, CLIENT_SECRET, and TENANT_ID with values from Azure AD.
+
+server:
+  port: 8080
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          azure:
+            client-id: YOUR_CLIENT_ID
+            client-secret: YOUR_CLIENT_SECRET
+            scope: openid, profile, email, User.Read
+        provider:
+          azure:
+            issuer-uri: https://login.microsoftonline.com/YOUR_TENANT_ID/v2.0
+
+3) Secure Endpoints in Spring Boot
+
+Create a SecurityConfig.java file:
+
+package com.example.azuread.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, ClientRegistrationRepository clientRegistrationRepository) throws Exception {
+        http
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/public/**").permitAll()  // Allow public APIs
+                .anyRequest().authenticated()  // Secure everything else
+            )
+            .oauth2Login() // Enable Azure AD Login
+            .and()
+            .logout(logout -> logout
+                .logoutSuccessHandler(new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository))
+            );
+
+        return http.build();
+    }
+}
+
+4) Create a User API Controller
+
+package com.example.azuread.controller;
+
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/user")
+public class UserController {
+
+    @GetMapping
+    public Map<String, Object> getUserInfo(OAuth2AuthenticationToken authentication) {
+        return authentication.getPrincipal().getAttributes();
+    }
+}
+
+✅ Step 4: Configure React Frontend
+1) Install Microsoft Authentication Library (MSAL)
+
+Run:
+
+npm install @azure/msal-browser @azure/msal-react react-router-dom
+
+2️⃣ Configure msalConfig.js
+
+Create a new file src/msalConfig.js:
+
+export const msalConfig = {
+    auth: {
+        clientId: "YOUR_CLIENT_ID",
+        authority: "https://login.microsoftonline.com/YOUR_TENANT_ID",
+        redirectUri: "http://localhost:3000/login/callback",
+    },
+    cache: {
+        cacheLocation: "sessionStorage",
+        storeAuthStateInCookie: true,
+    },
+};
+
+export const loginRequest = {
+    scopes: ["openid", "profile", "email", "User.Read"],
+};
+
+3) Setup MSAL Provider in App.js
+
+Modify src/App.js:
+
+import React from "react";
+import { PublicClientApplication } from "@azure/msal-browser";
+import { MsalProvider } from "@azure/msal-react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Home from "./Home";
+import Dashboard from "./Dashboard";
+import { msalConfig } from "./msalConfig";
+
+const msalInstance = new PublicClientApplication(msalConfig);
+
+function App() {
+    return (
+        <MsalProvider instance={msalInstance}>
+            <Router>
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                </Routes>
+            </Router>
+        </MsalProvider>
+    );
+}
+
+export default App;
+
+4) Implement Login and Logout (Home.js)
+
+import React from "react";
+import { useMsal } from "@azure/msal-react";
+import { loginRequest } from "./msalConfig";
+
+const Home = () => {
+    const { instance, accounts } = useMsal();
+
+    const login = async () => {
+        await instance.loginRedirect(loginRequest);
+    };
+
+    const logout = async () => {
+        await instance.logoutRedirect();
+    };
+
+    return (
+        <div>
+            <h1>Azure AD SSO with React</h1>
+            {accounts.length > 0 ? (
+                <>
+                    <button onClick={logout}>Logout</button>
+                    <a href="/dashboard">Go to Dashboard</a>
+                </>
+            ) : (
+                <button onClick={login}>Login with Azure</button>
+            )}
+        </div>
+    );
+};
+
+export default Home;
+
+5) Protect Routes (Dashboard.js)
+
+import React from "react";
+import { useMsal } from "@azure/msal-react";
+
+const Dashboard = () => {
+    const { accounts } = useMsal();
+
+    if (!accounts.length) {
+        return <h2>Access Denied. Please log in.</h2>;
+    }
+
+    return <h2>Welcome {accounts[0].username}!</h2>;
+};
+
+export default Dashboard;
+
+✅ Step 5: Run and Test
+Start Backend
+
+mvn spring-boot:run
+
+Start Frontend
+
+npm start
+
+🎉 Done! You Now Have Azure AD SSO with React and Spring Boot
+
+    Users can log in via Azure AD using their Active Directory credentials.
+    After login, they can access protected routes in the frontend.
+    The backend secures API endpoints using OAuth2 tokens from Azure AD.
+____________________________________________________________________________________

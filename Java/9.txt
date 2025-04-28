@@ -1,0 +1,144 @@
+Here is a curated list of core Java interview questions on Threads and Concurrency, along with brief explanations where necessary:
+Basic Thread Concepts
+
+    What is a thread in Java?
+        A thread is a lightweight process and the smallest unit of execution in Java. It allows concurrent execution of tasks.
+
+    How do you create a thread in Java?
+        By extending the Thread class or implementing the Runnable interface.
+
+    What is the difference between start() and run() methods in Java threads?
+        start(): Creates a new thread and calls the run() method on that thread.
+        run(): Executes the code in the current thread; no new thread is created.
+
+    How do you stop a thread in Java?
+        Use a volatile flag or interrupt the thread with Thread.interrupt().
+        Deprecated methods like stop() should not be used due to unsafe behavior.
+
+    What is the lifecycle of a thread in Java?
+        States: NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING, and TERMINATED.
+
+    What is the difference between sleep() and wait()?
+        sleep(): Temporarily pauses the current thread for a specified time. Does not release locks.
+        wait(): Causes the current thread to wait until notified. It releases the lock on the object.
+
+    What is the difference between yield() and sleep()?
+        yield(): Suggests to the thread scheduler to pause the current thread and allow other threads of equal priority to execute.
+        sleep(): Pauses the thread for a specified time regardless of other threads.
+
+Thread Synchronization and Locks
+
+    What is thread synchronization in Java?
+        Synchronization ensures that only one thread accesses a shared resource at a time, preventing race conditions.
+
+    What is the purpose of the synchronized keyword?
+        It ensures mutual exclusion by locking a method or block, allowing only one thread to execute it at a time.
+
+    What is a deadlock? How can it be avoided?
+        Deadlock occurs when two or more threads are waiting for each other's resources indefinitely.
+        Avoid using nested locks and maintain consistent lock ordering.
+
+    What is the difference between synchronized methods and synchronized blocks?
+        Methods: Locks the entire object.
+        Blocks: Locks only the code inside the block, allowing finer-grained control.
+
+    What is a reentrant lock in Java?
+        A lock that allows a thread to acquire it multiple times without causing itself to block (e.g., ReentrantLock).
+
+Concurrency and Advanced Threading
+
+    What is the difference between volatile and synchronized?
+        volatile ensures visibility of changes to variables across threads but does not provide atomicity.
+        synchronized ensures both visibility and atomicity but involves locking, which can be slower.
+
+    What is the Executor framework in Java?
+        A framework that provides a higher-level API for managing threads, such as Executor, ExecutorService, and ScheduledExecutorService.
+
+    What is ForkJoinPool in Java?
+        A thread pool designed for divide-and-conquer tasks, such as splitting a large task into smaller ones and joining their results.
+
+    What is Callable and Future in Java?
+        Callable: A task that returns a result and can throw exceptions.
+        Future: Represents the result of an asynchronous computation.
+
+    What is a thread pool?
+        A collection of pre-created threads used to execute multiple tasks, reducing the overhead of thread creation and destruction.
+
+    What are the differences between Thread and ExecutorService?
+        Thread creates and manages a single thread.
+        ExecutorService manages a pool of threads and provides advanced task management.
+
+Thread Communication
+
+    How do threads communicate in Java?
+        Using methods like wait(), notify(), and notifyAll() on shared objects.
+
+    What is a CountDownLatch?
+        A synchronization aid that allows one or more threads to wait until a set of operations performed by other threads completes.
+
+    What is a CyclicBarrier?
+        A synchronization aid that allows a set of threads to wait at a barrier point until all threads in the group reach that point.
+
+    What is the difference between CountDownLatch and CyclicBarrier?
+        CountDownLatch: Cannot be reused once the count reaches zero.
+        CyclicBarrier: Can be reused after all threads reach the barrier.
+
+    What is a Semaphore?
+        A synchronization tool that restricts the number of threads that can access a resource simultaneously.
+
+Concurrency Problems
+
+    What is a race condition?
+        A condition where the outcome of a program depends on the timing or sequence of threads accessing shared resources.
+
+    What is starvation?
+        A thread is perpetually denied access to resources because other threads monopolize them.
+
+    What is livelock?
+        Threads keep changing their states in response to each other but fail to make progress.
+
+    What is a thread-safe class?
+        A class designed to be safely used by multiple threads without external synchronization.
+
+    What is an Atomic class in Java?
+        Classes like AtomicInteger, AtomicLong, and AtomicReference provide lock-free, thread-safe operations on single variables.
+
+Memory and Performance
+
+    What is the Java Memory Model (JMM)?
+        Defines how threads interact through memory and guarantees visibility of changes to variables across threads.
+
+    What is the difference between Stack and Heap in thread memory?
+        Each thread has its own stack for method calls and local variables.
+        The heap is shared among all threads for object storage.
+
+    What are some common thread performance tips?
+        Minimize the use of synchronized blocks.
+        Use thread-safe collections like ConcurrentHashMap.
+        Avoid creating too many threads; use thread pools.
+
+Tricky Questions
+
+    Can a thread acquire multiple locks?
+        Yes, a thread can acquire multiple locks, but improper locking can lead to deadlocks.
+
+    What happens if a thread calls wait() on an object it doesn’t own?
+        A IllegalMonitorStateException is thrown.
+
+    What is the difference between notify() and notifyAll()?
+        notify() wakes up a single thread waiting on the object's monitor.
+        notifyAll() wakes up all threads waiting on the object's monitor.
+
+    What is the difference between ConcurrentHashMap and Collections.synchronizedMap()?
+        ConcurrentHashMap allows concurrent read operations and uses finer-grained locking.
+        Collections.synchronizedMap() locks the entire map for every operation.
+
+Real-World Scenarios
+
+    Explain how you would use a thread pool to handle thousands of tasks efficiently.
+    How would you design a producer-consumer system using BlockingQueue?
+    How can you handle thread-safe lazy initialization in Java? (Answer: Use synchronized or AtomicReference.)
+
+These questions cover the fundamental and advanced concepts of threads and concurrency, helping you prepare for interviews comprehensively.
+
+______________________________________________________________________________________________________

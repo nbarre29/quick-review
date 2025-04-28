@@ -1,0 +1,227 @@
+-> This example demonstrates how to use interfaces in Java to define a contract and implement it in a class. It follows the principle of programming to an interface rather than an implementation.
+
+// Define an interface
+public interface GreetingService {
+    void greet(String name);
+}
+
+// Implement the interface in a class
+public class GreetingServiceImpl implements GreetingService {
+
+    @Override
+    public void greet(String name) {
+        System.out.println("Hello, " + name + "!");
+    }
+}
+
+
+public class Main {
+    public static void main(String[] args) {
+        
+        GreetingService greetingService = new GreetingServiceImpl();               
+        greetingService.greet("Alice");
+    }
+}
+
+Output: 
+Hello, Alice!
+-----------------------------------------------------------------------------------------------------
+-> We can rewrite the above example to use a lambda expression because GreetingService is a functional interface (it has a single abstract method).
+This approach reduces boilerplate code and leverages Java’s support for functional programming.
+
+@FunctionalInterface
+public interface GreetingService {
+    void greet(String name);
+}
+
+// Main class to use the interface with a lambda expression
+public class Main {
+    public static void main(String[] args) {
+        // Use a lambda expression to implement the GreetingService interface
+        GreetingService greetingService = (name) -> System.out.println("Hello, " + name + "!");
+
+        // Use the lambda to call the method
+        greetingService.greet("Alice");
+    }
+}
+______________________________________________________________________________________________________
+
+-> Lazy Evaluation in Java Streams
+
+Lazy evaluation is a programming concept where the evaluation of an expression is delayed until its value is actually needed. In the context of Java Streams, this means that intermediate operations (like filter, map, sorted, etc.) are not executed immediately when they are chained together. Instead, they are executed only when a terminal operation (like collect, forEach, reduce, etc.) is applied to the stream.   
+
+Key Points:
+
+Intermediate Operations: These operations create a new stream and store the transformation logic. They are not executed immediately.   
+Terminal Operations: These operations trigger the execution of the entire pipeline, starting from the source to the terminal operation.   
+Efficiency: Lazy evaluation can significantly improve performance, especially when dealing with large datasets, as only necessary elements are processed.   
+Short-Circuiting: Some intermediate operations, like limit and findFirst, can short-circuit the pipeline, further optimizing performance.
+
+Benefits of Lazy Evaluation:
+
+Performance Optimization: By processing only the necessary elements, lazy evaluation can significantly improve performance, especially for large datasets.   
+Memory Efficiency: Fewer intermediate results are stored in memory.   
+Flexibility: We can chain multiple intermediate operations without worrying about performance overhead.   
+Understanding
+
+
+import java.util.Arrays;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);
+
+        List<Integer> evenNumbersDoubled = numbers.stream()
+                .filter(n -> n % 2 == 0)
+                .map(n -> n * 2)
+                .toList();
+
+        System.out.println(evenNumbersDoubled);  // Output: [4, 8]
+    }
+}
+
+-----------------------------------------------------------
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+public class Main {
+    public static void main(String[] args) {
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6);
+        Optional<Integer> firstEvenSquare = numbers.stream()
+                .filter(n -> n % 2 == 0)
+                .map(n -> n * n)
+                .findFirst(); // Stops processing as soon as the first match is found
+
+        firstEvenSquare.ifPresent(System.out::println);  // Output: 4
+
+//        firstEvenSquare.ifPresentOrElse(value -> System.out.println("Result: " + value), () -> System.out.println("No result found"));
+
+//        firstEvenSquare.ifPresentOrElse(System.out::println, () -> System.out.println("No result found"));
+    }
+}
+
+
+->  firstEvenSquare.ifPresentOrElse(System.out::println, () -> System.out.println("No result found"));
+
+The second argument in the ifPresentOrElse method is a Runnable named emptyAction.
+The second argument () -> System.out.println("No result found") is a lambda expression that implements the Runnable interface. The Runnable interface has a single abstract method run(), which takes no arguments and returns no result. The lambda expression () -> System.out.println("No result found") matches this method signature, making it a valid Runnable.
+
+______________________________________________________________________________________________________
+
+-> Text Blocks: Java introduced Text Blocks in Java 13 as a preview feature and made it a standard feature in Java 15. A text block is a multi-line string literal that makes it easier to work with multi-line text, such as JSON, XML, HTML, or SQL, without needing explicit escape characters.
+Key Features of Text Blocks
+
+    Uses Triple Double Quotes (""")
+    A text block starts and ends with three double-quote (""").
+	
+    Preserves Line Breaks and Formatting
+    No need to manually add \n for new lines.
+	
+    Automatic Formatting
+    Leading spaces can be adjusted automatically.
+	
+    No Need for Escape Sequences
+    Unlike traditional string literals, you don’t need to escape quotes (\") or new lines (\n).
+
+
+Example 1: Using Text Blocks for JSON
+
+public class TextBlockExample {
+    public static void main(String[] args) {
+        String json = """
+            {
+                "name": "John",
+                "age": 30,
+                "city": "New York"
+            }
+            """;
+        
+        System.out.println(json);
+    }
+}
+
+Output:
+
+{
+    "name": "John",
+    "age": 30,
+    "city": "New York"
+}
+
+✔ No need to escape double quotes (")
+✔ Line breaks and indentation are preserved
+
+
+Example 2: SQL Query with Text Blocks
+
+public class SQLTextBlockExample {
+    public static void main(String[] args) {
+        String sqlQuery = """
+            SELECT id, name, email
+            FROM users
+            WHERE status = 'ACTIVE'
+            ORDER BY name ASC;
+            """;
+
+        System.out.println(sqlQuery);
+    }
+}
+
+✔ No need for string concatenation (+)
+✔ Code is more readable
+
+
+Example 3: HTML with Text Blocks
+
+public class HTMLTextBlockExample {
+    public static void main(String[] args) {
+        String html = """
+            <html>
+                <head><title>Java Text Blocks</title></head>
+                <body>
+                    <h1>Welcome to Java 13+</h1>
+                </body>
+            </html>
+            """;
+
+        System.out.println(html);
+    }
+}
+
+✔ Easy to write multi-line HTML content
+✔ No + operator required for concatenation
+
+
+Conclusion
+
+Text Blocks improve code readability, reduce the need for escape sequences, and make it easier to handle multi-line strings. They are particularly useful for JSON, SQL queries, HTML, and any structured text format.
+
+
+Key Benefits of Text Blocks
+
+    Requires \n for new lines:
+        Traditional Strings: ✅ Yes
+        Text Blocks: ❌ No
+
+    Needs escaping for quotes:
+        Traditional Strings: ✅ Yes
+        Text Blocks: ❌ No
+
+    Supports multi-line strings:
+        Traditional Strings: ❌ No
+        Text Blocks: ✅ Yes
+
+    Preserves indentation:
+        Traditional Strings: ❌ No
+        Text Blocks: ✅ Yes
+
+    Readability:
+        Traditional Strings: ❌ Low
+        Text Blocks: ✅ High		
+		
+______________________________________________________________________________________________________
+
+
+
