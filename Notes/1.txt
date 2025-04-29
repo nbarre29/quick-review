@@ -1,0 +1,49 @@
+PASS IF:
+
+    Lock Request is submitted, and the current date/time is IN ( Seller Settings - Lock Desk Hours ) and NOT IN (the Global Settings - Lock Desk Hours)
+	AND  The Sum of Commitment Loan Balance from the current date with lock date/time IN (Seller Settings - Lock Desk Hours ) and NOT IN (Global Settings - Lock Desk Hours ) from Aggregate Pipeline Data < Seller Settings - Overnight Commitment Limit
+     OR Seller Settings - Overnight Commitment Limit = NULL.
+
+ELSE FAIL
+
+
+
+Explanation of the Rule:
+
+This rule is used to determine whether a mortgage lock request is approved or rejected based on time constraints, commitment limits, and seller-specific settings. Let's break it down:
+Conditions for PASS (approval):
+
+    Lock Request is submitted: The request to lock in the mortgage rate has been made.
+
+    Condition 1: Current date/time is within Seller Settings Lock Desk Hours, but not within Global Settings Lock Desk Hours:
+
+        Seller Settings - Lock Desk Hours: These are the hours during which the seller (lender) accepts lock requests. It is specific to the seller.
+
+        Global Settings - Lock Desk Hours: These are the general, system-wide hours during which lock requests can be processed. If the current time is within the seller's hours but outside of the global hours, this condition will pass.
+
+    Condition 2: Sum of Commitment Loan Balance from the current date with lock date/time within Seller Settings Lock Desk Hours, but not within Global Settings Lock Desk Hours, and from Aggregate Pipeline Data is less than Seller Settings - Overnight Commitment Limit:
+
+        Sum of Commitment Loan Balance from Aggregate Pipeline Data: This refers to the total loan balance from all active loan commitments, calculated based on the aggregate data.
+
+        Overnight Commitment Limit: This setting specifies the maximum commitment the seller is willing to accept overnight. If the total commitment is less than the seller's limit, the request will pass.
+
+        The second condition ensures that the commitment sum from the pipeline, considering lock hours, is within acceptable limits.
+
+    Condition 3: Seller Settings - Overnight Commitment Limit is NULL:
+
+        If the Overnight Commitment Limit is not defined by the seller (i.e., it is NULL), the request will automatically pass. No limit is applied in this case.
+
+ELSE FAIL (rejection):
+
+If none of the conditions are satisfied (i.e., the lock request is outside the allowed time window or exceeds the commitment limit), the lock request fails.
+Summary of the Rule:
+
+    The lock request is allowed if:
+
+        It is within the seller's lock desk hours but not within the global lock desk hours.
+
+        The sum of commitment loan balances for the current date is within the seller's limit, considering the lock hours.
+
+        If the seller has no Overnight Commitment Limit set, the request is automatically allowed.
+
+    If any of these conditions are not met, the lock request is rejected (FAIL).

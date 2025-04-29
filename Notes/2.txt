@@ -1,0 +1,43 @@
+PASS IF:
+
+    Lock Request is submitted for a Product ID where Product-Automated Lock Approvals = ON
+	AND the Seller Settings - Automated Lock Approvals = ON
+	AND the Global - Automated Lock Approvals is ON.
+
+ELSE FAIL
+
+
+Explanation of the Rule:
+
+This rule is designed to determine whether a mortgage lock request for a specific product is approved based on the automated lock approval settings at the product, seller, and global levels.
+Conditions for PASS (approval):
+
+    Lock Request is submitted for a Product ID: A request to lock the mortgage rate is made for a specific product identified by its Product ID.
+
+    Condition 1: Product-Automated Lock Approvals = ON:
+
+        This means that the product in question has automated lock approvals enabled. If this setting is ON, the system will automatically approve the lock request for that specific product, provided the other conditions are met.
+
+    Condition 2: Seller Settings - Automated Lock Approvals = ON:
+
+        This indicates that the seller has enabled automated lock approvals in their settings. If this setting is ON, the seller will allow lock requests to be automatically approved for products that are eligible, based on the seller's criteria.
+
+    Condition 3: Global - Automated Lock Approvals = ON:
+
+        This refers to a global setting that applies across all sellers and products in the system. If this setting is ON, it means that automated lock approvals are permitted globally, allowing the system to approve lock requests without manual intervention across the entire system.
+
+ELSE FAIL (rejection):
+
+    If any one of these conditions is not met (i.e., any setting is OFF or not enabled), the lock request will fail, meaning it will not be approved automatically.
+
+Summary of the Rule:
+
+    The lock request is approved (PASS) if:
+
+        The product has automated lock approvals enabled.
+
+        The seller has automated lock approvals enabled.
+
+        The global system allows automated lock approvals.
+
+    If any of these settings is disabled (OFF), the request is rejected (FAIL).

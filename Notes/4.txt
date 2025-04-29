@@ -1,0 +1,59 @@
+PASS IF Lock Request is submitted and Sum of Commitment Loan Balance from Aggregate Pipeline Data < Seller Settings-Aggregate Commitment Limit 
+ OR Seller Settings-Aggregate Commitment Limit = NULL
+ELSE FAIL
+
+
+This rule for the mortgage lock request outlines a condition where the request is allowed (PASS) or rejected (FAIL) based on certain criteria involving the commitment loan balance and the seller's aggregate commitment limit.
+Explanation of the Rule:
+
+    Lock Request: This refers to the request made to lock a mortgage rate, typically made by a borrower or loan originator.
+
+    Commitment Loan Balance: This refers to the total loan balance (i.e., the total amount of money that the lender has committed to loan) for all loans in the pipeline.
+
+    Aggregate Pipeline Data: This refers to a collection of data that aggregates all the relevant loan information in the pipeline. It may include all the loan requests or offers currently in progress or under review by the lender.
+
+    Seller Settings-Aggregate Commitment Limit: This is a setting configured by the seller (lender or financial institution). It defines the maximum loan balance that the seller is willing to commit to across all loan applications. The aggregate limit helps the seller manage their risk exposure by limiting the total loan amounts they can handle at any given time.
+
+    NULL: If the Aggregate Commitment Limit is set to NULL, it means that no limit has been defined by the seller. In such cases, the system does not apply any limits to the loan commitment.
+
+Breakdown of the Logic:
+
+    PASS: The lock request will pass (i.e., be accepted) if either of the following two conditions are met:
+
+        Condition 1: The sum of the commitment loan balance from the aggregate pipeline data is less than the Seller Settings-Aggregate Commitment Limit.
+
+            This means that the total amount the seller has committed to loans is within the seller's pre-defined limit. For example, if the seller's commitment limit is $10 million, and the total commitment loan balance from the aggregate data is $8 million, the request will pass.
+
+        Condition 2: The Seller Settings-Aggregate Commitment Limit is NULL.
+
+            If no limit has been defined by the seller (i.e., the commitment limit is NULL), the lock request passes regardless of the loan balance.
+
+    ELSE FAIL: If neither condition is met (i.e., if the total commitment loan balance exceeds the seller's limit and the limit is not NULL), the lock request will fail.
+
+Example Scenario:
+
+    Scenario 1 (PASS):
+
+        Seller Settings-Aggregate Commitment Limit = $10 million
+
+        Sum of Commitment Loan Balance from Aggregate Pipeline Data = $8 million
+
+        Since $8 million < $10 million, the rule passes and the lock request is accepted.
+
+    Scenario 2 (PASS):
+
+        Seller Settings-Aggregate Commitment Limit = NULL
+
+        The absence of a limit (NULL) allows the lock request to pass, regardless of the loan balance.
+
+    Scenario 3 (FAIL):
+
+        Seller Settings-Aggregate Commitment Limit = $10 million
+
+        Sum of Commitment Loan Balance from Aggregate Pipeline Data = $12 million
+
+        Since $12 million > $10 million, the rule fails and the lock request is rejected.
+
+Summary:
+
+This rule ensures that the lock request is only processed if the seller has enough capacity (within their aggregate commitment limit) to handle the new loan commitment. If no such limit is defined, the request passes automatically.

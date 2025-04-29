@@ -1,0 +1,70 @@
+PASS IF Lock Request is submitted and Sum of Commitment Loan Balance from the current date [factors Global and Seller-Settings Lock Hours] from Aggregate Pipeline Data < Seller Settings-Daily Lock Limit 
+ OR Seller Settings-Daily Commitment Limit = NULL
+ELSE FAIL
+
+
+
+This rule is designed to determine whether a mortgage lock request should be approved based on commitment loan balances and daily limits set by the seller. Let's break down the components and the logic behind this rule:
+Explanation of the Rule:
+
+    Lock Request: A request made to lock in the mortgage interest rate for a loan. This request is typically submitted by a borrower or loan officer and is processed by the lender.
+
+    Commitment Loan Balance (current date): This refers to the total loan balance (i.e., the total amount of money that has been committed for loans) as of the current date. This is the sum of the loan amounts that the lender has agreed to provide, factoring in all loan commitments.
+
+    Global and Seller-Settings Lock Hours: This represents the time window during which lock requests are accepted. It involves two components:
+
+        Global Lock Hours: The time range that applies universally across all sellers or entities.
+
+        Seller-Settings Lock Hours: The specific hours set by the individual seller during which lock requests can be processed.
+
+        Lock Hours may be used to determine if the lock request is being processed within an allowed time frame.
+
+    Aggregate Pipeline Data: This refers to the sum of all loans and commitments being processed or evaluated, coming from various data sources that represent the total pipeline of loan applications.
+
+    Seller Settings-Daily Lock Limit: This is the maximum total amount of loan commitments that a seller is willing to lock in on a single day. If the total commitment balance (considering lock hours) from the pipeline is less than this limit, the lock request is accepted.
+
+    Seller Settings-Daily Commitment Limit: This limit specifies the total amount of loan commitments that the seller can handle for the day. If this is set to NULL, it means that the seller has no daily commitment limit, so the request passes automatically.
+
+    NULL: If the seller has not set a daily commitment limit (i.e., it's NULL), the rule will pass, regardless of the loan balance.
+
+Breakdown of the Logic:
+
+    PASS: The lock request will pass (i.e., be approved) if either of the following conditions are met:
+
+        Condition 1: The sum of commitment loan balance from the current date, factoring in Global and Seller-Settings Lock Hours (i.e., considering the time of day and the aggregate data), is less than the Seller Settings-Daily Lock Limit.
+
+            This means that the total amount of loan commitments for that day, adjusted for the time and seller settings, is within the seller’s daily limit. If the total commitment for the day is within the allowed threshold, the request will be approved.
+
+        Condition 2: The Seller Settings-Daily Commitment Limit is NULL.
+
+            If no daily commitment limit is set (i.e., it’s NULL), the lock request will pass automatically, allowing the request regardless of the commitment balance.
+
+    ELSE FAIL: If neither condition is met (i.e., the total commitment loan balance exceeds the seller's daily lock limit and no daily commitment limit is defined), the lock request will fail.
+
+Example Scenario:
+
+    Scenario 1 (PASS):
+
+        Seller Settings-Daily Lock Limit = $5 million
+
+        Sum of Commitment Loan Balance from Current Date (with lock hours) = $4.5 million
+
+        Since the total loan balance ($4.5 million) is less than the daily lock limit ($5 million), the rule passes, and the lock request is approved.
+
+    Scenario 2 (PASS):
+
+        Seller Settings-Daily Commitment Limit = NULL
+
+        Since no daily limit is set (i.e., the limit is NULL), the lock request passes automatically, regardless of the commitment balance.
+
+    Scenario 3 (FAIL):
+
+        Seller Settings-Daily Lock Limit = $5 million
+
+        Sum of Commitment Loan Balance from Current Date (with lock hours) = $6 million
+
+        Since $6 million exceeds the $5 million daily limit, and there is no NULL setting for the daily commitment limit, the lock request fails.
+
+Summary:
+
+This rule ensures that lock requests are processed only if the seller has enough available capacity for that day (based on the daily commitment limit). It also considers the time of day (lock hours) and the seller’s daily lock limit. If no daily commitment limit is defined, the request passes automatically. If the total commitment exceeds the daily limit, the request is rejected.

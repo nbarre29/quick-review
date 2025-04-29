@@ -1,0 +1,69 @@
+PASS IF:
+
+    Lock Request is requested for a Product ID where Product-Automated Exception Approvals = YES
+
+    AND the Seller-Automated Exception Approvals = YES
+
+    AND the Global-Automated Exception Approvals = YES
+
+    AND [Eligibility Rules Output indicates > 0 rules with Refer result]
+	
+	AND [Eligibility Rules Output indicates  0 rules with FAIL result]
+
+    AND [Eligibility Rules Output indicates *need to define how sufficient exception overrides will be structured*]
+
+
+ELSE FAIL
+
+
+
+Explanation of the Rule:
+
+This rule is designed to evaluate whether a mortgage lock request should be approved when exceptions are involved. It includes conditions related to automated exception approvals at the product, seller, and global levels, along with the outcome of eligibility rules.
+Conditions for PASS (approval):
+
+    Lock Request is requested for a Product ID where:
+
+        Product-Automated Exception Approvals = YES:
+
+            The product allows automated exception approvals, meaning the system can automatically approve exceptions for this product without manual review.
+
+    Seller-Automated Exception Approvals = YES:
+
+        The seller has configured the system to allow automated exception approvals. This means the seller has set up the ability to approve exceptions automatically.
+
+    Global-Automated Exception Approvals = YES:
+
+        The global system allows automated exception approvals for all sellers and products. If this is YES, then automated exception handling is enabled at the global level.
+
+    Eligibility Rules Output indicates > 0 rules with Refer result:
+
+        Eligibility Rules are a set of predefined rules that determine whether the lock request is eligible. The system checks if more than 0 rules indicate a Refer result. A Refer result typically indicates that the request requires further review or attention, but is still eligible for approval under the right conditions.
+
+    Eligibility Rules Output indicates 0 rules with FAIL result:
+
+        The system checks if 0 rules indicate a FAIL result. A FAIL result means the request does not meet the eligibility criteria. This condition ensures that no rule has failed, indicating that the request is still eligible for approval.
+
+    Eligibility Rules Output indicates "need to define how sufficient exception overrides will be structured":
+
+        This condition checks that the system recognizes that exception overrides (rules that allow the system to make exceptions) have not yet been sufficiently defined. Essentially, the system is checking that there is an understanding or plan in place for handling exceptions properly, which may require manual definition.
+
+ELSE FAIL (rejection):
+
+    If any one of the conditions is not met (i.e., if any automated exception approval setting is OFF, any eligibility rule fails, or exceptions are not sufficiently defined), the lock request fails, meaning it will not be approved automatically.
+
+Summary of the Rule:
+
+    The lock request is approved (PASS) if:
+
+        Product, Seller, and Global settings all allow automated exception approvals.
+
+        The eligibility rules output indicates:
+
+            More than 0 rules with a Refer result.
+
+            0 rules with a FAIL result.
+
+            There is an understanding or need to define how exception overrides will be structured.
+
+    If any of these conditions are not met, the lock request is rejected (FAIL). This ensures that only requests that meet specific exception handling criteria are approved.
