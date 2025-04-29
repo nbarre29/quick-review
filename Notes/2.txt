@@ -41,3 +41,238 @@ Summary of the Rule:
         The global system allows automated lock approvals.
 
     If any of these settings is disabled (OFF), the request is rejected (FAIL).
+_____________________________________________________________________________________________________________
+
+
+-> 
+
+PASS IF:
+
+    Lock Request is submitted for a Product ID where Product-Automated Lock Approvals = ON
+	AND the Seller Settings - Automated Lock Approvals = ON
+	AND the Global - Automated Lock Approvals is ON.
+
+ELSE FAIL
+
+
+I'm developing a java application in spring for Mortgage pricing engine for the above mentioned requirement. Explain how to model and implement it
+
+
+
+To model and implement the provided requirement in your Spring-based Java application for the mortgage pricing engine, you need to break down the rule into logical steps. Here's a structured approach to how you can design and implement it:
+Step 1: Understanding the Requirement
+
+The requirement involves checking the following conditions for a lock request:
+
+    Product Automated Lock Approvals: This must be "ON".
+
+    Seller Settings Automated Lock Approvals: This must also be "ON".
+
+    Global Automated Lock Approvals: This must also be "ON".
+
+If all the above conditions are satisfied, the result should be "PASS", otherwise, it should be "FAIL".
+Step 2: Define Domain Classes
+
+You will need domain classes to represent the Product, SellerSettings, and GlobalSettings, each of which holds relevant settings for the conditions.
+1. Product Class
+
+This class represents the product being processed in the lock request.
+
+public class Product {
+    private String productId;
+    private boolean automatedLockApprovals;
+
+    // Getters and Setters
+}
+
+2. SellerSettings Class
+
+This class holds the seller’s configuration, including the automated lock approval setting.
+
+public class SellerSettings {
+    private boolean automatedLockApprovals;
+
+    // Getters and Setters
+}
+
+3. GlobalSettings Class
+
+This class holds global settings, including whether automated lock approvals are turned on.
+
+public class GlobalSettings {
+    private boolean automatedLockApprovals;
+
+    // Getters and Setters
+}
+
+4. LockRequest Class
+
+This class will represent a lock request which contains the necessary information to evaluate the rule (such as Product, SellerSettings, and GlobalSettings).
+
+public class LockRequest {
+    private Product product;
+    private SellerSettings sellerSettings;
+    private GlobalSettings globalSettings;
+
+    // Getters and Setters
+}
+
+Step 3: Implement Rule Logic
+
+You need to implement the rule logic to evaluate whether all the required conditions are satisfied.
+LockRequestRule Class
+
+This class will contain the logic to check the conditions for the lock request.
+
+public class LockRequestRule {
+
+    public boolean isLockRequestValid(LockRequest lockRequest) {
+        // Check if all the conditions are met for a valid lock request
+        return lockRequest.getProduct().isAutomatedLockApprovals() &&
+               lockRequest.getSellerSettings().isAutomatedLockApprovals() &&
+               lockRequest.getGlobalSettings().isAutomatedLockApprovals();
+    }
+}
+
+Step 4: Service Layer for Rule Execution
+
+Create a service that orchestrates the rule validation. This service will call the LockRequestRule class to check whether the lock request passes the conditions.
+MortgagePricingService Class
+
+This service processes the lock request and checks the validity using the LockRequestRule.
+
+import org.springframework.stereotype.Service;
+
+@Service
+public class MortgagePricingService {
+
+    private final LockRequestRule lockRequestRule;
+
+    public MortgagePricingService(LockRequestRule lockRequestRule) {
+        this.lockRequestRule = lockRequestRule;
+    }
+
+    public String processLockRequest(LockRequest lockRequest) {
+        // Check if lock request is valid based on the rule
+        boolean isLockRequestValid = lockRequestRule.isLockRequestValid(lockRequest);
+        if (isLockRequestValid) {
+            return "PASS";
+        } else {
+            return "FAIL";
+        }
+    }
+}
+
+Step 5: Expose the Logic via REST API
+
+You will need to expose this logic via a REST controller to allow users to submit lock requests and get the results.
+MortgageController Class
+
+This controller will expose an API endpoint to process lock requests.
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/mortgage")
+public class MortgageController {
+
+    private final MortgagePricingService mortgagePricingService;
+
+    public MortgageController(MortgagePricingService mortgagePricingService) {
+        this.mortgagePricingService = mortgagePricingService;
+    }
+
+    @PostMapping("/processLockRequest")
+    public String processLockRequest(@RequestBody LockRequest lockRequest) {
+        return mortgagePricingService.processLockRequest(lockRequest);
+    }
+}
+
+Step 6: LockRequest DTO
+
+You can use a Data Transfer Object (DTO) for receiving the request in the POST body, which will be used to validate the conditions.
+
+public class LockRequest {
+    private Product product;
+    private SellerSettings sellerSettings;
+    private GlobalSettings globalSettings;
+
+    // Getters and Setters
+}
+
+Step 7: Example Data in the Controller
+
+When you send a POST request, the LockRequest DTO should contain the necessary data for the lock request:
+
+{
+  "product": {
+    "productId": "12345",
+    "automatedLockApprovals": true
+  },
+  "sellerSettings": {
+    "automatedLockApprovals": true
+  },
+  "globalSettings": {
+    "automatedLockApprovals": true
+  }
+}
+
+Step 8: Testing the Logic
+
+You will need to write unit tests to ensure the logic works correctly. Use JUnit and Mockito to test the service and rule logic.
+Example Unit Test:
+
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import static org.mockito.Mockito.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class MortgagePricingServiceTest {
+
+    @Mock
+    private LockRequestRule lockRequestRule;
+
+    @Test
+    public void testProcessLockRequest() {
+        // Create mock data
+        Product product = new Product();
+        product.setAutomatedLockApprovals(true);
+
+        SellerSettings sellerSettings = new SellerSettings();
+        sellerSettings.setAutomatedLockApprovals(true);
+
+        GlobalSettings globalSettings = new GlobalSettings();
+        globalSettings.setAutomatedLockApprovals(true);
+
+        LockRequest lockRequest = new LockRequest();
+        lockRequest.setProduct(product);
+        lockRequest.setSellerSettings(sellerSettings);
+        lockRequest.setGlobalSettings(globalSettings);
+
+        // Setup mock behavior
+        when(lockRequestRule.isLockRequestValid(lockRequest)).thenReturn(true); // Simulating valid lock request
+
+        // Create the service and call the method
+        MortgagePricingService service = new MortgagePricingService(lockRequestRule);
+        String result = service.processLockRequest(lockRequest);
+
+        // Assert the result
+        assertEquals("PASS", result);
+    }
+}
+
+Step 9: Enhancing the Logic
+
+As your mortgage pricing engine evolves, you may consider adding more complex conditions or rules. For example:
+
+    Allow dynamic configurations of the lock approval conditions.
+
+    Use a rule engine like Drools for more flexible rule management.
+
+    Handle more sophisticated error cases or exceptions based on business needs.
+
+Conclusion
+
+The steps provided break down the requirement into manageable components and implement them in a Spring-based Java application. By structuring the code in service classes, domain models, and REST controllers, you create a maintainable and scalable solution for the mortgage pricing engine. The logic can easily be extended to handle more complex rules or further business requirements.
+

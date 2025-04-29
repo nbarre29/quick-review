@@ -50,3 +50,216 @@ Summary of the Rule:
         The total commitment loan balance (for the current date and lock time) is less than the Seller's Overnight Lock Limit, or if the Overnight Commitment Limit is NULL (no limit is set).
 
     If any condition is not satisfied (e.g., lock hours or limit exceeded), the lock request is rejected (FAIL).
+	
+	
+____________________________________________________________________________________________________________
+
+
+
+To model and implement the given requirement in your Spring-based Java application for the mortgage pricing engine, you need to follow a structured approach that separates concerns and maintains flexibility. Below is a step-by-step guide on how to design the solution and implement it in a Spring Boot application.
+Step 1: Understanding the Requirements
+
+The requirement involves multiple conditions:
+
+    Lock Request Validation: This is based on whether the current date/time falls within the seller's lock desk hours and not within the global lock desk hours.
+
+    Commitment Loan Balance Check: The sum of the commitment loan balance from the current date and lock date/time must be less than the seller's overnight lock limit, unless the overnight commitment limit is NULL.
+
+    Logical Operations: The two conditions should be logically combined using AND and OR operators, meaning if the first condition fails, we check the second condition for the sum of commitment loan balance or the overnight limit being NULL.
+
+Step 2: Domain Classes
+
+You need to create domain classes representing the data that will be used in this rule. These include classes for SellerSettings, GlobalSettings, and AggregatePipelineData.
+1. SellerSettings Class
+
+This class holds settings related to the seller such as lock desk hours, overnight lock limits, etc.
+
+public class SellerSettings {
+    private List<LocalDateTime> lockDeskHours;    // Lock desk hours
+    private Double overnightLockLimit;            // Overnight lock limit
+    private Double overnightCommitmentLimit;      // Overnight commitment limit
+
+    // Getters and Setters
+}
+
+2. GlobalSettings Class
+
+This class holds the global settings for lock desk hours and any global conditions.
+
+public class GlobalSettings {
+    private List<LocalDateTime> lockDeskHours;    // Global lock desk hours
+
+    // Getters and Setters
+}
+
+3. AggregatePipelineData Class
+
+This class holds data from the aggregate pipeline such as the commitment loan balance.
+
+public class AggregatePipelineData {
+    private Double commitmentLoanBalance;   // Sum of commitment loan balance
+
+    // Getters and Setters
+}
+
+Step 3: Implementing the Rule Logic
+
+You can now implement the rule logic in a service that will encapsulate the business rules.
+1. LockRequestRule Class
+
+This class will have a method that checks the conditions as per the given requirement.
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+public class LockRequestRule {
+
+    public boolean isLockRequestValid(LocalDateTime currentDateTime,
+                                      SellerSettings sellerSettings,
+                                      GlobalSettings globalSettings,
+                                      AggregatePipelineData aggregateData) {
+        boolean isWithinLockHours = isWithinLockHours(currentDateTime, sellerSettings, globalSettings);
+        boolean isCommitmentValid = isCommitmentBalanceValid(aggregateData, sellerSettings);
+
+        return isWithinLockHours && isCommitmentValid;
+    }
+
+    private boolean isWithinLockHours(LocalDateTime currentDateTime,
+                                      SellerSettings sellerSettings,
+                                      GlobalSettings globalSettings) {
+        boolean isInSellerLockHours = sellerSettings.getLockDeskHours().contains(currentDateTime);
+        boolean isNotInGlobalLockHours = !globalSettings.getLockDeskHours().contains(currentDateTime);
+
+        return isInSellerLockHours && isNotInGlobalLockHours;
+    }
+
+    private boolean isCommitmentBalanceValid(AggregatePipelineData aggregateData, SellerSettings sellerSettings) {
+        if (sellerSettings.getOvernightCommitmentLimit() == null) {
+            return true;  // Valid if the overnight limit is NULL
+        }
+        return aggregateData.getCommitmentLoanBalance() < sellerSettings.getOvernightCommitmentLimit();
+    }
+}
+
+Step 4: Service Layer for Rule Execution
+
+Next, create a service class that invokes the rule and determines whether the request passes or fails based on the business rules.
+1. MortgagePricingService Class
+
+This service will process the lock request and apply the validation rule.
+
+import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
+
+@Service
+public class MortgagePricingService {
+
+    private final LockRequestRule lockRequestRule;
+
+    public MortgagePricingService(LockRequestRule lockRequestRule) {
+        this.lockRequestRule = lockRequestRule;
+    }
+
+    public String processLockRequest(LocalDateTime currentDateTime,
+                                      SellerSettings sellerSettings,
+                                      GlobalSettings globalSettings,
+                                      AggregatePipelineData aggregateData) {
+        // Check lock request validity
+        boolean isLockRequestValid = lockRequestRule.isLockRequestValid(currentDateTime, 
+                                                                      sellerSettings, 
+                                                                      globalSettings, 
+                                                                      aggregateData);
+        if (isLockRequestValid) {
+            return "PASS";
+        } else {
+            return "FAIL";
+        }
+    }
+}
+
+Step 5: Controller Layer to Expose the Logic via REST API
+
+Create a controller to expose this rule processing as a REST endpoint so that the frontend or other systems can interact with the mortgage pricing engine.
+1. MortgageController Class
+
+This controller receives the lock request and returns whether it passes or fails based on the conditions.
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/mortgage")
+public class MortgageController {
+
+    private final MortgagePricingService mortgagePricingService;
+
+    public MortgageController(MortgagePricingService mortgagePricingService) {
+        this.mortgagePricingService = mortgagePricingService;
+    }
+
+    @PostMapping("/processLockRequest")
+    public String processLockRequest(@RequestBody LockRequestRequest request) {
+        return mortgagePricingService.processLockRequest(
+            request.getCurrentDateTime(),
+            request.getSellerSettings(),
+            request.getGlobalSettings(),
+            request.getAggregatePipelineData()
+        );
+    }
+}
+
+Step 6: LockRequestRequest DTO
+
+You can use a DTO (Data Transfer Object) for the lock request data, which will be used in the request body.
+
+public class LockRequestRequest {
+    private LocalDateTime currentDateTime;
+    private SellerSettings sellerSettings;
+    private GlobalSettings globalSettings;
+    private AggregatePipelineData aggregatePipelineData;
+
+    // Getters and Setters
+}
+
+Step 7: Testing the Logic
+
+You will need to test the logic to ensure that it works as expected. You can use JUnit and Mockito to write unit tests for the MortgagePricingService and LockRequestRule.
+Example Unit Test:
+
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class MortgagePricingServiceTest {
+
+    @Mock
+    private LockRequestRule lockRequestRule;
+
+    @Test
+    public void testProcessLockRequest() {
+        // Setup mock data
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        SellerSettings sellerSettings = new SellerSettings();
+        GlobalSettings globalSettings = new GlobalSettings();
+        AggregatePipelineData aggregateData = new AggregatePipelineData();
+
+        // Setup mock behavior for LockRequestRule
+        Mockito.when(lockRequestRule.isLockRequestValid(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+               .thenReturn(true);  // Simulating a valid lock request
+
+        // Call service method
+        MortgagePricingService service = new MortgagePricingService(lockRequestRule);
+        String result = service.processLockRequest(currentDateTime, sellerSettings, globalSettings, aggregateData);
+
+        // Assert the result
+        assertEquals("PASS", result);
+    }
+}
+
+Step 8: Enhancements and Flexibility
+
+As the business logic for mortgage pricing evolves, consider using a rule engine (like Drools) to dynamically manage and evaluate rules. This would allow non-developers to change rules without modifying the codebase, providing greater flexibility.
+Conclusion
+
+The above steps break down the requirement into manageable components and provide a Spring-based Java solution. You can implement the rule using domain models, a service layer for applying logic, and a controller to expose the functionality. This setup provides a clear and flexible way to implement and extend the mortgage pricing engine.

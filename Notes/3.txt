@@ -67,3 +67,276 @@ Summary of the Rule:
             There is an understanding or need to define how exception overrides will be structured.
 
     If any of these conditions are not met, the lock request is rejected (FAIL). This ensures that only requests that meet specific exception handling criteria are approved.
+	
+	
+________________________________________________________________________________________
+-> 
+PASS IF:
+
+    Lock Request is requested for a Product ID where Product-Automated Exception Approvals = YES
+
+    AND the Seller-Automated Exception Approvals = YES
+
+    AND the Global-Automated Exception Approvals = YES
+
+    AND [Eligibility Rules Output indicates > 0 rules with Refer result]
+	
+	AND [Eligibility Rules Output indicates  0 rules with FAIL result]
+
+    AND [Eligibility Rules Output indicates *need to define how sufficient exception overrides will be structured*]
+
+
+ELSE FAIL
+
+
+
+I'm developing a java application in spring for Mortgage pricing engine for the above mentioned requirement. Explain how to model and implement it
+
+
+
+To implement the rule you've described in your Spring-based Java application for the mortgage pricing engine, we need to follow a structured approach to model the data and implement the business logic. Here's a step-by-step guide to how you can model and implement the rule effectively:
+Step 1: Understanding the Requirements
+
+The rule involves several conditions:
+
+    Automated Exception Approvals: This should be "YES" in the Product, Seller, and Global settings.
+
+    Eligibility Rules Output: It needs to indicate:
+
+        > 0 rules with "Refer" result
+
+        0 rules with "FAIL" result
+
+        A need to define how sufficient exception overrides will be structured
+
+If all these conditions are met, the result should be "PASS"; otherwise, it should be "FAIL".
+Step 2: Define Domain Classes
+
+To handle this logic, you need domain classes for Product, SellerSettings, GlobalSettings, and EligibilityRulesOutput. These classes will hold the necessary data for rule validation.
+1. Product Class
+
+This class represents the product associated with the lock request and its automated exception approval setting.
+
+public class Product {
+    private String productId;
+    private boolean automatedExceptionApprovals;  // YES or NO
+
+    // Getters and Setters
+}
+
+2. SellerSettings Class
+
+This class holds the seller’s automated exception approval setting.
+
+public class SellerSettings {
+    private boolean automatedExceptionApprovals;  // YES or NO
+
+    // Getters and Setters
+}
+
+3. GlobalSettings Class
+
+This class holds the global settings for automated exception approvals.
+
+public class GlobalSettings {
+    private boolean automatedExceptionApprovals;  // YES or NO
+
+    // Getters and Setters
+}
+
+4. EligibilityRulesOutput Class
+
+This class holds the output of the eligibility rules, including the results of rules such as "Refer", "FAIL", and exception overrides.
+
+public class EligibilityRulesOutput {
+    private int referCount;   // Number of rules with "Refer" result
+    private int failCount;    // Number of rules with "FAIL" result
+    private boolean sufficientExceptionOverridesDefined;
+
+    // Getters and Setters
+}
+
+5. LockRequest Class
+
+This class represents the lock request, containing the product, seller settings, global settings, and eligibility rules output.
+
+public class LockRequest {
+    private Product product;
+    private SellerSettings sellerSettings;
+    private GlobalSettings globalSettings;
+    private EligibilityRulesOutput eligibilityRulesOutput;
+
+    // Getters and Setters
+}
+
+Step 3: Implementing the Rule Logic
+
+Now, let's implement the rule logic in a class. This class will check if all the conditions for a valid lock request are met.
+LockRequestRule Class
+
+This class contains the logic for checking the conditions:
+
+public class LockRequestRule {
+
+    public boolean isLockRequestValid(LockRequest lockRequest) {
+        // Check if all the conditions are met for a valid lock request
+        boolean isAutomatedExceptionApprovalValid = isAutomatedExceptionApprovalsValid(lockRequest);
+        boolean isEligibilityRulesValid = isEligibilityRulesValid(lockRequest.getEligibilityRulesOutput());
+
+        return isAutomatedExceptionApprovalValid && isEligibilityRulesValid;
+    }
+
+    private boolean isAutomatedExceptionApprovalsValid(LockRequest lockRequest) {
+        // Check if Product, Seller, and Global settings all have automated exception approvals as YES
+        return lockRequest.getProduct().isAutomatedExceptionApprovals() &&
+               lockRequest.getSellerSettings().isAutomatedExceptionApprovals() &&
+               lockRequest.getGlobalSettings().isAutomatedExceptionApprovals();
+    }
+
+    private boolean isEligibilityRulesValid(EligibilityRulesOutput eligibilityRulesOutput) {
+        // Check if the Eligibility Rules Output meets all conditions
+        return eligibilityRulesOutput.getReferCount() > 0 &&
+               eligibilityRulesOutput.getFailCount() == 0 &&
+               eligibilityRulesOutput.isSufficientExceptionOverridesDefined();
+    }
+}
+
+Step 4: Service Layer for Rule Execution
+
+The service layer will orchestrate the application of the rule. It will call the LockRequestRule class to validate the lock request.
+MortgagePricingService Class
+
+This service will process the lock request and use the rule validation logic:
+
+import org.springframework.stereotype.Service;
+
+@Service
+public class MortgagePricingService {
+
+    private final LockRequestRule lockRequestRule;
+
+    public MortgagePricingService(LockRequestRule lockRequestRule) {
+        this.lockRequestRule = lockRequestRule;
+    }
+
+    public String processLockRequest(LockRequest lockRequest) {
+        // Check if lock request is valid based on the rule
+        boolean isLockRequestValid = lockRequestRule.isLockRequestValid(lockRequest);
+        if (isLockRequestValid) {
+            return "PASS";
+        } else {
+            return "FAIL";
+        }
+    }
+}
+
+Step 5: Expose the Logic via REST API
+
+Create a REST controller to expose the logic so users can submit lock requests and get the results.
+MortgageController Class
+
+This controller will receive the lock request and process it using the MortgagePricingService.
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/mortgage")
+public class MortgageController {
+
+    private final MortgagePricingService mortgagePricingService;
+
+    public MortgageController(MortgagePricingService mortgagePricingService) {
+        this.mortgagePricingService = mortgagePricingService;
+    }
+
+    @PostMapping("/processLockRequest")
+    public String processLockRequest(@RequestBody LockRequest lockRequest) {
+        return mortgagePricingService.processLockRequest(lockRequest);
+    }
+}
+
+Step 6: Example Data in the Controller
+
+When submitting a POST request, the body will include all the necessary data for the lock request. Here's an example of the request body:
+
+{
+  "product": {
+    "productId": "12345",
+    "automatedExceptionApprovals": true
+  },
+  "sellerSettings": {
+    "automatedExceptionApprovals": true
+  },
+  "globalSettings": {
+    "automatedExceptionApprovals": true
+  },
+  "eligibilityRulesOutput": {
+    "referCount": 1,
+    "failCount": 0,
+    "sufficientExceptionOverridesDefined": true
+  }
+}
+
+Step 7: Unit Testing the Logic
+
+You should write unit tests to ensure the business logic is correctly implemented. Here’s an example unit test for MortgagePricingService:
+Example Unit Test:
+
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import static org.mockito.Mockito.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class MortgagePricingServiceTest {
+
+    @Mock
+    private LockRequestRule lockRequestRule;
+
+    @Test
+    public void testProcessLockRequest() {
+        // Setup mock data
+        Product product = new Product();
+        product.setAutomatedExceptionApprovals(true);
+
+        SellerSettings sellerSettings = new SellerSettings();
+        sellerSettings.setAutomatedExceptionApprovals(true);
+
+        GlobalSettings globalSettings = new GlobalSettings();
+        globalSettings.setAutomatedExceptionApprovals(true);
+
+        EligibilityRulesOutput eligibilityRulesOutput = new EligibilityRulesOutput();
+        eligibilityRulesOutput.setReferCount(1);
+        eligibilityRulesOutput.setFailCount(0);
+        eligibilityRulesOutput.setSufficientExceptionOverridesDefined(true);
+
+        LockRequest lockRequest = new LockRequest();
+        lockRequest.setProduct(product);
+        lockRequest.setSellerSettings(sellerSettings);
+        lockRequest.setGlobalSettings(globalSettings);
+        lockRequest.setEligibilityRulesOutput(eligibilityRulesOutput);
+
+        // Setup mock behavior for LockRequestRule
+        when(lockRequestRule.isLockRequestValid(lockRequest)).thenReturn(true);  // Simulating a valid lock request
+
+        // Create the service and call the method
+        MortgagePricingService service = new MortgagePricingService(lockRequestRule);
+        String result = service.processLockRequest(lockRequest);
+
+        // Assert the result
+        assertEquals("PASS", result);
+    }
+}
+
+Step 8: Enhancements and Flexibility
+
+As your system evolves, you may want to add more complex rules or exceptions. You could also consider:
+
+    Using a rule engine like Drools for more flexibility in defining and modifying rules without code changes.
+
+    Implementing logging and auditing to track which requests pass or fail and why.
+
+Conclusion
+
+The provided solution is structured into manageable parts: domain classes for holding the necessary data, a rule class for evaluating the conditions, a service class to process the business logic, and a controller to expose the functionality via REST. This approach makes it easy to extend the logic, maintain the application, and integrate with other parts of your mortgage pricing engine.
+
