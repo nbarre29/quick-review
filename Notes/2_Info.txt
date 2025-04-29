@@ -1,0 +1,27 @@
+Let's break down the key mortgage terms in this specific rule:
+
+PASS IF: This indicates the conditions under which the mortgage lock request will be automatically accepted by the system.
+
+Lock Request: As explained before, this is a formal request from a borrower to "lock in" a specific interest rate and terms for their mortgage loan for a defined period.
+
+Product ID: This is a unique identifier assigned to a specific type of mortgage product or loan program offered by the lender (the "Seller"). Different product IDs might have different eligibility rules and automated processing settings. For example, a "30-Year Fixed Rate Conventional" loan might have a different Product ID than a "5/1 ARM" loan.
+
+Product-Automated Lock Approvals = ON: This is a setting associated with the specific mortgage product identified by the "Product ID". When this setting is "ON", it means that this particular type of loan is eligible for automated lock approval if other conditions are also met.
+
+AND: This is a logical operator. All the conditions connected by "AND" must be true for the overall "PASS IF" statement to be true.
+
+Seller Settings - Automated Lock Approvals = ON: As explained previously, this is a configuration specific to the "Seller" (the entity offering the mortgage). It controls whether automated lock approvals are generally enabled for this particular seller.
+
+Global - Automated Lock Approvals is ON: Also explained before, this is a system-wide or "global" setting that controls whether automated lock approvals are enabled across the entire platform.
+
+ELSE FAIL: This indicates that if any of the conditions in the "PASS IF" statement are not met (i.e., are "OFF" or not true), the lock request will be automatically rejected or flagged for further manual review.
+
+
+
+In simpler terms, this rule defines a scenario where a mortgage lock request will be automatically approved without manual intervention if and only if:
+
+1) The lock request is for a specific type of mortgage loan (Product ID) that has been configured to allow automated lock approvals (Product-Automated Lock Approvals = ON).
+2) The Seller offering the mortgage has also enabled automated lock approvals in their settings (Seller Settings - Automated Lock Approvals = ON).
+3) The entire system has automated lock approvals turned on (Global - Automated Lock Approvals is ON).
+
+If any of these three conditions are not met, the system will not automatically approve the lock request based on this specific rule. This layered approach ensures that automated approvals are only granted when all relevant levels (product-specific, seller-specific, and system-wide) are configured to allow it.
