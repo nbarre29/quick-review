@@ -1,0 +1,154 @@
+-> https://inside.java/2023/05/28/sip078/
+
+The Objects utility class, introduced with JDK 1.7, provides a rich API for performing many common operations on objects. Over many JDK releases, the Objects class has seen several updates, with significant updates in JDK 8 and 9 and minor updates in JDK 16 and 19. Let’s explore how to use the Objects class.
+
+Comparing Objects
+Objects provides several options for comparing the values of two objects. A key advantage of using the Objects implementation is their null safety.
+_____________________________________________________________________
+
+-> equals()
+Below is an example of comparing two records.
+
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.Objects;
+
+public class Main {
+
+    record RaceTime(String runnerName, Duration time) {
+    }
+
+    public static void main(String[] args) {
+        RaceTime nullValue = null;
+        RaceTime billy = new RaceTime("Billy Korando", Duration.of(90, ChronoUnit.SECONDS));
+        RaceTime copyOfBilly = new RaceTime("Billy Korando", Duration.of(90, ChronoUnit.SECONDS));
+        RaceTime nicolai = new RaceTime("Nicolai Parlog", Duration.of(180, ChronoUnit.SECONDS));
+
+        // This would throw a NullPointerException if uncommented
+//         System.out.println(nullValue.equals(billy));
+    
+        System.out.println("Objects.equals(nullValue, billy): " + Objects.equals(nullValue, billy)); // false
+        System.out.println("Objects.equals(billy, nicolai): " + Objects.equals(billy, nicolai));     // false
+        System.out.println("Objects.equals(billy, copyOfBilly): " + Objects.equals(billy, copyOfBilly)); // true
+    }
+
+}
+_____________________________________________________________________
+
+-> deepEquals()
+Objects also has deepEquals() for two arrays. Unlike normal equals(), this will compare the values stored in the arrays, which should result in more consistent results. 
+
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.Objects;
+
+public class Main {
+
+    record RaceTime(String runnerName, Duration time) {
+    }
+
+    public static void main(String[] args) {
+
+        RaceTime billy = new RaceTime("Billy Korando", Duration.of(90, ChronoUnit.SECONDS));
+        RaceTime nicolai = new RaceTime("Nicolai Parlog", Duration.of(180, ChronoUnit.SECONDS));
+
+        RaceTime[] raceTimes1 = new RaceTime[]{billy, nicolai};
+        RaceTime[] raceTimes2 = new RaceTime[]{billy, nicolai};
+
+        System.out.println("raceTimes1.equals(raceTimes2): " + raceTimes1.equals(raceTimes2)); // false
+        System.out.println("Objects.deepEquals(raceTimes1, raceTimes2): " + Objects.deepEquals(raceTimes1, raceTimes2)); // true
+
+    }
+
+}
+
+Output:
+raceTimes1.equals(raceTimes2): false
+Objects.deepEquals(raceTimes1, raceTimes2): true
+_____________________________________________________________________
+
+-> 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+
+public class Main {
+
+    record RaceTime(String runnerName, Duration time) {
+    }
+
+    public static void main(String[] args) {
+        RaceTime billy = new RaceTime("Billy Korando", Duration.of(90, ChronoUnit.SECONDS));
+        RaceTime nicolai = new RaceTime("Nicolai Parlog", Duration.of(180, ChronoUnit.SECONDS));
+
+        // Print race times
+        printRaceTime(billy);
+        printRaceTime(nicolai);
+
+    }
+    // we see the warning here "class RaceTime is exposed outside its defined visibility scope"
+    public static void printRaceTime(RaceTime raceTime) {
+        System.out.println(raceTime.runnerName() + " finished in " + raceTime.time().toMinutes() + " minutes");
+    }
+
+}
+
+Output:
+Billy Korando finished in 1 minutes
+Nicolai Parlog finished in 3 minutes
+
+
+Why you're seeing above warning:
+
+record RaceTime(...) {}  // ← local to Main class
+public static void printRaceTime(RaceTime raceTime)  // ← outside that local scope
+
+
+// we can update the record as below, but better move it to seperate class
+public static record RaceTime(String runnerName, Duration time) {
+    }
+_____________________________________________________________________
+
+-> little refactoring to above:
+1) record moved to seperate class
+2) used System.out.printf
+3) printRaceTime method modified to display minutes and seconds (e.g., "1 min 30 sec"):
+
+
+import java.time.Duration;
+
+public record RaceTime(String runnerName, Duration time) {
+}
+
+
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+
+public class Main {
+
+    public static void main(String[] args) {
+        RaceTime billy = new RaceTime("Billy Korando", Duration.of(90, ChronoUnit.SECONDS));
+        RaceTime nicolai = new RaceTime("Nicolai Parlog", Duration.of(180, ChronoUnit.SECONDS));
+
+        // Print race times
+        printRaceTime(billy);
+        printRaceTime(nicolai);
+    }
+
+    public static void printRaceTime(RaceTime raceTime) {
+        long totalSeconds = raceTime.time().getSeconds();
+        long minutes = totalSeconds / 60;
+        long seconds = totalSeconds % 60;
+
+        System.out.printf("%s finished in %d min %d sec%n", raceTime.runnerName(), minutes, seconds);
+    }
+
+}
+
+Output:
+Billy Korando finished in 1 min 30 sec
+Nicolai Parlog finished in 3 min 0 sec
+_____________________________________________________________________
+
+
+
+

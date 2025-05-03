@@ -1,0 +1,136 @@
+
+->  https://wkorando.github.io/sip-of-java/009.html  (Join APIs for String)
+
+Taking a list of items and transforming them into a String with delimiters between each item and possibly prefixes and suffixes, is a common need in software development. It’s also a frequent source of frustration as the below code example demonstrates.
+
+import java.util.List;
+
+public class Main {
+
+    public static void main(String[] args) {
+        List<String> devAdvocates =  List.of("Billy", "David", "Denys", "José", "Nicolai");
+        StringBuilder devAdvocateList = new StringBuilder();
+
+        devAdvocateList.append("{ ");
+        for(String devAdvocate : devAdvocates) {
+            devAdvocateList.append(devAdvocate);
+            devAdvocateList.append(", ");
+        }
+
+        devAdvocateList.append(" }");
+
+        System.out.println(devAdvocateList);
+
+    }
+}
+
+Output:
+{ Billy, David, Denys, José, Nicolai,  }
+
+Manually having to add the prefix and suffix before and after a loop statement is messy. There is also the issue of dealingwith the final delimiter instance, which often requires adding logic to a loop to skip adding the delimiter after the last time, or messy editing of the String to remove the final delimiter.
+
+Luckily there is a much easier way of handling this, the Join APIs, all of which are avaiable in JDK 8!
+_____________________________________________________________________
+-> StringJoiner
+
+import java.util.List;
+import java.util.StringJoiner;
+
+public class Main {
+
+    public static void main(String[] args) {
+        List<String> devAdvocates =  List.of("Billy", "David", "Denys", "José", "Nicolai");
+
+        StringJoiner joiner = new StringJoiner(", ", "{ ", " }");
+        for(String devAdvocate : devAdvocates) {
+
+            joiner.add(devAdvocate);
+        }
+
+        System.out.println(joiner.toString());
+
+    }
+}
+
+Output:
+{ Billy, David, Denys, José, Nicolai }
+
+_____________________________________________________________________
+-> Adding with forEach
+
+import java.util.List;
+import java.util.StringJoiner;
+
+public class Main {
+
+    public static void main(String[] args) {
+        List<String> devAdvocates =  List.of("Billy", "David", "Denys", "José", "Nicolai");
+
+        StringJoiner joiner = new StringJoiner(", ", "{ ", " }");
+        devAdvocates.forEach(joiner::add);
+
+        System.out.println(joiner.toString());
+
+    }
+}
+_____________________________________________________________________
+
+-> Collectors.joining()
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class Main {
+
+    public static void main(String[] args) {
+        List<String> devAdvocates = List.of("Billy", "David", "Denys", "José", "Nicolai");
+
+        String devAdvocatesList = devAdvocates.stream().collect(Collectors.joining(", ", "{ ", " }"));
+
+        System.out.println(devAdvocatesList);
+
+    }
+}
+_____________________________________________________________________
+
+-> String.join()
+If you only need to use a delimiter in the String list being built, String.join() might be the best option. String.join() can accept an Iterable like in the below example:
+
+import java.util.List;
+
+public class Main {
+
+    public static void main(String[] args) {
+        List<String> devAdvocates = List.of("Billy", "David", "Denys", "José", "Nicolai");
+
+        System.out.println(String.join(", ", devAdvocates));
+
+    }
+}
+
+Output:
+Billy, David, Denys, José, Nicolai
+_____________________________________________________________________
+
+-> String.join() can also take a varargs of items like shown here:
+
+public class Main {
+
+    public static void main(String[] args) {
+        System.out.println(String.join(", ", "Billy", "David", "Denys", "José", "Nicolai"));
+    }
+}
+
+Output:
+Billy, David, Denys, José, Nicolai
+
+
+
+
+
+
+
+
+
+
+

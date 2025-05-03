@@ -1,0 +1,11 @@
+1) Switch Expressions 
+https://wkorando.github.io/sip-of-java/001.html
+
+9) Join APIs for String
+https://wkorando.github.io/sip-of-java/009.html
+
+76) Arrays Utility Class
+https://inside.java/2023/05/01/sip076/
+
+78) Objects Utility Class
+https://inside.java/2023/05/28/sip078/

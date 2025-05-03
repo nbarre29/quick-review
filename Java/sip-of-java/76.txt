@@ -1,0 +1,51 @@
+-> The java.util.Arrays was added to the JDK in 2, so it has been a while. It has seen several updates in subsequent releases. The most significant update was in JDK 8; the most recent update was with JDK 9. So if you are still on JDK 8, there might be a few changes you’re unfamiliar with.
+_____________________________________________________________________
+
+-> Copying Arrays
+
+import java.util.Arrays;
+
+public class Main {
+
+    public static void main(String[] args) {
+        int[] numbers = new int[] {1,2,3,4,5};
+        int[] copyOfNumbers = Arrays.copyOf(numbers, numbers.length);
+        int[] copyOfSomeNumbers  = Arrays.copyOf(numbers, numbers.length - 3);
+        int[] copyOfNumbersWithPadding = Arrays.copyOf(numbers, numbers.length + 1);
+        System.out.println("Original array: " + Arrays.toString(numbers));
+        System.out.println("Copied array: " + Arrays.toString(copyOfNumbers));
+        System.out.println("Copied some elements: " + Arrays.toString(copyOfSomeNumbers));
+        System.out.println("Copied array with padding: " + Arrays.toString(copyOfNumbersWithPadding));
+
+    }
+}
+
+Output:
+Original array: [1, 2, 3, 4, 5]
+Copied array: [1, 2, 3, 4, 5]
+Copied some elements: [1, 2]
+Copied array with padding: [1, 2, 3, 4, 5, 0]
+
+copyOfNumbers - is an example of a simple copy of an array.
+copyOfSomeNumbers - is an example of copying only a portion of an array.
+copyOfNumbersWithPadding - is an example of copying an array and adding padding. The padded values are the default value for the type; in the case of int, that is 0.
+
+_____________________________________________________________________
+
+-> Copying Subranges
+
+import java.util.Arrays;
+
+public class Main {
+
+    public static void main(String[] args) {
+        int[] numbers = new int[] {1,2,3,4,5};
+        int[] copyOfNumbers = Arrays.copyOfRange(numbers, 0, 3);
+
+        System.out.println(Arrays.toString(numbers)); //[1, 2, 3, 4, 5]
+        System.out.println(Arrays.toString(copyOfNumbers)); //[1, 2, 3]
+
+    }
+}
+_____________________________________________________________________
+

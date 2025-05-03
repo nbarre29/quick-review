@@ -1,0 +1,57 @@
+-> Switch Expressions:
+https://wkorando.github.io/sip-of-java/001.html
+
+public class Main {
+
+    public static void main(String[] args) {
+        int day = 100;
+        String result = switch (day) {
+            case 1 -> "Monday";
+            case 2 -> "Tuesday";
+            case 3 -> "Wednesday";
+            case 4 -> "Thursday";
+            case 5 -> "Friday";
+            case 6 -> "Saturday";
+            case 7 -> "Sunday";
+            default -> {
+                System.out.println("Invalid number");
+                yield "Invalid day"; // Use yield to return a value from a block
+            }
+
+        };
+        System.out.println("The day is: " + result);
+
+    }
+}
+
+Output:
+Invalid number
+The day is: Invalid day
+------------------------------------------------------------------------
+
+-> in the below example using a enum a default case is not required 
+
+public class Main {
+
+    enum DaysOfWeek {
+        SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY;
+    }
+
+    public static void main(String[] args) {
+
+        DaysOfWeek dayOfWeek = DaysOfWeek.SUNDAY;
+        String result = switch (dayOfWeek) {
+            case SUNDAY -> "Sunday";
+            case MONDAY -> "Monday";
+            case TUESDAY -> "Tuesday";
+            case WEDNESDAY -> "Wednesday";
+            case THURSDAY -> "Thursday";
+            case FRIDAY -> "Friday";
+            case SATURDAY -> "Saturday";
+        };
+
+        System.out.println(result);  // Sunday
+    }
+}
+
+______________________________________________________________________________

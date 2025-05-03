@@ -1,0 +1,186 @@
+-> The java.util.Arrays class provides the copyOfRange() method, which allows for copying a specific range of elements from an array into a new array. This method is particularly useful when you need to extract a portion of an array without modifying the original.
+
+import java.util.Arrays;
+
+public class PartialArrayCopy {
+    public static void main(String[] args) {
+        int[] originalArray = {10, 20, 30, 40, 50, 60};
+        int startIndex = 2;
+        int endIndex = 5;
+
+        int[] partialArray = Arrays.copyOfRange(originalArray, startIndex, endIndex);
+
+        System.out.println("Original Array: " + Arrays.toString(originalArray));
+        System.out.println("Partial Array: " + Arrays.toString(partialArray));
+    }
+}
+
+Output:
+Original Array: [10, 20, 30, 40, 50, 60]
+Partial Array: [30, 40, 50]
+
+In this example, Arrays.copyOfRange() is used to create a new array partialArray containing elements from index 2 (inclusive) to index 5 (exclusive) of the originalArray. The output demonstrates that the partialArray contains the copied elements {30, 40, 50}, while the originalArray remains unchanged.
+______________________________________________________________________________
+
+-> import java.util.Arrays;
+
+public class ArraysCopyOfExample {
+
+    public static void main(String[] args) {
+        // Original array
+        int[] originalArray = {10, 20, 30, 40, 50};
+        System.out.println("Original Array: " + Arrays.toString(originalArray));
+
+        // Example 1: Copying the entire array
+        int[] copiedArray1 = Arrays.copyOf(originalArray, originalArray.length);
+        System.out.println("Copied Array (same length): " + Arrays.toString(copiedArray1));
+        // Modifying the original array does not affect the copy
+        originalArray[0] = 100;
+        System.out.println("Original Array (after modification): " + Arrays.toString(originalArray));
+        System.out.println("Copied Array (same length, after original modified): " + Arrays.toString(copiedArray1));
+
+        System.out.println("\n--------------------\n");
+
+        // Example 2: Copying a portion of the array (shorter length)
+        int[] copiedArray2 = Arrays.copyOf(originalArray, 3);
+        System.out.println("Copied Array (shorter length): " + Arrays.toString(copiedArray2));
+
+        System.out.println("\n--------------------\n");
+
+        // Example 3: Copying with a longer length (elements are padded with default values)
+        int[] copiedArray3 = Arrays.copyOf(originalArray, 8);
+        System.out.println("Copied Array (longer length): " + Arrays.toString(copiedArray3));
+        // For primitive types like int, the padding is with 0.
+
+        System.out.println("\n--------------------\n");
+
+        // Example 4: Copying an array of Strings
+        String[] originalStringArray = {"apple", "banana", "cherry"};
+        String[] copiedStringArray = Arrays.copyOf(originalStringArray, originalStringArray.length);
+        System.out.println("Original String Array: " + Arrays.toString(originalStringArray));
+        System.out.println("Copied String Array: " + Arrays.toString(copiedStringArray));
+        // For reference types like String, the padding with a longer length would be null.
+        String[] copiedStringArrayLonger = Arrays.copyOf(originalStringArray, 5);
+        System.out.println("Copied String Array (longer length): " + Arrays.toString(copiedStringArrayLonger));
+    }
+}
+
+Output:
+Original Array: [10, 20, 30, 40, 50]
+Copied Array (same length): [10, 20, 30, 40, 50]
+Original Array (after modification): [100, 20, 30, 40, 50]
+Copied Array (same length, after original modified): [10, 20, 30, 40, 50]
+
+--------------------
+
+Copied Array (shorter length): [100, 20, 30]
+
+--------------------
+
+Copied Array (longer length): [100, 20, 30, 40, 50, 0, 0, 0]
+
+--------------------
+
+Original String Array: [apple, banana, cherry]
+Copied String Array: [apple, banana, cherry]
+Copied String Array (longer length): [apple, banana, cherry, null, null]
+______________________________________________________________________________
+
+-> 
+1) int[] numbers = new int[] {1, 2, 3, 4, 5};
+
+2) int[] numbers = {1, 2, 3, 4, 5};
+
+Both statements above are valid in Java and do the same thing — they initialize an int[] array with the values {1, 2, 3, 4, 5} — but there's a subtle difference in syntax and when you can use each.
+
+
+1) int[] numbers = new int[] {1, 2, 3, 4, 5};
+
+Explicit instantiation.
+You can use this anywhere, including in return statements, method arguments, or variable assignments.
+This is the only option allowed outside of a declaration context.
+
+2) int[] numbers = {1, 2, 3, 4, 5};
+
+Shorthand syntax.
+Only allowed at the point of declaration.
+You cannot use this for assignments after declaration.
+Preferred for simplicity.
+
+
+❌ For example, this will NOT compile:
+
+int[] numbers;
+numbers = {1, 2, 3, 4, 5}; // ❌ Invalid
+
+
+✅ But this works:
+
+int[] numbers;
+numbers = new int[]{1, 2, 3, 4, 5}; // ✅ Valid
+
+
+public class Main {
+
+    //sums all elements of an int array
+    public static int sum(int[] numbers) {
+        int total = 0;
+        for (int n : numbers) {
+            total += n;
+        }
+        return total;
+    }
+    public static void main(String[] args) {
+
+        int result = sum(new int[]{1, 2, 3, 4, 5});
+		//int result = sum({1, 2, 3}); // ❌ Error: array initializer not allowed here
+        System.out.println("The sum is: " + result);  // The sum is: 15
+
+    }
+}
+
+We can refactor the above using JDK’s optimized stream primitives, so we keep readability and performance while dropping the explicit accumulator loop.
+
+---------------------------
+//refactor 1. using Arrays.stream
+import java.util.Arrays;
+
+public class Main {
+
+    public static int sum(int[] numbers) {
+        return Arrays.stream(numbers).sum();
+    }
+    public static void main(String[] args) {
+
+        int result = sum(new int[]{1, 2, 3, 4, 5});
+        System.out.println("The sum is: " + result);  // The sum is: 15
+
+    }
+}
+---------------------------
+//refactor 2. using IntStream.of
+import java.util.stream.IntStream;
+
+public class Main {
+
+    public static int sum(int... numbers) {   // var‑args, not an array parameter
+        return IntStream.of(numbers).sum();
+    }
+
+    public static void main(String[] args) {
+
+//        int result = sum(new int[]{1, 2, 3, 4, 5});  // This also works
+        int result = sum(1, 2, 3, 4, 5);          // no need to wrap in new int[]{…}
+        System.out.println("The sum is: " + result);  // The sum is: 15
+
+    }
+}
+
+---------------------------
+
+______________________________________________________________________________
+
+
+
+
+

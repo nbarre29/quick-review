@@ -496,6 +496,42 @@ Output:
 
 _____________________________________________________________________________________
 
+-> when you want to apply a function to each element of a collection and transform it (like how filter works with Predicate), the **map** operation in a stream uses a Function. 
+
+Here’s a breakdown of how Function is used in the map operation:
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+public class FunctionMapExample {
+    public static void main(String[] args) {
+        // Example collection of integers
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);
+
+        // Define a Function to square each number
+        Function<Integer, Integer> squareFunction = x -> x * x;
+
+        // Use map to apply the function to each element
+        List<Integer> squaredNumbers = numbers.stream()
+                                                .map(squareFunction)
+                                                .collect(Collectors.toList());
+
+        // Print the squared numbers
+        squaredNumbers.forEach(System.out::println);
+    }
+}
+
+Output:
+1
+4
+9
+16
+25
+_____________________________________________________________________________________
+
+
 -> Testing Two Elements with a BiPredicate
 https://dev.java/learn/lambdas/functional-interfaces/
 
