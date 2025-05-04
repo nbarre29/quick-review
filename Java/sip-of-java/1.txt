@@ -55,3 +55,34 @@ public class Main {
 }
 
 ______________________________________________________________________________
+
+-> 
+
+public class Main {
+
+    enum DaysOfWeek {
+        SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY;
+    }
+
+    public static void main(String[] args) {
+
+        DaysOfWeek today = DaysOfWeek.WEDNESDAY;
+        String result = switch (today) {
+            case MONDAY -> "Start of the work week!";
+            case TUESDAY -> "Second day of the work week!";
+            case WEDNESDAY -> "Midweek day!";
+            case THURSDAY -> "Almost Friday!";
+            case FRIDAY -> "Last work day of the week!";
+            case SATURDAY, SUNDAY -> "Weekend!";
+        };
+
+        System.out.println("Today is " + today + ": " + result);
+
+
+    }
+}
+
+Output:
+Today is WEDNESDAY: Midweek day!
+______________________________________________________________________________
+

@@ -180,7 +180,151 @@ public class Main {
 
 ______________________________________________________________________________
 
+-> A simple and practical Java program using Instant and Duration to measure how long a task takes 
+
+import java.time.Duration;
+import java.time.Instant;
+
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Task started...");
+
+        Instant start = Instant.now(); // capture start time
+
+        // Simulate a task (e.g., sleep for 2.5 seconds)
+        try {
+            Thread.sleep(2500); // 2500 milliseconds = 2.5 seconds
+        } catch (InterruptedException e) {
+            System.out.println("Task was interrupted.");
+        }
+
+        Instant end = Instant.now(); // capture end time
+
+        System.out.println("Task finished...");
+
+        Duration duration = Duration.between(start, end);
+
+        long seconds = duration.getSeconds();
+        long millis = duration.toMillisPart(); // Java 9+
+
+        System.out.printf("Task finished in %d seconds and %d milliseconds%n", seconds, millis);
+    }
+}
+
+Output:
+Task started...
+Task finished...
+Task finished in 2 seconds and 501 milliseconds
 
 
 
+Key Difference:  toMillis()  vs toMillisPart()
+toMillis() gives the total milliseconds of the duration.
+toMillisPart() gives the millisecond fraction of the duration after full seconds.
+______________________________________________________________________________
 
+-> An example that uses Instant and Duration to calculate a future time — like ETA(Estimated Time of Arrival) after 15 minutes from now:
+
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+
+public class Main {
+    public static void main(String[] args) {
+        Instant now = Instant.now();
+        System.out.println("Current time: " + formatInstant(now));
+
+        Duration travelTime = Duration.ofMinutes(15);
+
+        Instant eta = now.plus(travelTime);
+        System.out.println("Estimated arrival time (after 15 min): " + formatInstant(eta));
+    }
+
+    // Helper method to print readable time with time zone
+    public static String formatInstant(Instant instant) {
+        return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                .withZone(ZoneId.systemDefault())
+                .format(instant);
+    }
+}
+
+Output:
+Current time: 2025-05-03 20:58:11
+Estimated arrival time (after 15 min): 2025-05-03 21:13:11
+
+Notes:
+Instant gives you UTC timestamps, so ZoneId.systemDefault() localizes it to your system's time zone.
+Duration.ofMinutes(15) is used to calculate the future time (ETA).
+
+https://docs.oracle.com/en/java/javase/23/docs/api/java.base/java/time/format/DateTimeFormatter.html
+______________________________________________________________________________
+
+-> Here's an enhanced version of the above program that includes a countdown simulation to the estimated arrival time.
+
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+
+public class Main {
+
+    public static void main(String[] args) {
+        Instant now = Instant.now();
+        System.out.println("Current time: " + formatInstant(now));
+
+        Duration travelTime = Duration.ofMinutes(1); // for demo, set to 1 minute
+        Instant eta = now.plus(travelTime);
+        System.out.println("Estimated arrival time: " + formatInstant(eta));
+
+        System.out.println("\nStarting countdown...");
+
+        while (Instant.now().isBefore(eta)) {
+            Duration remaining = Duration.between(Instant.now(), eta);
+            long secondsLeft = remaining.getSeconds();
+
+            System.out.print("\rTime remaining: " + secondsLeft + " seconds");
+            try {
+                Thread.sleep(1000); // wait 1 second
+            } catch (InterruptedException e) {
+                System.out.println("\nCountdown interrupted.");
+                break;
+            }
+        }
+
+        System.out.println("\nArrived at destination!");
+    }
+
+    public static String formatInstant(Instant instant) {
+        return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                .withZone(ZoneId.systemDefault())
+                .format(instant);
+    }
+}
+
+Output:
+Current time: 2025-05-03 21:15:13
+Estimated arrival time: 2025-05-03 21:16:13
+
+Starting countdown...
+Time remaining: 60 seconds
+Time remaining: 59 seconds
+...
+...
+Time remaining: 0 seconds
+Arrived at destination!
+
+
+Notes:
+    The \r lets the countdown update on the same line (works in most terminals).
+    For demo purposes, it's set to Duration.ofMinutes(1) — increase this to 5 or 15 minutes as needed.
+    Thread.sleep(1000) gives a ticking effect.
+	
+
+
+```java
+System.out.print("\rTime remaining: " + secondsLeft + " seconds");
+```
+
+The `\r` ensures that each update to the countdown timer replaces the previous line, rather than printing a new line for each update. This is useful for creating dynamic output in the console, such as progress bars or countdowns.
+______________________________________________________________________________
