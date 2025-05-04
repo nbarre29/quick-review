@@ -67,6 +67,103 @@ students.add(student);
 -------------------------------------
 ______________________________________________________________________________
 
+-> Changes to above code: I don't consider it as refactoring but just to mention that we can do it this way too.
+ removed the addStudent method from above program.
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class Main {
+    public static void main(String[] args) {
+        Map<String, List<String>> courseStudents = new HashMap<>();
+
+        // Adding students to courses (without using a separate method)
+        courseStudents.computeIfAbsent("Math", k -> new ArrayList<>()).add("Alice");
+        courseStudents.computeIfAbsent("Science", k -> new ArrayList<>()).add("Bob");
+        courseStudents.computeIfAbsent("Math", k -> new ArrayList<>()).add("Charlie");
+        courseStudents.computeIfAbsent("History", k -> new ArrayList<>()).add("David");
+        courseStudents.computeIfAbsent("Science", k -> new ArrayList<>()).add("Eva");
+
+        // Print the map
+        for (Map.Entry<String, List<String>> entry : courseStudents.entrySet()) {
+            System.out.println("Course: " + entry.getKey() + " → Students: " + entry.getValue());
+        }
+    }
+}
+______________________________________________________________________________
+
+-> Changes to above code:
+ Used a Map<String, Set<String>> instead of Map<String, List<String>>, which prevents duplicate student names per course:
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+public class Main {
+    public static void main(String[] args) {
+        Map<String, Set<String>> courseStudents = new HashMap<>();
+
+        // Adding students to courses (duplicates automatically prevented)
+        courseStudents.computeIfAbsent("Math", k -> new HashSet<>()).add("Alice");
+        courseStudents.computeIfAbsent("Science", k -> new HashSet<>()).add("Bob");
+        courseStudents.computeIfAbsent("Math", k -> new HashSet<>()).add("Charlie");
+        courseStudents.computeIfAbsent("History", k -> new HashSet<>()).add("David");
+        courseStudents.computeIfAbsent("Science", k -> new HashSet<>()).add("Eva");
+        courseStudents.computeIfAbsent("Science", k -> new HashSet<>()).add("Eva"); // duplicate — ignored
+
+        // Print the map
+        for (Map.Entry<String, Set<String>> entry : courseStudents.entrySet()) {
+            System.out.println("Course: " + entry.getKey() + " → Students: " + entry.getValue());
+        }
+    }
+}
+
+
+ Why use Set?
+
+    Set (like HashSet) ensures no duplicates.
+    If a student is already enrolled in the course, the .add(...) call returns false and does not add it again.
+______________________________________________________________________________	
+-> Changes to above code:
+1) TreeSet: automatically sorts student names alphabetically.
+2) TreeMap : sorts the courses too, for a clean display.
+
+	
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.Set;
+import java.util.TreeSet;
+
+public class Main {
+    public static void main(String[] args) {
+        Map<String, Set<String>> courseStudents = new TreeMap<>(); // TreeMap for sorted course names (optional)
+
+        // Add students to courses (students stored in sorted order via TreeSet)
+        courseStudents.computeIfAbsent("Math", k -> new TreeSet<>()).add("Alice");
+        courseStudents.computeIfAbsent("Science", k -> new TreeSet<>()).add("Bob");
+        courseStudents.computeIfAbsent("Math", k -> new TreeSet<>()).add("Charlie");
+        courseStudents.computeIfAbsent("History", k -> new TreeSet<>()).add("David");
+        courseStudents.computeIfAbsent("Science", k -> new TreeSet<>()).add("Eva");
+        courseStudents.computeIfAbsent("Science", k -> new TreeSet<>()).add("Eva"); // duplicate — ignored
+
+        // Print the map
+        for (Map.Entry<String, Set<String>> entry : courseStudents.entrySet()) {
+            System.out.println("Course: " + entry.getKey() + " → Students: " + entry.getValue());
+        }
+    }
+}
+
+
+Output:
+Course: History → Students: [David]
+Course: Math → Students: [Alice, Charlie]
+Course: Science → Students: [Bob, Eva]
+
+______________________________________________________________________________
+
 -> 
 import java.util.HashMap;
 import java.util.Map;
