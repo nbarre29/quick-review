@@ -6,6 +6,7 @@
 
 4) Using a labeled continue with for loops
 Using a labeled break with for loops
+Collection classes / interfaces
 
 5) Exception handling
 

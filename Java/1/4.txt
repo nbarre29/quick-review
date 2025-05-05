@@ -240,3 +240,124 @@ Inside the inner loop, there is a conditional statement that checks if i is equa
 
 _________________________________________________________________________________
 
+-> 
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.Comparator;
+
+public class TreeSetExample {
+    public static void main(String[] args) {
+        // TreeSet with natural ordering of integers
+        Set<Integer> numbers = new TreeSet<>();
+        numbers.add(5);
+        numbers.add(2);
+        numbers.add(8);
+        numbers.add(2); // Duplicate, will be ignored
+        System.out.println("TreeSet with natural ordering: " + numbers); // [2, 5, 8]
+
+        // TreeSet with custom Comparator: order by string length
+        Set<String> names = new TreeSet<>(Comparator.comparing(String::length).thenComparing(String::compareTo));
+        names.add("Alice");
+        names.add("Bob");
+        names.add("Charlie");
+        names.add("Ram");
+        System.out.println("TreeSet with custom Comparator: " + names); // [Bob, Alice, Charlie]
+    }
+}
+
+Output:
+TreeSet with natural ordering: [2, 5, 8]
+TreeSet with custom Comparator: [Bob, Ram, Alice, Charlie]
+
+_________________________________________________________________________________
+
+-> 
+
+import java.util.*;
+
+public class SetOrderingExample {
+    public static void main(String[] args) {
+        // Original insertion order: [5, 2, 8, 2]
+        List<Integer> input = Arrays.asList(5, 2, 8, 2);
+
+        // HashSet: no guaranteed order
+        Set<Integer> hashSet = new HashSet<>(input);
+        System.out.println("HashSet (no order): " + hashSet);
+
+        // LinkedHashSet: maintains insertion order
+        Set<Integer> linkedHashSet = new LinkedHashSet<>(input);
+        System.out.println("LinkedHashSet (insertion order): " + linkedHashSet);
+
+        // TreeSet: sorted order
+        Set<Integer> treeSet = new TreeSet<>(input);
+        System.out.println("TreeSet (sorted order): " + treeSet);
+    }
+}
+
+Output:
+HashSet (no order): [2, 5, 8]       ← unpredictable
+LinkedHashSet (insertion order): [5, 2, 8]
+TreeSet (sorted order): [2, 5, 8]
+
+Key Takeaways:
+    Use HashSet when you only care about uniqueness, not order.
+    Use LinkedHashSet when you need to preserve the order items were added.
+    Use TreeSet when you want automatic sorting (natural or with a custom comparator).
+
+_________________________________________________________________________________
+
+-> 
+
+import java.util.*;
+
+public class SetNullAndDuplicateTest {
+    public static void main(String[] args) {
+        // HashSet
+        Set<String> hashSet = new HashSet<>();
+        hashSet.add("apple");
+        hashSet.add("apple");   // duplicate
+        hashSet.add(null);      // allowed
+        System.out.println("HashSet: " + hashSet);
+
+        // LinkedHashSet
+        Set<String> linkedSet = new LinkedHashSet<>();
+        linkedSet.add("apple");
+        linkedSet.add(null);    // allowed
+        linkedSet.add("banana");
+        linkedSet.add("apple"); // duplicate
+        System.out.println("LinkedHashSet: " + linkedSet);
+
+        // TreeSet
+        Set<String> treeSet = new TreeSet<>();
+        treeSet.add("apple");
+        treeSet.add("banana");
+//         treeSet.add(null);   // ❌ uncommenting this throws NullPointerException
+        System.out.println("TreeSet: " + treeSet);
+    }
+}
+
+Output:
+HashSet: [null, apple]
+LinkedHashSet: [apple, null, banana]
+TreeSet: [apple, banana]
+
+treeSet.add(null); will throw NullPointerException because TreeSet uses comparisons (compareTo) and null cannot be compared.
+
+
+Summary:
+
+    HashSet
+        Does not maintain order of elements.
+        Does not allow duplicates.
+        ✅ Allows one null element.
+
+    LinkedHashSet
+        ✅ Maintains insertion order.
+        Does not allow duplicates.
+        ✅ Allows one null element.
+
+    TreeSet
+        ✅ Maintains elements in sorted order.
+        Does not allow duplicates.
+        ❌ Does not allow null elements — will throw NullPointerException.
+_________________________________________________________________________________
