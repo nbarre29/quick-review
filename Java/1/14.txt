@@ -202,6 +202,97 @@ Explanation Recap
 Use the above patterns whenever you need more flexible APIs, depending on whether you want to consume values (write into a collection) or produce values (read from a collection).
 ______________________________________________________________________________________________________________________
 
+Mnemonic: PECS
+    Producer Extends, Consumer Super
+
+
+Purpose					Use this wildcard
+Read from a producer	? extends T
+Write to a consumer		? super T
+
+______________________________________________________________________________________________________________________
+
+import java.util.ArrayList;
+import java.util.List;
+
+class Animal {}
+class Dog extends Animal {}
+class Puppy extends Dog {}
+
+public class Test {
+    public static void main(String[] args) {
+
+        List<? super Puppy> list = new ArrayList<Animal>();
+        list.add(new Puppy());     // ✅ OK — exactly Puppy
+        list.add(new Dog());       // ❌ ERROR — Dog is a superclass of Puppy
+        list.add(new Animal());    // ❌ ERROR — Animal is a superclass of Puppy
+
+        Object obj = list.get(0); // ✅ OK
+        Puppy p = list.get(0);    // ❌ ERROR — can't guarantee it's a Puppy
+
+
+
+//        List<? extends Animal> animals = List.of(new Dog(), new Puppy());
+        List<? extends Animal> animals = new ArrayList<Animal>();
+        Animal a = animals.get(0); // ✅ OK
+        animals.add(new Dog());    // ❌ ERROR — can't add anything
+        animals.add(null); // ✅ OK — null is allowed
+
+    }
+
+}
+
+
+Object
+ └── Animal
+      └── Dog
+           └── Puppy
+----------------------------------------------		   
+		   
+List<? super Puppy> list = new ArrayList<Animal>();
+
+This means:
+
+    The list can hold objects of type Puppy or any superclass of Puppy.
+
+So the actual type of the list might be:
+    List<Puppy> ✅
+    List<Dog> ✅
+    List<Animal> ✅
+    List<Object> ✅
+
+You can only safely add instances of Puppy or subclasses of it (there are none, so just Puppy).
+Why?
+    The compiler only knows that the list holds some unknown supertype of Puppy. So it allows adding Puppy or its subclasses, but not superclasses like Dog or Animal — because that could break type safety if the actual list is of a more specific type.
+
+----------------------------------------------
+		   
+
+______________________________________________________________________________________________________________________
+
+? extends T
+
+    Meaning: Any subtype of T — that is, T or anything that extends from T.
+
+    Use Case: This is useful when you're reading from a collection
+
+    Can Add? ❌ No — you can't safely add any element (except null), because the actual type might be more specific than T.
+
+    Can Read As? ✅ Yes — elements can be safely read as type T or its subclass.
+
+? super T
+
+    Meaning: Any supertype of T — that is, T or anything that T inherits from.
+
+    Use Case: This is ideal when you're writing to a collection
+
+    Can Add? ✅ Yes — you can safely add elements of type T or its subclasses.
+
+    Can Read As? ❌ No — you can't safely read elements as T, only as Object, because the actual type could be any supertype of T.
+
+______________________________________________________________________________________________________________________
+
+
 -> import java.util.HashMap;
 import java.util.Map;
 
@@ -493,6 +584,119 @@ public void addIntegers(List<? super Integer> list) {
 📌 Why? You can safely add Integer values, because the list accepts that type or its supertypes (e.g., Object, Number). But you can’t read elements as anything more specific than Object.
 
 ----------------------------------------------------------------------------------------------------------------------
+
+import java.util.Arrays;
+import java.util.List;
+
+public class UpperBoundedWildcardExample {
+
+    // Method that uses upper-bounded wildcard
+    public static void printNumbers(List<? extends Number> list) {
+        for (Number n : list) {
+            System.out.println(n);
+        }
+
+        // list.add(5);         // ❌ Compile error: can't add to ? extends Number
+        // list.add(3.14);      // ❌ Still not allowed
+        // list.add(null);      // ✅ Only null is allowed
+    }
+
+    public static void main(String[] args) {
+        List<Integer> intList = Arrays.asList(1, 2, 3);
+        List<Double> doubleList = Arrays.asList(1.1, 2.2, 3.3);
+        List<Number> numberList = Arrays.asList(10, 20.5, 30L);
+
+        System.out.println("Integer List:");
+        printNumbers(intList);
+
+        System.out.println("\nDouble List:");
+        printNumbers(doubleList);
+
+        System.out.println("\nNumber List:");
+        printNumbers(numberList);
+    }
+}
+
+Output:
+Integer List:
+1
+2
+3
+
+Double List:
+1.1
+2.2
+3.3
+
+Number List:
+10
+20.5
+30
+
+🔍 Summary:
+
+    ✅ ? extends Number allows passing List<Integer>, List<Double>, etc.
+
+    ✅ You can read elements safely as Number.
+
+    ❌ You cannot add new elements (except null), because the compiler doesn't know the exact type inside the list.
+
+----------------------------------------------------------------------------------------------------------------------
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class LowerBoundedWildcardExample {
+
+    // Method using lower-bounded wildcard
+    public static void addIntegers(List<? super Integer> list) {
+        list.add(1);
+        list.add(2);
+        list.add(3);
+
+        // You can only read as Object, not as Integer
+        for (Object obj : list) {
+            System.out.println(obj);
+        }
+    }
+
+    public static void main(String[] args) {
+        List<Number> numberList = new ArrayList<>();
+        List<Object> objectList = new ArrayList<>();
+
+        System.out.println("Adding to Number List:");
+        addIntegers(numberList); // ✅ Allowed: Number is a supertype of Integer
+
+        System.out.println("\nAdding to Object List:");
+        addIntegers(objectList); // ✅ Allowed: Object is a supertype of Integer
+
+        // List<Double> doubleList = new ArrayList<>();
+        // addIntegers(doubleList); ❌ Not allowed: Double is not a supertype of Integer
+    }
+}
+
+Output:
+Adding to Number List:
+1
+2
+3
+
+Adding to Object List:
+1
+2
+3
+
+🔍 Key Takeaways:
+
+    ✅ List<? super Integer> allows adding Integer values.
+
+    ✅ Works with List<Number> and List<Object>.
+
+    ❌ Does not accept List<Double> or List<Short> (they are not supertypes of Integer).
+
+    ❌ You cannot read values as Integer, only as Object.
+
+______________________________________________________________________________________________________________________
 
 🔼 ? extends T (Upper Bound Wildcard)
 

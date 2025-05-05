@@ -86,3 +86,20 @@ Output:
 Today is WEDNESDAY: Midweek day!
 ______________________________________________________________________________
 
+-> Key differences between switch expressions and switch statements:
+
+Syntax:
+Switch expressions use the -> (arrow) syntax for case labels, while switch statements use the : (colon) syntax.
+
+Fall-through:
+Switch expressions do not have fall-through behavior by default, eliminating the need for break statements.
+
+Value return:
+Switch expressions return a value, which can be assigned to a variable or used in other expressions. Switch statements do not return a value directly.
+
+Exhaustiveness:
+Switch expressions must be exhaustive, meaning that all possible input values must be handled. This can be achieved using a default case or by covering all possible values explicitly. 
+
+yield keyword:
+In cases where a block of code is needed for a case, the yield keyword is used to return a value from a switch expression.
+______________________________________________________________________________

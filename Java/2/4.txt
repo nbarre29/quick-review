@@ -67,8 +67,8 @@ students.add(student);
 -------------------------------------
 ______________________________________________________________________________
 
--> Changes to above code: I don't consider it as refactoring but just to mention that we can do it this way too.
- removed the addStudent method from above program.
+-> Changes to above code: removed the utility function, addStudent just to show that we can do it this way too. but having utility function is ideal as it encapsulates the repeated logic
+and removes the duplicate code. 
 
 import java.util.ArrayList;
 import java.util.HashMap;
