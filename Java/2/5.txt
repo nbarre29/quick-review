@@ -328,3 +328,82 @@ System.out.print("\rTime remaining: " + secondsLeft + " seconds");
 
 The `\r` ensures that each update to the countdown timer replaces the previous line, rather than printing a new line for each update. This is useful for creating dynamic output in the console, such as progress bars or countdowns.
 ______________________________________________________________________________
+
+-> Instant.now().getEpochSecond()
+
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+
+public class EpochSecondsDemo {
+
+    public static void main(String[] args) {
+        // ▶ Current epoch time in seconds (UTC)
+        long currentTimeSeconds = Instant.now().getEpochSecond();
+        System.out.println("Current epoch seconds: " + currentTimeSeconds);
+
+        // (Optional) Convert back to a readable local date‑time
+        String localDateTime = Instant.ofEpochSecond(currentTimeSeconds)
+                                      .atZone(ZoneId.systemDefault())
+                                      .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        System.out.println("Local date‑time: " + localDateTime);
+    }
+}
+
+Output:
+Current epoch seconds: 1746453236
+Local date‑time: 2025-05-05T09:53:56
+
+How it works
+
+    Instant.now() grabs the current instant on the timeline.
+    .getEpochSecond() returns that instant as the number of whole seconds elapsed since 1970‑01‑01T00:00:00Z.
+    The second block shows how to turn that epoch value back into a local date‑time string—handy for verification or logging.
+______________________________________________________________________________
+
+-> 
+
+import java.time.Instant;
+
+public class ElapsedTimeDemo {
+
+    public static void main(String[] args) {
+
+        // 1️ Start the timer
+        Instant start = Instant.now();
+
+        // 2️ Simulate some work — replace with real code
+        doWork();
+
+        // 3️ Capture the end instant
+        long elapsedMillis = Instant.now().toEpochMilli() - start.toEpochMilli();
+		// long elapsedMillis = Duration.between(start, Instant.now()).toMillis();
+		
+
+        // 4️ Display the result
+        System.out.println("Elapsed time (ms): " + elapsedMillis);
+    }
+
+    private static void doWork() {
+        try {
+            // Simulate a task that takes roughly 450 ms
+            Thread.sleep(450);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+}
+Output:
+Elapsed time (ms): 452
+
+How it works
+
+    Record the starting point with Instant start = Instant.now();.
+    Execute whatever code you want to measure (doWork() in the demo).
+    Compute the difference by converting both instants to epoch milliseconds:
+    long elapsedMillis = Instant.now().toEpochMilli() - start.toEpochMilli();
+    Print or otherwise use the elapsed time.
+	
+    We can also use Duration.between(start, Instant.now()).toMillis() for the same result.
+	Duration.between(start, Instant.now()) yields a Duration object representing the time span from start to “now,” and .toMillis() converts that span to milliseconds—cleaner and more idiomatic than subtracting epoch values yourself.
+______________________________________________________________________________
