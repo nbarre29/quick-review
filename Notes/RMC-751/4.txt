@@ -1,0 +1,54 @@
+ARMDetails.java
+
+🔁 ARMIndex armIndex;
+
+    The benchmark index used to adjust the interest rate over time.
+
+    Common indexes: SOFR, LIBOR (phased out), Treasury, CMT, COFI.
+
+    The interest rate is calculated as:
+    index + margin
+
+📈 BigDecimal interestRateInitialAdjustmentCap;
+
+    Cap on how much the interest rate can change at the first adjustment (e.g., after 5 years on a 5/1 ARM).
+
+    Example: If initial rate is 3% and cap is 2%, the new rate can't exceed 5%.
+
+🔁 BigDecimal interestRatePeriodicAdjustmentCap;
+
+    The max change in interest rate at each subsequent adjustment period (typically yearly).
+
+    Helps limit payment shock after the initial adjustment.
+
+🔒 BigDecimal interestRateLifetimeCap;
+
+    The maximum rate the loan can ever reach over its lifetime, regardless of how high the index rises.
+
+    Example: Lifetime cap of 5% on a starting rate of 3% = max rate of 8%.
+
+⬇️ BigDecimal interestRateFloor;
+
+    The minimum interest rate the loan can ever fall to, no matter how low the index gets.
+
+    Protects the lender from negative or near-zero rates.
+
+➕ BigDecimal margin;
+
+    The fixed percentage added to the index to determine the fully indexed rate.
+
+    Example:
+    If index = 2.5% and margin = 2.0% → Rate = 4.5%
+	
+	
+	
+Summary:
+
+| Field Name                          | Meaning                                                 |
+| ----------------------------------- | ------------------------------------------------------- |
+| `armIndex`                          | Market index used for rate adjustments                  |
+| `interestRateInitialAdjustmentCap`  | Max first adjustment (e.g., year 5 of 5/1 ARM)          |
+| `interestRatePeriodicAdjustmentCap` | Max change on subsequent rate resets                    |
+| `interestRateLifetimeCap`           | Max interest rate over loan’s life                      |
+| `interestRateFloor`                 | Minimum allowable interest rate                         |
+| `margin`                            | Constant markup added to index to set the adjusted rate |

@@ -1,0 +1,87 @@
+ProgramType.java
+
+
+Here's an explanation of the ProgramType enum values in the context of mortgage pricing — each representing a type of loan program:
+🏛️ 1. Agency
+
+    Loans backed by Fannie Mae or Freddie Mac.
+
+    Must meet conforming loan limits and underwriting standards.
+
+    Often the baseline for pricing models.
+
+🏠 2. Conforming
+
+    A type of Agency loan that meets the limits set by FHFA (e.g., loan amount, DTI, FICO).
+
+    Eligible for sale to Fannie/Freddie.
+
+    Lower risk = better pricing (lower rates).
+
+🏛️ 3. FHA (Federal Housing Administration)
+
+    Government-insured loan for low-to-moderate-income borrowers.
+
+    Lower credit score and down payment requirements.
+
+    Priced with upfront and annual mortgage insurance premiums (UFMIP, MIP).
+
+🪖 4. VA (Veterans Affairs)
+
+    Loan guaranteed by the VA for eligible veterans and service members.
+
+    No down payment or mortgage insurance.
+
+    Typically very competitive rates and fee structures.
+
+🌾 5. USDA (U.S. Department of Agriculture)
+
+    Government-backed loan for rural and suburban areas.
+
+    Income and location restrictions apply.
+
+    Often zero down payment and subsidized pricing.
+
+💰 6. Jumbo
+
+    Loans that exceed conforming loan limits.
+
+    Not eligible for sale to Fannie/Freddie.
+
+    Priced with higher rates due to greater risk and less liquidity.
+
+🧾 7. NonQM (Non-Qualified Mortgage)
+
+    Does not meet the CFPB's Qualified Mortgage (QM) rules.
+
+    Used for borrowers with:
+
+        Alternative income (e.g., bank statements, 1099s)
+
+        High debt ratios
+
+        Recent credit events
+
+    Higher rates, more flexible underwriting.
+
+🔁 8. HELOC (Home Equity Line of Credit)
+
+    A revolving line of credit secured by the borrower’s home.
+
+    Often second lien position.
+
+    Variable rate product, not always priced via standard rate sheets.
+
+🏦 9. ClosedEndSecond
+
+    A fixed-term second mortgage, not revolving.
+
+    Lump-sum disbursed upfront, repaid over time.
+
+    Can be used alongside a first mortgage (e.g., piggyback loans).
+
+❓ 10. Other
+
+    Catch-all for loan programs that don’t fit above categories.
+
+    Could include reverse mortgages, portfolio products, etc.

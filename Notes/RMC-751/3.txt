@@ -1,0 +1,116 @@
+ProductOverlayType.java
+
+
+1️ TexasEquity
+
+    Refers to Texas Section 50(a)(6) home equity loans.
+
+🏦 In mortgage terms:
+
+    Special rules apply when borrowers in Texas take out equity from their primary residence.
+
+    Maximum LTV is 80%, and only one equity loan is allowed at a time.
+
+    Certain closing disclosures and waiting periods apply.
+
+    Pricing engines usually add overlays for:
+
+        LTV restrictions
+
+        Rate hits
+
+        Loan purpose filters
+
+2️ EscrowHoldBack
+
+    A condition where part of the loan funds are held back in escrow until certain work is completed.
+
+🏗 Common use cases:
+
+    Minor repairs not completed before closing (e.g., painting, landscaping).
+
+    A portion of funds is withheld, and released after verification of completion.
+
+    Impacts pricing or eligibility depending on:
+
+        Lender policy
+
+        Property type
+
+        Investor rules
+
+3️ TemporaryBuyDown
+
+    A temporary reduction in the borrower's interest rate for the first 1–3 years.
+
+🧮 Examples:
+
+    2-1 Buydown: 2% lower rate in Year 1, 1% lower in Year 2, then full rate in Year 3.
+
+    3-2-1 Buydown: Decreases for 3 years, then fixed.
+
+💵 Who pays for it?
+
+    Often seller- or builder-paid as a concession.
+
+    May affect LLPAs (Loan Level Price Adjustments) or discount points in pricing engines.
+
+    May trigger overlays for:
+
+        Minimum credit score
+
+        Max DTI
+
+        Required reserves
+		
+
+Summary:
+
+| Overlay Type       | Description                                             |
+| ------------------ | ------------------------------------------------------- |
+| `TexasEquity`      | Loans governed by Texas (a)(6) laws with stricter rules |
+| `EscrowHoldBack`   | Funds held post-closing for incomplete work             |
+| `TemporaryBuyDown` | Short-term interest rate reduction with pricing impacts |
+
+
+---------------------------------------------------------------------
+
+-> document the ProductOverlayType enum using JavaDoc-style comments for clarity in  codebase
+
+/**
+ * Defines product-specific overlays that may affect eligibility or pricing
+ * in the mortgage pricing engine.
+ */
+public enum ProductOverlayType {
+
+    /**
+     * Texas Section 50(a)(6) Home Equity loans:
+     * <ul>
+     *   <li>Only available on primary residences in Texas</li>
+     *   <li>Max LTV of 80%</li>
+     *   <li>Requires specific disclosures and waiting periods</li>
+     *   <li>May trigger additional pricing adjustments or restrictions</li>
+     * </ul>
+     */
+    TexasEquity,
+
+    /**
+     * Escrow Holdback:
+     * <ul>
+     *   <li>Funds are held after closing for minor property work (e.g., repairs, landscaping)</li>
+     *   <li>Released upon proof of completion</li>
+     *   <li>May affect investor acceptance or require overlays</li>
+     * </ul>
+     */
+    EscrowHoldBack,
+
+    /**
+     * Temporary Buydown:
+     * <ul>
+     *   <li>Reduces borrower’s interest rate temporarily (e.g., 2-1, 3-2-1 buydown structures)</li>
+     *   <li>Often paid for by seller, builder, or lender</li>
+     *   <li>May result in pricing hits or eligibility conditions</li>
+     * </ul>
+     */
+    TemporaryBuyDown
+}

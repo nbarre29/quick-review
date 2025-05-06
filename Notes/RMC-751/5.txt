@@ -1,0 +1,44 @@
+public enum ARMIndex {
+    ThirtyDayAverageSOFR,
+}
+
+refers to the ARM index used for adjustable-rate mortgage (ARM) products.
+
+
+🔍 What is ThirtyDayAverageSOFR?
+
+Thirty Day Average SOFR (Secured Overnight Financing Rate) is:
+
+    A 30-day compounded average of the SOFR rate.
+
+    SOFR is a benchmark interest rate published by the New York Federal Reserve.
+
+    It has replaced LIBOR as the preferred benchmark for ARMs in the U.S.
+
+    The 30-day average smooths out daily fluctuations, making it more stable for loan adjustments.
+
+🏠 In Mortgage Terms:
+
+    It is the base index used to adjust the interest rate on an ARM.
+
+    The borrower’s rate = 30-day SOFR average + margin.
+
+    It's commonly used by Fannie Mae, Freddie Mac, and private investors for:
+
+        Pricing ARM products
+
+        Performing periodic interest rate resets
+
+🧠 Example:
+
+If:
+
+    ThirtyDayAverageSOFR = 5.20%
+
+    Margin = 2.00%
+
+Then:
+
+    New ARM rate = 7.20%, subject to caps and floors.
+
+

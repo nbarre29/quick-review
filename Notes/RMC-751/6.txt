@@ -1,0 +1,51 @@
+💡 What is AmortizationType in Mortgage Terminology?
+
+AmortizationType refers to how the loan’s principal and interest are structured and paid off over time. It describes the method by which a borrower's mortgage loan balance is reduced.
+🔑 Common AmortizationType Values and Their Meaning:
+
+    Fixed
+
+        Regular payments remain the same throughout the loan term.
+
+        Fully amortized — principal and interest are fully paid off by the end.
+
+        Example: 30-year fixed-rate mortgage.
+
+    ARM (Adjustable-Rate Mortgage)
+
+        Interest rate adjusts periodically after an initial fixed period.
+
+        Payments may change over time.
+
+        Typically amortized over 30 years.
+
+    InterestOnly
+
+        Borrower pays only the interest for a set period (e.g., 5 or 10 years).
+
+        Principal remains unchanged during the interest-only period.
+
+        Afterward, the loan re-amortizes, and payments increase to include principal.
+
+    Balloon
+
+        Smaller payments initially, with a large final balloon payment at the end.
+
+        Often used in commercial or short-term loans.
+
+        Not fully amortized — requires a lump sum payoff.
+
+    NegativeAmortization
+
+        Monthly payment is less than the interest accrued, so the unpaid interest is added to the balance.
+
+        Loan balance grows over time.
+		
+
+🏦 Why It Matters in Mortgage Pricing Engines:
+
+    Determines how monthly payments are calculated.
+
+    Influences eligibility, pricing, and risk exposure.
+
+    Certain investors or agencies restrict support for non-standard amortization types (e.g., NegativeAmortization).

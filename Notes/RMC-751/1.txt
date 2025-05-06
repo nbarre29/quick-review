@@ -1,0 +1,107 @@
+-> TradeType.java
+
+1) AggregateBulk
+2) LoanLevelBulk
+3) BestEfforts
+
+explain above in mortgage pricing
+
+
+In mortgage pricing and secondary markets, the term TradeType refers to how loans are committed or sold to investors. Each type defines how pricing, risk, and delivery are handled.
+
+Here’s a breakdown of the three TradeType values you mentioned:
+1️ AggregateBulk
+
+    Definition: A bulk commitment of multiple loans combined together into a single trade, based on total volume.
+
+🔍 Characteristics:
+
+    Loans are grouped and priced in aggregate — not individually.
+
+    Usually used by lenders with moderate to large volume.
+
+    The trade is evaluated on the total characteristics (e.g., average rate, coupon, FICO, LTV).
+
+    No need to lock each loan individually upfront — pricing is given for the pool.
+
+    Common with mandatory delivery.
+
+🏦 Example:
+
+    A lender commits to deliver $10M in conforming loans by the end of the month. Individual loans may vary, but must conform to agreed pool specs.
+
+2️ LoanLevelBulk
+
+    Definition: A bulk trade where each loan is individually priced and committed, but sent together as a batch.
+
+🔍 Characteristics:
+
+    Each loan has its own lock, rate, and pricing.
+
+    Still delivered as part of a bulk pool for operational or pricing purposes.
+
+    Allows more granularity and control per loan than AggregateBulk.
+
+    Common with pipeline hedging strategies.
+
+🏦 Example:
+
+    Ten loans are priced and committed individually, but sent as a combined commitment to an aggregator or investor.
+
+3️ BestEfforts
+
+    Definition: A commitment to try to deliver a loan by a certain date — but if it falls through, there's no penalty.
+
+🔍 Characteristics:
+
+    Loan-level commitments only.
+
+    Lender gets a rate/price quote and commits only if they fund the loan.
+
+    If the borrower backs out or fails to close, the lender is not penalized.
+
+    Generally worse pricing than bulk/mandatory (due to investor risk).
+
+    Ideal for small lenders or retail-focused channels.
+
+🏦 Example:
+
+    A borrower locks a rate. The lender gets a Best Efforts quote. If the loan doesn’t fund, no pair-off fee is charged.
+	
+
+
+
+Summary Comparison:
+
+📦 AggregateBulk
+
+    Pricing Scope: Based on the total pool of loans.
+
+    Commitment Risk: Mandatory delivery — you must fulfill the trade.
+
+    Pricing Flexibility: Less flexible, since pricing applies to the combined pool characteristics.
+
+    Use Case: Best suited for larger lenders with high volume who can commit to delivering a block of loans as a unit.
+
+🧮 LoanLevelBulk
+
+    Pricing Scope: Applies to individual loans, even though they’re grouped for delivery.
+
+    Commitment Risk: Still mandatory, but at the individual loan level.
+
+    Pricing Flexibility: Moderate flexibility, since each loan is priced and locked separately.
+
+    Use Case: Ideal for lenders focused on hedging strategies and pipeline control.
+
+🤝 BestEfforts
+
+    Pricing Scope: Applies to individual loans.
+
+    Commitment Risk: No penalty if the loan doesn’t close.
+
+    Pricing Flexibility: Highly flexible, offering rate protection without delivery obligation.
+
+    Use Case: Preferred by small lenders or brokers with low volume and limited risk tolerance.	
+	
+	
+
