@@ -37,7 +37,7 @@ AmortizationType refers to how the loan’s principal and interest are structure
 
     NegativeAmortization
 
-        Monthly payment is less than the interest accrued, so the unpaid interest is added to the balance.
+        Monthly payment is less than the interest accrued ("Accrued" means something has accumulated over time but has not yet been paid or received. ), so the unpaid interest is added to the balance.
 
         Loan balance grows over time.
 		

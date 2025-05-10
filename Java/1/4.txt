@@ -361,3 +361,340 @@ Summary:
         Does not allow duplicates.
         ❌ Does not allow null elements — will throw NullPointerException.
 _________________________________________________________________________________
+
+-> 
+public class Main {
+    public static void main(String[] args) {
+        String a = "apple";
+        String b = "banana";
+        String c = "Apple";
+
+        System.out.println(a.compareTo(b));   // -1  (a < b)
+        System.out.println(b.compareTo(a));   //  1  (b > a)
+        System.out.println(a.compareTo(c));   // 32  ('a' (97) - 'A' (65))
+
+        System.out.println(a.compareTo(a));  // 0 (a == a)
+
+        System.out.println("abc".compareTo("abc")); // 0 (abc == abc)
+        System.out.println("abc".compareTo("abcd")); // -1 (abc < abcd)
+        System.out.println("abc".compareTo("ab")); // 1 (abc > ab)
+        System.out.println("abc".compareTo("abcde")); // -2 (abc < abcde)
+
+        System.out.println("abc".compareTo("abf"));  // -3
+
+    }
+}
+
+
+Output:
+-1
+1
+32
+0
+0
+-1
+1
+-2
+-3
+
+Explanation: System.out.println("abc".compareTo("abcd")); // -1 (abc < abcd)
+
+In this case, `"abc"` is compared with `"abcd"`. The first three characters (`'a'`, `'b'`, `'c'`) are identical in both strings, so the comparison reaches the end of `"abc"`. Since `"abc"` has no more characters to compare, it is considered smaller than `"abcd"`. The `compareTo` method returns the difference in length between the two strings, which is `-1` in this case.
+
+The Unicode comparison works by evaluating the numeric Unicode values of characters. For example, the Unicode value of `'a'` is 97, `'b'` is 98, and `'c'` is 99. If there were a difference in any of these characters, the method would return the difference between their Unicode values. However, since the characters match up to the length of `"abc"`, the result is determined by the length difference.
+_________________________________________________________________________________
+
+-> When values are guaranteed non-null and you want fast, natural, lexicographical comparison, String.compareTo() is a good option.
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+public class SortExample {
+    public static void main(String[] args) {
+        List<String> names = Arrays.asList("apple", "banana", "cherry", "date");
+
+        // Natural sort using String.compareTo() via Comparable interface
+        Collections.sort(names);  // internally uses o1.compareTo(o2)
+        
+        System.out.println(names); // [apple, banana, cherry, date]
+    }
+}
+_________________________________________________________________________________
+
+-> If there is null value in above code it will throw a NullPointerException at runtime because Collections.sort(...) internally calls String.compareTo(...), and that does not allow null values.
+
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
+public class SortExample {
+    public static void main(String[] args) {
+        List<String> names = Arrays.asList("apple", "banana", "cherry", null);
+
+        //Safe sort: move nulls to the end
+        names.sort(Comparator.nullsLast(String::compareTo));
+        
+        System.out.println(names); // [apple, banana, cherry, null]
+    }
+}
+
+
+Explanation:
+    Comparator.nullsLast(...) wraps the comparator and ensures that null values come last (you can also use nullsFirst(...)).
+    String::compareTo is used only when both values are non-null.
+_________________________________________________________________________________	
+
+-> a very simple example where BigDecimal.compareTo(...) is used — to check whether a given price exceeds a limit.
+
+import java.math.BigDecimal;
+
+public class PriceChecker {
+    public static void main(String[] args) {
+        BigDecimal price = new BigDecimal("10.00");
+        BigDecimal limit = new BigDecimal("9.99");
+
+        // compareTo returns:
+        //  0 if equal
+        //  >0 if price > limit
+        //  <0 if price < limit
+        if (price.compareTo(limit) > 0) {
+            System.out.println("Price is above the limit.");
+        } else {
+            System.out.println("Price is within the limit.");
+        }
+    }
+}
+
+Output:
+Price is above the limit.
+
+_________________________________________________________________________________
+
+-> Why use BigDecimal.compareTo() over equals()
+
+    compareTo() considers numerical equality, ignoring scale:
+	
+	This is critical in monetary calculations where $2.00 == $2.0 logically.
+
+
+import java.math.BigDecimal;
+
+public class Main {
+    public static void main(String[] args) {
+        System.out.println(new BigDecimal("2.0").equals(new BigDecimal("2.00")) == false);  //true
+        System.out.println(new BigDecimal("2.0").compareTo(new BigDecimal("2.00")) == 0);  //true
+    }
+}
+
+_________________________________________________________________________________
+
+-> a real-world example using BigDecimal.compareTo(...) — a shopping cart system where you want to sort products by price, and prices are stored using BigDecimal for precision (e.g., to avoid floating-point rounding errors).
+
+import java.math.BigDecimal;
+
+public class Product implements Comparable<Product> {
+    private final String name;
+    private final BigDecimal price;
+
+    public Product(String name, BigDecimal price) {
+        this.name = name;
+        this.price = price;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    // Compare products by price
+    @Override
+    public int compareTo(Product other) {
+        return this.price.compareTo(other.price);  // 🔹 Natural monetary comparison
+    }
+
+    @Override
+    public String toString() {
+        return name + " - $" + price;
+    }
+}
+
+
+//Sort products by ascending price
+import java.math.BigDecimal;
+import java.util.*;
+
+public class ProductCatalog {
+    public static void main(String[] args) {
+        List<Product> products = Arrays.asList(
+            new Product("Coffee", new BigDecimal("2.99")),
+            new Product("Espresso", new BigDecimal("3.49")),
+            new Product("Latte", new BigDecimal("4.25")),
+            new Product("Water", new BigDecimal("1.00"))
+        );
+
+        Collections.sort(products);  // Uses compareTo to sort by price
+
+        for (Product p : products) {
+            System.out.println(p);
+        }
+    }
+}
+
+Output:
+Water - $1.00
+Coffee - $2.99
+Espresso - $3.49
+Latte - $4.25
+
+_________________________________________________________________________________
+
+-> Product class in above example  converted to record class
+
+import java.math.BigDecimal;
+
+public record Product(String name, BigDecimal price) implements Comparable<Product> {
+
+    // Compare products by price
+    @Override
+    public int compareTo(Product other) {
+        return this.price.compareTo(other.price);  // 🔹 Natural monetary comparison
+    }
+
+    @Override
+    public String toString() {
+        return name + " - $" + price;
+    }
+}
+
+
+import java.math.BigDecimal;
+import java.util.*;
+
+public class ProductCatalog {
+    public static void main(String[] args) {
+        List<Product> products = Arrays.asList(
+            new Product("Coffee", new BigDecimal("2.99")),
+            new Product("Espresso", new BigDecimal("3.49")),
+            new Product("Latte", new BigDecimal("4.25")),
+            new Product("Water", new BigDecimal("1.00"))
+        );
+
+        Collections.sort(products);  // Uses compareTo to sort by price
+
+        for (Product p : products) {
+            System.out.println(p);
+        }
+    }
+}
+
+Output:
+Water - $1.00
+Coffee - $2.99
+Espresso - $3.49
+Latte - $4.25
+_________________________________________________________________________________
+
+-> a simple example demonstrating how to use Instant.compareTo(...) to compare two timestamps:
+
+import java.time.Instant;
+
+public class Main {
+    public static void main(String[] args) {
+        Instant start = Instant.now();
+
+        // Simulate some delay
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        Instant end = Instant.now();
+
+        // Compare two Instants
+        int result = end.compareTo(start);
+
+        if (result > 0) {
+            System.out.println("End is after start");
+        } else if (result < 0) {
+            System.out.println("End is before start");
+        } else {
+            System.out.println("Both instants are equal");
+        }
+    }
+}
+
+Output:
+End is after start
+_________________________________________________________________________________
+
+-> Refactor above code:
+
+Instead of implementing Comparable, used a static Comparator for flexibility.
+
+Flexibility:
+    By using Product.PRICE_COMPARATOR, you're not locking the class into a single “natural” sort order.
+    You can easily define and use multiple comparators later (e.g., by name, descending price).
+	
+	
+// static comparator for comparing products by price in descending order
+    public static final Comparator<Product> PRICE_DESC_COMPARATOR =
+            Comparator.comparing(Product::price).reversed();
+    
+    // static comparator for comparing products by name in a case-insensitive manner
+    public static final Comparator<Product> NAME_COMPARATOR =
+            Comparator.comparing(Product::name, String.CASE_INSENSITIVE_ORDER);
+
+
+import java.math.BigDecimal;
+import java.util.Comparator;
+
+public record Product(String name, BigDecimal price) {
+
+    // static comparator for comparing products by price
+    public static final Comparator<Product> PRICE_COMPARATOR = Comparator.comparing(Product::price);
+
+    @Override
+    public String toString() {
+        return name + " - $" + price;
+    }
+}
+
+
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
+
+public class ProductCatalog {
+    public static void main(String[] args) {
+        List<Product> products = Arrays.asList(
+            new Product("Coffee", new BigDecimal("2.99")),
+            new Product("Espresso", new BigDecimal("3.49")),
+            new Product("Latte", new BigDecimal("4.25")),
+            new Product("Water", new BigDecimal("1.00"))
+        );
+
+        products.sort(Product.PRICE_COMPARATOR);
+
+        for (Product p : products) {
+            System.out.println(p);
+        }
+    }
+}
+
+Output:
+Water - $1.00
+Coffee - $2.99
+Espresso - $3.49
+Latte - $4.25
+
+
+_________________________________________________________________________________
+
+
+
+
