@@ -596,40 +596,7 @@ Water - $1.00
 Coffee - $2.99
 Espresso - $3.49
 Latte - $4.25
-_________________________________________________________________________________
 
--> a simple example demonstrating how to use Instant.compareTo(...) to compare two timestamps:
-
-import java.time.Instant;
-
-public class Main {
-    public static void main(String[] args) {
-        Instant start = Instant.now();
-
-        // Simulate some delay
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-        Instant end = Instant.now();
-
-        // Compare two Instants
-        int result = end.compareTo(start);
-
-        if (result > 0) {
-            System.out.println("End is after start");
-        } else if (result < 0) {
-            System.out.println("End is before start");
-        } else {
-            System.out.println("Both instants are equal");
-        }
-    }
-}
-
-Output:
-End is after start
 _________________________________________________________________________________
 
 -> Refactor above code:
@@ -692,9 +659,40 @@ Coffee - $2.99
 Espresso - $3.49
 Latte - $4.25
 
-
 _________________________________________________________________________________
 
+-> a simple example demonstrating how to use Instant.compareTo(...) to compare two timestamps:
 
+import java.time.Instant;
+
+public class Main {
+    public static void main(String[] args) {
+        Instant start = Instant.now();
+
+        // Simulate some delay
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        Instant end = Instant.now();
+
+        // Compare two Instants
+        int result = end.compareTo(start);
+
+        if (result > 0) {
+            System.out.println("End is after start");
+        } else if (result < 0) {
+            System.out.println("End is before start");
+        } else {
+            System.out.println("Both instants are equal");
+        }
+    }
+}
+
+Output:
+End is after start
+_________________________________________________________________________________
 
 
