@@ -261,7 +261,7 @@ public class TreeSetExample {
         names.add("Bob");
         names.add("Charlie");
         names.add("Ram");
-        System.out.println("TreeSet with custom Comparator: " + names); // [Bob, Alice, Charlie]
+        System.out.println("TreeSet with custom Comparator: " + names); // [Bob, Ram, Alice, Charlie]
     }
 }
 
