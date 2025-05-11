@@ -1075,7 +1075,6 @@ public class LambdaExample1 {
 2) Using a Comparator
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 public class LambdaExample2 {
