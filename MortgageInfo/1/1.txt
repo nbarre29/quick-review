@@ -1,0 +1,154 @@
+-> 1)  Rate Sheet Adjuster (a.k.a. LLPA, price hit, price incentive)
+A Rate Sheet Adjuster is a pricing modifier applied to a loan's base price or rate, based on certain loan attributes.
+
+✅ Purpose:
+To adjust the loan pricing (either positively or negatively) based on risk factors or business strategies.
+
+📌 Examples of Adjusters:
+Loan-to-Value (LTV) adjuster: +0.250%
+
+Credit Score adjuster: -0.125%
+
+Occupancy Type (investment property): +0.500%
+
+Loan Purpose (cash-out refinance): +0.375%
+
+🧠 Think of it like:
+“Your base rate is 6.500%, but because the borrower has a low credit score and high LTV, we’ll add +0.625% in pricing hits.”
+
+The pricing engine calculates: Final Price = Base Price + Sum of All Adjusters
+
+
+-> 2)  Eligibility (Loan Eligibility)
+Eligibility refers to whether a given loan meets the rules or requirements of a loan program or investor.
+
+📌 Common Eligibility Criteria:
+Max LTV: ≤ 80%
+
+Min credit score: ≥ 620
+
+Property type allowed: single-family only
+
+DTI ratio: ≤ 43%
+
+🟩 Outcomes:
+Eligible – The loan can be delivered/sold to the investor.
+
+Ineligible – The loan does not meet investor guidelines.
+
+ExceptionPass – The loan violates a rule but is allowed under a documented exception.
+
+Refer/Manual Review – Needs human override or decision.
+
+
+| Step            | What Happens                              |
+| --------------- | ----------------------------------------- |
+| 1️ Eligibility | Check: Is this loan **allowed**?          |
+| 2️ Pricing     | If yes → Apply **adjusters** to get price |
+
+__________________________________________________________________________________________
+
+-> FHA Loan vs. Conventional Loan
+
+| Feature                      | **FHA Loan**                                          | **Conventional Loan**                                         |
+| ---------------------------- | ----------------------------------------------------- | ------------------------------------------------------------- |
+| **Backed By**                | Federal Housing Administration (government-insured)   | Not government-backed (issued by private lenders)             |
+| **Credit Score Requirement** | ✅ Lower (as low as 580 with 3.5% down)                | 🔺 Higher (typically 620+ for approval)                       |
+| **Down Payment**             | ✅ Low: 3.5% (with 580+ score)                         | Varies: 3%–20% (typically 5%+)                                |
+| **Mortgage Insurance**       | ✅ Required (MIP) for life of loan unless refinanced   | PMI required if down payment < 20%, cancellable at 20% equity |
+| **Loan Limits**              | Set by HUD and vary by county                         | Set by Fannie Mae/Freddie Mac (higher in some counties)       |
+| **Debt-to-Income Ratio**     | More flexible (up to \~50% in some cases)             | Stricter (usually ≤ 43%)                                      |
+| **Interest Rates**           | Generally lower base rate due to government backing   | May be slightly higher, but total cost can be lower           |
+| **Property Requirements**    | Strict appraisal & safety standards                   | More lenient property standards                               |
+| **Best For**                 | First-time buyers, lower credit, limited down payment | Buyers with strong credit and assets                          |
+
+
+Conventional loan is nor insured by any government agency. 
+There are two types of coventional mortgages 1) conforming 2) non-conforming
+
+
+Conventional mortgages are not government-backed, and they fall into two main categories:
+
+🏠 1. Conforming Loans
+These meet the guidelines set by Fannie Mae and Freddie Mac, including:
+
+✅ Loan limits (e.g., $766,550 in most U.S. counties for 2024)
+✅ Credit score requirements
+✅ Debt-to-income (DTI) ratio
+✅ Loan-to-value (LTV) ratio
+
+Why it matters:
+
+Easier to sell on the secondary market
+Often come with lower interest rates
+
+
+🚫 2. Non-Conforming Loans
+These do NOT meet Fannie Mae/Freddie Mac criteria. Types include:
+
+Jumbo Loans: Loan amount exceeds conforming limit
+Alt-A Loans: Not quite subprime, but riskier than conforming
+Subprime Loans: For borrowers with poor credit
+Portfolio Loans: Held by the lender instead of being sold
+
+Why it matters:
+
+Higher risk for lenders → often higher rates or stricter terms
+May offer more flexibility in documentation or credit requirements
+
+
+| Type            | Meets GSE Guidelines? | Typical Use Case                  |
+| --------------- | --------------------- | --------------------------------- |
+| Conforming Loan | ✅ Yes                 | Most standard home loans          |
+| Non-Conforming  | ❌ No                  | Jumbo, subprime, or special cases |
+
+
+What does GSE mean?
+GSE stands for Government-Sponsored Enterprise.
+
+In mortgage terms, the two key GSEs are:
+Fannie Mae (Federal National Mortgage Association)
+Freddie Mac (Federal Home Loan Mortgage Corporation)
+
+✅ What GSEs do:
+1) They buy mortgages from lenders (banks, credit unions, etc.)
+2) Package them into mortgage-backed securities (MBS)
+3) Sell them to investors on the secondary market
+
+This process:
+
+Provides liquidity to the housing market
+Encourages lenders to offer more loans with consistent guidelines
+
+__________________________________________________________________________________________
+
+->  What Is Equity on a Home?
+Home equity is the portion of your home that you truly own — it's the difference between your home’s market value and the balance you still owe on your mortgage.
+
+Home Equity = Current Market Value of Home - Outstanding Mortgage Balance
+
+
+Example:
+| Detail                     | Value         |
+| -------------------------- | ------------- |
+| Home’s market value        | \$400,000     |
+| Remaining mortgage balance | \$250,000     |
+| 👉 Your equity             | **\$150,000** |
+
+
+Why Home Equity Matters:
+You can borrow against it (via a HELOC or cash-out refinance)
+
+It grows over time as:
+You pay down your mortgage
+Your home value increases
+
+🔄 Types of Home Equity Usage:
+Home Equity Line of Credit (HELOC)
+Cash-out refinance
+Selling your home (you receive the equity as cash)
+
+__________________________________________________________________________________________
+
+
+
