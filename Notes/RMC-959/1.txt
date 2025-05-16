@@ -1,0 +1,86 @@
+{
+  "ruleType": "Simple",
+  "versionName": "v2025.1",
+  "ruleConfiguration": {
+    ...
+  }
+}
+
+
+ruleType: Declares the type of rule (Simple implies a single-condition rule).
+
+versionName: Version of the rule set, e.g., v2025.1.
+
+
+{
+  "name": "{{rule_name}}",
+  "executionOrder": "200.00",
+  "applicationScope": "LoanProgram",
+
+
+name: Placeholder ({{rule_name}}) likely replaced by Postman environment or collection variables.
+
+executionOrder: Defines rule priority; lower numbers are evaluated earlier.
+
+applicationScope: Indicates what this rule applies to—in this case, likely a loan program.
+
+
+
+"matchAction": {
+  "eligibilityType": "Fail"
+},
+"noMatchAction": {
+  "eligibilityType": "Pass"
+},
+
+
+If the rule matches all conditions, it returns Fail.
+
+If it doesn't match, it defaults to Pass.
+
+
+
+
+
+
+"expressions": [
+  {
+    "expressionText": "interest_rate_type <> 'Fixed'"
+  },
+  {
+    "expressionText": "loan_purpose IN ('RefiCashOut', 'RefiRateTerm')"
+  },
+  {
+    "expressionText": "property_state = 'TX'"
+  },
+  {
+    "expressionText": "loan_term < 240"
+  }
+]
+
+
+These are the conditions to be evaluated:
+
+Interest rate type is not fixed.
+
+Loan purpose is one of RefiCashOut or RefiRateTerm.
+
+Property is located in Texas (TX).
+
+Loan term is less than 240 months.
+
+
+
+
+Summary:
+This JSON defines a loan rule that checks:
+
+If the interest rate is not fixed,
+
+And the loan purpose is refinancing,
+
+And the property is in Texas,
+
+And the loan term is less than 20 years,
+
+Then mark the application as ineligible (Fail). Otherwise, pass it.
