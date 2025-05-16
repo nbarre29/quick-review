@@ -24,11 +24,8 @@ Eligibility refers to whether a given loan meets the rules or requirements of a 
 
 📌 Common Eligibility Criteria:
 Max LTV: ≤ 80%
-
 Min credit score: ≥ 620
-
 Property type allowed: single-family only
-
 DTI ratio: ≤ 43%
 
 🟩 Outcomes:
@@ -148,6 +145,99 @@ Home Equity Line of Credit (HELOC)
 Cash-out refinance
 Selling your home (you receive the equity as cash)
 
+__________________________________________________________________________________________
+
+-> DTI ratio stands for Debt-to-Income ratio. It's a key metric lenders use to evaluate a borrower's ability to manage monthly payments and repay debts.
+
+As I explained in the previous response, DTI (Debt-to-Income) ratio is calculated using two main formulas:
+
+1. Front-End DTI (Housing DTI):
+
+(Total Monthly Housing Costs / Gross Monthly Income) x 100%
+
+Total Monthly Housing Costs typically include:
+
+Principal and Interest (P&I) on the mortgage
+Property Taxes (T)
+Homeowners Insurance (I)
+Mortgage Insurance (MI) (if applicable)
+Homeowners Association (HOA) fees (if applicable)
+Gross Monthly Income is your total income before taxes and other deductions, on a monthly basis. This includes salary, wages, bonuses, commissions, self-employment income, and other regular income sources.
+
+
+2. Back-End DTI (Total DTI):
+
+(Total Monthly Debt Payments / Gross Monthly Income) x 100%
+
+Total Monthly Debt Payments includes all recurring monthly debt obligations, such as:
+
+All items included in "Total Monthly Housing Costs" (from the front-end DTI)
+Minimum payments on credit cards
+Auto loan payments
+Student loan payments
+Personal loan payments
+Child support or alimony payments
+Any other regular debt obligations
+Gross Monthly Income is the same as used in the front-end DTI calculation (your total income before taxes and deductions, on a monthly basis).
+
+Example:
+Total monthly debts (car loan, credit cards, mortgage): $2,000
+Gross monthly income (before taxes): $5,000
+
+DTI = ( 2000 / 5000 ) x 100 = 40%
+
+
+Why it matters:
+Lower DTI (below 36%) is considered ideal by most lenders.
+Higher DTI may indicate risk, making it harder to qualify for loans or better rates.
+
+Summary:
+Two types often used:
+Front-End DTI: Housing-related payments only (e.g., mortgage, taxes, insurance).
+Back-End DTI: Includes all monthly debt obligations.
+
+__________________________________________________________________________________________
+
+-> 1) Loan Amount
+Definition: The loan amount is the total amount of money a borrower is borrowing from a lender to purchase a home.
+
+Example: If you're buying a house worth $400,000 and making a $100,000 down payment, your loan amount would be $300,000.
+
+2) Appraised Value
+Definition: The appraised value is the estimated market value of the home as determined by a professional appraiser. Lenders use this to ensure the property is worth the amount being financed.
+
+Note: The loan is usually based on the lower of the appraised value or purchase price.
+
+3) Purchase Price
+Definition: The purchase price is the price you agree to pay the seller to buy the property. It may or may not match the appraised value.
+
+Example: You might agree to buy a home for $350,000, even if the appraised value is $360,000 or $340,000.
+
+How They Work Together
+If a home’s appraised value is less than the purchase price, the lender will base the loan on the appraised value — and you may have to make up the difference with a larger down payment.
+__________________________________________________________________________________________
+
+-> LTV stands for Loan-to-Value ratio. It is a financial term used by lenders to assess the risk of a mortgage loan by comparing the loan amount to the appraised value (or purchase price) of the property.
+
+Formula: LTV = ( Loan Amount / Appraised Property Value ) x 100
+
+Example: 
+Home Value: $400,000
+Loan Amount: $320,000
+
+LTV= (320,000 / 400,000) x 100 = 80%
+
+
+Why LTV matters:
+Lower LTV (≤80%) → Less risk for the lender; better loan terms and no mortgage insurance required in many cases.
+
+Higher LTV (>80%) → More risk; may require private mortgage insurance (PMI) or higher interest rates.
+
+
+Lenders use LTV to:
+Approve or deny a loan.
+Set the interest rate.
+Determine if PMI is needed.
 __________________________________________________________________________________________
 
 
