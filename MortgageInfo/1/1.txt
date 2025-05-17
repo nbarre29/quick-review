@@ -240,5 +240,89 @@ Set the interest rate.
 Determine if PMI is needed.
 __________________________________________________________________________________________
 
+-> cash-out refinance:
+
+A cash-out refinance is a type of mortgage refinancing where you replace your existing home loan with a new, larger loan—and take the difference in cash.
+
+How It Works
+Suppose your home is worth $400,000, and you owe $250,000 on your current mortgage.
+
+You refinance for $300,000
+Pay off the existing $250,000 loan
+You receive $50,000 in cash (minus fees)
+
+🔹 Why People Use It
+Borrowers use a cash-out refinance to:
+Consolidate high-interest debt
+Pay for home improvements
+Cover large expenses (tuition, medical bills, etc.)
+Invest in other property or business
+
+Key Characteristics
+
+| Feature              | Description                                                                           |
+| -------------------- | ------------------------------------------------------------------------------------- |
+| **Loan amount**      | Greater than what you currently owe                                                   |
+| **Cash received**    | The difference between new loan and old loan                                          |
+| **Equity required**  | Typically need 20% equity or more                                                     |
+| **Interest rate**    | May be higher than a standard refinance                                               |
+| **Tax implications** | Interest may not be deductible if not used for home improvement (consult tax advisor) |
 
 
+Example:
+| Home Value | Current Mortgage | New Loan  | Cash Out |
+| ---------- | ---------------- | --------- | -------- |
+| \$400,000  | \$250,000        | \$300,000 | \$50,000 |
+
+
+
+
+https://www.youtube.com/watch?v=HGC6uL5vJzs (Cash-Out Refinance vs HELOC: Which Is Right For You? | NerdWallet)
+https://www.youtube.com/watch?v=_Or8IcvI_H8 (Should You Consider a Cash Out Refinance?)
+__________________________________________________________________________________________
+
+-> "Occupancy Type: Investment Property" refers to a classification indicating that the borrower does not intend to live in the property as their primary residence. Instead, the property is purchased primarily to generate income, typically by renting it out or holding it for appreciation.
+
+Key Characteristics and Implications:
+
+Borrower's Intent: The crucial factor is the borrower's stated intention. They are buying the property to lease it to tenants and earn rental income.
+
+Higher Risk for Lenders: Lenders generally view investment properties as riskier than primary residences. Borrowers might be more likely to prioritize payments on their own home if facing financial difficulties. Vacancy periods and property management responsibilities can also impact the borrower's ability to make mortgage payments.
+
+Stricter Underwriting Requirements: Due to the higher perceived risk, lenders typically have stricter underwriting requirements for investment property mortgages compared to primary residences. This often includes:
+a) Higher Credit Scores: Borrowers usually need a stronger credit history to qualify.
+b) Larger Down Payments: Lenders often require a larger down payment (e.g., 15-25% or more) for investment properties.
+Lower Debt-to-Income (DTI) Ratios: Lenders want to see a comfortable margin between the borrower's income and all debt obligations, considering the potential for vacancy or management costs.
+
+-------------------------------------------------------------------------------------------
+
+-> Other Common Occupancy Types:
+
+1) Primary Residence
+
+The property is the borrower’s main home.
+Must be occupied within 60 days of closing (typically).
+Offers the lowest mortgage rates and best terms.
+
+2) Second Home / Vacation Home
+
+Property is not a primary residence, but the borrower intends to live in it part-time.
+Must be available for personal use, not rented out full-time.
+Interest rates slightly higher than for primary residence.
+
+3) Investment Property
+
+Borrower does not live in the property.
+Intended for rental income, short-term rentals (Airbnb), or capital gains.
+Typically has higher interest rates, stricter requirements, and lower LTV limits.
+
+
+Summary Table:
+
+| Occupancy Type    | Owner Lives There? | Rental Use Allowed?   | Interest Rate Impact |
+| ----------------- | ------------------ | --------------------- | -------------------- |
+| Primary Residence | Yes (full-time)    | Occasionally          | Lowest               |
+| Second Home       | Yes (part-time)    | Limited (seasonal)    | Slightly higher      |
+| Investment        | No                 | Yes (primary purpose) | Highest              |
+
+__________________________________________________________________________________________
