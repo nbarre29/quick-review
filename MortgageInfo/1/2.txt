@@ -1,0 +1,42 @@
+-> Mortgage:  A mortgage is a loan used to purchase a home or other real estate, and the property itself acts as collateral for the loan.
+
+The lender provides the funds for the purchase, and the borrower agrees to repay the loan, along with interest, over a set period of time, usually in monthly installments.
+
+So if the borrower doesn’t make payments, the lender has the right to take ownership of the property (via foreclosure).
+
+
+-> Key aspects of a mortgage:
+
+Collateral: The home is pledged as security for the loan, meaning the lender can foreclose and sell the property if the borrower defaults on payments. 
+
+Loan Term: Mortgages typically have terms ranging from 10 to 30 years, determining the length of time to repay the loan. 
+
+Monthly Payments: These usually include principal (the amount borrowed), interest, property taxes, and homeowners insurance, and may also include mortgage insurance. 
+
+Types of Mortgages: There are various types, including fixed-rate, adjustable-rate, and interest-only mortgages. 
+
+Pre-Approval: It's recommended to get pre-approved for a mortgage before you begin looking for a home to know your budget and borrowing capacity. 
+
+Closing Costs: In addition to the down payment, there are closing costs associated with the loan, such as title fees and other expenses. 
+
+
+-> Foreclosure is the legal process that allows a lender to take ownership of a home when the borrower (the homeowner) fails to make the required mortgage payments.
+
+Here’s how it works:
+	The home serves as collateral for the loan.
+	If the homeowner misses too many payments (defaults on the loan), the lender can initiate foreclosure.
+	The lender takes possession of the home and sells it (usually at auction) to recover the remaining loan balance.
+
+Essentially, foreclosure is the lender’s way of getting back the money they lent when the borrower cannot repay.
+
+
+-> Collateral:  
+
+In mortgage terms, collateral refers to the property (like a house or land) that a borrower pledges to the lender as security for the loan. It means that if the borrower fails to repay the mortgage (defaults), the lender has the right to take (foreclose on) the property to recover the money they lent.
+
+For example, in a typical home mortgage:
+	The house itself is collateral for the loan.
+	If you default on the loan, the bank can foreclose and sell the house to get back their money.
+
+This is a key part of why lenders feel secure in offering large loans for property — they have a valuable asset (the house) as collateral.
+

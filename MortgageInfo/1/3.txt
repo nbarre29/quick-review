@@ -1,0 +1,96 @@
+RMC-217
+
+-> In mortgage pricing and loan programs, "30-year agency enhanced loan program" typically refers to a 30-year fixed-rate loan offered by or conforming to government-backed agencies like Fannie Mae or Freddie Mac.
+
+The “enhanced” part often means:
+
+Special eligibility (e.g., first-time homebuyers, low-income borrowers)
+Reduced pricing add-ons
+Expanded eligibility criteria
+
+Application Products (FA30, FR30, FAHB30, FRHB30):
+
+These are short codes used by lenders/investors to designate specific loan products:
+
+FA30
+FA = Fixed Agency
+30 = 30-year term
+➡️ Fixed-rate agency 30-year loan
+
+FR30
+FR = Fixed Rate
+30 = 30-year term
+➡️ Fixed-rate 30-year loan
+
+FAHB30
+FAHB = Fixed Agency Homebuyer
+30 = 30-year term
+➡️ Fixed-rate 30-year loan for homebuyers (first-time or special program eligibility)
+
+FRHB30
+FRHB = Fixed Rate Homebuyer
+30 = 30-year term
+➡️ Fixed-rate 30-year loan for homebuyers (like FAHB30 but possibly a different delivery channel or investor guideline)
+
+
+🏠 Putting it Together:
+Your “mortgage pricing + 30 year agency enhanced loan program” covers these specific product types:
+
+FA30 and FR30: Standard 30-year agency conforming fixed-rate loans.
+
+FAHB30 and FRHB30: Targeted 30-year loans for homebuyer assistance or enhanced eligibility (e.g., first-time buyers, low down payment).
+
+___________________________________________________________________________________
+-> JPQM30: Typical Meaning
+💡 JPQM30 Breakdown:
+JP: Jumbo Product (JP usually refers to Jumbo in internal lender codes).
+
+QM: Qualified Mortgage – compliant with the ATR/QM (Ability to Repay/Qualified Mortgage) rule.
+
+30: 30-year term.
+
+So, JPQM30 typically means:
+
+✅ Jumbo loan
+✅ 30-year fixed term
+✅ Meets Qualified Mortgage (QM) standards
+
+
+Key Takeaway:
+JPQM30 is the lender or investor’s internal product code for:
+
+“30-year Jumbo Qualified Mortgage”
+
+It’s used in rate sheets, loan product pricing, and eligibility for their loan origination software.
+
+___________________________________________________________________________________
+-> 30-Year Jumbo AUS
+✅ 30-Year
+
+Loan term: 30 years.
+
+✅ Jumbo
+
+The loan amount exceeds the conforming loan limits (like those set by Fannie Mae/Freddie Mac).
+
+It’s for higher loan amounts that don’t qualify for conforming conventional programs.
+
+✅ AUS
+
+Automated Underwriting System – usually means the loan is underwritten using a system like:
+
+DU (Desktop Underwriter) – Fannie Mae
+LP (Loan Product Advisor) – Freddie Mac
+
+For Jumbo loans, some lenders have internal AUS-like tools to assess risk and eligibility.
+
+🚀 Putting it Together:
+30-Year Jumbo AUS means:
+
+A 30-year fixed or ARM jumbo mortgage
+Uses automated underwriting (not fully manual underwriting)
+Jumbo loan limits (above conforming amounts)
+___________________________________________________________________________________
+
+
+
