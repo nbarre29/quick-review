@@ -1,0 +1,30 @@
+-> 
+
+| Basis Points | Percentage | Decimal |
+| ------------ | ---------- | ------- |
+| 1 bp         | 0.01%      | 0.0001  |
+| 100 bps      | 1.00%      | 0.01    |
+| 10,000 bps   | 100.00%    | 1.00    |
+
+
+🔍 When is this used?
+1) If a loan rate increases from 5.00% to 5.25%, that's a 25 basis point increase.
+
+2) A central bank raising rates by 50 bps = 0.50% increase.
+______________________________________________________________________________________________________
+
+->  What Is the Mortgage Secondary Market?
+1) The primary market is where lenders (like banks or Rocket Mortgage) issue loans to borrowers.
+2) The secondary market is where those lenders sell the loans to investors, usually after closing — turning mortgage assets into capital to make more loans.
+
+
+-> Primary Mortgage Market: This is precisely where the direct interaction between the borrower and the lender takes place. When you apply for a mortgage and a bank, credit union, or a mortgage lender like Rocket Mortgage originates that loan for you, that transaction occurs in the primary market. This is where new loans are created.
+
+
+-> Secondary Mortgage Market: This is where the magic happens behind the scenes to keep the primary market liquid. Once a lender originates a mortgage in the primary market, they often don't keep that loan on their books indefinitely. They sell these loans (or bundles of loans) to investors in the secondary market. These investors can be large entities like Fannie Mae, Freddie Mac, Ginnie Mae, or private institutions. By selling these loans, the original lenders receive cash, which they can then use to issue more new loans in the primary market. This process is crucial for the overall health and liquidity of the mortgage industry.
+
+Summary:
+Primary: Loan origination (borrower to lender).
+Secondary: Loan sales (lender to investor).
+
+______________________________________________________________________________________________________
