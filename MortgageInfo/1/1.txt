@@ -1,4 +1,4 @@
--> 1)  Rate Sheet Adjuster (a.k.a. LLPA, price hit, price incentive)
+-> 1)  Rate Sheet Adjuster (a.k.a. LLPA(Loan-Level Price Adjustment), price hit, price incentive)
 A Rate Sheet Adjuster is a pricing modifier applied to a loan's base price or rate, based on certain loan attributes.
 
 ✅ Purpose:

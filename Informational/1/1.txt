@@ -1,0 +1,34 @@
+-> AWS ACM stands for AWS Certificate Manager.
+
+What is AWS ACM?
+AWS Certificate Manager (ACM) is a fully managed service that:
+
+	Issues, stores, and renews SSL/TLS certificates
+	Automates secure HTTPS setup for AWS services (e.g., Load Balancers, CloudFront, API Gateway)
+	
+	
+What is AWS ACM?
+AWS Certificate Manager (ACM) is a fully managed service that:
+
+Issues, stores, and renews SSL/TLS certificates
+Automates secure HTTPS setup for AWS services (e.g., Load Balancers, CloudFront, API Gateway)
+
+
+ Key Benefits of AWS ACM:
+ 
+| Feature           | Benefit                                                  |
+| ----------------- | -------------------------------------------------------- |
+| Free public certs | No charge when used with ALB/CloudFront                  |
+| Auto-renewal      | No downtime or manual renewal                            |
+| DNS validation    | Easily done via Route 53                                 |
+| No server config  | No need to manually upload keystores to Spring Boot apps |
+
+
+
+Let me know if you want to see how to request a cert and bind it to a load balancer using the AWS Console or Terraform!
+
+
+
+
+
+
