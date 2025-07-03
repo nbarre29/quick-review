@@ -42,6 +42,7 @@ public class Main {
         List<String> devAdvocates =  List.of("Billy", "David", "Denys", "José", "Nicolai");
 
         StringJoiner joiner = new StringJoiner(", ", "{ ", " }");
+		// StringJoiner joiner = new StringJoiner(", ", "Dev Advocates: ", ".");
         for(String devAdvocate : devAdvocates) {
 
             joiner.add(devAdvocate);

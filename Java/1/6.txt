@@ -47,6 +47,47 @@ Email sent to example@example.com with message: Hello, World!
 3. Easier Testing: Because MessageProcessor depends on an interface, you can easily substitute a mock or stub implementation of MessageService in tests. This enables isolated testing of MessageProcessor’s behavior without relying on a specific MessageService implementation.
 ______________________________________________________________________________________________________
 
+-> differences between Boolean and boolean as Java method return types:
+
+
+✅ 1️) boolean (Primitive Type)
+Lowercase boolean is a primitive data type in Java.
+
+It can only be true or false — it cannot be null.
+
+More memory-efficient — Java handles it as a single bit of information (under the hood, 1 byte).
+
+public boolean isAvailable() {
+    return true; // or false
+}
+
+
+✅ 2️) Boolean (Wrapper Class)
+Uppercase Boolean is a wrapper class (part of Java’s java.lang package).
+
+It’s an object, so it can be:
+✅ true
+✅ false
+✅ null
+
+Useful when you need to return a nullable value (e.g., database lookups, optional states).
+
+public Boolean isAvailable() {
+    return null; // can also be true or false
+}
+
+
+| Aspect        | `boolean`                   | `Boolean`                       |
+| ------------- | --------------------------- | ------------------------------- |
+| **Primitive** | ✅ Yes                       | ❌ No (it’s an object)           |
+| **Nullable?** | ❌ No — always true or false | ✅ Yes — can be null too         |
+| **Memory**    | Uses less memory            | Uses more memory (object)       |
+| **Usage**     | For always-known states     | For optional or nullable states |
+
+
+______________________________________________________________________________________________________
+
+______________________________________________________________________________________________________
 
 
 ------------------------------------------------------------------------------------------------------
