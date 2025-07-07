@@ -28,6 +28,10 @@ public class IsARelationshipExample {
 IS-A Relationship: Represents inheritance, where a subclass is a specialized form of a superclass.
 Example: Dog IS-A Animal, meaning Dog inherits properties and behaviors from Animal.
 
+
+Animal is the superclass (also called the base class or parent class).
+Dog is the subclass (also called the derived class or child class).
+This means Dog inherits from Animal, so Dog gets all public/protected methods of Animal, like eat().
 ______________________________________________________________________________________________________
 
 -> Composition is a design principle in object-oriented programming where a class is composed of one or more objects from other classes, implying a "has-a" relationship.  Here's an example to illustrate composition:
@@ -191,7 +195,7 @@ Composition
     Ownership: The "whole" class owns the "part" class and manages its lifecycle.
     Lifetime Dependency: The lifecycle of the "part" is tightly bound to the "whole." If the "whole" is destroyed, the "part" is often destroyed as well.
     Use Case: Suitable when the "part" is inherently tied to the "whole." For instance, in a House, the Rooms belong to the House and cannot exist independently of it.
-    Example: A Car contains an Engine. In this relationship, the Engine is created and managed by the Car, and its lifecycle is tied to the Car.
+    Example: A House has a Room. A Room cannot exist independently without a House. If the House is destroyed, the Room ceases to exist as well.
 
 Aggregation
 
@@ -915,6 +919,312 @@ Inflexibility: Singletons can make it difficult to change the design or extend t
 Resource Management: If not properly managed, the Singleton instance can hold onto resources for the lifetime of the application, leading to potential memory leaks.
 ______________________________________________________________________________________________________
 
+-> Few other use cases of private constructor in addition to the Singleton pattern above:
+
+1. Static Utility or Helper Classes
+Prevents instantiation of classes that only contain static methods, like Math or Collections.
+
+public class Utils {
+    private Utils() {
+        throw new UnsupportedOperationException("Cannot instantiate utility class");
+    }
+
+    public static int add(int a, int b) {
+        return a + b;
+    }
+}
+
+Why?
+
+Enforces the intent: class is for static use only.
+Prevents accidental object creation.
+
+--------------------------------------------------
+-> 2. Factory Pattern
+Used internally to hide object creation logic and enforce constraints.
+
+public class Product {
+    private Product() {}
+
+    public static Product createStandardProduct() {
+        return new Product(); // logic could vary
+    }
+}
+
+Why?
+
+You might want to control how objects are created (e.g., validation, caching).
+Enables returning different subclasses or preconfigured objects.
+
+______________________________________________________________________________________________________
+
+-> Implementation of the Factory Pattern where:
+
+a) The class has a private constructor
+b) Object creation is done via a static factory method
+c) It demonstrates how this design helps encapsulate creation logic
+
+//create an interface
+public interface Notification {
+    void notifyUser();
+}
+----------------------------
+//Create Concrete Implementations
+public class EmailNotification implements Notification {
+    @Override
+    public void notifyUser() {
+        System.out.println("Sending an Email notification");
+    }
+}
+
+public class SMSNotification implements Notification {
+    @Override
+    public void notifyUser() {
+        System.out.println("Sending an SMS notification");
+    }
+}
+----------------------------
+//factory class with private constructor
+public class NotificationFactory {
+
+    private NotificationFactory() {
+        // Prevent instantiation
+    }
+
+    public static Notification createNotification(String type) {
+        if ("EMAIL".equalsIgnoreCase(type)) {
+            return new EmailNotification();
+        } else if ("SMS".equalsIgnoreCase(type)) {
+            return new SMSNotification();
+        } else {
+            throw new IllegalArgumentException("Unknown notification type: " + type);
+        }
+    }
+}
+----------------------------
+// main method to use the factory
+public class Main {
+    public static void main(String[] args) {
+        Notification notification1 = NotificationFactory.createNotification("EMAIL");
+        notification1.notifyUser();
+
+        Notification notification2 = NotificationFactory.createNotification("SMS");
+        notification2.notifyUser();
+    }
+}
+
+Output:
+Sending an Email notification  
+Sending an SMS notification
+
+
+Why Use Private Constructor in the Factory?
+a) Prevents instantiation of the factory class:
+NotificationFactory factory = new NotificationFactory(); // ❌ compile error
+
+b) Ensures all object creation goes through the controlled createNotification(...) method.
+
+c) Enforces encapsulation and flexibility for changes (e.g., adding caching, logging, or alternate implementations).
+______________________________________________________________________________________________________
+
+-> Enum-Based Factory Pattern, using the same example above:
+
+public interface Notification {
+    void notifyUser();
+}
+----------------------------
+
+public class EmailNotification implements Notification {
+    @Override
+    public void notifyUser() {
+        System.out.println("Sending an Email notification");
+    }
+}
+
+public class SMSNotification implements Notification {
+    @Override
+    public void notifyUser() {
+        System.out.println("Sending an SMS notification");
+    }
+}
+----------------------------
+// Define NotificationType Enum (Factory Itself)
+// Each enum constant (EMAIL, SMS) acts as a factory for its corresponding notification class.
+public enum NotificationType {
+    EMAIL {
+        @Override
+        public Notification create() {
+            return new EmailNotification();
+        }
+    },
+    SMS {
+        @Override
+        public Notification create() {
+            return new SMSNotification();
+        }
+    };
+
+    public abstract Notification create();
+}
+----------------------------
+// Use the Enum Factory in main
+public class Main {
+    public static void main(String[] args) {
+//        NotificationType emailNotification = NotificationType.EMAIL;
+//        Notification email = emailNotification.create();
+//        email.notifyUser();
+//
+//        NotificationType smsNotification = NotificationType.SMS;
+//        Notification sms = smsNotification.create();
+//        sms.notifyUser();
+
+        Notification emailNotification = NotificationType.EMAIL.create();
+        emailNotification.notifyUser();
+
+        Notification smsNotification = NotificationType.SMS.create();
+        smsNotification.notifyUser();
+    }
+}
+
+
+Output:
+Sending an Email notification  
+Sending an SMS notification
+
+
+Benefits of Enum-Based Factory
+| Benefit                                   | Description                                          |
+| ----------------------------------------- | ---------------------------------------------------- |
+| ✅ Type-safe                               | Avoids string comparisons like `"EMAIL"` or `"SMS"`  |
+| ✅ No need for `switch` or `if-else` logic |                                                      |
+| ✅ Cleaner and extendable                  | Just add a new enum constant and override `create()` |
+
+______________________________________________________________________________________________________
+
+-> Singleton-Based Factory  Pattern, using the same example above:
+
+public interface Notification {
+    void notifyUser();
+}
+
+----------------------------
+public class EmailNotification implements Notification {
+    @Override
+    public void notifyUser() {
+        System.out.println("Sending an Email notification");
+    }
+}
+
+public class SMSNotification implements Notification {
+    @Override
+    public void notifyUser() {
+        System.out.println("Sending an SMS notification");
+    }
+}
+----------------------------
+//Singleton NotificationFactory Class
+public class NotificationFactory {
+
+    // Step 1: private static final instance
+    private static final NotificationFactory instance = new NotificationFactory();
+
+    // Step 2: private constructor
+    private NotificationFactory() {
+        // Prevent instantiation
+    }
+
+    // Step 3: public accessor
+    public static NotificationFactory getInstance() {
+        return instance;
+    }
+
+    // Factory method
+    public Notification getNotification(String type) {
+        if ("EMAIL".equalsIgnoreCase(type)) {
+            return new EmailNotification();
+        } else if ("SMS".equalsIgnoreCase(type)) {
+            return new SMSNotification();
+        } else {
+            throw new IllegalArgumentException("Unknown notification type: " + type);
+        }
+    }
+}
+----------------------------
+//Main Class to Use the Factory
+public class Main {
+    public static void main(String[] args) {
+        NotificationFactory factory = NotificationFactory.getInstance();
+
+        Notification emailNotification = factory.getNotification("EMAIL");
+        emailNotification.notifyUser();
+
+        Notification smsNotification = factory.getNotification("SMS");
+        smsNotification.notifyUser();
+    }
+}
+----------------------------
+Output:
+Sending an Email notification  
+Sending an SMS notification
+
+
+Why use Singleton Factory?
+| Advantage                 | Explanation                                    |
+| ------------------------- | ---------------------------------------------- |
+| ✅ Controlled access       | One instance throughout the app                |
+| ✅ Thread-safe (if needed) | Can be made thread-safe easily                 |
+| ✅ Centralized logic       | Factory logic is in one place, easy to update  |
+| ✅ Can hold state          | Useful if you cache instances or configs later |
+
+
+
+-> Enum-Based Factory – Advantages
+| Feature                           | Benefit                                                                                                  |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| ✅ **Type-safe**                   | You use predefined enum constants (`EMAIL`, `SMS`) instead of strings — avoids typos and runtime errors. |
+| ✅ **Self-contained logic**        | Each enum constant implements its own `create()` method — no `if-else` or `switch` needed.               |
+| ✅ **Easier to extend**            | Just add a new enum constant with its `create()` logic — no need to change core factory logic.           |
+| ✅ **Built-in Singleton behavior** | Each enum constant is a singleton by design — no extra code for singleton pattern.                       |
+| ✅ **Readable and declarative**    | Business logic is grouped per type — it's clear which enum produces what object.                         |
+
+
+
+-> Singleton-Based Factory – Advantages
+| Feature                        | Benefit                                                                                                          |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| ✅ **Centralized control**      | All creation logic is in one class (`NotificationFactory`), useful for logging, metrics, or instantiation rules. |
+| ✅ **Can accept dynamic input** | Can process runtime values like `String type`, external config, or user input.                                   |
+| ✅ **Flexible**                 | You can inject dependencies, manage object pools, or even return different implementations based on context.     |
+| ✅ **Works with external data** | Because it's not bound to a fixed enum list, you can decide logic dynamically (e.g., based on database entries). |
+| ✅ **Service-oriented**         | Can evolve into a more complex **service locator** or **registry** for object creation.                          |
+
+
+-> Comparison Table
+| Feature                           | Enum-Based Factory               | Singleton-Based Factory              |
+| --------------------------------- | -------------------------------- | ------------------------------------ |
+| **Type Safety**                   | ✅ Strong                         | ❌ Weak (uses Strings or other input) |
+| **Extensibility**                 | ✅ Easy (add enum constants)      | ⚠️ Risky (change core method)        |
+| **Encapsulation of Logic**        | ✅ Each type owns its logic       | ❌ Central method knows all types     |
+| **Centralized Object Creation**   | ❌ No                             | ✅ Yes                                |
+| **Works with dynamic types**      | ❌ No (enum constants are static) | ✅ Yes                                |
+| **Supports dependency injection** | ❌ Hard                           | ✅ Easily supported                   |
+| **Suited for static/fixed types** | ✅ Best choice                    | ❌ Overkill                           |
+| **Built-in singleton behavior**   | ✅ Yes                            | ✅ Yes (via design)                   |
+
+
+-> When to Use Each
+Use Enum-based Factory when:
+The object types are static and known at compile time
+You want type-safe and clean design
+Logic is simple and doesn't depend on runtime input
+
+Use Singleton-based Factory when:
+You want to handle runtime or user-driven input
+You need a central registry or service locator
+You plan to evolve into dependency injection or caching
+
+______________________________________________________________________________________________________
+
 -> The benefits of using Optional in Java include:  
 
 Avoid NullPointerException: Optional helps to avoid NullPointerException by providing a clear way to represent the absence of a value.
@@ -1299,7 +1609,9 @@ ________________________________________________________________________________
 -> Static methods in interfaces, introduced in Java 8, provide several benefits:
 Utility Methods: They allow defining utility methods related to the interface, which can be called without an instance of a class implementing the interface.
 Code Organization: They help in organizing related methods within the interface itself, rather than in separate utility classes.
-Default Implementations: They can provide default implementations that can be used directly or overridden by implementing classes.
+Belong to the interface itself, not to the implementing class.
+Are not inherited by implementing classes.
+Cannot be overridden by implementing classes
 
 interface MathOperations {
     static int add(int a, int b) {
