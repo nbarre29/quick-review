@@ -221,6 +221,10 @@ Task finished in 2 seconds and 501 milliseconds
 Key Difference:  toMillis()  vs toMillisPart()
 toMillis() gives the total milliseconds of the duration.
 toMillisPart() gives the millisecond fraction of the duration after full seconds.
+
+-----------------------------------
+long duration = end.toEpochMilli() - start.toEpochMilli(); // calculate duration in milliseconds
+System.out.println("Task duration: " + duration + " milliseconds");
 ______________________________________________________________________________
 
 -> An example that uses Instant and Duration to calculate a future time — like ETA(Estimated Time of Arrival) after 15 minutes from now:

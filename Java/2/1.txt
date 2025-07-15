@@ -570,8 +570,180 @@ Output:
 strings = [one, two, three]
 _____________________________________________________________________________________
 
+-> 
+public class Main {
+
+    public static void main(String[] args) {
+        int[] numbers = {1, 2, 3, 4, 5};
+        int sum = 0;
+        for (int number : numbers) {
+            sum += number;
+        }
+
+        System.out.println("The sum of the array is: " + sum);
 
 
+        // above code in functional style
+        int functionalSum = java.util.Arrays.stream(numbers)
+                .reduce(0, Integer::sum);
+        System.out.println("The sum of the array using functional style is: " + functionalSum);
+    }
+}
+
+Output:
+The sum of the array is: 15
+The sum of the array using functional style is: 15
+_____________________________________________________________________________________
+
+-> 
+import java.util.Arrays;
+import java.util.List;
+
+public class Main {
+
+    public static void main(String[] args) {
+        List<Integer> numbers = Arrays.asList(2, 3, 4, 5, 6);
+
+        // 1. Reduce with identity and accumulator
+        int sum = numbers.stream()
+                .reduce(0, (a, b) -> a + b); // or Integer::sum
+				
+		// replace above lambda with method reference
+		// int sum = numbers.stream().reduce(0, Integer::sum);
+
+        System.out.println("Sum using reduce: " + sum);
+
+        // 2. Reduce to find the product
+        int product = numbers.stream()
+                .reduce(1, (a, b) -> a * b);
+        System.out.println("Product using reduce: " + product);
+
+        // 3. Reduce to find the maximum
+        int max = numbers.stream()
+                .reduce(Integer.MIN_VALUE, Integer::max);
+        System.out.println("Max using reduce: " + max);
+
+        // 4. Reduce without identity - returns Optional
+        numbers.stream()
+                .reduce((a, b) -> a + b)
+                .ifPresent(result -> System.out.println("Sum (no identity): " + result));
+				
+		 // replace above lambda with method reference
+//        numbers.stream()
+//                .reduce(Integer::sum)
+//                .ifPresent(result -> System.out.println("Sum (no identity): " + result));
+    }
+}
+
+Output:
+Sum using reduce: 20
+Product using reduce: 720
+Max using reduce: 6
+Sum (no identity): 20
+
+
+| Use Case    | Code                                      | Output                      |
+| ----------- | ----------------------------------------- | --------------------------- |
+| Sum         | `reduce(0, (a, b) -> a + b)`              | Adds all numbers            |
+| Product     | `reduce(1, (a, b) -> a * b)`              | Multiplies all numbers      |
+| Max         | `reduce(Integer.MIN_VALUE, Integer::max)` | Finds maximum value         |
+| No identity | `reduce((a, b) -> a + b)`                 | Returns `Optional<Integer>` |
+
+_____________________________________________________________________________________
+
+-> Use Stream.reduce() with custom objects — specifically, summing up prices in a list of Product objects.
+
+
+import java.util.Arrays;
+import java.util.List;
+
+public class ProductReduceExample {
+    public static void main(String[] args) {
+        List<Product> products = Arrays.asList(
+                new Product("Book", 15.99),
+                new Product("Pen", 1.49),
+                new Product("Notebook", 6.25)
+        );
+
+        // 1. Use reduce with an identity and accumulator
+        Double totalPrice = products.stream()
+                .map(Product::getPrice)
+                .reduce(0.0, (total, price) -> total + price);  // can replace with Double::sum instead of lambda here
+
+        System.out.println("Total Price: $" + totalPrice);
+
+        // 2. Use reduce without an identity ( returns Optional<Double> )
+        products.stream()
+                .map(Product::getPrice)
+                .reduce(Double::sum)
+                .ifPresent(sum -> System.out.println("Total (optional): $" + sum));
+    }
+}
+
+Output:
+Total Price: $23.73
+Total (optional): $23.73
+_____________________________________________________________________________________
+
+-> Find Most Expensive Product with reduce()
+
+
+
+public class Product {
+    private final String name;
+    private final double price;
+
+    public Product(String name, double price) {
+        this.name = name;
+        this.price = price;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return name + " ($" + price + ")";
+    }
+}
+
+
+import java.util.Arrays;
+import java.util.List;
+
+public class MaxProductReduceExample {
+    public static void main(String[] args) {
+        List<Product> products = Arrays.asList(
+            new Product("Book", 15.99),
+            new Product("Pen", 1.49),
+            new Product("Notebook", 6.25),
+            new Product("Headphones", 29.99)
+        );
+
+        // Use reduce to find the product with the highest price
+        products.stream()
+            .reduce((p1, p2) -> p1.getPrice() > p2.getPrice() ? p1 : p2)
+            .ifPresent(maxProduct -> System.out.println("Most expensive product: " + maxProduct));
+    }
+}
+
+Output:
+Most expensive product: Headphones ($29.99)
+
+
+The `reduce` method is a terminal operation that processes elements of a stream and combines them into a single result.
+
+The lambda expression `(p1, p2) -> p1.getPrice() > p2.getPrice() ? p1 : p2` compares two `Product` objects (`p1` and `p2`) based on their `price` property. If the price of `p1` is greater than the price of `p2`, `p1` is returned; otherwise, `p2` is returned. This ensures that the stream iterates through all products and keeps the one with the highest price.
+
+For example, if the stream contains products with prices `15.99`, `1.49`, `6.25`, and `29.99`, the `reduce` operation will compare each pair of products and ultimately return the product with the price `29.99`.
+
+The result of the `reduce` operation is wrapped in an `Optional`, as the stream might be empty, in which case no product can be returned. The `ifPresent` method is then used to print the most expensive product if it exists.
+_____________________________________________________________________________________
 
 
 

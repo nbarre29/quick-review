@@ -34,6 +34,9 @@ public class Main {
         System.out.println("\nAll Days:");
         for (Day d : Day.values()) {
             System.out.println(d + (d.isWeekend() ? " (weekend)" : " (weekday)"));
+			// We can use parameterized output with System.out.printf instead of the + operator for string concatenation. 
+			// This improves readability and performance for complex strings.
+			// System.out.printf("%s (%s)%n", day, day.isWeekend() ? "Weekend" : "Weekday");
         }
     }
 }
@@ -64,6 +67,32 @@ This method is specific to enum type we define and is not part of the java.lang.
     It includes a method isWeekend() to demonstrate custom logic inside an enum.
 
     Day.values() returns all constants — great for iteration.
+-------------------------------	
+
+1) System.out.println(d + (d.isWeekend() ? " (weekend)" : " (weekday)"));
+
+Behind the scenes:
+The + operator causes string concatenation, which:
+a) Creates multiple temporary String objects
+b) Uses StringBuilder internally
+c) Is less efficient if done repeatedly or in loops
+d) Each line creates several temporary strings and StringBuilder objects.
+			
+			
+2) System.out.printf("%s (%s)%n", day, day.isWeekend() ? "Weekend" : "Weekday");
+Advantages:
+a) Single format string with placeholders.
+b) No intermediate string objects
+c) Lower memory footprint
+d) Clear separation of template and data
+e) More readable for complex structured output
+-------------------------------
+
+System.out.printf("%s (%s)%n", day, day.isWeekend() ? "Weekend" : "Weekday");
+System.out.printf("%s (%s)%n", day.name(), day.isWeekend() ? "Weekend" : "Weekday");   
+
+day is same as day.name() which is a string and that's why we used %s
+-------------------------------
 ----------------------------------------------------------------------------------	
 	
 -> enum that associates a constant (like MON) with a custom value (like "Monday"). 

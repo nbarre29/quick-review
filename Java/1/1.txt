@@ -344,6 +344,8 @@ public class Library {
     public Library() {
         this.books = new ArrayList<>();
     }
+	
+	// private List<Book> books = new ArrayList<>();  // we can replace the constructor above with this single line of code, as the default constructor is provided by the class
 
     // Add a book to the library (no ownership)
     public void addBook(Book book) {
@@ -739,7 +741,7 @@ Here are the differences between canonical and compact constructors.
 
 ______________________________________________________________________________________________________
 
--> an example demonstrating the Singleton design pattern
+-> an example demonstrating the Singleton design pattern  ( Eager initialization )
 
 public class Singleton {
     // The single instance of the class
@@ -749,7 +751,7 @@ public class Singleton {
     private Singleton() {}
 
     // Method to get the single instance of the class
-    public static Singleton getInstance() {
+    public static Singleton getInstance() {  // no need of synchronized keyword because the Singleton instance is already eagerly initialized.
         return INSTANCE;
     }
 
@@ -771,6 +773,18 @@ In this example:
 The Singleton class has a private static final instance INSTANCE.
 The constructor is private to prevent instantiation from outside the class.
 The getInstance method returns the single instance of the class.
+
+private static final Singleton INSTANCE = new Singleton();  // The Singleton instance is eagerly initialized.
+
+
+
+Lazy Initialization can be more effecient in scenarios where the Singleton is not always required, as it avoids unnecessary instantiation. However, it introduces the need for synchronization in  a multithreaded environment to ensure thread safety during instance creation.
+
+Which approach is better ?
+a) Eager initialization is simpler and avoids synchronization overhead, but it may waste resources if the Singleton is never used.
+b) Lazy initialization is more resource-effecient but requires careful handling of thread safety, such as using synchronized or double-checked locking.
+
+If the Singleton is lightweight and always needed, eager initialization is a good choice. If the Singleton is resource-intensive or rarely used, lazy initialization is preferable.
 
 -----------------------------------------------------------------------------------------------------
 
@@ -856,6 +870,8 @@ public class Singleton {
     private Singleton() {}
 
     // Method to get the single instance of the class, with lazy initialization
+	// making the instance initially null and creating it only when needed is called lazy intialization
+	// This approach defers the creation of the Singleton until the getInstance method is called for the first time.
     public static synchronized Singleton getInstance() {
         if (instance == null) {
             instance = new Singleton();
@@ -1706,3 +1722,49 @@ public class OuterClass {
     }
 }
 ______________________________________________________________________________________________________
+
+-> An enum can declare abstract methods. If an enum declares an abstract method, then every constant within that enum must provide a concrete implementation for that abstract method. This mechanism allows for polymorphism within the enum, where each constant can define its own specific behavior for the abstract method.
+
+
+public enum Operation {
+    ADD {
+        @Override
+        public int execute(int a, int b) {
+            return a + b;
+        }
+    },
+    SUBTRACT {
+        @Override
+        public int execute(int a, int b) {
+            return a - b;
+        }
+    },
+    MULTIPLY {
+        @Override
+        public int execute(int a, int b) {
+            return a * b;
+        }
+    };
+
+    public abstract int execute(int a, int b);
+}
+
+----------------------------------
+public class Main {
+    public static void main(String[] args) {
+        int x = 5;
+        int y = 3;
+
+        for (Operation op : Operation.values()) {
+            int result = op.execute(x, y);
+            System.out.println(op.name() + ": " + x + " and " + y + " => " + result);
+        }
+    }
+}
+
+Output:
+ADD: 5 and 3 => 8
+SUBTRACT: 5 and 3 => 2
+MULTIPLY: 5 and 3 => 15
+______________________________________________________________________________________________________
+
