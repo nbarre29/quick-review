@@ -104,6 +104,99 @@ The JKS keystore uses a proprietary format. It is recommended to migrate to PKCS
 ________________________________________________________________________
 
 
+package com.techprimers.https;
+
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
+
+import javax.net.ssl.SSLContext;
+
+@Configuration
+public class RestTemplateConfig {
+
+    @Value("${server.ssl.trust-store}")
+    private Resource trustStore;
+
+    @Value("${server.ssl.trust-store-password}")
+    private String trustStorePassword;
+
+    @Value("${server.ssl.trust-store-type:JKS}")
+    private String trustStoreType;
+
+    @Bean
+    public RestTemplate restTemplate() throws Exception {
+        SSLContext sslContext = SSLContextBuilder.create()
+                .loadTrustMaterial(trustStore.getURL(), trustStorePassword.toCharArray())
+                .build();
+
+        SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext);
+        CloseableHttpClient httpClient = HttpClients.custom()
+                .setSSLSocketFactory(socketFactory)
+                .build();
+
+        HttpComponentsClientHttpRequestFactory factory =
+                new HttpComponentsClientHttpRequestFactory(httpClient);
+
+        return new RestTemplate(factory);
+    }
+}
+
+
+-> 2. SecurityConfig.java
+This configures Spring Security to allow all requests without authentication (not for production use).
+
+package com.techprimers.https;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests(authorize -> authorize
+                .requestMatchers("/**").permitAll()
+            )
+            .csrf(csrf -> csrf.disable()); // Disable CSRF for non-browser clients
+
+        return http.build();
+    }
+}
+
+
+3)  Add to pom.xml if missing
+Make sure you include the following dependencies in your pom.xml:
+
+<!-- Apache HttpClient for custom RestTemplate -->
+<dependency>
+    <groupId>org.apache.httpcomponents.client5</groupId>
+    <artifactId>httpclient5</artifactId>
+    <version>5.3</version>
+</dependency>
+
+<!-- Spring Security (already included in Spring Boot starter if you're using security) -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+
+
+
+
+
 
 
 
