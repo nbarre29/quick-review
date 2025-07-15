@@ -194,6 +194,60 @@ Make sure you include the following dependencies in your pom.xml:
 </dependency>
 
 
+-> Corrected imports:
+
+package com.techprimers.https;
+
+import org.apache.hc.client5.http.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.core5.ssl.SSLContextBuilder;
+import org.apache.hc.core5.ssl.TrustStrategy;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
+
+import javax.net.ssl.SSLContext;
+import java.security.KeyStore;
+
+@Configuration
+public class RestTemplateConfig {
+
+    @Value("${server.ssl.trust-store}")
+    private Resource trustStore;
+
+    @Value("${server.ssl.trust-store-password}")
+    private String trustStorePassword;
+
+    @Value("${server.ssl.trust-store-type:JKS}")
+    private String trustStoreType;
+
+    @Bean
+    public RestTemplate restTemplate() throws Exception {
+        KeyStore ks = KeyStore.getInstance(trustStoreType);
+        ks.load(trustStore.getInputStream(), trustStorePassword.toCharArray());
+
+        SSLContext sslContext = SSLContextBuilder.create()
+                .loadTrustMaterial(ks, null)
+                .build();
+
+        SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext);
+        CloseableHttpClient httpClient = HttpClients.custom()
+                .setSSLSocketFactory(socketFactory)
+                .build();
+
+        HttpComponentsClientHttpRequestFactory factory =
+                new HttpComponentsClientHttpRequestFactory(httpClient);
+
+        return new RestTemplate(factory);
+    }
+}
+
+
+
 
 
 
