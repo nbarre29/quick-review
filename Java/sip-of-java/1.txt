@@ -121,3 +121,48 @@ Switch expressions must be exhaustive, meaning that all possible input values mu
 yield keyword:
 In cases where a block of code is needed for a case, the yield keyword is used to return a value from a switch expression.
 ______________________________________________________________________________
+
+-> rewritten the same example here, https://docs.oracle.com/javase/tutorial/java/javaOO/enum.html
+
+
+
+public enum Day {
+    SUNDAY, MONDAY, TUESDAY, WEDNESDAY,
+    THURSDAY, FRIDAY, SATURDAY 
+}
+
+
+
+public class EnumTest {
+    Day day;
+
+    public EnumTest(Day day) {
+        this.day = day;
+    }
+
+    public void tellItLikeItIs() {
+        String message = switch (day) {
+            case MONDAY -> "Mondays are bad.";
+            case FRIDAY -> "Fridays are better.";
+            case SATURDAY, SUNDAY -> "Weekends are best.";
+            default -> "Midweek days are so-so.";
+        };
+        System.out.println(message);
+    }
+
+    public static void main(String[] args) {
+        new EnumTest(Day.MONDAY).tellItLikeItIs();
+        new EnumTest(Day.WEDNESDAY).tellItLikeItIs();
+        new EnumTest(Day.FRIDAY).tellItLikeItIs();
+        new EnumTest(Day.SATURDAY).tellItLikeItIs();
+        new EnumTest(Day.SUNDAY).tellItLikeItIs();
+    }
+}
+
+Output:
+Mondays are bad.
+Midweek days are so-so.
+Fridays are better.
+Weekends are best.
+Weekends are best.
+______________________________________________________________________________

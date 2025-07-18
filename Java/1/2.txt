@@ -305,6 +305,35 @@ Benefits of Following OCP
     Flexibility: New features can be added without modifying existing code.
     Maintainability: Existing functionality is less likely to break when adding new features.
     Scalability: The system can grow without becoming more complex or tightly coupled.
+-------------------------------------------
+-> Above design of PaymentProcessor.java might be suitable for stateless utility classes or when the Payment dependency varies frequently and is not tied to the lifecycle of the PaymentProcessor.java
+
+PaymentProcessor.java above is modified to use the constructor based approach(dependency injection) is generally better for scenarios where the PaymentProcessor has a fixed dependency on a Payment instance, as it promotes immutability, consistency and testability
+
+public class PaymentProcessor {
+
+    private final Payment payment;
+
+    public PaymentProcessor(Payment payment) {
+        this.payment = payment;
+    }
+
+    public void processPayment() {
+        payment.process();
+    }
+}
+
+
+public class Main {
+    public static void main(String[] args) {
+
+        Payment creditCardPayment = new CreditCardPayment();
+
+        PaymentProcessor processor = new PaymentProcessor(creditCardPayment);
+        processor.processPayment();
+
+    }
+}
 
 ______________________________________________________________________________________________________
 -> Another example that violates OCP
