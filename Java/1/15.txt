@@ -135,3 +135,119 @@ private static String ternary(int age) {
     }
 	
 _____________________________________________________________________________________
+
+-> demonstrate 
+
+1) Enhanced for-each loop
+2) Traditional for loop
+3) Using iterator for safe removal
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+
+        // 1. Enhanced For-Each Loop (read-only)
+        List<String> names = List.of("Alice", "Bob", "Charlie");
+        System.out.println("1. Enhanced For-Each Loop:");
+        for (String name : names) {
+            System.out.println(name);
+        }
+
+        // 2. Traditional For Loop (modifying elements)
+        //cannot use enhanced for loop because you need to update elements in the list by index. The enhanced for loop does not provide access to the index		
+        List<String> modifiableList = new ArrayList<>(List.of("a", "b", "c"));
+        System.out.println("\n2. Traditional For Loop (uppercase conversion):");
+        for (int i = 0; i < modifiableList.size(); i++) {
+            modifiableList.set(i, modifiableList.get(i).toUpperCase());
+        }
+        System.out.println(modifiableList);  // [A, B, C]
+
+        // 3. Iterator (safe removal)
+        List<String> namesWithRemove = new ArrayList<>(List.of("keep", "removeMe", "stay"));
+        System.out.println("\n3. Iterator with Safe Removal:");
+        Iterator<String> iterator = namesWithRemove.iterator();
+        while (iterator.hasNext()) {
+            String item = iterator.next();
+            if ("removeMe".equals(item)) {
+                iterator.remove();  // Safe removal during iteration
+            }
+        }
+        System.out.println(namesWithRemove); // [keep, stay]
+
+    }
+}
+
+Output:
+1. Enhanced For-Each Loop:
+Alice
+Bob
+Charlie
+
+2. Traditional For Loop (uppercase conversion):
+[A, B, C]
+
+3. Iterator with Safe Removal:
+[keep, stay]
+--------------------------------------
+
+1) The Traditional for loop above can be replaced with 'List.replaceAll' 
+
+		List<String> modifiableList = new ArrayList<>(List.of("a", "b", "c"));
+        System.out.println("\n2. Traditional For Loop (uppercase conversion):");
+        modifiableList.replaceAll(String::toUpperCase);
+        System.out.println(modifiableList);
+		
+		
+2) The while loop can be replaced with 'Collection.removeIf' 
+
+
+        List<String> namesWithRemove = new ArrayList<>(List.of("keep", "removeMe", "stay"));
+        System.out.println("\n3. Iterator with Safe Removal:");       
+        namesWithRemove.removeIf("removeMe"::equals);
+        System.out.println(namesWithRemove); 
+		
+--------------------------------------
+_____________________________________________________________________________________
+
+-> Demonstrate List.replaceAll
+
+// Capitalize First Letter of Each Word
+import java.util.ArrayList;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        List<String> words = new ArrayList<>(List.of("java", "python", "go"));
+        words.replaceAll(s -> s.substring(0, 1).toUpperCase() + s.substring(1));
+        System.out.println(words);  // [Java, Python, Go]
+    }
+}
+--------------------------------------
+//Trim Whitespace from All Strings
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        List<String> messy = new ArrayList<>(List.of("  apple  ", " banana ", "carrot "));
+        messy.replaceAll(String::trim);
+        System.out.println(messy);  // [apple, banana, carrot]
+    }
+}
+--------------------------------------
+// Round Decimal Numbers
+import java.util.ArrayList;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        List<Double> decimals = new ArrayList<>(List.of(3.14, 2.71, 1.41));
+        decimals.replaceAll(d -> (double) Math.round(d));
+        System.out.println(decimals);  // [3.0, 3.0, 1.0]
+    }
+}
+_____________________________________________________________________________________
