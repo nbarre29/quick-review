@@ -262,6 +262,15 @@ Instant gives you UTC timestamps, so ZoneId.systemDefault() localizes it to your
 Duration.ofMinutes(15) is used to calculate the future time (ETA).
 
 https://docs.oracle.com/en/java/javase/23/docs/api/java.base/java/time/format/DateTimeFormatter.html
+
+----------------------------------
+
+// Helper method to print readable time with time zone
+    public static String formatInstant(Instant instant) {
+        return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                .withZone(ZoneId.of("Asia/Calcutta"))
+                .format(instant);
+    }
 ______________________________________________________________________________
 
 -> Here's an enhanced version of the above program that includes a countdown simulation to the estimated arrival time.
