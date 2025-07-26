@@ -420,3 +420,75 @@ How it works
     We can also use Duration.between(start, Instant.now()).toMillis() for the same result.
 	Duration.between(start, Instant.now()) yields a Duration object representing the time span from start to “now,” and .toMillis() converts that span to milliseconds—cleaner and more idiomatic than subtracting epoch values yourself.
 ______________________________________________________________________________
+
+-> If a method has a varargs parameter, the varargs parameter, it is flexible in how you pass arguments to it. 
+The number of arguments you provide for it is flexible, ranging from zero to many, or even an array. When you provide zero arguments, it's treated as an empty array, which often achieves the desired "optional" behavior from a functional perspective.
+
+
+public class VarargsExample {
+
+    // Method with two regular parameters and one varargs parameter
+    public static void processItems(String prefix, int count, String... items) {
+        System.out.println("Prefix: " + prefix);
+        System.out.println("Count: " + count);
+        System.out.println("Items provided: " + items.length);
+        if (items.length > 0) {
+            System.out.print("Actual items: ");
+            for (String item : items) {
+                System.out.print(item + " ");
+            }
+            System.out.println();
+        } else {
+            System.out.println("No specific items provided.");
+        }
+        System.out.println("---");
+    }
+
+    public static void main(String[] args) {
+        // Case 1: Passing multiple individual arguments to varargs
+        processItems("Order", 1, "Apple", "Banana", "Cherry");
+
+
+        // Case 2: Passing a single argument to varargs
+        processItems("Product", 2, "Laptop");
+
+
+        // Case 3: Passing ZERO arguments to varargs (varargs is an empty array)
+        processItems("Report", 3); // No items provided for varargs
+
+
+        // Case 4: Passing an array directly to varargs
+        String[] colors = {"Red", "Green", "Blue"};
+        processItems("Colors", 4, colors);
+
+
+        // Case 5: Passing a null array (this is different from zero arguments)
+        // processItems("Null Test", 5, null); // This would cause a NullPointerException if 'items' is accessed without null check
+        // because 'items' itself would be a single-element array containing null.
+        // Better to just pass no arguments for "no items".
+    }
+}
+
+
+Output:
+Prefix: Order
+Count: 1
+Items provided: 3
+Actual items: Apple Banana Cherry 
+---
+Prefix: Product
+Count: 2
+Items provided: 1
+Actual items: Laptop 
+---
+Prefix: Report
+Count: 3
+Items provided: 0
+No specific items provided.
+---
+Prefix: Colors
+Count: 4
+Items provided: 3
+Actual items: Red Green Blue 
+---
+______________________________________________________________________________

@@ -93,7 +93,42 @@ System.out.printf("%s (%s)%n", day.name(), day.isWeekend() ? "Weekend" : "Weekda
 
 day is same as day.name() which is a string and that's why we used %s
 -------------------------------
-----------------------------------------------------------------------------------	
+
+public class Main {
+
+    public static void main(String[] args) {
+        int x = 10;
+        String name = "Naveen";
+
+        System.out.println(x);  //10
+        System.out.println(name);  //Naveen
+
+//        when an int is concatenated with a String, the result is always a String.
+//        This is a common feature in Java that simplifies the process of combining different types of data into a single string
+//        for display or logging purposes.
+        System.out.println(x + name);  //10Naveen
+    }
+}
+-------------------------------
+
+public class Main {
+
+    public static void main(String[] args) {
+        int x = 10;
+
+        System.out.println(x);  //10
+        System.out.println((x));  //10
+
+    }
+}
+
+Both print the value of the integer variable x to the console. The parentheses in the second line do not change the behavior or output of the code. 
+ 
+Explanation:
+System.out.println(x);: This directly prints the value of x (an integer) to the console.
+System.out.println((x));: The parentheses around x are redundant in this context. They do not affect the value or type of x and are ignored by the compiler.
+-------------------------------
+______________________________________________________________________________	
 	
 -> enum that associates a constant (like MON) with a custom value (like "Monday"). 
 
