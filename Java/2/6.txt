@@ -1,0 +1,211 @@
+-> https://docs.oracle.com/en/java/javase/23/docs/api/java.base/java/util/stream/Collectors.html#filtering(java.util.function.Predicate,java.util.stream.Collector)
+
+demonstrate the use of Collectors.filtering() downstream of Collectors.groupingBy()
+
+
+// 1. Employee Class
+// Represents an employee with an ID, name, department, and salary.
+class Employee {
+    private final int id;
+    private final String name;
+    private final Department department; // Using an enum for Department
+    private final double salary;
+
+    public Employee(int id, String name, Department department, double salary) {
+        this.id = id;
+        this.name = name;
+        this.department = department;
+        this.salary = salary;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Department getDepartment() {
+        return department;
+    }
+
+    public double getSalary() {
+        return salary;
+    }
+
+    @Override
+    public String toString() {
+        return "Employee{id=" + id + ", name='" + name + "', dept=" + department + ", salary=" + salary + "}";
+    }
+
+    // It's good practice to override equals() and hashCode() for objects used in Sets or as Map keys
+    // For simplicity, we'll rely on default object equality for this example,
+    // but in a real application, you'd implement them based on 'id'.
+}
+
+
+// 2. Department Enum
+// Defines different departments to group employees by.
+enum Department {
+    HR, ENGINEERING, SALES, MARKETING, FINANCE
+}
+
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+// 3. Main Class with the Stream Example
+public class StreamFilteringExample {
+
+    public static void main(String[] args) {
+
+        // Sample data: A list of employees
+        List<Employee> employees = List.of(
+                new Employee(1, "Alice", Department.ENGINEERING, 3500.00),
+                new Employee(2, "Bob", Department.HR, 1800.00),
+                new Employee(3, "Charlie", Department.ENGINEERING, 2100.00),
+                new Employee(4, "David", Department.SALES, 2500.00),
+                new Employee(5, "Eve", Department.HR, 2200.00),
+                new Employee(6, "Frank", Department.ENGINEERING, 1900.00),
+                new Employee(7, "Grace", Department.SALES, 1500.00),
+                new Employee(8, "Heidi", Department.MARKETING, 3000.00),
+                new Employee(9, "Ivan", Department.FINANCE, 2000.00), // Exactly 2000, will be excluded
+                new Employee(10, "Judy", Department.ENGINEERING, 4000.00)
+        );
+
+        // Goal: Group employees by department, but only include those with salary > 2000 in each group.
+        Map<Department, Set<Employee>> wellPaidEmployeesByDepartment = employees.stream()
+                .collect(
+                        Collectors.groupingBy(
+                                Employee::getDepartment, // Classifier function: groups by Department (using getter)
+                                Collectors.filtering(
+                                        e -> e.getSalary() > 2000, // Predicate: filters employees within each group (using getter)
+                                        Collectors.toSet() // Downstream collector: collects the filtered employees into a Set
+                                )
+                        )
+                );
+
+        System.out.println("Well-Paid Employees by Department (Salary > 2000):");
+        wellPaidEmployeesByDepartment.forEach((department, employeeSet) -> {
+            System.out.println("  " + department + ":");
+            if (employeeSet.isEmpty()) {
+                System.out.println("    (No well-paid employees in this department)");
+            } else {
+                employeeSet.forEach(employee -> System.out.println("    - " + employee.getName() + " (Salary: " + employee.getSalary() + ")"));
+            }
+        });
+
+
+    }
+}
+
+
+Output:
+Well-Paid Employees by Department (Salary > 2000):
+  SALES:
+    - David (Salary: 2500.0)
+  MARKETING:
+    - Heidi (Salary: 3000.0)
+  HR:
+    - Eve (Salary: 2200.0)
+  ENGINEERING:
+    - Charlie (Salary: 2100.0)
+    - Judy (Salary: 4000.0)
+    - Alice (Salary: 3500.0)
+  FINANCE:
+    (No well-paid employees in this department)
+	
+______________________________________________________________________________________
+
+-> Usage of Employee record in above example:
+
+If we were to replace the Employee class with a Java record, the equals() and hashCode() methods would be automatically overridden for us.
+
+
+record Employee(int id, String name, Department department, double salary) {
+
+    @Override
+    public String toString() {
+        return "Employee{id=" + id + ", name='" + name + "', dept=" + department + ", salary=" + salary + "}";
+    }
+
+}
+
+
+enum Department {
+    HR, ENGINEERING, SALES, MARKETING, FINANCE
+}
+
+
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+// 3. Main Class with the Stream Example
+public class StreamFilteringExample {
+
+    public static void main(String[] args) {
+
+        // Sample data: A list of employees
+        List<Employee> employees = List.of(
+                new Employee(1, "Alice", Department.ENGINEERING, 3500.00),
+                new Employee(2, "Bob", Department.HR, 1800.00),
+                new Employee(3, "Charlie", Department.ENGINEERING, 2100.00),
+                new Employee(4, "David", Department.SALES, 2500.00),
+                new Employee(5, "Eve", Department.HR, 2200.00),
+                new Employee(6, "Frank", Department.ENGINEERING, 1900.00),
+                new Employee(7, "Grace", Department.SALES, 1500.00),
+                new Employee(8, "Heidi", Department.MARKETING, 3000.00),
+                new Employee(9, "Ivan", Department.FINANCE, 2000.00), // Exactly 2000, will be excluded
+                new Employee(10, "Judy", Department.ENGINEERING, 4000.00)
+        );
+
+        // Goal: Group employees by department, but only include those with salary > 2000 in each group.
+        Map<Department, Set<Employee>> wellPaidEmployeesByDepartment = employees.stream()
+                .collect(
+                        Collectors.groupingBy(
+                                Employee::department, // Classifier function: groups by Department (using getter)
+                                Collectors.filtering(
+                                        e -> e.salary() > 2000, // Predicate: filters employees within each group (using getter)
+                                        Collectors.toSet() // Downstream collector: collects the filtered employees into a Set
+                                )
+                        )
+                );
+
+        System.out.println("Well-Paid Employees by Department (Salary > 2000):");
+        wellPaidEmployeesByDepartment.forEach((department, employeeSet) -> {
+            System.out.println("  " + department + ":");
+            if (employeeSet.isEmpty()) {
+                System.out.println("    (No well-paid employees in this department)");
+            } else {
+                employeeSet.forEach(employee -> System.out.println("    - " + employee.name() + " (Salary: " + employee.salary() + ")"));
+            }
+        });
+
+
+    }
+}
+
+
+Output:
+Well-Paid Employees by Department (Salary > 2000):
+  FINANCE:
+    (No well-paid employees in this department)
+  HR:
+    - Eve (Salary: 2200.0)
+  SALES:
+    - David (Salary: 2500.0)
+  MARKETING:
+    - Heidi (Salary: 3000.0)
+  ENGINEERING:
+    - Judy (Salary: 4000.0)
+    - Alice (Salary: 3500.0)
+    - Charlie (Salary: 2100.0)
+______________________________________________________________________________________
+
+

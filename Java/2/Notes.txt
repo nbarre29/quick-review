@@ -8,3 +8,5 @@
 
 5) https://www.youtube.com/watch?v=TbivOopLLjM&t=42s (The Arrays Utility Class)
 https://inside.java/2023/05/01/sip076/
+
+6) Collectors.filtering
