@@ -5,7 +5,7 @@ demonstrate the use of Collectors.filtering() downstream of Collectors.groupingB
 
 // 1. Employee Class
 // Represents an employee with an ID, name, department, and salary.
-class Employee {
+public class Employee {
     private final int id;
     private final String name;
     private final Department department; // Using an enum for Department
@@ -47,7 +47,7 @@ class Employee {
 
 // 2. Department Enum
 // Defines different departments to group employees by.
-enum Department {
+public enum Department {
     HR, ENGINEERING, SALES, MARKETING, FINANCE
 }
 
@@ -125,7 +125,7 @@ ________________________________________________________________________________
 If we were to replace the Employee class with a Java record, the equals() and hashCode() methods would be automatically overridden for us.
 
 
-record Employee(int id, String name, Department department, double salary) {
+public record Employee(int id, String name, Department department, double salary) {
 
     @Override
     public String toString() {
@@ -135,7 +135,7 @@ record Employee(int id, String name, Department department, double salary) {
 }
 
 
-enum Department {
+public enum Department {
     HR, ENGINEERING, SALES, MARKETING, FINANCE
 }
 

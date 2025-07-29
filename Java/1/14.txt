@@ -854,6 +854,212 @@ Object: org.example.Dog@4eec7777
 You can write Dog into the list, but you can’t read it back as a Dog — only as Object.
 ______________________________________________________________________________________________________________________
 
+-> Upper Bounded Wildcards
+
+https://docs.oracle.com/javase/tutorial/java/generics/upperBounded.html
+
+you want to write a method that works on List<Integer>, List<Double>, and List<Number>; you can achieve this by using an upper bounded wildcard.
+
+To write the method that works on lists of Number and the subtypes of Number, such as Integer, Double, and Float, you would specify List<? extends Number>. The term List<Number> is more restrictive than List<? extends Number> because the former matches a list of type Number only, whereas the latter matches a list of type Number or any of its subclasses.
+
+import java.util.Arrays;
+import java.util.List;
+
+public class Main {
+
+    public static double sumOfList(List<? extends Number> list) {
+        double s = 0.0;
+        for (Number n : list)
+            s += n.doubleValue();
+        return s;
+    }
+
+    public static void main(String[] args) {
+
+        // using a list of integers
+        List<Integer> li = Arrays.asList(1, 2, 3);
+        System.out.println("sum = " + sumOfList(li));
+
+        // using a list of doubles
+        List<Double> ld = Arrays.asList(1.2, 2.3, 3.5);
+        System.out.println("sum = " + sumOfList(ld));
+
+
+    }
+}
+
+Output:
+sum = 6.0
+sum = 7.0
+
+______________________________________________________________________________________________________________________
+
+-> Unbounded Wildcards
+
+https://docs.oracle.com/javase/tutorial/java/generics/unboundedWildcards.html
+
+The unbounded wildcard <?> is used to indicate an unknown type.
+----------------------------------------------
+When used as Class<?>, it means "a class of some unknown type".
+
+
+1) Accept any type of Class
+
+import java.util.List;
+
+public class Main {
+   
+    public static void printClassName(Class<?> clazz) {
+        System.out.println("Class name: " + clazz.getName());
+    }
+
+    public static void main(String[] args) {
+
+        printClassName(String.class);
+        printClassName(Integer.class);
+        printClassName(List.class);
+    }
+}
+
+Output:
+Class name: java.lang.String
+Class name: java.lang.Integer
+Class name: java.util.List
+
+
+2) Holding a collection of unknown class types
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        List<Class<?>> classList = new ArrayList<>();
+        classList.add(String.class);
+        classList.add(Integer.class);
+        classList.add(HashMap.class);
+
+        for (Class<?> c : classList) {
+            System.out.println("Loaded class: " + c.getName());
+        }
+    }
+}
+
+Output:
+Loaded class: java.lang.String
+Loaded class: java.lang.Integer
+Loaded class: java.util.HashMap
+
+
+3) Checking annotations, interfaces, or superclasses
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+public class Main {
+
+    public static void inspectClass(Class<?> clazz) {
+        System.out.println("Superclass: " + clazz.getSuperclass());
+        System.out.println("Interfaces: " + Arrays.toString(clazz.getInterfaces()));
+        System.out.println("Annotations: " + Arrays.toString(clazz.getDeclaredAnnotations()));
+    }
+
+    public static void main(String[] args) {
+
+        inspectClass(ArrayList.class);
+    }
+}
+
+Output:
+Superclass: class java.util.AbstractList
+Interfaces: [interface java.util.List, interface java.util.RandomAccess, interface java.lang.Cloneable, interface java.io.Serializable]
+Annotations: []
+
+
+4) 
+public class Main {
+
+    /**
+     * Example 1: A simple method accepting Class<?>
+     * This method can print the name of any Class object passed to it,
+     * regardless of its specific generic type.
+     */
+    public static void printClassName(Class<?> clazz) {
+        System.out.println("--- Example 1: Printing Class Name ---");
+        System.out.println("Class Name: " + clazz.getName());
+        System.out.println("Simple Name: " + clazz.getSimpleName());
+        System.out.println("Is Interface: " + clazz.isInterface());
+        System.out.println("---");
+    }
+
+
+    public static void main(String[] args) {
+
+        printClassName(String.class);
+        printClassName(Integer.class);
+        printClassName(Set.class);
+    }
+}
+
+Output:
+--- Example 1: Printing Class Name ---
+Class Name: java.lang.String
+Simple Name: String
+Is Interface: false
+---
+--- Example 1: Printing Class Name ---
+Class Name: java.lang.Integer
+Simple Name: Integer
+Is Interface: false
+---
+--- Example 1: Printing Class Name ---
+Class Name: java.util.Set
+Simple Name: Set
+Is Interface: true
+---
+----------------------------------------------
+______________________________________________________________________________________________________________________
+
+
+-> Lower Bounded Wildcards
+https://docs.oracle.com/javase/tutorial/java/generics/lowerBounded.html
+
+You want to write a method that puts Integer objects into a list. To maximize flexibility, you would like the method to work on List<Integer>, List<Number>, and List<Object> — anything that can hold Integer values.
+
+To write the method that works on lists of Integer and the supertypes of Integer, such as Integer, Number, and Object, you would specify List<? super Integer>. The term List<Integer> is more restrictive than List<? super Integer> because the former matches a list of type Integer only, whereas the latter matches a list of any type that is a supertype of Integer.
+
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Main {
+
+    public static void addNumbers(List<? super Integer> list) {
+        for (int i = 1; i <= 10; i++) {
+            list.add(i);
+        }
+    }
+    public static void main(String[] args) {
+
+        List<Object> objectList = new ArrayList<>();
+        addNumbers(objectList);
+        System.out.println("Object List: " + objectList);
+
+        List<Number> numberList = new ArrayList<>();
+        addNumbers(numberList);
+        System.out.println("Number List: " + numberList);
+
+    }
+}
+
+Output:
+Object List: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+Number List: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+______________________________________________________________________________________________________________________
+
 
 
 
