@@ -148,7 +148,7 @@ public class GenericExamples {
     //    Typically used when you want to "write/insert" into the structure.
     //    You know it’s safe to add T (or any subclass of T), but reading is not type-specific.
     public static void lowerBoundedWildcard(List<? super Integer> list) {
-        // We can safely add Integer (or its subclass, if any) to the list,
+        // We can safely add Integer (or its subclass, if any) to the list, ( just note that Integer class has no subclasses )
         // because we know the list can handle at least Integer.
         list.add(100);
         list.add(999);
@@ -425,6 +425,8 @@ ________________________________________________________________________________
 
 https://docs.oracle.com/javase/tutorial/java/generics/upperBounded.html
 
+package demo;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -448,6 +450,18 @@ public class Main {
         List<Float> lf = Arrays.asList(1.2f, 2.3f, 3.5f);
         System.out.println("sum = " + sumOfList(lf));
 
+        List<Long> longList = Arrays.asList(1L, 2L, 3L);
+        System.out.println("sum = " + sumOfList(longList));
+
+        List<Short> shortList = Arrays.asList((short) 1, (short) 2, (short) 3);
+        System.out.println("sum = " + sumOfList(shortList));
+
+        List<Byte> byteList = Arrays.asList((byte) 1, (byte) 2, (byte) 3);
+        System.out.println("sum = " + sumOfList(byteList));
+
+        List<Number> numberList = Arrays.asList(1, 2.5, 3L, 4.4f);
+        System.out.println("sum = " + sumOfList(numberList));
+
     }
 }
 
@@ -456,6 +470,10 @@ Output:
 sum = 6.0
 sum = 7.0
 sum = 7.0
+sum = 6.0
+sum = 6.0
+sum = 6.0
+sum = 10.900000095367432
 
 https://docs.oracle.com/en/java/javase/23/docs/api/java.base/java/lang/Integer.html
 https://docs.oracle.com/en/java/javase/23/docs/api/java.base/java/lang/Double.html
@@ -556,6 +574,63 @@ The `main` method demonstrates the usage of the above methods. It creates a `Lis
 1. **Generics with Wildcards**: The use of `List<? super Integer>` allows flexibility in the types of lists that can be passed to the methods.
 2. **Type Checking**: The `sumOfList` method uses `instanceof` to ensure that only numeric elements are included in the sum.
 3. **Reusability**: The methods are designed to work with a variety of list types, making them reusable in different contexts.
+______________________________________________________________________________________________________________________
+
+-> 
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Main {
+
+    public static void printList(List<? super Integer> list) {
+        for (Object item : list) {
+            System.out.println(item);
+        }
+    }
+
+    public static void main(String[] args) {
+
+        // Create a list of Integers
+        List<Integer> integerList = new ArrayList<>();
+        integerList.add(1);
+        integerList.add(2);
+        integerList.add(3);
+
+        // Call printList with a List of Integers
+        printList(integerList);
+
+        // Create a list of Numbers
+        List<Number> numberList = new ArrayList<>();
+        numberList.add(1.1);
+        numberList.add(2.2);
+        numberList.add(3.3);
+
+        // Call printList with a List of Numbers
+        printList(numberList);
+
+        // Create a list of Objects
+        List<Object> objectList = new ArrayList<>();
+        objectList.add("Hello");
+        objectList.add(42);
+        objectList.add(3.14);
+
+        // Call printList with a List of Objects
+        printList(objectList);
+
+    }
+}
+
+Output:
+1
+2
+3
+1.1
+2.2
+3.3
+Hello
+42
+3.14
 ______________________________________________________________________________________________________________________
 
 🔼 Upper-Bounded Wildcards (? extends T)

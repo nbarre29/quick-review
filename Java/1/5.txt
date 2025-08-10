@@ -326,3 +326,622 @@ Why is this better?
     Logging should be done at the appropriate layer—typically at the topmost level where the exception is handled.
 	
 _________________________________________________________________________________
+
+-> https://docs.oracle.com/javase/tutorial/essential/exceptions/runtime.html
+
+Because the Java programming language does not require methods to catch or to specify unchecked exceptions (RuntimeException, Error, and their subclasses), programmers may be tempted to write code that throws only unchecked exceptions or to make all their exception subclasses inherit from RuntimeException. Both of these shortcuts allow programmers to write code without bothering with compiler errors and without bothering to specify or to catch any exceptions. Although this may seem convenient to the programmer, it sidesteps the intent of the catch or specify requirement and can cause problems for others using your classes.
+
+
+// ❌ Bad practice: Making your custom exception extend RuntimeException
+public class DataProcessingException extends RuntimeException {
+    public DataProcessingException(String message) {
+        super(message);
+    }
+}
+
+
+public class DataProcessor {
+
+    // Method that throws unchecked exception
+    public void processData(String data)  {
+        if (data == null || data.isEmpty() ) {
+            throw new DataProcessingException("Data cannot be null or empty");
+        }
+        // Processing logic here
+        System.out.println("Processing data: " + data);
+    }
+}
+
+
+public class Main {
+    public static void main(String[] args) {
+        DataProcessor processor = new DataProcessor();
+
+        processor.processData("Hello");
+
+        processor.processData(null); // This will throw an unchecked exception
+
+        System.out.println("Done"); // This line will not be reached if an exception is thrown
+
+    }
+}
+
+Why This Is Controversial ?
+1) No compile-time warning:
+Because DataProcessingException extends RuntimeException, the compiler does not require:
+a throws clause in processData()
+the caller to use try-catch
+
+2) Runtime surprises:
+A developer using processData(null) won't know about the possibility of failure until runtime, possibly far from the original bug.
+
+3) Harder for API users:
+Other developers using your class don’t see from the method signature that they must handle certain error conditions.
+
+----------------------------------------------------------------------------
+-> Above example updated: Use Checked Exceptions for Recoverable Conditions
+
+public class DataProcessingException extends Exception {
+    public DataProcessingException(String message) {
+        super(message);
+    }
+}
+
+public class DataProcessor {
+
+    public void processData(String data) throws DataProcessingException{
+        if (data == null) {
+            throw new DataProcessingException("Data cannot be null");
+        }
+
+        if (data.isBlank()) {
+            throw new DataProcessingException("Data cannot be empty");
+        }
+        
+        // Processing logic here
+        System.out.println("Processing data: " + data);
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        DataProcessor processor = new DataProcessor();
+
+        try {
+            processor.processData("Hello");
+            processor.processData(null);  // compiler forces us to handle this exception
+        } catch (DataProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+}
+
+
+Key Takeaways
+1) Making everything a RuntimeException avoids compiler enforcement, but increases the risk of hidden bugs surfacing only at runtime.
+2) Checked exceptions force API users to explicitly handle error conditions — improving clarity, at the cost of more verbose code.
+
+
+_________________________________________________________________________________
+
+-> https://docs.oracle.com/javase/tutorial/essential/exceptions/runtime.html
+One case where it is common practice to throw a RuntimeException is when the user calls a method incorrectly. For example, a method can check if one of its arguments is incorrectly null. If an argument is null, the method might throw a NullPointerException, which is an unchecked exception.
+
+
+public class Rectangle {
+
+    private final int width;
+    private final int height;
+
+    public Rectangle(int width, int height) {
+        if(width <= 0 || height <= 0) {
+            throw new IllegalArgumentException("Width and height cannot be zero or negative.");
+        }
+        this.width = width;
+        this.height = height;
+    }
+
+    public int getArea() {
+        return width * height;
+    }
+}
+
+
+
+public class Main {
+    public static void main(String[] args) {
+        // ✅ Correct usage
+        try {
+            Rectangle rect1 = new Rectangle(5, 10);
+            System.out.println("Area of rect1: " + rect1.getArea());
+        } catch (IllegalArgumentException e) {
+            System.err.println("Error creating rect1: " + e.getMessage());
+        }
+
+        // ❌ Incorrect usage: negative value
+        try {
+            Rectangle rect2 = new Rectangle(-3, 8);
+            System.out.println("Area of rect2: " + rect2.getArea());
+        } catch (IllegalArgumentException e) {
+            System.err.println("Error creating rect2: " + e.getMessage());
+        }
+
+    }
+}
+
+Output:
+Area of rect1: 50
+Error creating rect2: Width and height cannot be zero or negative.
+
+
+This demonstrates:
+1) Fail fast behavior for invalid arguments (IllegalArgumentException is a RuntimeException).
+2) How to catch and handle errors during object creation.
+
+
+This example is exactly the kind of scenario where using a RuntimeException (like IllegalArgumentException) is appropriate instead of a checked exception.
+
+🔍 Why a RuntimeException Fits Here
+The error (width <= 0 || height <= 0) indicates a programming mistake — the caller violated the method’s precondition.
+
+This is not a recoverable error at runtime. The correct fix is to change the code that called new Rectangle(...) with invalid values.
+
+For such contract violations, Java best practices recommend throwing unchecked exceptions (RuntimeException or its subclasses) rather than checked exceptions
+
+
+⚖️ Advantages of RuntimeException in This Case
+1. No Forced Try-Catch
+Checked exceptions require the caller to either handle or declare them:
+
+public Rectangle(...) throws IllegalArgumentException // unnecessary here
+
+For programming errors, this just adds noise to code — you don’t want every caller to clutter their code with meaningless try-catch.
+
+2. Fail Fast
+The exception is thrown immediately when the contract is violated.
+
+This makes bugs surface early during development/testing instead of being swallowed or delayed.
+
+3. Cleaner API
+API remains cleaner without unnecessary throws declarations.
+
+Callers can still catch it if they choose, but they’re not forced to.
+
+4. Signals Caller Error, Not Recoverable Condition
+Checked exceptions are for recoverable conditions (e.g., file not found, network unavailable) where the caller can take corrective action.
+
+Invalid rectangle dimensions are not recoverable at runtime — they require code changes.
+
+
+📌 Rule of Thumb
+Use Checked Exceptions → for situations where the caller can reasonably recover.
+Use Unchecked Exceptions → for programming errors, contract violations, and API misuse.
+
+--------------------------------------------------------------------------------
+-> updated version where width and height are Integer objects so we can check for null as well as negative values.
+
+
+//Updated Rectangle with null check
+public class Rectangle {
+
+    private final Integer width;
+    private final Integer height;
+
+    public Rectangle(Integer width, Integer height)  {
+        if(width == null|| height == null) {
+            throw new NullPointerException("Width and height cannot be null.");
+        }
+
+        if(width <= 0 || height <= 0) {
+            throw new IllegalArgumentException("Width and height cannot be zero or negative.");
+        }
+        this.width = width;
+        this.height = height;
+    }
+
+    public int getArea() {
+        return width * height;
+    }
+}
+
+
+public class Main {
+    public static void main(String[] args) {
+        // ✅ Correct usage
+        try {
+            Rectangle rect1 = new Rectangle(5, 10);
+            System.out.println("Area of rect1: " + rect1.getArea());
+        } catch (IllegalArgumentException e) {
+            System.err.println("Error creating rect1: " + e.getMessage());
+        }
+		
+		// ❌ Incorrect usage: negative value
+        try {
+            Rectangle rect2 = new Rectangle(-3, 8);
+            System.out.println("Area of rect2: " + rect2.getArea());
+        } catch (IllegalArgumentException e) {
+            System.err.println("Error creating rect2: " + e.getMessage());
+        }
+
+        // ❌ Incorrect usage: null value
+        try {
+            Rectangle rect3 = new Rectangle(null, 4);
+            System.out.println("Area of rect3: " + rect3.getArea());
+        } catch (RuntimeException e) {
+            System.err.println("Error creating rect3: " + e.getMessage());
+        }
+
+    }
+}
+
+Output:
+Area of rect1: 50
+Error creating rect2: Width and height cannot be zero or negative.
+Error creating rect3: Width and height cannot be null.
+
+
+🔍 What Changed
+a) Changed parameter types to Integer instead of int so they can be null.
+
+b) Added an explicit null check:
+
+if (width == null || height == null) {
+    throw new NullPointerException("Width and height cannot be null.");
+}
+
+c) Still validate against negative values.
+_________________________________________________________________________________
+
+-> An example use case preferring RuntimeException
+
+public class BankAccount {
+    private boolean closed = false;
+    private double balance;
+
+    public BankAccount(double initialBalance) {
+        this.balance = initialBalance;
+    }
+
+    public void closeAccount() {
+        this.closed = true;
+    }
+
+    public void withdraw(double amount) {
+        if (closed) {
+            throw new IllegalStateException("Account is closed.");
+        }
+        if (amount > balance) {
+            throw new IllegalArgumentException("Insufficient funds.");
+        }
+        balance -= amount;
+    }
+
+    public boolean isClosed() {
+        return closed;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+}
+
+
+public class Main {
+    public static void main(String[] args) {
+
+        BankAccount account = new BankAccount(100.0);
+        System.out.println("Initial balance: " + account.getBalance());
+
+        try {
+            account.withdraw(50.0);
+            System.out.println("Balance after withdrawal: " + account.getBalance());
+        } catch (IllegalArgumentException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+
+        account.closeAccount();
+        System.out.println("Account closed.");
+
+        try {
+            account.withdraw(20.0);
+        } catch (IllegalStateException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+
+    }
+}
+
+Output:
+Initial balance: 100.0
+Balance after withdrawal: 50.0
+Account closed.
+Error: Account is closed.
+
+_________________________________________________________________________________
+
+-> An example use case preferring RuntimeException
+
+import java.util.ArrayList;
+
+class ReadOnlyList<T> extends ArrayList<T> {
+    @Override
+    public boolean add(T t) {
+        throw new UnsupportedOperationException("This list is read-only.");
+    }
+}
+
+
+
+public class Main {
+    public static void main(String[] args) {
+
+        try {
+            ReadOnlyList<String> roList = new ReadOnlyList<>();
+            roList.add("Hello"); // will throw UnsupportedOperationException
+        } catch (UnsupportedOperationException e) {
+            System.err.println("Operation not supported: " + e.getMessage());
+        }
+    }
+}
+
+Output:
+Operation not supported: This list is read-only.
+_________________________________________________________________________________
+
+-> An example use case preferring RuntimeException
+
+package demo;
+
+import java.util.Objects;
+
+public class User {
+    private final String name;
+    private final String email;
+
+    public User(String name, String email) {
+        // Fail fast if arguments are null
+        this.name = Objects.requireNonNull(name, "Name cannot be null");
+        this.email = Objects.requireNonNull(email, "Email cannot be null");
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+}
+
+
+public class Main {
+    public static void main(String[] args) {
+        // ✅ Correct usage
+        try {
+            User user1 = new User("Alice", "alice@example.com");
+            System.out.println("Created user: " + user1.getName() + ", " + user1.getEmail());
+        } catch (NullPointerException e) {
+            System.err.println("Error creating user1: " + e.getMessage());
+        }
+
+        // ❌ Incorrect usage: passing null for name
+        try {
+            User user2 = new User(null, "bob@example.com"); // will throw NPE
+            System.out.println("Created user: " + user2.getName() + ", " + user2.getEmail());
+        } catch (NullPointerException e) {
+            System.err.println("Error creating user2: " + e.getMessage());
+        }
+
+        // ❌ Incorrect usage: passing null for email
+        try {
+            User user3 = new User("Charlie", null); // will throw NPE
+            System.out.println("Created user: " + user3.getName() + ", " + user3.getEmail());
+        } catch (NullPointerException e) {
+            System.err.println("Error creating user3: " + e.getMessage());
+        }
+    }
+}
+
+Output:
+Created user: Alice, alice@example.com
+Error creating user2: Name cannot be null
+Error creating user3: Email cannot be null
+
+✅ Why Objects.requireNonNull Is Useful Here
+a) Fail Fast: Immediately throws a NullPointerException when a required parameter is missing.
+b) Clear Message: The custom message helps identify exactly which argument was null.
+c) Clean Code: Avoids verbose if (x == null) throw ... checks.
+d) Unchecked Exception: Since NullPointerException is a RuntimeException, callers aren’t forced to handle it — appropriate because this is a programming error.
+
+_________________________________________________________________________________
+-> RuntimeException example - Invalid Number Parsing
+
+
+public class NumberFormatExceptionDemo {
+
+    public static void main(String[] args) {
+        // ✅ Correct parsing
+        try {
+            int num = Integer.parseInt("123");
+            System.out.println("Parsed number: " + num);
+        } catch (NumberFormatException e) {
+            System.err.println("Error parsing number: " + e.getMessage());
+        }
+
+        // ❌ Incorrect parsing: invalid format
+        try {
+            int num = Integer.parseInt("abc"); // will throw NumberFormatException
+            System.out.println("Parsed number: " + num);
+        } catch (NumberFormatException e) {
+            System.err.println("Error parsing number: " + e.getMessage());
+        }
+
+        // ❌ Incorrect parsing: contains spaces and symbols
+        try {
+            int num = Integer.parseInt("45.67"); // decimal format not allowed for int
+            System.out.println("Parsed number: " + num);
+        } catch (NumberFormatException e) {
+            System.err.println("Error parsing number: " + e.getMessage());
+        }
+    }
+}
+
+Output:
+Parsed number: 123
+Error parsing number: For input string: "abc"
+Error parsing number: For input string: "45.67"
+
+_________________________________________________________________________________
+-> RuntimeException example - Division by Zero
+
+
+public class ArithmeticExceptionDemo {
+
+    public static void main(String[] args) {
+        // ✅ Correct division
+        try {
+            int result = 20 / 5;
+            System.out.println("20 / 5 = " + result);
+        } catch (ArithmeticException e) {
+            System.err.println("Error in division: " + e.getMessage());
+        }
+
+        // ❌ Incorrect division: divisor is zero
+        try {
+            int result = 10 / 0; // This will throw ArithmeticException
+            System.out.println("10 / 0 = " + result);
+        } catch (ArithmeticException e) {
+            System.err.println("Error in division: " + e.getMessage());
+        }
+
+    }
+}
+
+Output:
+20 / 5 = 4
+Error in division: / by zero
+
+_________________________________________________________________________________
+
+-> RuntimeException example - Invalid Index Access
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class IndexOutOfBoundsDemo {
+
+    public static void main(String[] args) {
+        // Example with List
+        List<String> list = new ArrayList<>();
+        list.add("Apple");
+        list.add("Banana");
+        list.add("Cherry");
+        list.add("Date");
+        list.add("Elderberry");
+
+        System.out.println("List contents: " + list);
+
+        // ✅ Correct access
+        try {
+            String fruit = list.get(2); // valid index
+            System.out.println("Fruit at index 2: " + fruit);
+        } catch (IndexOutOfBoundsException e) {
+            System.err.println("Error accessing list: " + e.getMessage());
+        }
+
+        // ❌ Incorrect access: index is out of range
+        try {
+            String fruit = list.get(10); // will throw IndexOutOfBoundsException
+            System.out.println("Fruit at index 10: " + fruit);
+        } catch (IndexOutOfBoundsException e) {
+            System.err.println("Error accessing list: " + e.getMessage());
+        }
+
+        // Example with Array
+        String[] fruitsArray = {"Apple", "Banana", "Cherry"};
+
+        // ❌ Incorrect access: index is out of range
+        try {
+            String fruit = fruitsArray[5]; // will throw ArrayIndexOutOfBoundsException
+            System.out.println("Fruit at index 5: " + fruit);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.err.println("Error accessing array: " + e.getMessage());
+        }
+    }
+}
+
+List contents: [Apple, Banana, Cherry, Date, Elderberry]
+Fruit at index 2: Cherry
+Error accessing list: Index 10 out of bounds for length 5
+Error accessing array: Index 5 out of bounds for length 3
+
+_________________________________________________________________________________
+
+-> RuntimeException example - Invalid Type Casting
+
+public class ClassCastExceptionDemo {
+
+    public static void main(String[] args) {
+        // ✅ Correct casting
+        try {
+            Object obj1 = "Hello World"; // obj1 actually holds a String
+            String str1 = (String) obj1; // safe cast
+            System.out.println("String value: " + str1);
+        } catch (ClassCastException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+
+        // ❌ Incorrect casting: Object holds an Integer, not a String
+        try {
+            Object obj2 = Integer.valueOf(42); // obj2 actually holds an Integer
+            String str2 = (String) obj2; // will throw ClassCastException
+            System.out.println("String value: " + str2);
+        } catch (ClassCastException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+
+        // ✅ Defensive approach: check type before casting
+        Object obj3 = Integer.valueOf(100);
+        if (obj3 instanceof String) {
+            String str3 = (String) obj3;
+            System.out.println("String value: " + str3);
+        } else {
+            System.out.println("obj3 is not a String, it's a " + obj3.getClass().getSimpleName());
+        }
+
+    }
+}
+
+Output:
+String value: Hello World
+obj3 is not a String, it's a Integer
+Error: class java.lang.Integer cannot be cast to class java.lang.String (java.lang.Integer and java.lang.String are in module java.base of loader 'bootstrap')
+_________________________________________________________________________________
+
+-> Java RuntimeException Quick Reference
+
+| Exception Type                                                       | When to Use                                                                    | Example Scenario                                                  |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| **`IllegalArgumentException`**                                       | A method receives an argument that is invalid or out of the accepted range.    | `new Rectangle(-5, 10)` → width is negative.                      |
+| **`NullPointerException`**                                           | A required object reference is `null` when it shouldn’t be.                    | `Objects.requireNonNull(name, "Name cannot be null");`            |
+| **`IllegalStateException`**                                          | A method is invoked at an inappropriate time for the object’s current state.   | Calling `withdraw()` on a closed bank account.                    |
+| **`UnsupportedOperationException`**                                  | The called method is not supported in the current object.                      | Adding to a read-only list.                                       |
+| **`IndexOutOfBoundsException`**                                      | Index parameter is outside the valid range for a collection, array, or string. | Accessing `list.get(10)` when list has 5 items.                   |
+| **`ArithmeticException`**                                            | Illegal arithmetic operation occurs.                                           | Dividing by zero: `10 / 0`.                                       |
+| **`ClassCastException`**                                             | Invalid type casting is attempted.                                             | `(String) someObject` when `someObject` is actually an `Integer`. |
+| **`NumberFormatException`** (subclass of `IllegalArgumentException`) | Conversion from `String` to a number fails due to invalid format.              | `Integer.parseInt("abc")`.                                        |
+
+
+✅ Why Keep This Table Handy
+a) Helps decide when unchecked exceptions are the right choice.
+b) Encourages consistent exception use across a codebase.
+c) Avoids the misuse of checked exceptions for programming errors.
+
+
+🔹 Key Takeaways
+a) These are unchecked exceptions — the compiler does not force try-catch or throws.
+b) They are best for programming errors, API misuse, and invalid states.
+c) For recoverable errors, prefer checked exceptions to make the caller handle the situation explicitly.
+_________________________________________________________________________________

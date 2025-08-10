@@ -442,6 +442,45 @@ public class SortExample {
         System.out.println(names); // [apple, banana, cherry, date]
     }
 }
+---------------------------------------------------
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+public class SortExample {
+    public static void main(String[] args) {
+        List<String> names = Arrays.asList("apple", "banana", "cherry", "date");
+        Collections.sort(names,Collections.reverseOrder());
+		//Collections.sort(names, Comparator.reverseOrder());
+
+        System.out.println(names);  // [date, cherry, banana, apple]
+    }
+}
+---------------------------------------------------
+
+import java.util.Arrays;
+import java.util.List;
+
+public class SortExample {
+    public static void main(String[] args) {
+        List<String> names = Arrays.asList("apple", "banana", "cherry", "date");
+        names.sort(String::compareTo);
+        System.out.println(names);  // [apple, banana, cherry, date]
+    }
+}
+---------------------------------------------------
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
+public class SortExample {
+    public static void main(String[] args) {
+        List<String> names = Arrays.asList("apple", "banana", "cherry", "date");
+        names.sort(Comparator.reverseOrder());
+        System.out.println(names);  // [date, cherry, banana, apple]
+    }
+}
 _________________________________________________________________________________
 
 -> If there is null value in above code it will throw a NullPointerException at runtime because Collections.sort(...) internally calls String.compareTo(...), and that does not allow null values.
@@ -697,6 +736,7 @@ public record Product(String name, BigDecimal price) {
 
 
 import java.util.Arrays;
+import java.util.Comparator;
 
 public class Main {
     public static void main(String[] args) {
