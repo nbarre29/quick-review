@@ -1,0 +1,51 @@
+-> What is containerd.io?
+
+The containerd.io package installs containerd, which is a core container runtime. It's not a full-featured container engine like Docker, but rather a lower-level component that manages the container lifecycle.
+
+Think of it this way:
+
+1. Docker Engine is the complete platform. It provides a user-friendly API, the Docker CLI, image management, networking, and a lot more. It's what you interact with daily to build and run containers.
+2. containerd is the "engine under the hood." It's responsible for the nitty-gritty details of running a container, such as starting, stopping, and managing the container's filesystem.
+
+When you install Docker, you're actually installing a suite of tools, and containerd is a critical part of that suite. The Docker Engine uses containerd to handle the actual creation and execution of the containers you manage with the docker command.
+
+
+# Download containerd.io package
+curl -fsSL -o containerd.io_1.7.25-1_amd64.deb \
+https://download.docker.com/linux/ubuntu/dists/noble/pool/stable/amd64/containerd.io_1.7.25-1_amd64.deb
+
+
+# Install it
+sudo dpkg -i containerd.io_1.7.25-1_amd64.deb
+
+
+
+// if there are dependency issues we can simply install Docker and its dependencies correctly as below:
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+nbarre@nbarre:~$ sudo apt-get update
+nbarre@nbarre:~$ sudo apt-get install containerd.io
+
+
+->
+# Add user group
+sudo groupadd docker
+sudo usermod -aG docker ${USER}
+
+Command 1: sudo groupadd docker
+groupadd: This is a command-line utility used to create a new user group.
+sudo: This is the "superuser do" command, which temporarily elevates your privileges to that of the root user. You need this because creating a new user group is a system-level action that requires administrative rights.
+docker: This is the name of the new group you are creating.
+
+Command 2:  sudo usermod -aG docker ${USER}
+
+usermod: This is the command used to modify a user's account.
+-a: This flag stands for "append." It tells usermod to add the user to a new group without removing them from any other groups they are already a part of. This is a very important flag—if you forget it, you'll be removed from all your other groups (like sudo), which could cause issues.
+-G docker: This flag specifies the group (docker) that you want to add the user to.
+${USER}: This is an environment variable that automatically expands to your current username. For example, if your username is nbarre, this command will become sudo usermod -aG docker nbarre. Using this variable makes the command portable and ensures it works for any user.
+
+
+groupadd docker → creates a group to control Docker access.
+usermod -aG docker ${USER} → puts your account into that group.
+After re-login, you can run Docker commands without sudo.
