@@ -483,7 +483,9 @@ ________________________________________________________________________________
 
 https://docs.oracle.com/javase/tutorial/java/generics/lowerBounded.html
 
-import java.util.ArrayList;
+
+
+Output:import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
@@ -514,8 +516,6 @@ public class Main {
         System.out.println("Sum of numbers: " + sum);
     }
 }
-
-Output:
 Numbers in the list: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 Sum of numbers: 55.0
 
@@ -527,6 +527,19 @@ Explanation:
     Numbers 1–10 are added.
 
     The list is printed, and values are summed using safe type checks.
+	
+
+
+Few changes to above code:
+// Sum the numbers directly (no casting needed)
+        double sum = 0.0;
+        for (Number num : numberList) {
+            sum += num.doubleValue();
+        }
+		
+Changes made:
+Used for (Number num : numberList) instead of for (Object obj : numberList).
+Removed the instanceof and casting, since the list is strongly typed.
 
 ----------------------------------------------------------------------------------------------------------------------
 

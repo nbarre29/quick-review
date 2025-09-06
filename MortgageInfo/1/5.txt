@@ -1,0 +1,22 @@
+-> DSCR loans are specifically and exclusively for investment properties. They are not for a primary residence or a vacation home.
+
+DSCR, or Debt Service Coverage Ratio, is a financial metric used to measure an entity's ability to pay its debt obligations with its available cash flow.
+
+The key difference between a DSCR loan and a traditional mortgage is the focus of the underwriting process. With a traditional mortgage for a primary residence, lenders look at your personal finances—your income, your debt-to-income (DTI) ratio, your tax returns, and your W-2s.
+
+With a DSCR loan, the lender primarily evaluates the property's ability to generate income to cover its own debt. The calculation is straightforward:
+DSCR = Net Operating Income (NOI) / Total Debt Service
+
+	Net Operating Income (NOI) is the income the property generates from rent, minus its operating expenses (like property taxes and insurance).
+
+	Total Debt Service is the annual cost of the loan, including principal and interest.
+	
+Generally, a lender wants to see a DSCR of greater than 1.0, with most requiring at least 1.25. A DSCR of 1.25 means the property's income is 25% higher than what's needed to cover the mortgage payments, providing a comfortable cushion for the lender.
+
+This type of loan is a game-changer for real estate investors who may not qualify for conventional loans due to a complex financial profile, like being self-employed or having multiple properties that make their personal DTI ratio look high. Instead of focusing on your personal financial story, the loan is approved based on the strength of the asset itself.
+
+Interpreting Your DSCR
+DSCR < 1: The company's operating income is not enough to cover its total debt obligations. 
+DSCR = 1: The company's operating income is just enough to cover its total debt obligations. 
+DSCR > 1: The company has enough operating income to cover its debt obligations, with a cushion of cash. Lenders often prefer a DSCR above 1.25x, and the higher the ratio, the better. 
+

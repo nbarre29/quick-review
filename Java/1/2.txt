@@ -751,8 +751,8 @@ public class Main {
         Notification emailNotification = new Notification(emailService);
         emailNotification.notifyUser("Hello via Email!", "email@example.com");
 
-        MessageService smsService = new SMSService();
-        Notification smsNotification = new Notification(smsService);
+//        MessageService smsService = new SMSService();
+        Notification smsNotification = new Notification(new SMSService());
         smsNotification.notifyUser("Hello via SMS!", "123-456-7890");
     }
 }
