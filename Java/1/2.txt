@@ -474,6 +474,8 @@ public class Main {
 
 This adheres to LSP because the subclass (Sparrow) behaves as expected when substituted for the parent class (Bird).
 
+In other words: wherever you expect a Bird, you should be able to use a Sparrow (or any subclass of Bird) without surprises.
+
 
 Violation of LSP
 Problem:
