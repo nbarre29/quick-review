@@ -1,0 +1,89 @@
+1) Factory Method
+2) 
+3) Builder
+
+
+
+
+-> There are many ways to categorize design patterns, but the most common classification is the “Gang of Four” (GoF) patterns from the classic book Design Patterns: Elements of Reusable Object-Oriented Software.
+
+They are grouped into Creational, Structural, and Behavioral patterns.
+
+
+🔹 1. Creational Patterns
+
+Deal with object creation mechanisms, trying to create objects in a manner suitable to the situation.
+
+1) Factory Method
+2) Abstract Factory
+3) Builder
+4) Prototype
+5) Singleton
+
+🔹 2. Structural Patterns
+
+Deal with object composition — how classes and objects are combined to form larger structures.
+
+6) Adapter (Wrapper)
+7) Bridge
+8) Composite
+9) Decorator
+10) Facade
+11) Flyweight
+12) Proxy
+
+🔹 3. Behavioral Patterns
+
+Deal with communication between objects and responsibility delegation.
+
+13) Chain of Responsibility
+14) Command
+15) Interpreter
+16) Iterator
+17) Mediator
+18) Memento
+19) Observer
+20) State
+21) Strategy
+22) Template Method
+23) Visitor
+
+🔹 Beyond GoF
+
+Over the years, more patterns have been identified (not in the GoF book), for example:
+
+Dependency Injection (DI)
+Service Locator
+MVC / MVVM / MVP (architectural patterns)
+Repository
+Unit of Work
+Specification
+
+
+-> Here’s a quick-reference table for the 23 GoF design patterns, grouped by Creational, Structural, and Behavioral.
+
+| **Category**                        | **Pattern**                 | **Purpose (1-liner)**                                                                             |
+| ----------------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------- |
+| **Creational** (object creation)    | **Factory Method**          | Define an interface for creating objects, but let subclasses decide which class to instantiate.   |
+|                                     | **Abstract Factory**        | Provide an interface to create families of related objects without specifying concrete classes.   |
+|                                     | **Builder**                 | Separate construction of a complex object from its representation (step-by-step creation).        |
+|                                     | **Prototype**               | Create new objects by copying an existing one (clone).                                            |
+|                                     | **Singleton**               | Ensure a class has only one instance and provide a global access point.                           |
+| **Structural** (object composition) | **Adapter (Wrapper)**       | Convert one interface into another clients expect.                                                |
+|                                     | **Bridge**                  | Decouple abstraction from implementation so both can vary independently.                          |
+|                                     | **Composite**               | Treat individual objects and compositions of objects uniformly (tree structure).                  |
+|                                     | **Decorator**               | Add responsibilities to objects dynamically without subclassing.                                  |
+|                                     | **Facade**                  | Provide a simplified interface to a larger system of classes.                                     |
+|                                     | **Flyweight**               | Share objects efficiently to support large numbers of fine-grained instances.                     |
+|                                     | **Proxy**                   | Provide a surrogate/placeholder to control access to another object.                              |
+| **Behavioral** (object interaction) | **Chain of Responsibility** | Pass requests along a chain of handlers until one handles it.                                     |
+|                                     | **Command**                 | Encapsulate a request as an object, allowing undo/redo and queuing.                               |
+|                                     | **Interpreter**             | Define a grammar and interpret sentences of that grammar.                                         |
+|                                     | **Iterator**                | Provide a way to access elements of a collection without exposing its internal representation.    |
+|                                     | **Mediator**                | Define an object to encapsulate how a set of objects interact.                                    |
+|                                     | **Memento**                 | Capture and restore an object’s state without exposing its internals.                             |
+|                                     | **Observer**                | Define a one-to-many dependency: when one object changes, notify all dependents.                  |
+|                                     | **State**                   | Allow an object to change its behavior when its internal state changes.                           |
+|                                     | **Strategy**                | Define a family of algorithms, encapsulate them, and make them interchangeable.                   |
+|                                     | **Template Method**         | Define the skeleton of an algorithm, letting subclasses override steps.                           |
+|                                     | **Visitor**                 | Represent operations to be performed on elements of an object structure without changing classes. |

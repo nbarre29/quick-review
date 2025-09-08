@@ -1,0 +1,355 @@
+-> Factory Method: Define an interface for creating objects, but let subclasses decide which class to instantiate.  provide demo code with java
+
+
+
+We’ll build a Shape factory example.
+
+a) Define a Shape interface.
+b) Have Circle and Rectangle as concrete products.
+c) Define an abstract ShapeFactory with the factory method.
+d) Concrete factories (CircleFactory, RectangleFactory) decide which shape to instantiate.
+
+
+1. Product interface
+
+
+public interface Shape {
+    void draw();
+}
+
+
+2. Concrete Products
+
+
+public class Circle implements Shape {
+    @Override
+    public void draw() {
+        System.out.println("Drawing a Circle");
+    }
+}
+
+
+
+public class Rectangle implements Shape {
+    @Override
+    public void draw() {
+        System.out.println("Drawing a Rectangle");
+    }
+}
+
+
+3. Creator (Factory) with Factory Method
+
+
+
+public abstract class ShapeFactory {
+    // Factory Method
+    public abstract Shape createShape();
+}
+
+
+4. Concrete Factories
+
+
+public class CircleFactory extends ShapeFactory {
+    @Override
+    public Shape createShape() {
+        return new Circle();
+    }
+}
+
+
+
+public class RectangleFactory extends ShapeFactory {
+    @Override
+    public Shape createShape() {
+        return new Rectangle();
+    }
+}
+
+
+5. Client Demo
+
+public class Main {
+    public static void main(String[] args) {
+        // Decide at runtime which factory to use
+        ShapeFactory circleFactory = new CircleFactory();
+        Shape circle = circleFactory.createShape();
+        circle.draw(); // Output: Drawing a Circle
+
+        ShapeFactory rectangleFactory = new RectangleFactory();
+        Shape rectangle = rectangleFactory.createShape();
+        rectangle.draw(); // Output: Drawing a Rectangle
+    }
+}
+
+
+Output:
+Drawing a Circle
+Drawing a Rectangle
+
+
+
+🔹 Why this is Factory Method
+
+1) The client (Main) never directly instantiates new Circle() or new Rectangle().
+2) It asks a factory to createShape().
+3) Subclasses (CircleFactory, RectangleFactory) decide which concrete class to return.
+
+
+✅ Benefit: You can add a new TriangleFactory later without touching client code — it just works with the factory abstraction.
+
+_____________________________________________________________________________________________
+
+-> Enhance the above implementation 
+
+1. **Parameterized Shape Creation**: Allow the `ShapeFactory` to create shapes with specific parameters (e.g., radius for `Circle`, width and height for `Rectangle`).
+2. **Shape Properties**: Add properties to the `Shape` interface and implement them in the concrete classes.
+3. **Dynamic Factory Selection**: Use a factory registry or a factory provider to dynamically select the appropriate factory at runtime.
+
+Here’s the enhanced implementation:
+
+### Updated `Shape` Interface
+Add properties and a method to calculate the area of the shape.
+
+public interface Shape {
+    void draw();
+    double calculateArea();
+}
+
+### Updated `Circle` Class
+Add a `radius` property and implement `calculateArea`.
+
+public class Circle implements Shape {
+    private final double radius;
+
+    public Circle(double radius) {
+        this.radius = radius;
+    }
+
+    @Override
+    public void draw() {
+        System.out.println("Drawing a Circle with radius: " + radius);
+    }
+
+    @Override
+    public double calculateArea() {
+        return Math.PI * radius * radius;
+    }
+}
+
+### Updated `Rectangle` Class
+Add `width` and `height` properties and implement `calculateArea`.
+
+public class Rectangle implements Shape {
+    private final double width;
+    private final double height;
+
+    public Rectangle(double width, double height) {
+        this.width = width;
+        this.height = height;
+    }
+
+    @Override
+    public void draw() {
+        System.out.println("Drawing a Rectangle with width: " + width + " and height: " + height);
+    }
+
+    @Override
+    public double calculateArea() {
+        return width * height;
+    }
+}
+
+### Updated `ShapeFactory` Abstract Class
+Add a method to create shapes with parameters.
+
+public abstract class ShapeFactory {
+    public abstract Shape createShape(double... parameters);
+}
+
+### Updated `CircleFactory` Class
+Create a `Circle` with a specific radius.
+
+public class CircleFactory extends ShapeFactory {
+    @Override
+    public Shape createShape(double... parameters) {
+        if (parameters.length != 1) {
+            throw new IllegalArgumentException("Circle requires exactly 1 parameter: radius");
+        }
+        return new Circle(parameters[0]);
+    }
+}
+
+### Updated `RectangleFactory` Class
+Create a `Rectangle` with specific width and height.
+
+public class RectangleFactory extends ShapeFactory {
+    @Override
+    public Shape createShape(double... parameters) {
+        if (parameters.length != 2) {
+            throw new IllegalArgumentException("Rectangle requires exactly 2 parameters: width and height");
+        }
+        return new Rectangle(parameters[0], parameters[1]);
+    }
+}
+
+### Factory Provider
+Add a factory provider to dynamically select the factory.
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class ShapeFactoryProvider {
+    private static final Map<String, ShapeFactory> factories = new HashMap<>();
+
+    static {
+        factories.put("circle", new CircleFactory());
+        factories.put("rectangle", new RectangleFactory());
+    }
+
+    public static ShapeFactory getFactory(String shapeType) {
+        ShapeFactory factory = factories.get(shapeType.toLowerCase());
+        if (factory == null) {
+            throw new IllegalArgumentException("No factory found for shape type: " + shapeType);
+        }
+        return factory;
+    }
+}
+
+### Updated `Main` Class
+Demonstrate dynamic factory selection and parameterized shape creation.
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a Circle with radius 5
+        ShapeFactory circleFactory = ShapeFactoryProvider.getFactory("circle");
+        Shape circle = circleFactory.createShape(5);
+        circle.draw();
+        System.out.println("Area: " +
+                circle.calculateArea());
+
+        // Create a Rectangle with width 4 and height 6
+        ShapeFactory rectangleFactory = ShapeFactoryProvider.getFactory("rectangle");
+        Shape rectangle = rectangleFactory.createShape(4, 6);
+        rectangle.draw();
+        System.out.println("Area: " + rectangle.calculateArea());
+    }
+}
+
+Output:
+Drawing a Circle with radius: 5.0
+Area: 78.53981633974483
+Drawing a Rectangle with width: 4.0 and height: 6.0
+Area: 24.0
+
+### Summary of Enhancements
+1. Added parameters to shape creation.
+2. Introduced `calculateArea` in the `Shape` interface.
+3. Implemented dynamic factory selection using a `ShapeFactoryProvider`.
+_____________________________________________________________________________________________
+
+-> 
+
+// 1. Product Interface
+// This is the common interface for the objects that the factory method will create.
+public interface Document {
+    void open();
+    void save();
+}
+
+
+
+// 2. Concrete Product Classes
+// These are the specific objects that the factory method will instantiate.
+public class WordDocument implements Document {
+    @Override
+    public void open() {
+        System.out.println("Opening a Word document.");
+    }
+
+    @Override
+    public void save() {
+        System.out.println("Saving a Word document.");
+    }
+}
+
+
+
+
+public class PdfDocument implements Document {
+    @Override
+    public void open() {
+        System.out.println("Opening a PDF document.");
+    }
+
+    @Override
+    public void save() {
+        System.out.println("Saving a PDF document.");
+    }
+}
+
+
+
+
+// 3. Creator Abstract Class
+// This abstract class declares the factory method. It can also contain other
+// methods that use the factory method, but leaves its implementation to subclasses.
+public abstract class Application {
+    // The Factory Method
+    // This method is abstract, so subclasses MUST provide an implementation.
+    public abstract Document createDocument();
+
+    // A method that uses the factory method.
+    public void newDocument() {
+        // We use the factory method to create a document without knowing its concrete class.
+        Document doc = createDocument();
+        doc.open();
+        System.out.println("Working with a new document...");
+        doc.save();
+    }
+}
+
+
+
+
+// 4. Concrete Creator Classes
+// Each of these classes overrides the factory method to return a specific concrete product.
+public class WordApplication extends Application {
+    @Override
+    public Document createDocument() {
+        return new WordDocument();
+    }
+}
+
+
+
+public class PdfApplication extends Application {
+    @Override
+    public Document createDocument() {
+        return new PdfDocument();
+    }
+}
+
+
+
+public class Main {
+    public static void main(String[] args) {
+        Application wordApp = new WordApplication();
+        wordApp.newDocument();
+
+        Application pdfApp = new PdfApplication();
+        pdfApp.newDocument();
+    }
+}
+
+
+Output:
+Opening a Word document.
+Working with a new document...
+Saving a Word document.
+Opening a PDF document.
+Working with a new document...
+Saving a PDF document.
+_____________________________________________________________________________________________
+
