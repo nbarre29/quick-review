@@ -1,0 +1,136 @@
+Abstract Factory pattern: Provide an interface to create families of related objects without specifying concrete classes.
+
+// Step 1: Define Abstract Products
+// These interfaces declare the types of objects to be created by the factory.
+
+public interface Chair {
+    void sitOn();
+}
+
+
+public interface Sofa {
+    void lieOn();
+}
+
+
+// Step 2: Define Concrete Products
+// These classes implement the abstract product interfaces for a specific family.
+
+public class ModernChair implements Chair {
+    @Override
+    public void sitOn() {
+        System.out.println("Sitting on a modern chair.");
+    }
+}
+
+
+public class ModernSofa implements Sofa {
+    @Override
+    public void lieOn() {
+        System.out.println("Lying on a modern sofa.");
+    }
+}
+
+
+// Concrete products for the 'Classic' family
+
+public class ClassicChair implements Chair {
+    @Override
+    public void sitOn() {
+        System.out.println("Sitting on a classic chair.");
+    }
+}
+
+public class ClassicSofa implements Sofa {
+    @Override
+    public void lieOn() {
+        System.out.println("Lying on a classic sofa.");
+    }
+}
+
+// Step 3: Define Abstract Factory
+// This interface declares a set of methods for creating abstract products.
+
+public interface FurnitureFactory {
+    Chair createChair();
+    Sofa createSofa();
+}
+
+
+// Step 4: Define Concrete Factories
+// These classes implement the abstract factory interface to create concrete products
+// of a specific family.
+
+public class ModernFurnitureFactory implements FurnitureFactory {
+    @Override
+    public Chair createChair() {
+        return new ModernChair();
+    }
+
+    @Override
+    public Sofa createSofa() {
+        return new ModernSofa();
+    }
+}
+
+
+public class ClassicFurnitureFactory implements FurnitureFactory {
+    @Override
+    public Chair createChair() {
+        return new ClassicChair();
+    }
+
+    @Override
+    public Sofa createSofa() {
+        return new ClassicSofa();
+    }
+}
+
+// Step 5: The Client
+// The client uses the abstract factory and abstract products. It is independent of
+// the concrete factories and concrete products.
+
+public class Main {
+    public static void main(String[] args) {
+        FurnitureFactory factory = new ClassicFurnitureFactory();
+        Chair chair = factory.createChair();
+        Sofa sofa = factory.createSofa();
+
+        chair.sitOn();
+        sofa.lieOn();
+
+        factory = new ModernFurnitureFactory();
+        chair = factory.createChair();
+        sofa = factory.createSofa();
+
+        chair.sitOn();
+        sofa.lieOn();
+
+    }
+}
+
+Output:
+Sitting on a classic chair.
+Lying on a classic sofa.
+Sitting on a modern chair.
+Lying on a modern sofa.
+
+-------------------------------------------------------------------------------------------
+
+->  refactor the Main class above to avoid code duplication, extracted the repeated logic into a separate method.
+public class Main {
+    public static void main(String[] args) {
+        // Process furniture factories
+        processFurnitureFactory(new ClassicFurnitureFactory());
+        processFurnitureFactory(new ModernFurnitureFactory());
+    }
+
+    private static void processFurnitureFactory(FurnitureFactory factory) {
+        Chair chair = factory.createChair();
+        Sofa sofa = factory.createSofa();
+
+        chair.sitOn();
+        sofa.lieOn();
+    }
+}
+________________________________________________________________________________________________

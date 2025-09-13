@@ -1,0 +1,556 @@
+Prototype pattern:  we create new objects by cloning an existing one instead of instantiating a new class directly.
+
+
+public interface Copyable extends Cloneable {
+    // The clone() method is the core of the pattern.
+    Copyable clone();
+}
+
+
+
+
+public class Employee implements Copyable{
+
+    private final String name;
+    private final String department;
+
+    public Employee(String name, String department) {
+        this.name = name;
+        this.department = department;
+    }
+    
+
+    // Implement the clone method from Copyable interface
+    @Override
+    public Copyable clone(){
+        try {
+            return (Copyable) super.clone();  // shallow copy
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Clone not supported", e);
+        }
+    }
+
+    public void showDetails() {
+        System.out.println("Employee: " + name + ", Department: " + department);
+    }
+}
+
+
+
+
+public class Main {
+    public static void main(String[] args) {
+        // Original object
+        Employee emp1 = new Employee("Alice", "Finance");
+        emp1.showDetails();
+
+        // Cloned object
+        Employee emp2 = (Employee) emp1.clone();
+        emp2.showDetails();
+
+        // Both are different objects, but same state
+        System.out.println("emp1 == emp2 ? " + (emp1 == emp2)); // false
+    }
+}
+
+
+Employee: Alice, Department: Finance
+Employee: Alice, Department: Finance
+emp1 == emp2 ? false
+__________________________________________________________________________
+
+-> Extend the above example with a deep copy example (e.g., Employee has an Address object, and we clone that too)
+
+In shallow copy, only the top-level object is cloned. If the object has references to other objects, those references are shared between the original and the clone.
+In deep copy, we also clone the referenced objects, so everything is fully independent.
+
+
+public interface Copyable extends Cloneable {
+    Copyable clone();
+}
+
+
+// Step 2: Address class (nested object)
+public class Address implements Copyable {
+    private String city;
+    private final String country;
+
+    public Address(String city, String country) {
+        this.city = city;
+        this.country = country;
+    }
+
+    @Override
+    public Copyable clone() {
+
+        try {
+            return (Copyable) super.clone(); // creates a copy of Address
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Clone not supported", e);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return city + ", " + country;
+    }
+
+    // Getters/Setters
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
+}
+
+
+
+
+// Step 3: Employee class with nested Address
+public class Employee implements Copyable {
+    private final String name;
+    private final String department;
+    private Address address;
+
+    public Employee(String name, String department, Address address) {
+        this.name = name;
+        this.department = department;
+        this.address = address;
+    }
+
+    @Override
+    public Copyable clone() {
+        try {
+            Employee cloned = (Employee) super.clone(); // shallow copy
+            cloned.address = (Address) address.clone(); // deep copy of Address
+            return cloned;
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Clone not supported", e);
+        }
+    }
+
+    public void showDetails() {
+        System.out.println("Employee: " + name +
+                ", Department: " + department +
+                ", Address: " + address);
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+}
+
+
+
+
+public class Main {
+    public static void main(String[] args) {
+        Address addr1 = new Address("New York", "USA");
+        Employee emp1 = new Employee("Alice", "Finance", addr1);
+
+        System.out.println("Original:");
+        emp1.showDetails();
+
+        // Clone employee
+        Employee emp2 = (Employee) emp1.clone();
+
+        System.out.println("\nCloned:");
+        emp2.showDetails();
+
+        // Modify clone's address
+        emp2.getAddress().setCity("Los Angeles");
+
+        System.out.println("\nAfter modifying clone's address:");
+        emp1.showDetails(); // stays New York
+        emp2.showDetails(); // changed to Los Angeles
+    }
+}
+
+
+Output:
+Original:
+Employee: Alice, Department: Finance, Address: New York, USA
+
+Cloned:
+Employee: Alice, Department: Finance, Address: New York, USA
+
+After modifying clone's address:
+Employee: Alice, Department: Finance, Address: New York, USA
+Employee: Alice, Department: Finance, Address: Los Angeles, USA
+__________________________________________________________________________
+
+-> Deep Copy with Copy Constructors.use copy constructors instead of Cloneable (a common modern practice in Java since clone() has some pitfalls)
+
+Many Java developers prefer copy constructors or factory methods over Cloneable.clone() because:
+1) clone() is considered broken/confusing (it bypasses constructors, throws CloneNotSupportedException, does shallow copy by default).
+2) Copy constructors are explicit, type-safe, and easy to maintain.
+
+
+
+// Step 1: Address class with a copy constructor
+public class Address {
+    private String city;
+    private final String country;
+
+    public Address(String city, String country) {
+        this.city = city;
+        this.country = country;
+    }
+
+    // Copy constructor (deep copy)
+    public Address(Address other) {
+        this.city = other.city;
+        this.country = other.country;
+    }
+
+    @Override
+    public String toString() {
+        return city + ", " + country;
+    }
+
+    // Getters/Setters
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
+}
+
+
+
+// Step 2: Employee class with a copy constructor
+public class Employee {
+    private final String name;
+    private final String department;
+    private final Address address;
+
+    public Employee(String name, String department, Address address) {
+        this.name = name;
+        this.department = department;
+        this.address = address;
+    }
+
+    // Copy constructor (deep copy)
+    public Employee(Employee other) {
+        this.name = other.name;
+        this.department = other.department;
+        this.address = new Address(other.address); // deep copy!
+    }
+
+    public void showDetails() {
+        System.out.println("Employee: " + name +
+                           ", Department: " + department +
+                           ", Address: " + address);
+    }
+
+    public Address getAddress() { return address; }
+}
+
+
+
+public class Main {
+    public static void main(String[] args) {
+        Address addr1 = new Address("New York", "USA");
+        Employee emp1 = new Employee("Alice", "Finance", addr1);
+
+        System.out.println("Original:");
+        emp1.showDetails();
+
+        // Use copy constructor instead of clone()
+        Employee emp2 = new Employee(emp1);
+
+        System.out.println("\nCloned:");
+        emp2.showDetails();
+
+        // Modify clone's address
+        emp2.getAddress().setCity("Los Angeles");
+
+        System.out.println("\nAfter modifying clone's address:");
+        emp1.showDetails(); // stays New York
+        emp2.showDetails(); // changed to Los Angeles
+    }
+}
+
+Output:
+Original:
+Employee: Alice, Department: Finance, Address: New York, USA
+
+Cloned:
+Employee: Alice, Department: Finance, Address: New York, USA
+
+After modifying clone's address:
+Employee: Alice, Department: Finance, Address: New York, USA
+Employee: Alice, Department: Finance, Address: Los Angeles, USA
+
+
+✅ With copy constructors:
+
+1) Everything is explicit — you see exactly what’s being copied.
+2) No CloneNotSupportedException or Cloneable mess.
+3) It’s easier to evolve if new fields are added later.
+4) A copy constructor is a special type of constructor in object-oriented programming that creates a new object as a copy of an existing object. Unlike the clone() method, which is a regular method, a copy constructor is a specific constructor that takes an object of the same class as an argument.
+5) The primary purpose of a copy constructor is to ensure a deep copy of an object, especially when the object contains references to other objects. This prevents multiple objects from sharing the same data, which can lead to unintended side effects when one object is modified. While the clone() method often provides a shallow copy by default, a copy constructor gives you explicit control over the copying process.
+__________________________________________________________________________
+
+-> Factory Method version of the Prototype pattern.
+
+Here, instead of using clone() or a copy constructor, we use a static factory method (e.g., copyOf(...)) that returns a deep copy of the object.
+
+// Step 1: Address class with factory method
+class Address {
+    private String city;
+    private final String country;
+
+    public Address(String city, String country) {
+        this.city = city;
+        this.country = country;
+    }
+
+    // Factory method for deep copy
+    public static Address copyOf(Address other) {
+        return new Address(other.city, other.country);
+    }
+
+    @Override
+    public String toString() {
+        return city + ", " + country;
+    }
+
+    // Getters/Setters
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
+}
+
+
+// Step 2: Employee class with factory method
+class Employee {
+    private final String name;
+    private final String department;
+    private final Address address;
+
+    public Employee(String name, String department, Address address) {
+        this.name = name;
+        this.department = department;
+        this.address = address;
+    }
+
+    // Factory method for deep copy
+    public static Employee copyOf(Employee other) {
+        return new Employee(
+            other.name,
+            other.department,
+            Address.copyOf(other.address)  // deep copy!
+        );
+    }
+
+    public void showDetails() {
+        System.out.println("Employee: " + name +
+                           ", Department: " + department +
+                           ", Address: " + address);
+    }
+
+    public Address getAddress() { return address; }	
+	
+}
+
+
+public class Main {
+    public static void main(String[] args) {
+        Address addr1 = new Address("New York", "USA");
+        Employee emp1 = new Employee("Alice", "Finance", addr1);
+
+        System.out.println("Original:");
+        emp1.showDetails();
+
+        // Use factory method instead of clone() or constructor
+        Employee emp2 = Employee.copyOf(emp1);
+
+        System.out.println("\nCloned:");
+        emp2.showDetails();
+
+        // Modify clone's address
+        emp2.getAddress().setCity("Los Angeles");
+
+        System.out.println("\nAfter modifying clone's address:");
+        emp1.showDetails(); // stays New York
+        emp2.showDetails(); // changed to Los Angeles
+    }
+}
+
+Output:
+Original:
+Employee: Alice, Department: Finance, Address: New York, USA
+
+Cloned:
+Employee: Alice, Department: Finance, Address: New York, USA
+
+After modifying clone's address:
+Employee: Alice, Department: Finance, Address: New York, USA
+Employee: Alice, Department: Finance, Address: Los Angeles, USA
+
+
+✅ Benefits of the Factory Method approach:
+
+1) No need for Cloneable or clone().
+
+2) No risk of half-copied objects since you control the copy logic.
+
+3) Easy to extend: you can overload copyOf to accept options (e.g., shallow vs deep copy).
+
+4) Very readable API: Employee.copyOf(emp1) tells exactly what’s happening.
+
+
+📌 Quick Summary of Approaches:
+
+1) clone() → uses Cloneable, but messy & not type-safe.
+
+2) Copy Constructor → clear, safe, idiomatic Java.
+
+3) Factory Method (copyOf) → clean API, flexible, can return subtypes or cache objects if needed.
+
+__________________________________________________________________________
+
+-> A comparison table of the 3 approaches for implementing the Prototype pattern in Java:
+
+
+| Aspect                    | `clone()` (Cloneable)                                                            | Copy Constructor                                     | Factory Method (`copyOf`)                                                      |
+| ------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------ |
+| **Simplicity**            | ❌ Confusing API (must call `super.clone()`, throws `CloneNotSupportedException`) | ✅ Very simple, uses a constructor directly           | ✅ Very simple, reads well (`Employee.copyOf(emp)`)                             |
+| **Type Safety**           | ❌ Returns `Object` → requires casting                                            | ✅ Returns the exact type                             | ✅ Returns the exact type                                                       |
+| **Checked Exception**     | ❌ `CloneNotSupportedException` must be handled                                   | ✅ None                                               | ✅ None                                                                         |
+| **Deep Copy Control**     | ❌ Must override carefully, easy to forget nested objects                         | ✅ Explicitly coded inside constructor                | ✅ Explicitly coded inside factory method                                       |
+| **Readability**           | ⚠️ Not very intuitive (`emp.clone()`)                                            | ✅ Clear (`new Employee(emp)`)                        | ✅ Very clear (`Employee.copyOf(emp)`)                                          |
+| **Inheritance Support**   | ✅ Works automatically (subclasses just call `super.clone()`)                     | ⚠️ Each subclass must write its own copy constructor | ✅ Each subclass can provide its own `copyOf`                                   |
+| **Best Use Case**         | When working with legacy APIs already using `clone()`                            | When you want explicit, safe, idiomatic Java         | When you want a clean API and flexibility (shallow/deep, caching, pools, etc.) |
+| **Modern Recommendation** | ❌ Generally discouraged                                                          | ✅ Common practice                                    | ✅ Also common, especially in libraries like `List.copyOf()`                    |
+
+
+
+✅ Recommendation
+
+Use Copy Constructor if you want clarity and simplicity.
+
+Use Factory Method (copyOf) if you want a clean, flexible API that’s consistent with modern Java libraries.
+
+Avoid clone() unless you’re maintaining legacy code or working with libraries that demand it.
+
+
+👉 If you’re building a new project, I’d suggest going with copyOf (factory method), since it’s self-explanatory and consistent with how modern Java collections (List.copyOf, Map.copyOf) work.
+
+__________________________________________________________________________
+
+-> What is a Copy Constructor?
+
+A copy constructor in Java is a special constructor that creates a new object as a copy of an existing object.
+
+a) It takes one parameter: another object of the same class.
+
+b) Inside, it copies all the fields from the existing object to the new one.
+
+c) It’s commonly used for deep copies to avoid sharing references.
+
+
+
+// A simple class with a copy constructor
+public class Employee {
+    private final String name;
+    private final String department;
+
+    // Normal constructor
+    public Employee(String name, String department) {
+        this.name = name;
+        this.department = department;
+    }
+
+    // Copy constructor
+    public Employee(Employee other) {
+        this.name = other.name;
+        this.department = other.department;
+    }
+
+    public void showDetails() {
+        System.out.println("Employee: " + name + ", Department: " + department);
+    }
+}
+
+
+
+public class CopyConstructorDemo {
+    public static void main(String[] args) {
+        // Create original object
+        Employee emp1 = new Employee("Alice", "Finance");
+        emp1.showDetails();
+
+        // Create a new object by copying emp1
+        Employee emp2 = new Employee(emp1);
+        emp2.showDetails();
+
+        // Verify that emp1 and emp2 are different objects
+        System.out.println("emp1 == emp2 ? " + (emp1 == emp2));
+    }
+}
+
+
+Output:
+Employee: Alice, Department: Finance
+Employee: Alice, Department: Finance
+emp1 == emp2 ? false
+
+🔹 Why Use a Copy Constructor?
+
+1) To clone objects safely (without Cloneable and clone() headaches).
+
+2) To perform deep copies (copy nested objects instead of just references).
+
+3) To make the code explicit and readable (new Employee(emp1) is clear).
+-------------------------------------------------------------------------
+-> Example with Deep Copy (Nested Object)
+
+public class Address {
+    String city;
+    private final String country;
+
+    Address(String city, String country) {
+        this.city = city;
+        this.country = country;
+    }
+
+    // Copy constructor
+    Address(Address other) {
+        this.city = other.city;
+        this.country = other.country;
+    }
+}
+
+public class Employee {
+    private final String name;
+     Address address;
+
+    Employee(String name, Address address) {
+        this.name = name;
+        this.address = address;
+    }
+
+    // Copy constructor (deep copy)
+    Employee(Employee other) {
+        this.name = other.name;
+        this.address = new Address(other.address); // deep copy
+    }
+}
+
+
+public class DeepCopyConstructorDemo {
+    public static void main(String[] args) {
+        Employee emp1 = new Employee("Bob", new Address("New York", "USA"));
+        Employee emp2 = new Employee(emp1); // deep copy
+
+        // Change emp2's city
+        emp2.address.city = "Los Angeles";
+
+        // emp1 remains unaffected
+        System.out.println("emp1 city: " + emp1.address.city); // New York
+        System.out.println("emp2 city: " + emp2.address.city); // Los Angeles
+    }
+}
+
+Output:
+emp1 city: New York
+emp2 city: Los Angeles
+
+👉 Notice: Changing emp2’s address did not affect emp1. That’s the power of a copy constructor when used for deep copies.
+__________________________________________________________________________
+

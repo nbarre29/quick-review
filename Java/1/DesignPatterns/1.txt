@@ -1,4 +1,4 @@
--> Factory Method: Define an interface for creating objects, but let subclasses decide which class to instantiate.  provide demo code with java
+-> Factory Method: Define an interface for creating objects, but let subclasses decide which class to instantiate.  
 
 
 
@@ -305,7 +305,7 @@ public abstract class Application {
         // We use the factory method to create a document without knowing its concrete class.
         Document doc = createDocument();
         doc.open();
-        System.out.println("Working with a new document...");
+        System.out.println("Editing a new document...");
         doc.save();
     }
 }
@@ -346,10 +346,206 @@ public class Main {
 
 Output:
 Opening a Word document.
-Working with a new document...
+Editing a new document...
 Saving a Word document.
 Opening a PDF document.
-Working with a new document...
+Editing a new document...
 Saving a PDF document.
 _____________________________________________________________________________________________
+
+->  A factory is a Java class that is used to encapsulate object creation code. A factory class instantiates and returns a particular type of object based on data passed to the factory. The different types of objects that are returned from a factory typically are subclasses of a common parent class.
+
+
+The implementation provided below aligns with the Simple Factory Pattern, not the Factory Method Pattern as defined by the Gang of Four (GoF). 
+
+### Key Differences:
+1. **Simple Factory Pattern**:
+   - The `AnimalFactory` class is a standalone class responsible for creating objects based on input parameters.
+   - The factory logic is centralized in one place, and the client (`Demo` class) depends on this factory to create objects.
+   - This is not a GoF design pattern but a common programming idiom.
+
+2. **Factory Method Pattern (GoF)**:
+   - In the Factory Method Pattern, the responsibility of object creation is delegated to subclasses of a common abstract factory.
+   - Each subclass implements the factory method to create specific types of objects.
+   - The client code interacts with the abstract factory and does not know which concrete factory is used.
+
+
+
+public abstract class Animal {
+	public abstract String makeSound();
+}
+
+
+
+public class Cat extends Animal {
+
+	@Override
+	public String makeSound() {
+		return "Meow";
+	}
+
+}
+
+
+
+public class Dog extends Animal {
+
+	@Override
+	public String makeSound() {
+		return "Woof";
+	}
+
+}
+
+
+
+public class AnimalFactory {
+
+	public Animal getAnimal(String type) {
+		if ("canine".equals(type)) {
+			return new Dog();
+		} else {
+			return new Cat();
+		}
+	}
+
+}
+
+
+
+public class Demo {
+
+	public static void main(String[] args) {
+		AnimalFactory animalFactory = new AnimalFactory();
+
+		Animal a1 = animalFactory.getAnimal("feline");
+		System.out.println("a1 sound: " + a1.makeSound());
+
+		Animal a2 = animalFactory.getAnimal("canine");
+		System.out.println("a2 sound: " + a2.makeSound());
+	}
+
+}
+
+Output:
+a1 sound: Meow
+a2 sound: Woof
+--------------------------------------------------------------------------------------------
+
+### Improvements:
+1. Using an `enum` for `Animal` types instead of hardcoding strings like `"canine"` and `"feline"`. This avoids potential errors due to typos.
+2. Adding validation for unsupported `Animal` types in the `AnimalFactory`.
+
+
+And the `AnimalType` enum:
+
+public enum AnimalType {
+    CANINE,
+    FELINE
+}
+
+Here’s an improved version of the `AnimalFactory`:
+
+public class AnimalFactory {
+
+    public Animal getAnimal(AnimalType type) {
+        switch (type) {
+            case CANINE:
+                return new Dog();
+            case FELINE:
+                return new Cat();
+            default:
+                throw new IllegalArgumentException("Unsupported animal type: " + type);
+        }
+    }
+}
+
+
+Finally, update the `Demo` class to use the `AnimalType` enum:
+
+
+public class Demo {
+
+    public static void main(String[] args) {
+        AnimalFactory animalFactory = new AnimalFactory();
+
+        Animal a1 = animalFactory.getAnimal(AnimalType.FELINE);
+        System.out.println("a1 sound: " + a1.makeSound());
+
+        Animal a2 = animalFactory.getAnimal(AnimalType.CANINE);
+        System.out.println("a2 sound: " + a2.makeSound());
+    }
+}
+
+
+This makes the implementation more robust and type-safe.
+
+--------------------------------------------------------------------------------------------
+
+### Refactor to Factory Method Pattern:
+To implement the Factory Method Pattern, you would:
+1. Define an abstract factory class with a factory method.
+2. Create concrete factory classes for each type of `Animal`.
+3. The client code interacts with the abstract factory.
+
+Here’s an example of the Factory Method Pattern:
+
+#### Abstract Factory
+```java
+
+
+public abstract class AnimalFactory {
+    public abstract Animal createAnimal();
+}
+```
+
+#### Concrete Factories
+```java
+
+
+public class DogFactory extends AnimalFactory {
+    @Override
+    public Animal createAnimal() {
+        return new Dog();
+    }
+}
+```
+
+```java
+
+
+public class CatFactory extends AnimalFactory {
+    @Override
+    public Animal createAnimal() {
+        return new Cat();
+    }
+}
+```
+
+#### Client Code
+```java
+
+
+public class Demo {
+    public static void main(String[] args) {
+        AnimalFactory dogFactory = new DogFactory();
+        Animal dog = dogFactory.createAnimal();
+        System.out.println("Dog sound: " + dog.makeSound());
+
+        AnimalFactory catFactory = new CatFactory();
+        Animal cat = catFactory.createAnimal();
+        System.out.println("Cat sound: " + cat.makeSound());
+    }
+}
+```
+
+This implementation adheres to the GoF Factory Method Pattern, where the creation logic is encapsulated in concrete factory classes.
+
+Output:
+Dog sound: Woof
+Cat sound: Meow
+
+
+_____________________________________________________________________________________________
+
 
