@@ -99,7 +99,50 @@ Drawing a Rectangle
 
 ✅ Benefit: You can add a new TriangleFactory later without touching client code — it just works with the factory abstraction.
 
+--------------------------------------------------------------------------------------------------
+
+-> In the above program, `ShapeFactory` can be modeled as an interface instead of an abstract class since it only defines a single abstract method (`createShape`) without any implemented methods or state. Using an interface would be more appropriate in this case to emphasize that it is purely a contract for creating shapes.
+
+Here’s how you can refactor `ShapeFactory` as an interface:
+
+### Updated `ShapeFactory`:
+```java
+
+public interface ShapeFactory {
+    // Factory Method
+    Shape createShape();
+}
+```
+
+### Changes to `CircleFactory` and `RectangleFactory`:
+Since `ShapeFactory` is now an interface, the `extends` keyword should be replaced with `implements` in the concrete factory classes.
+
+#### Updated `CircleFactory`:
+```java
+
+public class CircleFactory implements ShapeFactory {
+    @Override
+    public Shape createShape() {
+        return new Circle();
+    }
+}
+```
+
+#### Updated `RectangleFactory`:
+```java
+
+public class RectangleFactory implements ShapeFactory {
+    @Override
+    public Shape createShape() {
+        return new Rectangle();
+    }
+}
+```
+
+This change does not affect the functionality of the program, and the `Main` class will work as before.
+
 _____________________________________________________________________________________________
+
 
 -> Enhance the above implementation 
 
@@ -449,7 +492,7 @@ Here’s an improved version of the `AnimalFactory`:
 public class AnimalFactory {
 
     public Animal getAnimal(AnimalType type) {
-        switch (type) {
+        switch (type) {     // you can use the modern switch expression here instead of classic approach
             case CANINE:
                 return new Dog();
             case FELINE:

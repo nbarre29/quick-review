@@ -552,5 +552,100 @@ emp1 city: New York
 emp2 city: Los Angeles
 
 👉 Notice: Changing emp2’s address did not affect emp1. That’s the power of a copy constructor when used for deep copies.
+-------------------------------------------------------------------------
+
+-> Update the above program to include streetName and streetNumber fields in Address.java
+
+
+public class Address {
+    private String streetName;
+    private int streetNumber;
+    private String city;
+    private final String country;
+
+    Address(String streetName, int streetNumber, String city, String country) {
+        this.streetName = streetName;
+        this.streetNumber = streetNumber;
+        this.city = city;
+        this.country = country;
+    }
+
+    // Copy constructor
+    Address(Address other) {
+        this.streetName = other.streetName;
+        this.streetNumber = other.streetNumber;
+        this.city = other.city;
+        this.country = other.country;
+    }
+
+    // Getters and setters (optional, if needed)
+    public String getStreetName() {
+        return streetName;
+    }
+
+    public void setStreetName(String streetName) {
+        this.streetName = streetName;
+    }
+
+    public int getStreetNumber() {
+        return streetNumber;
+    }
+
+    public void setStreetNumber(int streetNumber) {
+        this.streetNumber = streetNumber;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+}
+
+
+
+public class Employee {
+    private final String name;
+    Address address;
+
+    public Employee(String name, Address address) {
+        this.name = name;
+        this.address = address;
+    }
+
+    public Employee(Employee other) {
+        this.name = other.name;
+        this.address = new Address(other.address);
+    }
+}
+
+
+
+public class DeepCopyConstructorDemo {
+    public static void main(String[] args) {
+        Address address1 = new Address("5th Avenue", 123, "New York", "USA");
+        Employee emp1 = new Employee("Bob", address1);
+        Employee emp2 = new Employee(emp1); // deep copy
+
+        // Change emp2's address
+        emp2.address.setStreetName("Sunset Boulevard");
+        emp2.address.setStreetNumber(456);
+        emp2.address.setCity("Los Angeles");
+
+        // emp1 remains unaffected
+        System.out.println("emp1 address: " + emp1.address.getStreetName() + ", " +
+                emp1.address.getStreetNumber() + ", " + emp1.address.getCity()); // 5th Avenue, 123, New York
+        System.out.println("emp2 address: " + emp2.address.getStreetName() + ", " +
+                emp2.address.getStreetNumber() + ", " + emp2.address.getCity()); // Sunset Boulevard, 456, Los Angeles
+    }
+}
+
+Output:
+emp1 address: 5th Avenue, 123, New York
+emp2 address: Sunset Boulevard, 456, Los Angeles
+
 __________________________________________________________________________
 

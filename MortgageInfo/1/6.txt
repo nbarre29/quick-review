@@ -1,0 +1,40 @@
+-> **PITI** is an acronym lenders use in mortgages to describe the **total monthly housing payment** a borrower will owe.
+
+It stands for:
+
+1. **P – Principal**
+
+   * The portion of your mortgage payment that reduces the loan balance.
+   * Example: If you borrowed $200,000, each month part of your payment goes toward lowering that balance.
+
+2. **I – Interest**
+
+   * The lender’s charge for letting you borrow money.
+   * Based on your loan balance and interest rate.
+
+3. **T – Taxes**
+
+   * Property taxes owed to the local government.
+   * Usually collected monthly and put into an **escrow account** so the lender can pay them on your behalf.
+
+4. **I – Insurance**
+
+   * Homeowner’s insurance premium, and sometimes **private mortgage insurance (PMI)** if you put less than 20% down.
+   * Like taxes, it’s often escrowed.
+
+---
+
+### 🔹 Why PITI Matters
+
+* Lenders use **PITI** (not just principal & interest) when calculating **DTI (Debt-to-Income ratio)** for mortgage qualification.
+* Ensures you can afford the *full cost* of homeownership, not just the loan itself.
+
+---
+
+✅ **Example**:
+
+* Principal & Interest: **$1,200**
+* Taxes: **$300**
+* Insurance: **$100**
+* **Total PITI = $1,600/month**
+___________________________________________________________________________________
