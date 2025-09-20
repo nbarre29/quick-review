@@ -140,6 +140,45 @@ public class RectangleFactory implements ShapeFactory {
 ```
 
 This change does not affect the functionality of the program, and the `Main` class will work as before.
+--------------------------------------------------------------------------------------------------
+
+-> `ShapeFactory` can be modeled as a functional interface since it has a single abstract method. To do this, you can annotate the `ShapeFactory` interface with `@FunctionalInterface`. Additionally, you can use lambda expressions in the `Main` class to simplify the creation of `ShapeFactory` instances.
+
+Here are the required changes:
+
+### Updated `ShapeFactory.java`
+```java
+package demo;
+
+@FunctionalInterface
+public interface ShapeFactory {
+    // Factory Method
+    Shape createShape();
+}
+```
+
+### Updated `Main.java`
+```java
+package demo;
+
+public class Main {
+    public static void main(String[] args) {
+        // Using lambda expressions for ShapeFactory
+        ShapeFactory circleFactory = () -> new Circle();  
+		// ShapeFactory circleFactory = Circle::new;	//above lambda can be replaced with method reference
+        Shape circle = circleFactory.createShape();
+        circle.draw(); // Output: Drawing a Circle
+
+        ShapeFactory rectangleFactory = () -> new Rectangle();
+		// ShapeFactory rectangleFactory = Rectangle::new;	//above lambda can be replaced with method reference
+        Shape rectangle = rectangleFactory.createShape();
+        rectangle.draw(); // Output: Drawing a Rectangle
+    }
+}
+``` 
+
+These changes simplify the code by leveraging the functional interface and lambda expressions.
+This eliminates the need for CircleFactory and RectangleFactory classes.
 
 _____________________________________________________________________________________________
 
