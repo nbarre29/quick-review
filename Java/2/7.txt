@@ -1,0 +1,118 @@
+-> remove duplicate file paths in Java, a Set data structure is commonly used due to its inherent property of not allowing duplicate elements.
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+public class RemoveDuplicateFilePaths {
+
+    public static List<Path> removeDuplicatePaths(List<Path> paths) {
+
+        Set<Path> uniquePaths = new HashSet<>();
+        uniquePaths.addAll(paths);
+        return new ArrayList<>(uniquePaths);
+    }
+
+    public static void main(String[] args) {
+        // Example usage:
+        List<Path> filePaths = new ArrayList<>();
+        filePaths.add(Paths.get("/home/user/document.txt"));
+        filePaths.add(Paths.get("/home/user/image.jpg"));
+        filePaths.add(Paths.get("/home/user/document.txt")); // Duplicate
+        filePaths.add(Paths.get("/home/another/file.pdf"));
+        filePaths.add(Paths.get("/home/user/image.jpg")); // Another duplicate
+
+        System.out.println("Original paths:");
+        for (Path path : filePaths) {
+            System.out.println(path);
+        }
+
+        List<Path> uniqueFilePaths = removeDuplicatePaths(filePaths);
+
+        System.out.println("\nUnique paths:");
+        for (Path path : uniqueFilePaths) {
+            System.out.println(path);
+        }
+    }
+}
+
+Output:
+Original paths:
+\home\user\document.txt
+\home\user\image.jpg
+\home\user\document.txt
+\home\another\file.pdf
+\home\user\image.jpg
+
+Unique paths:
+\home\user\document.txt
+\home\another\file.pdf
+\home\user\image.jpg
+
+
+1) 
+'addAll()' call can be replaced with parametrized constructor call 
+Set<Path> uniquePaths = new HashSet<>(paths);
+return new ArrayList<>(uniquePaths);
+
+
+-----------------------------------------------------------------------------
+-> refactor the above code to read file paths from a file, we can use Files.readAllLines to read the file line by line and convert each line into a Path
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+public class RemoveDuplicateFilePaths {
+
+    public static List<Path> removeDuplicatePaths(List<Path> paths) {
+
+        Set<Path> uniquePaths = new HashSet<>(paths);
+        return new ArrayList<>(uniquePaths);
+    }
+
+    public static void main(String[] args) {
+        Path filePath = Paths.get("C:\\Users\\navee\\OneDrive\\Desktop\\Cleanup\\filepaths.txt"); // File containing file paths
+        try {
+            List<String> lines = Files.readAllLines(filePath);
+            List<Path> filePaths = new ArrayList<>();
+            for (String line : lines) {
+                filePaths.add(Paths.get(line));
+            }
+
+            System.out.println("Original paths:");
+            for (Path path : filePaths) {
+                System.out.println(path);
+            }
+
+            List<Path> uniqueFilePaths = removeDuplicatePaths(filePaths);
+
+            System.out.println("\nUnique paths:");
+            for (Path path : uniqueFilePaths) {
+                System.out.println(path);
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+        }
+    }
+}
+
+
+1) handle empty lines in the file:
+for (String line : lines) {
+                if (line.trim().isEmpty()) {
+                    continue; // Skip empty or whitespace-only lines
+                }
+                filePaths.add(Paths.get(line));
+            }
+
+_________________________________________________________________________________
+
