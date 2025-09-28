@@ -60,6 +60,56 @@ return new ArrayList<>(uniquePaths);
 
 
 -----------------------------------------------------------------------------
+-> 
+Modifications:
+1) removeDuplicatePaths method will return Set and we are not converting to List and returning as above.
+2) Notice the changes in main method
+
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+public class RemoveDuplicateFilePaths {
+
+    public static Set<Path> removeDuplicatePaths(List<Path> paths) {
+        return new HashSet<>(paths);
+    }
+
+    public static void main(String[] args) {
+        // Example usage:
+        List<Path> filePaths = new ArrayList<>();
+        filePaths.add(Paths.get("/home/user/document.txt"));
+        filePaths.add(Paths.get("/home/user/image.jpg"));
+        filePaths.add(Paths.get("/home/user/document.txt")); // Duplicate
+        filePaths.add(Paths.get("/home/another/file.pdf"));
+        filePaths.add(Paths.get("/home/user/image.jpg")); // Another duplicate
+
+        System.out.println("Original paths:");
+        for (Path path : filePaths) {
+            System.out.println(path);
+        }
+
+        Set<Path> uniqueFilePaths = removeDuplicatePaths(filePaths);
+
+        System.out.println("\nUnique paths:");
+        for (Path path : uniqueFilePaths) {
+            System.out.println(path);
+        }
+    }
+}
+
+
+1) In the above code use LinkedHashSet to preserve insertion order while deduplicating.
+ public static Set<Path> removeDuplicatePaths(List<Path> paths) {
+        return new LinkedHashSet<>(paths);
+    }
+
+-----------------------------------------------------------------------------
+
 -> refactor the above code to read file paths from a file, we can use Files.readAllLines to read the file line by line and convert each line into a Path
 
 import java.io.IOException;
@@ -116,3 +166,152 @@ for (String line : lines) {
 
 _________________________________________________________________________________
 
+-> Here is an example demonstrating the use of additional parameters with `Paths.get`:
+
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+public class PathsGetExample {
+
+    public static void main(String[] args) {
+        // Using only the first parameter
+        Path path1 = Paths.get("C:\\Users\\example");
+        System.out.println("Path 1: " + path1);
+
+        // Using the first parameter and additional parameters
+        Path path2 = Paths.get("C:\\Users", "example", "Documents");
+        System.out.println("Path 2: " + path2);
+
+        // Using additional parameters to construct a relative path
+        Path path3 = Paths.get("src", "main", "java", "demo");
+        System.out.println("Path 3: " + path3);
+    }
+}
+
+Output:
+Path 1: C:\Users\example
+Path 2: C:\Users\example\Documents
+Path 3: src\main\java\demo
+
+### Explanation:
+1. `Paths.get` can take a single string or multiple strings as arguments.
+2. The additional parameters (`String... more`) are joined to the first parameter to form the complete path.
+3. This is useful for constructing paths dynamically or when working with relative paths.
+
+
+The second parameter (`String... more`) in the method `get(String first, String... more)` is optional. 
+
+This is because it uses a **varargs** parameter (`String...`), which allows you to pass zero or more additional `String` arguments. If no additional arguments are provided, the `more` parameter will default to an empty array.
+
+For example:
+
+```java
+Path path1 = Paths.get("C:\\Users\\example"); // Only the first parameter
+Path path2 = Paths.get("C:\\Users", "example", "Documents"); // First and additional parameters
+```
+
+_________________________________________________________________________________
+
+->  https://docs.oracle.com/javase/tutorial/essential/io/bytestreams.html
+
+
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+public class CopyBytes {
+    public static void main(String[] args) throws IOException {
+
+        FileInputStream in = null;
+        FileOutputStream out = null;
+
+        try {
+            in = new FileInputStream("C:\\Cleanup\\xanadu.txt");
+            out = new FileOutputStream("C:\\Cleanup\\outagain.txt");
+            int c;
+
+            while ((c = in.read()) != -1) {
+                out.write(c);
+            }
+        } finally {
+            if (in != null) {
+                in.close();
+            }
+            if (out != null) {
+                out.close();
+            }
+        }
+    }
+}
+
+About code is outdated due to below:
+1) Manual resource closing with null checks
+	a) This was needed pre–Java 7.
+	b) But it’s verbose and error-prone (if you forget to close, you get leaks).
+
+2) Reading one byte at a time
+	a) Works, but it’s inefficient for big files.
+	
+-----------------------------------------------------------------------------
+-> Refactor:
+1) try-with-resources
+2) Mostly avoid short names. They’re acceptable for tiny, local scope, but a clearer name helps readability here, especially since read() returns a byte value or -1. Prefer something like byteRead instead of short name c
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+public class CopyBytes {
+    public static void main(String[] args) throws IOException {
+
+        try (FileInputStream in = new FileInputStream("C:\\Cleanup\\xanadu.txt"); FileOutputStream out = new FileOutputStream("C:\\Cleanup\\outagain.txt")) {
+            int byteRead; // int is correct because read() can return -1 (EOF)
+
+            while ((byteRead = in.read()) != -1) {
+                out.write(byteRead);
+            }
+        }
+    }
+}	
+-----------------------------------------------------------------------------
+-> Above can be even simpler with Files.copy (Java 7+)
+
+1) In real-world Java development just use Files.copy for simplicity.
+2) Files.copy(Path, Path, ...) manages its own resources, so try-with-resources is not required.
+
+import java.io.IOException;
+import java.nio.file.*;
+
+public class CopyFile {
+    public static void main(String[] args) throws IOException {
+        Path source = Paths.get("C:\\Cleanup\\xanadu.txt");
+        Path target = Paths.get("C:\\Cleanup\\outagain.txt");
+
+        Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+    }
+}
+-----------------------------------------------------------------------------
+-> Files.copy(Path, Path, ...) manages its own resources, so try-with-resources is not required. Use try-with-resources only if you open streams yourself.
+
+package demo;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.*;
+
+public class CopyFile {
+    public static void main(String[] args) throws IOException {
+        Path source = Paths.get("C:\\Cleanup\\xanadu.txt");
+        Path target = Paths.get("C:\\Cleanup\\outagain.txt");
+
+        try (InputStream in = Files.newInputStream(source);
+             OutputStream out = Files.newOutputStream(target, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+            in.transferTo(out);
+        }
+    }
+}
+
+_________________________________________________________________________________
