@@ -279,3 +279,212 @@ public class HighEndComputerBuilder extends ComputerBuilder {
     }
 }
 ------------------------------------------------------------------------------------------------
+-> 
+## What’s good in above code
+
+* `buildComputer()` is `final` and orchestrates the algorithm.
+* Abstract step methods (`addMotherboard`, `setupMotherboard`, `addProcessor`) are present in `ComputerBuilder` and implemented in both concrete builders.
+* The product choice is now the variable step via `createComputer()` in each builder. Nice separation of concerns.
+
+
+## Small polish suggestions (optional)
+
+1. **Make the product immutable (safer):**
+   Right now `Computer` stores the incoming `Map` by reference. Consider a defensive copy so callers can’t mutate internals after build.
+
+   ```java
+   public class Computer {
+       private final Map<String, String> computerParts;
+       public Computer(Map<String, String> computerParts) {
+           this.computerParts = Map.copyOf(computerParts); // Java 10+
+       }
+       public Map<String, String> getComputerParts() { return computerParts; }
+   }
+   ```
+
+2. **Tighten field mutability in the builder:**
+   The fields themselves can be `final` (you still mutate their contents, which is fine):
+
+   ```java
+   protected final Map<String,String> computerParts = new HashMap<>();
+   protected final List<String> motherboardSetupStatus = new ArrayList<>();
+   ```
+
+3. **Consider builder reuse semantics:**
+   If a single builder instance might be used to build multiple computers, add a `reset()` or clear the maps/lists at the start of `buildComputer()`:
+
+   ```java
+   public final Computer buildComputer() {
+       computerParts.clear();
+       motherboardSetupStatus.clear();
+       addMotherboard();
+       setupMotherboard();
+       addProcessor();
+       return createComputer();
+   }
+   ```
+
+4. **Remove the extra hop if you like:**
+   You currently call `return getComputer();` then `getComputer()` calls `createComputer()`. You can inline and drop `getComputer()` unless you want it as a named hook.
+
+   ```java
+   public final Computer buildComputer() {
+       addMotherboard();
+       setupMotherboard();
+       addProcessor();
+       return createComputer();
+   }
+   ```
+
+
+Modified classes:
+Computer.java
+ComputerBuilder.java
+StandardComputerBuilder.java
+HighEndComputerBuilder.java
+
+
+
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Immutable product. Internally stores an unmodifiable copy of the parts map.
+ */
+public class Computer {
+    
+    private Map<String, String> computerParts = new HashMap<>();
+    
+    public Computer(Map<String, String> computerParts) {
+        // Defensive copy; Map.copyOf returns an unmodifiable map (Java 10+).
+        this.computerParts = Map.copyOf(computerParts);
+    }
+
+    /**
+     * Returns an unmodifiable view of the parts.
+     */
+    public Map<String, String> getComputerParts() {
+        return computerParts;
+    }
+}
+
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Template Method base class.
+ * - buildComputer() is the template method (final) that orchestrates the steps.
+ * - addMotherboard, setupMotherboard, addProcessor are abstract variable steps.
+ * - createComputer(...) is an abstract factory step to choose the concrete product type.
+ */
+public abstract class ComputerBuilder {
+
+    protected final Map<String, String> computerParts = new HashMap<>();
+    protected final List<String> motherboardSetupStatus = new ArrayList<>();
+
+    /**
+     * Template method: fixed sequence, final to prevent override.
+     * Also, safe for reuse: clears internal state at the start of each build.
+     */
+    public final Computer buildComputer() {
+        computerParts.clear();
+        motherboardSetupStatus.clear();
+        addMotherboard();
+        setupMotherboard();
+        addProcessor();
+
+        // Inline factory step so each builder picks the product subtype.
+        return createComputer(computerParts);
+    }
+
+    // Abstract steps that vary by concrete builder.
+    public abstract void addMotherboard();
+    public abstract void setupMotherboard();
+    public abstract void addProcessor();
+
+    // Abstract factory step for constructing the concrete product subtype.
+    protected abstract Computer createComputer(Map<String, String> parts);
+
+    /**
+     * Expose read-only build diagnostics to clients if they want them.
+     * (The list itself is mutable, but ownership is with the builder. Prefer copying if you expose it externally.)
+     */
+    public List<String> getMotherboardSetupStatus() {
+        return motherboardSetupStatus;
+    }
+
+    /**
+     * Expose the in-progress parts (primarily for testing/inspection).
+     * Consider returning an unmodifiable copy if you want stricter encapsulation here too.
+     */
+    public Map<String, String> getComputerParts() {
+        return computerParts;
+    }
+}
+
+
+
+import java.util.Map;
+
+public class StandardComputerBuilder extends ComputerBuilder {
+
+    @Override
+    public void addMotherboard() {
+        computerParts.put("Motherboard", "Standard Motherboard");
+    }
+
+    @Override
+    public void setupMotherboard() {
+        motherboardSetupStatus.add("Screwing the standard motherboard to the case.");
+        motherboardSetupStatus.add("Plugging in the power supply connectors.");
+        motherboardSetupStatus.forEach(step -> System.out.println(step));
+    }
+
+    @Override
+    public void addProcessor() {
+        computerParts.put("Processor", "Standard Processor");
+    }
+
+    @Override
+    protected Computer createComputer(Map<String, String> parts) {
+        return new StandardComputer(parts);
+    }
+}
+
+
+
+
+import java.util.Map;
+
+public class HighEndComputerBuilder extends ComputerBuilder {
+
+    @Override
+    public void addMotherboard() {
+        computerParts.put("Motherboard", "High-end Motherboard");
+    }
+
+    @Override
+    public void setupMotherboard() {
+        motherboardSetupStatus.add("Screwing the high-end motherboard to the case.");
+        motherboardSetupStatus.add("Plugging in the power supply connectors.");
+        motherboardSetupStatus.forEach(step -> System.out.println(step));
+    }
+
+    @Override
+    public void addProcessor() {
+        computerParts.put("Processor", "High-end Processor");
+    }
+
+    @Override
+    protected Computer createComputer(Map<String, String> parts) {
+        return new HighEndComputer(parts);
+    }
+}
+
+
+________________________________________________________________________________________________
+
