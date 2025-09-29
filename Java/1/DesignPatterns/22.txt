@@ -1,0 +1,281 @@
+-> 
+The template method pattern is a technique that defines the steps required for some action, implementing the boilerplate steps, and leaving the customizable steps as abstract. Subclasses can then implement this abstract class and provide a concrete implementation for the missing steps.
+
+It makes it easier to implement complex algorithms by encapsulating logic in a single method.
+
+ComputerBuilder.java:
+the algorithm's structure will be defined in a base class that defines the template buildComputer() method.
+The ComputerBuilder class is responsible for outlining the steps required to build a computer by declaring methods for adding and setting up different components, such as a motherboard and a processor.
+Here, the buildComputer() method is the template method, which defines steps of the algorithm for assembling the computer parts and returns fully-initialized Computer instances. Notice that it's declared as final to prevent it from being overridden.
+
+StandardComputerBuilder.java, HighEndComputerBuilder.java : 
+With the base class already set, these two subclasses, one which builds a “standard” computer, and the other that builds a “high-end” computer.
+As we can see, we didn't need to worry about the whole assembly process but only for providing implementations for separate methods.
+
+
+1. **Base Class (`ComputerBuilder`)**
+
+   * Defines the **template method** `buildComputer()`, which is `final` so subclasses cannot override it.
+   * Inside this method, you lay out the *fixed steps* of the algorithm (add motherboard, add processor, etc.).
+   * Declares abstract (or hook) methods like `addMotherboard()` and `addProcessor()` that subclasses must implement.
+
+2. **Concrete Subclasses**
+
+   * `StandardComputerBuilder` and `HighEndComputerBuilder` extend `ComputerBuilder`.
+   * They only focus on implementing the abstract steps (e.g., which type of motherboard, which processor, etc.).
+   * They don’t need to worry about the entire process because the **template method orchestrates the sequence**.
+
+3. **Concrete Products**
+
+   * `StandardComputer` and `HighEndComputer` represent the actual `Computer` objects being assembled.
+   * The builders return these concrete objects fully initialized.
+
+4. **Client (`Main.java`)**
+
+   * The client code simply calls `builder.buildComputer()` and gets a ready-to-use `Computer` without knowing the details of the steps.
+
+
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class Computer {
+    
+    private Map<String, String> computerParts = new HashMap<>();
+    
+    public Computer(Map<String, String> computerParts) {
+        this.computerParts = computerParts;
+    }
+    
+    public Map<String, String> getComputerParts() {
+        return computerParts;
+    }
+}
+
+
+import java.util.Map;
+
+public class HighEndComputer extends Computer {
+    
+    public HighEndComputer(Map<String, String> computerParts) {
+        super(computerParts);
+    }
+}
+
+
+import java.util.Map;
+
+public class StandardComputer extends Computer {
+    
+    public StandardComputer(Map<String, String> computerParts) {
+        super(computerParts);
+    }
+}
+
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public abstract class ComputerBuilder {
+
+    protected Map<String, String> computerParts = new HashMap<>();
+    protected List<String> motherboardSetupStatus = new ArrayList<>();
+    
+    public final Computer buildComputer() {
+        addMotherboard();
+        setupMotherboard();
+        addProcessor();
+        return getComputer();
+    }
+    
+    public abstract void addMotherboard();
+
+    public abstract void setupMotherboard();
+    
+    public abstract void addProcessor();
+
+    public List<String> getMotherboardSetupStatus() {
+        return motherboardSetupStatus;
+    }
+    
+    public Map<String, String> getComputerParts() {
+        return computerParts;
+    }
+    
+    private Computer getComputer() {
+        return new Computer(computerParts);
+    }
+}
+
+
+public class HighEndComputerBuilder extends ComputerBuilder {
+
+    @Override
+    public void addMotherboard() {
+        computerParts.put("Motherboard", "High-end Motherboard");
+    }
+    
+    @Override
+    public void setupMotherboard() {
+        motherboardSetupStatus.add("Screwing the high-end motherboard to the case.");
+        motherboardSetupStatus.add("Plugging in the power supply connectors.");
+        motherboardSetupStatus.forEach(step -> System.out.println(step));
+    }
+    
+    @Override
+    public void addProcessor() {
+        computerParts.put("Processor", "High-end Processor");
+    }
+}
+
+
+public class StandardComputerBuilder extends ComputerBuilder {
+
+    @Override
+    public void addMotherboard() {
+        computerParts.put("Motherboard", "Standard Motherboard");
+    }
+    
+    @Override
+    public void setupMotherboard() {
+        motherboardSetupStatus.add("Screwing the standard motherboard to the case.");
+        motherboardSetupStatus.add("Plugging in the power supply connectors.");
+        motherboardSetupStatus.forEach(step -> System.out.println(step));
+    }
+    
+    @Override
+    public void addProcessor() {
+        computerParts.put("Processor", "Standard Processor");
+    }
+}
+
+
+
+public class Main {
+
+    public static void main(String[] args) {
+        ComputerBuilder standardComputerBuilder = new StandardComputerBuilder();
+        Computer standardComputer = standardComputerBuilder.buildComputer();
+        standardComputer.getComputerParts().forEach((k, v) -> System.out.println("Part : " + k + " Value : " + v));
+
+        ComputerBuilder highEndComputerBuilder = new HighEndComputerBuilder();
+        Computer highEndComputer = highEndComputerBuilder.buildComputer();
+        highEndComputer.getComputerParts().forEach((k, v) -> System.out.println("Part : " + k + " Value : " + v));
+    }
+}
+
+Output:
+Screwing the standard motherboard to the case.
+Plugging in the power supply connectors.
+Part : Processor Value : Standard Processor
+Part : Motherboard Value : Standard Motherboard
+Screwing the high-end motherboard to the case.
+Plugging in the power supply connectors.
+Part : Processor Value : High-end Processor
+Part : Motherboard Value : High-end Motherboard
+------------------------------------------------------------------------------------------------
+
+-> One issue: the current `getComputer()` always returns the base `Computer`, so your concrete builders don't produce `StandardComputer` / `HighEndComputer` instances. To fix that, make creation of the product an abstract step (e.g., `createComputer()`) and have each builder return its specific product.
+
+Modified below:
+ComputerBuilder.java
+StandardComputerBuilder.java
+HighEndComputerBuilder.java
+
+
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public abstract class ComputerBuilder {
+
+    protected Map<String, String> computerParts = new HashMap<>();
+    protected List<String> motherboardSetupStatus = new ArrayList<>();
+    
+    public final Computer buildComputer() {
+        addMotherboard();
+        setupMotherboard();
+        addProcessor();
+        return getComputer();
+    }
+    
+    public abstract void addMotherboard();
+
+    public abstract void setupMotherboard();
+    
+    public abstract void addProcessor();
+
+    public List<String> getMotherboardSetupStatus() {
+        return motherboardSetupStatus;
+    }
+    
+    public Map<String, String> getComputerParts() {
+        return computerParts;
+    }
+
+    protected Computer getComputer() {
+        return createComputer();
+    }
+
+    // New abstract factory method so concrete builders can return specific product types
+    protected abstract Computer createComputer();
+}
+
+
+
+public class StandardComputerBuilder extends ComputerBuilder {
+
+    @Override
+    public void addMotherboard() {
+        computerParts.put("Motherboard", "Standard Motherboard");
+    }
+
+    @Override
+    public void setupMotherboard() {
+        motherboardSetupStatus.add("Screwing the standard motherboard to the case.");
+        motherboardSetupStatus.add("Plugging in the power supply connectors.");
+        motherboardSetupStatus.forEach(step -> System.out.println(step));
+    }
+
+    @Override
+    public void addProcessor() {
+        computerParts.put("Processor", "Standard Processor");
+    }
+
+    @Override
+    protected Computer createComputer() {
+        return new StandardComputer(computerParts);
+    }
+}
+
+
+
+public class HighEndComputerBuilder extends ComputerBuilder {
+
+    @Override
+    public void addMotherboard() {
+        computerParts.put("Motherboard", "High-end Motherboard");
+    }
+
+    @Override
+    public void setupMotherboard() {
+        motherboardSetupStatus.add("Screwing the high-end motherboard to the case.");
+        motherboardSetupStatus.add("Plugging in the power supply connectors.");
+        motherboardSetupStatus.forEach(step -> System.out.println(step));
+    }
+
+    @Override
+    public void addProcessor() {
+        computerParts.put("Processor", "High-end Processor");
+    }
+
+    @Override
+    protected Computer createComputer() {
+        return new HighEndComputer(computerParts);
+    }
+}
+------------------------------------------------------------------------------------------------
