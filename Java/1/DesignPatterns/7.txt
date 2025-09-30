@@ -1,0 +1,189 @@
+
+
+## 1. Concept
+
+* **Category:** Structural design pattern.
+
+* **Intent:** *Decouple* an abstraction from its implementation so they can vary independently.
+
+* **Problem it solves:**
+  Without Bridge, you can end up with a **class explosion**.
+  Example: Suppose you want `Shape` classes (`Circle`, `Square`) in multiple colors (`Red`, `Blue`). Without Bridge, you’d need `RedCircle`, `BlueCircle`, `RedSquare`, `BlueSquare` … etc.
+
+* **Bridge solution:**
+
+  * Split into **two hierarchies**:
+
+    1. **Abstraction** (e.g., `Shape`)
+    2. **Implementor** (e.g., `Color`)
+  * The abstraction holds a reference to the implementor and delegates part of the work to it.
+  * You can now mix-and-match at runtime.
+
+---
+
+## 2. Example Code
+
+### Implementor (Bridge interface)
+
+
+// Implementor
+public interface Color {
+    void applyColor();
+}
+
+// Concrete Implementors
+public class RedColor implements Color {
+    @Override
+    public void applyColor() {
+        System.out.println("Applying red color");
+    }
+}
+
+public class BlueColor implements Color {
+    @Override
+    public void applyColor() {
+        System.out.println("Applying blue color");
+    }
+}
+
+
+---
+
+### Abstraction
+
+
+// Abstraction
+public abstract class Shape {
+    protected Color color;
+
+    // Bridge happens here: abstraction has a reference to implementor
+    public Shape(Color color) {
+        this.color = color;
+    }
+
+    public abstract void draw();
+}
+
+
+---
+
+### Refined Abstractions
+
+
+public class Circle extends Shape {
+    public Circle(Color color) {
+        super(color);
+    }
+
+    @Override
+    public void draw() {
+        System.out.print("Drawing Circle with ");
+        color.applyColor();
+    }
+}
+
+public class Square extends Shape {
+    public Square(Color color) {
+        super(color);
+    }
+
+    @Override
+    public void draw() {
+        System.out.print("Drawing Square with ");
+        color.applyColor();
+    }
+}
+
+
+---
+
+### Client
+
+public class Client {
+    public static void main(String[] args) {
+        Shape redCircle = new Circle(new RedColor());
+        Shape blueSquare = new Square(new BlueColor());
+
+        redCircle.draw();   // Output: Drawing Circle with Applying red color
+        blueSquare.draw();  // Output: Drawing Square with Applying blue color
+    }
+}
+
+
+
+Output:
+Drawing Circle with Applying red color
+Drawing Square with Applying blue color
+
+---
+
+## 3. Why is this Bridge?
+
+* **Abstraction (`Shape`)** and **Implementor (`Color`)** are separated.
+* They can evolve **independently**:
+
+  * Add a new shape (`Triangle`) without touching `Color`.
+  * Add a new color (`GreenColor`) without touching `Shape`.
+* This avoids **class explosion** and supports **open/closed principle**.
+
+---
+
+✅ So: Bridge = *abstraction + implementor linked by composition*.
+
+---
+-----------------------------------------------------------------------------------------------
+
+-> *Decouple* an abstraction from its implementation so they can vary independently. what does vary mean here ?
+
+Great question 👍 — the keyword **“vary independently”** in the Bridge pattern description often confuses people. Let me break it down with your `Shape` + `Color` example.
+
+---
+
+## 1. What does **vary** mean?
+
+It means **you can add new things or change existing things in one hierarchy without touching the other**.
+
+* Abstraction hierarchy → `Shape` (`Circle`, `Square`, …).
+* Implementation hierarchy → `Color` (`RedColor`, `BlueColor`, …).
+
+They can **evolve separately**, i.e., *vary independently*.
+
+---
+
+## 2. Example without Bridge
+
+If you didn’t use Bridge, you might hardcode shape+color combinations:
+
+* `RedCircle`, `BlueCircle`, `RedSquare`, `BlueSquare` …
+  Adding a new color (`Green`) means creating **new shape classes for every shape** → explosion.
+  So changes (variation) in colors force changes in shapes.
+
+---
+
+## 3. Example with Bridge
+
+With Bridge:
+
+```java
+Shape redCircle = new Circle(new RedColor());
+Shape blueSquare = new Square(new BlueColor());
+```
+
+Now:
+
+* If you **add a new Shape** (e.g., `Triangle`), you don’t touch `Color`.
+* If you **add a new Color** (e.g., `GreenColor`), you don’t touch `Shape`.
+
+They **vary (change, extend, evolve)** independently.
+
+---
+
+👉 So **“vary” = change, extend, or evolve** one hierarchy without forcing changes in the other.
+
+---
+_______________________________________________________________________________________________
+
+
+
+
+

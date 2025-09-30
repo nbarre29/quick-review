@@ -1,0 +1,143 @@
+
+# 🔹 Decorator Design Pattern
+
+## 1. Concept
+
+* **Category:** Structural design pattern.
+* **Intent:** Attach **additional behavior** or responsibilities to objects **dynamically** without altering their class.
+* **Key idea:** Wrap the original object inside a *decorator object* that implements the same interface.
+* **Real-world analogy:** Think of a **coffee** → you can decorate it with **milk, sugar, whipped cream** etc. Each decoration adds new behavior but the base coffee stays the same.
+
+---
+
+## 2. Example: Coffee Shop
+
+### Component (interface)
+
+// Component
+public interface Coffee {
+    String getDescription();
+    double getCost();
+}
+
+---
+
+### Concrete Component (base object)
+
+// Concrete Component
+public class SimpleCoffee implements Coffee {
+    @Override
+    public String getDescription() {
+        return "Simple Coffee";
+    }
+
+    @Override
+    public double getCost() {
+        return 5.0;
+    }
+}
+
+---
+
+### Base Decorator
+
+// Decorator (implements same interface and wraps another Coffee)
+public abstract class CoffeeDecorator implements Coffee {
+    protected Coffee decoratedCoffee;
+
+    public CoffeeDecorator(Coffee decoratedCoffee) {
+        this.decoratedCoffee = decoratedCoffee;
+    }
+
+    @Override
+    public String getDescription() {
+        return decoratedCoffee.getDescription();
+    }
+
+    @Override
+    public double getCost() {
+        return decoratedCoffee.getCost();
+    }
+}
+
+---
+
+### Concrete Decorators
+
+// Add Milk
+public class MilkDecorator extends CoffeeDecorator {
+    public MilkDecorator(Coffee decoratedCoffee) {
+        super(decoratedCoffee);
+    }
+
+    @Override
+    public String getDescription() {
+        return super.getDescription() + ", Milk";
+    }
+
+    @Override
+    public double getCost() {
+        return super.getCost() + 1.5;
+    }
+}
+
+// Add Sugar
+public class SugarDecorator extends CoffeeDecorator {
+    public SugarDecorator(Coffee decoratedCoffee) {
+        super(decoratedCoffee);
+    }
+
+    @Override
+    public String getDescription() {
+        return super.getDescription() + ", Sugar";
+    }
+
+    @Override
+    public double getCost() {
+        return super.getCost() + 0.5;
+    }
+}
+
+---
+
+### Client
+
+public class Client {
+    public static void main(String[] args) {
+        Coffee coffee = new SimpleCoffee();
+        System.out.println(coffee.getDescription() + " $" + coffee.getCost());
+
+        // Add milk
+        coffee = new MilkDecorator(coffee);
+        System.out.println(coffee.getDescription() + " $" + coffee.getCost());
+
+        // Add sugar
+        coffee = new SugarDecorator(coffee);
+        System.out.println(coffee.getDescription() + " $" + coffee.getCost());
+    }
+}
+
+---
+
+### Output
+
+Simple Coffee $5.0
+Simple Coffee, Milk $6.5
+Simple Coffee, Milk, Sugar $7.0
+
+---
+
+## 3. Why is this Decorator?
+
+* Both **component** and **decorator** implement the same interface (`Coffee`).
+* Decorators **wrap** the base object and **add behavior dynamically**.
+* You can add **any number of decorators** in any order — it’s flexible and extensible.
+* This avoids subclass explosion (e.g., `MilkCoffee`, `SugarCoffee`, `MilkSugarCoffee` …).
+
+---
+
+✅ So the **Decorator pattern** = *wrapping objects with additional behavior, transparently to the client*.
+
+---
+
+

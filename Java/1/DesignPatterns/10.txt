@@ -1,0 +1,147 @@
+
+
+# 🔹 Facade Design Pattern
+
+## 1. Concept
+
+* **Category:** Structural design pattern.
+* **Intent:** Provide a **unified, simplified interface** to a set of complex subsystems.
+* **Key idea:** Instead of exposing the client to multiple subsystem classes (with many methods), you provide a **facade class** that delegates calls to the appropriate subsystem objects.
+* **Analogy:** A **hotel receptionist** — you don’t call housekeeping, restaurant, and taxi service separately; you call the front desk (facade), and they coordinate everything for you.
+
+---
+
+## 2. Example: Home Theater System 🎬
+
+### Subsystems
+
+
+// Subsystem 1
+public class DVDPlayer {
+    public void on() {
+        System.out.println("DVD Player is ON");
+    }
+    public void play(String movie) {
+        System.out.println("Playing movie: " + movie);
+    }
+    public void off() {
+        System.out.println("DVD Player is OFF");
+    }
+}
+
+// Subsystem 2
+public class Projector {
+    public void on() {
+        System.out.println("Projector is ON");
+    }
+    public void wideScreenMode() {
+        System.out.println("Projector in widescreen mode");
+    }
+    public void off() {
+        System.out.println("Projector is OFF");
+    }
+}
+
+// Subsystem 3
+public class SoundSystem {
+    public void on() {
+        System.out.println("Sound System is ON");
+    }
+    public void setVolume(int level) {
+        System.out.println("Sound volume set to " + level);
+    }
+    public void off() {
+        System.out.println("Sound System is OFF");
+    }
+}
+
+
+---
+
+### Facade
+
+
+// Facade
+public class HomeTheaterFacade {
+    private final DVDPlayer dvdPlayer;
+    private final Projector projector;
+    private final SoundSystem soundSystem;
+
+    public HomeTheaterFacade(DVDPlayer dvdPlayer, Projector projector, SoundSystem soundSystem) {
+        this.dvdPlayer = dvdPlayer;
+        this.projector = projector;
+        this.soundSystem = soundSystem;
+    }
+
+    public void watchMovie(String movie) {
+        System.out.println("Get ready to watch a movie...");
+        projector.on();
+        projector.wideScreenMode();
+        soundSystem.on();
+        soundSystem.setVolume(10);
+        dvdPlayer.on();
+        dvdPlayer.play(movie);
+    }
+
+    public void endMovie() {
+        System.out.println("Shutting movie theater down...");
+        dvdPlayer.off();
+        soundSystem.off();
+        projector.off();
+    }
+}
+
+
+---
+
+### Client
+
+
+public class Client {
+    public static void main(String[] args) {
+        // Subsystems
+        DVDPlayer dvdPlayer = new DVDPlayer();
+        Projector projector = new Projector();
+        SoundSystem soundSystem = new SoundSystem();
+
+        // Facade
+        HomeTheaterFacade homeTheater = new HomeTheaterFacade(dvdPlayer, projector, soundSystem);
+
+        // Client uses simple methods instead of dealing with complex subsystems
+        homeTheater.watchMovie("Inception");
+        System.out.println("-----");
+        homeTheater.endMovie();
+    }
+}
+
+
+---
+
+### Output
+
+Get ready to watch a movie...
+Projector is ON
+Projector in widescreen mode
+Sound System is ON
+Sound volume set to 10
+DVD Player is ON
+Playing movie: Inception
+-----
+Shutting movie theater down...
+DVD Player is OFF
+Sound System is OFF
+Projector is OFF
+
+---
+
+## 3. Why is this Facade?
+
+* The **client** (`Client`) interacts only with the **Facade** (`HomeTheaterFacade`) — not with each subsystem (`DVDPlayer`, `Projector`, `SoundSystem`).
+* Facade **simplifies usage** by providing high-level methods (`watchMovie`, `endMovie`).
+* Internals remain **flexible** — you can replace a subsystem (e.g., upgrade to a Blu-ray player) without affecting client code.
+
+---
+
+✅ So, the **Facade pattern** = *simplify complex subsystems with a single unified interface*.
+
+---
