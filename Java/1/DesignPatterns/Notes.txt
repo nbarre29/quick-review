@@ -1,13 +1,15 @@
-1) Factory Method design pattern
-2) Abstract Factory design pattern
-3) Builder design pattern
-4) Prototype design pattern
-5) Singleton design pattern
-6) Adapter design pattern
-7) Bridge design pattern
-8) Composite design pattern
-9) Decorator Design Pattern
-10) Facade Design Pattern
+1) Factory Method
+2) Abstract Factory
+3) Builder
+4) Prototype
+5) Singleton
+6) Adapter
+7) Bridge
+8) Composite
+9) Decorator
+10) Facade
+11) 
+12) Proxy
 
 
 

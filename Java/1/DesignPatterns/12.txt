@@ -1,0 +1,228 @@
+
+## 📝 What is the Proxy Pattern?
+
+* **Category**: Structural Design Pattern
+* **Intent**: Provide a **surrogate or placeholder object** that controls access to another object.
+* The proxy can perform:
+
+  * **Access control** (check permissions before calling the real object).
+  * **Lazy initialization** (load the real object only when needed).
+  * **Logging, caching, or security checks**.
+
+---
+
+## 🎯 Real-life Analogy
+
+Think of a **bank account**:
+
+* You don’t directly access the money in the bank vault.
+* You use an **ATM card (proxy)** to interact with the bank system.
+* The ATM (proxy) controls access, adds authentication, and eventually lets you interact with your real account.
+
+---
+
+## ✅ Java Example: Image Proxy
+
+### 1. Subject Interface
+
+
+public interface Image {
+    void display();
+}
+
+
+### 2. Real Subject (expensive to create)
+
+
+public class RealImage implements Image {
+    private final String filename;
+
+    public RealImage(String filename) {
+        this.filename = filename;
+        loadFromDisk();
+    }
+
+    private void loadFromDisk() {
+        System.out.println("Loading image from disk: " + filename);
+    }
+
+    @Override
+    public void display() {
+        System.out.println("Displaying image: " + filename);
+    }
+}
+
+
+### 3. Proxy Class
+
+public class ProxyImage implements Image {
+    private RealImage realImage;
+    private final String filename;
+
+    public ProxyImage(String filename) {
+        this.filename = filename;
+    }
+
+    @Override
+    public void display() {
+        if (realImage == null) {
+            realImage = new RealImage(filename);  // Lazy loading
+        }
+        realImage.display();
+    }
+}
+
+
+### 4. Client
+
+public class ProxyPatternDemo {
+    public static void main(String[] args) {
+        Image image1 = new ProxyImage("photo1.jpg");
+        Image image2 = new ProxyImage("photo2.jpg");
+
+        // First call -> loads from disk
+        image1.display();
+        System.out.println("");
+
+        // Second call -> uses cached RealImage
+        image1.display();
+
+        // Loads another image
+        image2.display();
+    }
+}
+
+---
+
+## 🖥️ Output
+
+Loading image from disk: photo1.jpg
+Displaying image: photo1.jpg
+
+Displaying image: photo1.jpg
+Loading image from disk: photo2.jpg
+Displaying image: photo2.jpg
+
+---
+
+## 📌 When to Use Proxy
+
+1. **Lazy initialization** (expensive object creation).
+2. **Access control** (security proxy, restricting access).
+3. **Remote proxy** (e.g., RMI, accessing objects on another machine).
+4. **Logging / monitoring proxy**.
+5. **Smart references** (counting references, caching).
+
+---
+
+⚡ Quick Recap:
+
+* **Proxy** = placeholder controlling access to a real object.
+
+---
+_____________________________________________________________________________________________________
+
+-> A **real-world banking example** (ATM proxy to account) 
+
+Perfect 👍 Let’s build a **Bank Account with ATM Proxy** example in Java so you can clearly see how Proxy fits into a real-world scenario.
+
+---
+
+## 🏦 Scenario
+
+* You have a **BankAccount** (real subject) that contains the actual money.
+* You can’t directly access it.
+* You must go through an **ATM (proxy)** which checks your PIN before giving access.
+
+---
+
+## ✅ Java Example: ATM Proxy
+
+### 1. Subject Interface
+
+public interface Account {
+    void withdraw(String pin, double amount);
+}
+
+### 2. Real Subject
+
+public class BankAccount implements Account {
+    private final String correctPin;
+    private double balance;
+
+    public BankAccount(String pin, double initialBalance) {
+        this.correctPin = pin;
+        this.balance = initialBalance;
+    }
+
+    @Override
+    public void withdraw(String pin, double amount) {
+        if (!pin.equals(correctPin)) {
+            System.out.println("Access Denied: Invalid PIN");
+            return;
+        }
+        if (amount > balance) {
+            System.out.println("Insufficient funds. Balance: $" + balance);
+            return;
+        }
+        balance -= amount;
+        System.out.println("Withdrawn: $" + amount + " | Remaining Balance: $" + balance);
+    }
+}
+
+### 3. Proxy (ATM)
+
+public class ATMProxy implements Account {
+    private final BankAccount realAccount;
+
+    public ATMProxy(String pin, double initialBalance) {
+        this.realAccount = new BankAccount(pin, initialBalance);
+    }
+
+    @Override
+    public void withdraw(String pin, double amount) {
+        System.out.println("ATM Proxy: Verifying access...");
+        realAccount.withdraw(pin, amount);
+    }
+}
+
+### 4. Client
+
+public class ProxyBankDemo {
+    public static void main(String[] args) {
+        Account myAccount = new ATMProxy("1234", 500.0);
+
+        // Wrong PIN
+        myAccount.withdraw("0000", 100);
+
+        // Correct PIN, valid withdrawal
+        myAccount.withdraw("1234", 200);
+
+        // Correct PIN, but insufficient balance
+        myAccount.withdraw("1234", 400);
+    }
+}
+
+---
+
+## 🖥️ Output
+
+ATM Proxy: Verifying access...
+Access Denied: Invalid PIN
+ATM Proxy: Verifying access...
+Withdrawn: $200.0 | Remaining Balance: $300.0
+ATM Proxy: Verifying access...
+Insufficient funds. Balance: $300.0
+
+---
+
+## 📌 Key Points
+
+* **BankAccount** = Real subject (actual money operations).
+* **ATMProxy** = Proxy that controls access and adds authentication.
+* **Client** = User interacts only with the proxy, not the real object.
+
+---
+_____________________________________________________________________________________________________
+
+
