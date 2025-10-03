@@ -1,0 +1,135 @@
+
+# Chain of Responsibility
+
+**Idea:** You have a sequence of handlers. Each handler decides: *handle the request* or *pass it to the next handler*. This decouples the sender from the exact receiver and keeps each step simple.
+
+## Example: Purchase Approval Chain
+
+A purchase request must be approved by a Manager (≤ $1,000), else a Director (≤ $10,000), else a VP (anything above).
+
+
+public class PurchaseRequest {
+    private final double amount;
+    private final String description;
+
+    public PurchaseRequest(double amount, String description) {
+        this.amount = amount;
+        this.description = description;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+}
+
+MyNotes: Convert to record class
+public record PurchaseRequest(double amount, String description) {
+}
+
+
+/** Handler interface */
+public interface Approver {
+    Approver setNext(Approver next);
+    void handle(PurchaseRequest req);
+}
+
+
+/** Base class to share chaining logic */
+public abstract class BaseApprover implements Approver {
+    private Approver next;
+
+    @Override
+    public Approver setNext(Approver next) {
+        this.next = next;
+        return next;      // fluent chaining
+    }
+
+    protected void passToNext(PurchaseRequest req) {
+        if (next != null) {
+            next.handle(req);
+        } else {
+            System.out.println("No approver available for: " + req.getDescription()
+                    + " ($" + req.getAmount() + ")");
+        }
+    }
+}
+
+/** Concrete handlers */
+public class Manager extends BaseApprover {
+    @Override
+    public void handle(PurchaseRequest req) {
+        if (req.getAmount() <= 1_000) {
+            System.out.println("Manager approved: " + req.getDescription());
+        } else {
+            passToNext(req);
+        }
+    }
+}
+
+public class Director extends BaseApprover {
+    @Override
+    public void handle(PurchaseRequest req) {
+        if (req.getAmount() <= 10_000) {
+            System.out.println("Director approved: " + req.getDescription());
+        } else {
+            passToNext(req);
+        }
+    }
+}
+
+public class VicePresident extends BaseApprover {
+    @Override
+    public void handle(PurchaseRequest req) {
+        // VP approves anything above Director's limit
+        System.out.println("VP approved: " + req.getDescription()
+                + " ($" + req.getAmount() + ")");
+    }
+}
+
+/** Demo */
+public class ApprovalChainDemo {
+    public static void main(String[] args) {
+        Approver manager = new Manager();
+        Approver director = new Director();
+        Approver vp = new VicePresident();
+
+        // Build the chain: Manager -> Director -> VP
+        manager.setNext(director).setNext(vp);
+
+        // Test requests
+        manager.handle(new PurchaseRequest(300, "Office supplies"));
+        manager.handle(new PurchaseRequest(5_000, "Team laptops"));
+        manager.handle(new PurchaseRequest(50_000, "Data center hardware"));
+    }
+}
+
+
+**Output :**
+
+Manager approved: Office supplies
+Director approved: Team laptops
+VP approved: Data center hardware ($50000.0)
+
+
+
+## When to use it
+
+* Validation/processing pipelines (auth → input validation → business rules → persistence).
+* Logging/monitoring chains (DEBUG → INFO → WARN → ERROR).
+* Support/escalation flows (Tier 1 → Tier 2 → SME).
+
+## Benefits
+
+* Open/Closed: add a new handler without touching others.
+* Separation of concerns: each handler does one thing well.
+* Flexible ordering: rearrange or configure chains at runtime.
+
+## Gotchas
+
+* If no handler consumes the request, decide what should happen (fail fast, default handler, or explicit error).
+* Don’t let chains get too long—group related steps.
+_____________________________________________________________________________________________________

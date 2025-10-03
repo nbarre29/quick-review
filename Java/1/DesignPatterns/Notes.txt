@@ -10,6 +10,8 @@
 10) Facade
 11) 
 12) Proxy
+13) Chain of Responsibility
+14) Command
 
 
 

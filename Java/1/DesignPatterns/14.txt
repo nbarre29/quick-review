@@ -1,0 +1,347 @@
+
+# 📌 Command Pattern in Java
+
+### **Intent**
+
+Encapsulate a request as an object, so you can:
+
+* parameterize clients with different requests,
+* queue, log, or undo them,
+* decouple the sender (invoker) from the receiver (who actually does the work).
+
+---
+
+## 🎯 Example: Remote Control with Commands
+
+We’ll model a simple remote control that can turn a **Light** on/off.
+
+---
+
+### 1. **Command Interface**
+
+
+// Command.java
+public interface Command {
+    void execute();
+    void undo();   // optional but common
+}
+
+
+---
+
+### 2. **Receiver (actual work)**
+
+
+// Light.java
+public class Light {
+    public void turnOn() {
+        System.out.println("Light is ON");
+    }
+
+    public void turnOff() {
+        System.out.println("Light is OFF");
+    }
+}
+
+
+---
+
+### 3. **Concrete Commands**
+
+
+// LightOnCommand.java
+public class LightOnCommand implements Command {
+    private final Light light;
+
+    public LightOnCommand(Light light) {
+        this.light = light;
+    }
+
+    public void execute() {
+        light.turnOn();
+    }
+
+    public void undo() {
+        light.turnOff();
+    }
+}
+
+// LightOffCommand.java
+public class LightOffCommand implements Command {
+    private final Light light;
+
+    public LightOffCommand(Light light) {
+        this.light = light;
+    }
+
+    public void execute() {
+        light.turnOff();
+    }
+
+    public void undo() {
+        light.turnOn();
+    }
+}
+
+
+---
+
+### 4. **Invoker (holds commands)**
+
+
+// RemoteControl.java
+public class RemoteControl {
+    private Command command;
+
+    public void setCommand(Command command) {
+        this.command = command;
+    }
+
+    public void pressButton() {
+        command.execute();
+    }
+
+    public void pressUndo() {
+        command.undo();
+    }
+}
+
+
+---
+
+### 5. **Demo**
+
+
+// CommandPatternDemo.java
+public class CommandPatternDemo {
+    public static void main(String[] args) {
+        Light livingRoomLight = new Light();
+
+        Command lightOn = new LightOnCommand(livingRoomLight);
+        Command lightOff = new LightOffCommand(livingRoomLight);
+
+        RemoteControl remote = new RemoteControl();
+
+        // Turn on
+        remote.setCommand(lightOn);
+        remote.pressButton();
+
+        // Undo (turns off)
+        remote.pressUndo();
+
+        // Turn off
+        remote.setCommand(lightOff);
+        remote.pressButton();
+
+        // Undo (turns on)
+        remote.pressUndo();
+    }
+}
+
+
+---
+
+###  Output
+
+Light is ON
+Light is OFF
+Light is OFF
+Light is ON
+
+
+---
+
+## ⚡ Where to use Command Pattern
+
+* GUI buttons & menu items (each action is a command).
+* Job scheduling (queue of tasks).
+* Macro recording/undo (editors, IDEs).
+* Transaction management.
+
+---
+____________________________________________________________________________
+
+-> A **real-world banking/finance domain example** (like `DepositCommand`, `WithdrawCommand` for an account)
+
+
+---
+
+# 💳 Banking Example with Command Pattern
+
+---
+
+### 1. **Command Interface**
+
+
+// Command.java
+public interface Command {
+    void execute();
+    void undo();
+}
+
+
+---
+
+### 2. **Receiver (BankAccount)**
+
+
+// BankAccount.java
+public class BankAccount {
+    private final String accountNumber;
+    private double balance;
+
+    public BankAccount(String accountNumber, double initialBalance) {
+        this.accountNumber = accountNumber;
+        this.balance = initialBalance;
+    }
+
+    public void deposit(double amount) {
+        balance += amount;
+        System.out.println("Deposited $" + amount + " | Balance: $" + balance);
+    }
+
+    public void withdraw(double amount) {
+        if (balance >= amount) {
+            balance -= amount;
+            System.out.println("Withdrew $" + amount + " | Balance: $" + balance);
+        } else {
+            System.out.println("❌ Insufficient funds for withdrawal of $" + amount);
+        }
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+}
+
+
+---
+
+### 3. **Concrete Commands**
+
+
+// DepositCommand.java
+public class DepositCommand implements Command {
+    private final BankAccount account;
+    private final double amount;
+
+    public DepositCommand(BankAccount account, double amount) {
+        this.account = account;
+        this.amount = amount;
+    }
+
+    public void execute() {
+        account.deposit(amount);
+    }
+
+    public void undo() {
+        account.withdraw(amount); // rollback
+    }
+}
+
+// WithdrawCommand.java
+public class WithdrawCommand implements Command {
+    private final BankAccount account;
+    private final double amount;
+
+    public WithdrawCommand(BankAccount account, double amount) {
+        this.account = account;
+        this.amount = amount;
+    }
+
+    public void execute() {
+        account.withdraw(amount);
+    }
+
+    public void undo() {
+        account.deposit(amount); // rollback
+    }
+}
+
+
+---
+
+### 4. **Invoker (Transaction Processor)**
+
+
+// TransactionProcessor.java
+import java.util.Stack;
+
+public class TransactionProcessor {
+    private final Stack<Command> history = new Stack<>();
+
+    public void process(Command command) {
+        command.execute();
+        history.push(command);
+    }
+
+    public void undoLast() {
+        if (!history.isEmpty()) {
+            Command last = history.pop();
+            System.out.print("Undoing... ");
+            last.undo();
+        } else {
+            System.out.println("No transaction to undo.");
+        }
+    }
+}
+
+
+---
+
+### 5. **Demo**
+
+
+// BankingCommandDemo.java
+public class BankingCommandDemo {
+    public static void main(String[] args) {
+        BankAccount account = new BankAccount("ACC123", 1000);
+
+        Command deposit100 = new DepositCommand(account, 100);
+        Command withdraw200 = new WithdrawCommand(account, 200);
+
+        TransactionProcessor processor = new TransactionProcessor();
+
+        // Transactions
+        processor.process(deposit100);   // +100
+        processor.process(withdraw200);  // -200
+
+        // Undo last transaction (withdrawal)
+        processor.undoLast();
+
+        // Undo previous transaction (deposit)
+        processor.undoLast();
+    }
+}
+
+
+---
+
+### ✅ Output
+
+
+Deposited $100.0 | Balance: $1100.0
+Withdrew $200.0 | Balance: $900.0
+Undoing... Deposited $200.0 | Balance: $1100.0
+Undoing... Withdrew $100.0 | Balance: $1000.0
+
+
+---
+
+## ⚡ Real-World Uses in Banking/Finance
+
+* **ATM transactions** → each action (deposit, withdraw, transfer) can be a command.
+* **Undo/rollback for failed operations** → in case of system crash or insufficient funds.
+* **Batch processing of payments** → queue up commands, execute sequentially.
+* **Audit logging** → maintain history of executed commands.
+
+---
+
+____________________________________________________________________________
+
+
+

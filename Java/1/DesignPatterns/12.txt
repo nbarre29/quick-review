@@ -157,7 +157,7 @@ public class BankAccount implements Account {
 
     @Override
     public void withdraw(String pin, double amount) {
-        if (!pin.equals(correctPin)) {
+        if (!pin.equals(correctPin)) {  // this can cause NullPointerException if the pin argumennt is null, because calling equals on null will throw an exception. 
             System.out.println("Access Denied: Invalid PIN");
             return;
         }
@@ -169,6 +169,12 @@ public class BankAccount implements Account {
         System.out.println("Withdrawn: $" + amount + " | Remaining Balance: $" + balance);
     }
 }
+
+MyNotes:
+1) The return; statement immediately exists the current method without executing any further code in that method. In this context, it stops the withdraw method if the PIN is invalid or if there are insufficient funds.
+2) To avoid NullPointerException above reverse the comparison:
+   if(!correctPin.equals(pin)) {
+   This way , if pin is null, equals will safely return false without throwing an exception.
 
 ### 3. Proxy (ATM)
 
@@ -185,6 +191,9 @@ public class ATMProxy implements Account {
         realAccount.withdraw(pin, amount);
     }
 }
+
+MyNotes:
+"private final Account realAccount;" would be better to have instead of "private final BankAccount realAccount;" above  if we want ATMProxy to work with any implementation of the Account interface. This allows us to substitute Account implementations without changing ATMProxy
 
 ### 4. Client
 
