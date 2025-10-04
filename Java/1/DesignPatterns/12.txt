@@ -232,6 +232,235 @@ Insufficient funds. Balance: $300.0
 * **Client** = User interacts only with the proxy, not the real object.
 
 ---
+-----------------------------------------------------------------------------------------------------
+-> Refactor the above:
+
+Introduced a simple exception-based API and basic logging for clearer separation of concerns. Added `AccountException`, `InvalidPinException`, and `InsufficientFundsException`. `Account.withdraw` now declares throwing `AccountException`. `BankAccount` throws exceptions instead of printing; `ATMProxy` verifies PIN then delegates; `ProxyBankDemo` handles exceptions and prints messages.
+
+`src/main/java/demo/AccountException.java`
+```java
+package demo;
+
+public class AccountException extends Exception {
+    public AccountException(String message) {
+        super(message);
+    }
+
+    public AccountException(String message, Throwable cause) {
+        super(message, cause);
+    }
+}
+```
+
+`src/main/java/demo/InvalidPinException.java`
+```java
+package demo;
+
+public class InvalidPinException extends AccountException {
+    public InvalidPinException(String message) {
+        super(message);
+    }
+}
+```
+
+`src/main/java/demo/InsufficientFundsException.java`
+```java
+package demo;
+
+public class InsufficientFundsException extends AccountException {
+    public InsufficientFundsException(String message) {
+        super(message);
+    }
+}
+```
+
+`src/main/java/demo/Account.java`
+```java
+package demo;
+
+public interface Account {
+    void withdraw(String pin, double amount) throws AccountException;
+}
+```
+
+`src/main/java/demo/BankAccount.java`
+```java
+package demo;
+
+import java.util.logging.Logger;
+
+public class BankAccount implements Account {
+    private static final Logger LOGGER = Logger.getLogger(BankAccount.class.getName());
+    private final String correctPin;
+    private double balance;
+
+    public BankAccount(String pin, double initialBalance) {
+        this.correctPin = pin;
+        this.balance = initialBalance;
+    }
+
+    @Override
+    public synchronized void withdraw(String pin, double amount) throws AccountException {
+        if (!correctPin.equals(pin)) {
+            throw new InvalidPinException("Access Denied: Invalid PIN");
+        }
+        if (amount > balance) {
+            throw new InsufficientFundsException("Insufficient funds. Balance: $" + balance);
+        }
+        balance -= amount;
+        LOGGER.info(() -> "Withdrawn: $" + amount + " | Remaining Balance: $" + balance);
+    }
+
+    public synchronized double getBalance() {
+        return balance;
+    }
+}
+```
+
+`src/main/java/demo/ATMProxy.java`
+```java
+package demo;
+
+import java.util.logging.Logger;
+
+public class ATMProxy implements Account {
+    private static final Logger LOGGER = Logger.getLogger(ATMProxy.class.getName());
+    private final Account realAccount;
+    private final String proxyPin;
+
+    public ATMProxy(String pin, double initialBalance) {
+        this.proxyPin = pin;
+        this.realAccount = new BankAccount(pin, initialBalance);
+    }
+
+    @Override
+    public void withdraw(String pin, double amount) throws AccountException {
+        LOGGER.info("ATM Proxy: Verifying access...");
+        if (!proxyPin.equals(pin)) {
+            throw new InvalidPinException("Access Denied: Invalid PIN");
+        }
+        realAccount.withdraw(pin, amount);
+    }
+}
+```
+
+`src/main/java/demo/ProxyBankDemo.java`
+```java
+package demo;
+
+public class ProxyBankDemo {
+    public static void main(String[] args) {
+        Account myAccount = new ATMProxy("1234", 500.0);
+
+        // Wrong PIN
+        try {
+            myAccount.withdraw("0000", 100);
+        } catch (AccountException e) {
+            System.out.println(e.getMessage());
+        }
+
+        // Correct PIN, valid withdrawal
+        try {
+            myAccount.withdraw("1234", 200);
+        } catch (AccountException e) {
+            System.out.println(e.getMessage());
+        }
+
+        // Correct PIN, but insufficient balance
+        try {
+            myAccount.withdraw("1234", 400);
+        } catch (AccountException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
+```
+
+Output:
+Oct 04, 2025 1:35:07 AM demo.ATMProxy withdraw
+INFO: ATM Proxy: Verifying access...
+Oct 04, 2025 1:35:07 AM demo.ATMProxy withdraw
+INFO: ATM Proxy: Verifying access...
+Oct 04, 2025 1:35:07 AM demo.ATMProxy withdraw
+INFO: ATM Proxy: Verifying access...
+Access Denied: Invalid PIN
+Withdrawn: $200.0 | Remaining Balance: $300.0
+Insufficient funds. Balance: $300.0
+
+-----------------------------------------------------------------------------------------------------
+
+-> When switching to SLF4J in above code, you must replace the import and initialization:
+
+- `java.util.logging.Logger` uses `Logger.getLogger(Class.getName())`
+- `org.slf4j.Logger` uses `LoggerFactory.getLogger(Class.class)`
+
+
+**initialization from java.util.logging**
+private static final Logger LOGGER = Logger.getLogger(BankAccount.class.getName());
+
+** initialization from slf4j**
+private static final Logger LOGGER = LoggerFactory.getLogger(BankAccount.class);
+
+
+**import from java.util.logging**
+import java.util.logging.Logger;
+
+**import from slf4j**
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+-----------------------------------------------------------------------------------------------------
+
+-> To enhance the above application with a 3-attempt limit and reset the counter on a correct PIN, add an `attempts` counter to `ATMProxy`. Reset it on success, and throw an exception after 3 failed attempts.
+
+**Explanation:**  
+- Track incorrect attempts in `ATMProxy`.
+- Reset attempts on correct PIN.
+- Block further withdrawals after 3 failed attempts.
+
+
+import java.util.logging.Logger;
+
+public class ATMProxy implements Account {
+    private static final Logger LOGGER = Logger.getLogger(ATMProxy.class.getName());
+    private final Account realAccount;
+    private final String proxyPin;
+    private int attempts = 0;
+    private static final int MAX_ATTEMPTS = 3;
+
+    public ATMProxy(String pin, double initialBalance) {
+        this.proxyPin = pin;
+        this.realAccount = new BankAccount(pin, initialBalance);
+    }
+
+    @Override
+    public synchronized void withdraw(String pin, double amount) throws AccountException {
+        LOGGER.info("ATM Proxy: Verifying access...");
+        if (attempts >= MAX_ATTEMPTS) {
+            throw new AccountLockedException("Account locked: Too many incorrect PIN attempts");
+        }
+        if (!proxyPin.equals(pin)) {
+            attempts++;
+            throw new InvalidPinException("Access Denied: Invalid PIN (" + attempts + "/" + MAX_ATTEMPTS + ")");
+        }
+        // Correct PIN, reset attempts
+        attempts = 0;
+        LOGGER.info("Access Granted: Processing withdrawal...");
+        realAccount.withdraw(pin, amount);
+    }
+}
+
+
+
+
+public class AccountLockedException extends AccountException {
+    public AccountLockedException(String message) {
+        super(message);
+    }
+}
+
+No changes needed in other files. This will enforce the 3-attempt rule and reset on success.
+
 _____________________________________________________________________________________________________
 
 

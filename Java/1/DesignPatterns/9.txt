@@ -60,6 +60,13 @@ public abstract class CoffeeDecorator implements Coffee {
     }
 }
 
+MyNotes: 
+1) The class is marked as `abstract` because it is intended to serve as a base for other decorators and should not be instantiated directly. While it does not declare any abstract methods, marking it as `abstract` prevents direct instantiation and signals its role in the design pattern. This is a common practice in the Decorator pattern to enforce proper usage.
+
+2) `protected` allows subclasses to access `decoratedCoffee`, which is useful in the Decorator pattern since concrete decorators often need to interact with the wrapped object.  
+`private final` would restrict access to only the `CoffeeDecorator` class and prevent reassignment, which may limit flexibility for subclasses.  
+In this pattern, `protected` is preferred to support extension and customization by subclasses.
+
 ---
 
 ### Concrete Decorators
@@ -80,6 +87,20 @@ public class MilkDecorator extends CoffeeDecorator {
         return super.getCost() + 1.5;
     }
 }
+
+MyNotes: 
+1)
+public MilkDecorator(Coffee decoratedCoffee) {
+        super(decoratedCoffee);
+    }
+
+The selected code is the constructor for the `MilkDecorator` class. It takes a `Coffee` object as a parameter:  
+`public MilkDecorator(Coffee decoratedCoffee)`
+
+Inside the constructor, it calls the superclass constructor using `super(decoratedCoffee);`. This means that the `MilkDecorator` is passing the `decoratedCoffee` object up to its parent class, `CoffeeDecorator`, which likely stores this reference for later use. This pattern is typical in the Decorator design pattern, where each decorator wraps another object to add new behavior.
+
+By accepting a `Coffee` object and forwarding it to the superclass, `MilkDecorator` can extend or modify the behavior of the original coffee instance, such as adding milk to its description or cost. This approach allows decorators to be chained, each adding its own functionality while maintaining a reference to the wrapped object.
+
 
 // Add Sugar
 public class SugarDecorator extends CoffeeDecorator {

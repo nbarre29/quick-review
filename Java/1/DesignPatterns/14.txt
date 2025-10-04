@@ -57,14 +57,20 @@ public class LightOnCommand implements Command {
         this.light = light;
     }
 
+    @Override
     public void execute() {
         light.turnOn();
     }
 
+    @Override
     public void undo() {
         light.turnOff();
     }
 }
+
+MyNotes: It is a good practice to use @Override when overriding methods from an interface or superclass. It helps catch errors at compile time if the method signature does not match and improves code readability. When doing code reviews ask people to add this annotation if not added.
+
+
 
 // LightOffCommand.java
 public class LightOffCommand implements Command {
@@ -74,10 +80,12 @@ public class LightOffCommand implements Command {
         this.light = light;
     }
 
+    @Override
     public void execute() {
         light.turnOff();
     }
 
+    @Override
     public void undo() {
         light.turnOn();
     }
