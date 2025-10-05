@@ -106,11 +106,15 @@ public class RemoteControl {
     }
 
     public void pressButton() {
-        command.execute();
+        if (command != null) {
+            command.execute();
+        }
     }
 
     public void pressUndo() {
-        command.undo();
+        if (command != null) {
+            command.undo();
+        }
     }
 }
 
