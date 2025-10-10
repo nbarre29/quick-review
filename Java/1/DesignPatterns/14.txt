@@ -118,6 +118,9 @@ public class RemoteControl {
     }
 }
 
+MyNotes:
+We are not using a constructor and instead using **setCommand** as it allows to change the command at runtime dynamically, which is the key part of the Command pattern's flexibility. If we only use a constructor we lose the ability to change the command after the RemoteControl is created. 
+
 
 ---
 

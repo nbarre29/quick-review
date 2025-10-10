@@ -5,6 +5,15 @@ Key Components:
 • Adaptee: This is the existing class or object with the incompatible interface that needs to be adapted. 
 • Adapter: This is the class that implements the Target Interface and also interacts with the Adaptee. It translates the client's requests (made through the Target Interface) into calls that the Adaptee can understand and execute. 
 
+Example: Imagine you have a charger(the adaptee) designed for a specific type of phone, but you want to use it with a different brand of phone(the client) that has a different charging port. You would use an adapter(the adapter class) to bridge the incompatibility.
+
+
+• Adaptee: The original, existing class or component whose interface does not fit the needs of the client. 
+• Adapter: A separate class that sits between the adaptee and the client, translating the client's required interface to match the adaptee's interface. 
+• Client: The part of the system that needs to use the adaptee but cannot directly because of interface mismatches. 
+
+
+
 Types of Adapters: 
 
 • Class Adapter: Uses inheritance to adapt the Adaptee by extending its class and implementing the Target interface. This approach is limited in Java because it does not support multiple inheritance of classes. 
@@ -46,6 +55,9 @@ public class Client {
         adapter.play("legacy_audio.mp3"); // Client uses the adapter with the new interface
     }
 }
+
+MyNotes:
+MediaPlayer adapter = new MediaAdapter(new OldPlayer());  // just to reduce from 2 lines to a single line
 
 
 Output:

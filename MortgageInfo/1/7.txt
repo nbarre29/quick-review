@@ -1,0 +1,142 @@
+-> mortgage pricing engine + if you have an expired rate lock , how is the pricing treated,  1) will it be worst case pricing or 2) the current day market that we can relock on ?
+
+
+Excellent and very realistic mortgage-pricing question — here’s how it actually works inside a **mortgage pricing engine (like Optimal Blue, ICE PPE, or a bank’s in-house rule-driven engine such as yours)** 👇
+
+---
+
+### 🔹 When a Rate Lock Expires
+
+If a borrower’s rate lock has expired (i.e., the lock period has passed without closing or funding), the loan is **no longer protected by its original pricing**.
+
+At that point, the engine (or the secondary marketing desk) must determine how to **re-establish pricing**, and this is governed by the lender’s **relock policy**.
+
+---
+
+### 🔹 The Two Standard Treatments (Exactly Your Options)
+
+| Scenario                                         | Description                                                                                                                                                               | Typical Policy Outcome                                                                                                                               |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1️⃣ Worst-Case Pricing (most common)**         | The lender compares the **original locked price** with **current market price**, and applies the **worse of the two** (i.e., higher rate / worse price for the borrower). | ✅ **Used by most banks and aggregators** — ensures the lender is not exposed to market deterioration between original lock and relock.               |
+| **2️⃣ Current Day Market Pricing (less common)** | Upon expiration, the old lock is completely voided and the borrower gets **today’s pricing** (with a new lock period).                                                    | ⚠️ **Used only if market has improved** or if lender explicitly allows “float-down” / “market relock” options (often at a fee or limited frequency). |
+
+
+---
+
+### 🔹 Example in Engine Terms
+
+In your **pricing engine (PPE)** or internal **RateLockValidationRule** logic, the rule might look like:
+
+```java
+if (lock.isExpired()) {
+    pricing = worstCase(originalLockPrice, currentMarketPrice);
+} else {
+    pricing = originalLockPrice;
+}
+```
+
+Where `worstCase()` function ensures that any **market deterioration** (higher rates or worse price) is passed on, not absorbed by the lender.
+
+---
+
+### 🔹 Why “Worst Case” is Industry Standard
+
+* Protects the lender’s pipeline hedge position — since locks are typically hedged using MBS or TBAs.
+* Prevents “gaming” — borrower intentionally letting lock expire when market improves.
+* Keeps secondary market pricing stable and compliant with investor guidelines (Fannie/Freddie require worst-case treatment for expired locks before relock).
+
+---
+
+### 🔹 However, Some Lenders Offer:
+
+* **“Re-lock within X days” grace window** (e.g., 15 days at worse-case or partial price concession).
+* **“Float-down” options** during lock period (borrower can get lower rate if market improves before closing).
+* **Re-lock fee or adjusted margin** to cover market movement and hedge cost.
+
+---
+
+✅ **Bottom line:**
+
+> Once a rate lock expires, the loan typically re-prices to the **worse of the original lock price and current market price** — i.e., **worst-case pricing** — unless your institution has an explicit “current market relock” or “float-down” policy.
+_______________________________________________________________________________________________________________________
+
+-> is "price concession"  only comes into play when a rate lock expires ?
+
+Excellent follow-up — and you’re thinking exactly like a secondary-marketing or pricing-policy analyst here 👏
+
+Let’s unpack this carefully, because **“price concession”** can happen in multiple contexts — but **not only** when a rate lock expires.
+
+---
+
+## 🔹 1. Definition (in secondary marketing terms)
+
+A **price concession** means **granting an exception to the normal price or rate**, usually by **improving the price (or lowering the rate)** for a specific loan **outside standard pricing policy**.
+
+It’s essentially:
+
+> “We’re giving the borrower or branch a better price than the pricing engine would normally allow.”
+
+---
+
+## 🔹 2. Common Scenarios Where Price Concessions Are Used
+
+| Scenario                                      | Description                                                                                                                                                        | Typical Trigger                                                                                      |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| **A. Expired Lock Relock Concession**         | Borrower’s rate lock expired; lender re-locks and grants a partial concession instead of full worst-case pricing (e.g., recover half of the market deterioration). | ✅ Very common when lock expires shortly (e.g., within 15–30 days) and lender wants to save the loan. |
+| **B. Competitive or Sales Concession**        | Loan officer requests a better price to match a competitor’s offer (margin reduced).                                                                               | 💬 “Manager-approved concession” — not related to expiration.                                        |
+| **C. Operational / Service Error Concession** | Lock desk or operations made an error (e.g., incorrect product code, late lock).                                                                                   | ⚙️ Concession to correct internal mistake.                                                           |
+| **D. Post-Closing / Delivery Concession**     | Secondary desk adjusts price after investor delivery issues (LLPA correction, delivery tolerance).                                                                 | 🏦 Back-office scenario.                                                                             |
+
+---
+
+## 🔹 3. When It’s About **Expired Locks**
+
+That’s the case you mentioned — often termed a **“relock concession.”**
+
+**Example policy wording:**
+
+> “If a lock expires, the relock will be subject to worst-case pricing. However, if relocked within 30 days, a concession of up to 0.25 points may be granted at the Secondary Desk’s discretion.”
+
+So here, the “concession” softens the worst-case treatment — not replaces it.
+
+---
+
+## 🔹 4. How It’s Represented in a Pricing Engine
+
+In a rule engine or pricing system (like your mortgage pricing engine), it’s typically implemented as:
+
+```java
+if (lock.isExpired()) {
+    price = worstCase(originalPrice, currentMarketPrice);
+    if (daysSinceExpiration <= 30) {
+        price += concessionPoints;  // example: +0.25
+    }
+}
+```
+
+or configured as a **policy parameter** in the rate lock rules table:
+
+| Rule             | Condition    | Adjustment (bps) |
+| ---------------- | ------------ | ---------------- |
+| Relock ≤ 15 days | Expired lock | +25              |
+| Relock ≤ 30 days | Expired lock | +12.5            |
+| Relock > 30 days | Expired lock | 0                |
+
+---
+
+## ✅ Summary
+
+**No — price concession is not limited to expired rate locks.**
+It’s a broader pricing exception mechanism that can apply for:
+
+* Competitive adjustments,
+* Operational corrections, and
+* Rate-lock relock forgiveness.
+
+But yes — one **common and policy-controlled** use case is *as a cushion when a lock expires* and the lender doesn’t want to apply full worst-case pricing.
+
+_______________________________________________________________________________________________________________________
+
+
+
+
