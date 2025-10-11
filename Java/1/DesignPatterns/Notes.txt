@@ -8,7 +8,7 @@
 8) Composite
 9) Decorator
 10) Facade
-11) 
+11) Flyweight
 12) Proxy
 13) Chain of Responsibility
 14) Command

@@ -1,0 +1,149 @@
+This implementation demonstrates the **Flyweight design pattern** in Java, which is used to minimize memory usage by sharing as much data as possible with similar objects.
+
+**Detailed Explanation:**
+
+1. **Flyweight Interface (`Bullet`)**  
+   - Defines the common operations for all bullet types.
+   - Method: `fire(double x, double y, String direction)` — takes extrinsic state (position and direction).
+
+2. **Concrete Flyweight (`ConcreteBullet`)**  
+   - Implements the `Bullet` interface.
+   - Stores **intrinsic state**: `bulletType`, `speed`, `damage` (shared, does not change per use).
+   - The `fire` method uses both intrinsic (type, speed, damage) and extrinsic (position, direction) state.
+
+3. **Flyweight Factory (`BulletFactory`)**  
+   - Maintains a cache (`bulletCache`) of bullet types.
+   - `getBullet(String bulletType)` returns a shared instance if it exists, or creates and caches a new one.
+   - Ensures that only one instance per bullet type is created and reused.
+
+4. **Client Code (`FlyweightGameDemo`)**  
+   - Requests bullets from the factory.
+   - Fires bullets at different positions and directions.
+   - Demonstrates reuse: requesting "Pistol" twice returns the same instance.
+
+**Key Points:**
+- **Intrinsic state** (shared): bullet type, speed, damage.
+- **Extrinsic state** (unique per use): position (`x`, `y`), direction.
+- **Memory efficiency**: Only one object per bullet type is created, reused for all firings.
+
+This pattern is useful when many similar objects are needed, but their shared state can be centralized to reduce memory footprint.
+
+
+
+
+// Step 1: Flyweight Interface
+public interface Bullet {
+    void fire(double x, double y, String direction);
+}
+
+
+
+
+// Step 2: Concrete Flyweight (shared bullet type)
+public class ConcreteBullet implements Bullet {
+    private final String bulletType;  // intrinsic state
+    private final double speed;
+    private final int damage;
+
+    public ConcreteBullet(String bulletType, double speed, int damage) {
+        this.bulletType = bulletType;
+        this.speed = speed;
+        this.damage = damage;
+    }
+
+    @Override
+    public void fire(double x, double y, String direction) {
+        System.out.println("Firing " + bulletType + " bullet at (" + x + ", " + y + 
+            ") direction: " + direction + ", speed: " + speed + ", damage: " + damage);
+    }
+}
+
+
+
+// Step 3: Flyweight Factory
+import java.util.HashMap;
+import java.util.Map;
+
+public class BulletFactory {
+    private static final Map<String, Bullet> bulletCache = new HashMap<>();
+
+    public static Bullet getBullet(String bulletType) {
+        Bullet bullet = bulletCache.get(bulletType);
+        if (bullet == null) {
+            switch (bulletType) {
+                case "Pistol":
+                    bullet = new ConcreteBullet("Pistol", 10.0, 20);
+                    break;
+                case "Rifle":
+                    bullet = new ConcreteBullet("Rifle", 20.0, 40);
+                    break;
+                case "Sniper":
+                    bullet = new ConcreteBullet("Sniper", 30.0, 80);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown bullet type: " + bulletType);
+            }
+            bulletCache.put(bulletType, bullet);
+            System.out.println("Creating new bullet type: " + bulletType);
+        }
+        return bullet;
+    }
+}
+
+
+
+// Step 4: Client Code
+public class FlyweightGameDemo {
+    public static void main(String[] args) {
+        Bullet pistolBullet = BulletFactory.getBullet("Pistol");
+        pistolBullet.fire(10, 20, "North");
+
+        Bullet rifleBullet = BulletFactory.getBullet("Rifle");
+        rifleBullet.fire(15, 25, "East");
+
+        Bullet pistolBullet2 = BulletFactory.getBullet("Pistol"); // reused
+        pistolBullet2.fire(30, 40, "West");
+
+        Bullet sniperBullet = BulletFactory.getBullet("Sniper");
+        sniperBullet.fire(50, 60, "South");
+    }
+}
+
+Output:
+Creating new bullet type: Pistol
+Firing Pistol bullet at (10.0, 20.0) direction: North, speed: 10.0, damage: 20
+Creating new bullet type: Rifle
+Firing Rifle bullet at (15.0, 25.0) direction: East, speed: 20.0, damage: 40
+Firing Pistol bullet at (30.0, 40.0) direction: West, speed: 10.0, damage: 20
+Creating new bullet type: Sniper
+Firing Sniper bullet at (50.0, 60.0) direction: South, speed: 30.0, damage: 80
+---------------------------------------------------------------------------------------------------
+
+-> Optimize above code
+
+1) Switch statement can be replace with enhanced switch expression in BulletFactory.java
+2) Used `Map.computeIfAbsent` for cleaner caching logic.
+
+import java.util.HashMap;
+import java.util.Map;
+
+class BulletFactory {
+    private static final Map<String, Bullet> bulletCache = new HashMap<>();
+
+    public static Bullet getBullet(final String bulletType) {
+        return bulletCache.computeIfAbsent(bulletType, type -> {
+            Bullet bullet = switch (type) {
+                case "Pistol" -> new ConcreteBullet("Pistol", 10.0, 20);
+                case "Rifle" -> new ConcreteBullet("Rifle", 20.0, 40);
+                case "Sniper" -> new ConcreteBullet("Sniper", 30.0, 80);
+                default -> throw new IllegalArgumentException("Unknown bullet type: " + type);
+            };
+            System.out.println("Creating new bullet type: " + type);
+            return bullet;
+        });
+    }
+
+}
+____________________________________________________________________________________________________
+
+
