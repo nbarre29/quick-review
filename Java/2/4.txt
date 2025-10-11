@@ -92,6 +92,19 @@ public class Main {
         }
     }
 }
+
+MyNotes:  
+Use a lambda-based forEach loop, or simply a forEach with a lambda expression. It uses the Map.forEach method introduced in Java 8, allowing concise iteration over map entries.
+
+courseStudents.forEach((course, students) -> {
+           System.out.println("Course: " + course + ", Students: " + students);
+       });
+	   
+Output:
+	   
+Course: Science, Students: [Bob, Eva]
+Course: History, Students: [David]
+Course: Math, Students: [Alice, Charlie]
 ______________________________________________________________________________
 
 -> Changes to above code:

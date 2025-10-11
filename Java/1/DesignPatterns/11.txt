@@ -170,7 +170,7 @@ Firing Sniper bullet at (50.0, 60.0) direction: South, speed: 30.0, damage: 80
 
 -> Optimize above code
 
-1) Switch statement can be replace with enhanced switch expression in BulletFactory.java
+1) switch statement is replaced with enhanced switch expression in BulletFactory.java
 2) Used `Map.computeIfAbsent` for cleaner caching logic.
 
 import java.util.HashMap;
