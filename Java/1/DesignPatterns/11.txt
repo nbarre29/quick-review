@@ -1,3 +1,42 @@
+**Flyweight Design Pattern** is a **structural design pattern** used to **reduce memory usage** by **sharing objects** that are similar instead of creating new ones every time.
+
+Let’s go step-by-step 👇
+
+---
+
+## 🧩 **Concept**
+
+**Problem it solves:**
+When you have **many objects with identical or similar data**, memory consumption increases unnecessarily.
+
+**Solution:**
+Separate the object’s **intrinsic (shared)** state from its **extrinsic (unique)** state and **reuse** objects that share the same intrinsic data.
+
+---
+
+## 🧠 **Key Idea**
+
+* **Intrinsic State:** Immutable data that can be shared (e.g., color, shape).
+* **Extrinsic State:** Data that varies per use (e.g., position, size).
+* A **Flyweight Factory** manages the pool of shared objects.
+
+
+## ⚙️ **When to Use Flyweight**
+
+Use when:
+
+* You have **a large number of similar objects**.
+* Object creation is **memory expensive**.
+* The shared (intrinsic) state can be **decoupled** from unique (extrinsic) data.
+
+Common examples:
+
+* Text editors (character glyphs)
+* Game maps (trees, tiles, bullets)
+* UI rendering (icons, shapes)
+____________________________________________________________________________________________________
+
+
 This implementation demonstrates the **Flyweight design pattern** in Java, which is used to minimize memory usage by sharing as much data as possible with similar objects.
 
 **Detailed Explanation:**
@@ -29,14 +68,10 @@ This implementation demonstrates the **Flyweight design pattern** in Java, which
 This pattern is useful when many similar objects are needed, but their shared state can be centralized to reduce memory footprint.
 
 
-
-
 // Step 1: Flyweight Interface
 public interface Bullet {
     void fire(double x, double y, String direction);
 }
-
-
 
 
 // Step 2: Concrete Flyweight (shared bullet type)
@@ -58,6 +93,12 @@ public class ConcreteBullet implements Bullet {
     }
 }
 
+MyNotes:
+use formatted arguments for type safety and clearer output:
+System.out.printf(
+                "Firing %s bullet at (%.2f, %.2f) direction: %s, speed: %.2f, damage: %d%n",
+                bulletType, x, y, direction, speed, damage
+        );
 
 
 // Step 3: Flyweight Factory
@@ -90,6 +131,13 @@ public class BulletFactory {
     }
 }
 
+MyNotes:
+
+1) The `bullet == null` check in `BulletFactory.getBullet` is not to prevent a `NullPointerException`. It is used to determine if a bullet of the requested type already exists in the cache. If it does not exist (`null`), a new bullet is created and cached. This is part of the Flyweight pattern to ensure object reuse.
+
+2) To avoid a `NullPointerException` when using an object, you should check `bullet != null` before accessing its methods or fields. However, in the context of your factory method, `if (bullet == null)` is correct because you want to create a new bullet only if it does not already exist in the cache. Both checks are valid, but their usage depends on the intent:  
+- `bullet != null` is used before accessing an object to ensure it's not null.
+- `bullet == null` is used to check if an object needs to be created or initialized.
 
 
 // Step 4: Client Code
@@ -117,6 +165,7 @@ Firing Rifle bullet at (15.0, 25.0) direction: East, speed: 20.0, damage: 40
 Firing Pistol bullet at (30.0, 40.0) direction: West, speed: 10.0, damage: 20
 Creating new bullet type: Sniper
 Firing Sniper bullet at (50.0, 60.0) direction: South, speed: 30.0, damage: 80
+
 ---------------------------------------------------------------------------------------------------
 
 -> Optimize above code
@@ -127,7 +176,7 @@ Firing Sniper bullet at (50.0, 60.0) direction: South, speed: 30.0, damage: 80
 import java.util.HashMap;
 import java.util.Map;
 
-class BulletFactory {
+public class BulletFactory {
     private static final Map<String, Bullet> bulletCache = new HashMap<>();
 
     public static Bullet getBullet(final String bulletType) {
@@ -144,6 +193,9 @@ class BulletFactory {
     }
 
 }
+
+MyNotes:
+Using the `final` keyword for the `bulletType` parameter in the `getBullet` method ensures that its value cannot be changed within the method body. This improves code safety by preventing accidental reassignment, clarifies intent for other developers, and can help avoid bugs related to parameter modification. It is a best practice for immutability and readability, but not strictly required for functionality.
 ____________________________________________________________________________________________________
 
 
