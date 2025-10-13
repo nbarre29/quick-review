@@ -65,6 +65,16 @@ public abstract class Shape {
 }
 
 
+MyNotes:
+1) To improve encapsulation and immutability, We can make "protected Color color;"  as "private final Color color;"  and add 
+public Color getColor() {
+return color;
+}
+
+and in the subclasses use the getter and do not access the field directly:
+i.e in Circle.java and Square.java below use, getColor().applyColor();  in the draw() method instead of color.applyCOlor()
+
+
 ---
 
 ### Refined Abstractions

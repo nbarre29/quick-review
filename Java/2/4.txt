@@ -535,6 +535,19 @@ public class CountryService {
     }
 }
 
+MyNotes:
+1) When a switch case contains a return statement, the method exits immediately, so break is not needed. The return prevents any further code (including falling through to the next case) from executing. In the code above, each case returns a value, so break is unnecessary.
+
+2) rename the class name from "CountryService" to "CountryCapitalService" or "CountryCapitalFetcher" to follow proper naming convention to improve readability.
+
+Class Naming:
+Name should be a noun or a noun phrase describing the object or concept.
+Example: CountryCapitalFetcher, EmployeeDatabase
+
+Method Naming:
+Name should be a verb or verb phrase describing the action.
+Example: fetchCapitalFromDatabase, getEmployee
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -665,6 +678,60 @@ Country: united states → Capital: Washington, D.C.
 Country: UK → Capital: London
 Country: england → Capital: London
 Country: India → Capital: Unknown Capital
+
+
+----------------------------------------------------------------------------------
+-> In the above program, If we replace switch expression with a traditional switch statement, it will be like below:
+
+Use a variable and break statements.
+
+**Explanation:**  
+- Use a `String` variable to store the result.
+- Use `switch` with `case` labels and `break`.
+
+
+public class CountryCapitalSwitchTest {
+
+    public static void main(String[] args) {
+        // Simulate test cases
+        printCapitalForCountry("USA");
+        printCapitalForCountry("united states");
+        printCapitalForCountry("UK");
+        printCapitalForCountry("england");
+        printCapitalForCountry("India");  // Not mapped, should return default
+    }
+
+    private static void printCapitalForCountry(String country) {
+        String capital = getCapitalCity(country);
+        System.out.println("Country: " + country + " → Capital: " + capital);
+    }
+
+    private static String getCapitalCity(String country) {
+        String capital;
+        switch (country.toLowerCase()) {
+            case "usa":
+            case "united states":
+                capital = "Washington, D.C.";
+                break;
+            case "uk":
+            case "england":
+                capital = "London";
+                break;
+            default:
+                capital = "Unknown Capital";
+                break;
+        }
+        return capital;
+
+    }
+}
+
+MyNotes:
+case "usa":
+case "united states":
+        capital = "Washington, D.C.";
+		
+You still need both case keywords. In a traditional switch statement, each value you want to match must be listed with its own case label. There is no way to combine them into a single case line like in enhanced switch expression.
 ______________________________________________________________________________
 
 
