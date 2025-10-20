@@ -181,6 +181,30 @@ Time in London: 2025-04-13T02:56:40.179911800+01:00[Europe/London]
 3. **`atZone()`**: Combines the `Instant` with the `ZoneId` to create a `ZonedDateTime` that represents the same moment in the specified time zone.
 
 This approach ensures that the same point in time is represented correctly in different time zones.
+
+-----------------------------------------------------------------------------------
+MyNotes:
+1) A better variable name would be currentInstant, as it clearly indicates that the variable holds the current timestamp as an Instant
+2) newYorkZoneId is a clearer variable as it explicitly indicates that the variable holds a ZoneId object, improving code readability
+3) newYorkTime is clear, but it can be improved for precision. Since the variable is a ZonedDateTime, a more descriptive name like newYorkDateTime or currentNewYorkDateTime would convey its type and purpose.
+
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
+public class TimeZoneConversionExample {
+    public static void main(String[] args) {
+        // Current Instant in UTC
+        Instant currentInstant = Instant.now();
+        System.out.println("Current Instant (UTC): " + currentInstant);
+
+        // Convert to a specific time zone (e.g., America/New_York)
+        ZoneId newYorkZoneId = ZoneId.of("America/New_York");
+        ZonedDateTime newYorkDateTime = currentInstant.atZone(newYorkZoneId);
+        System.out.println("Time in New York: " + newYorkDateTime);
+
+    }
+}
 _____________________________________________________________________________________
 
 -> Java code to get current EST time:

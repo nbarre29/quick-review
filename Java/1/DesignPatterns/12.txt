@@ -181,6 +181,7 @@ MyNotes:
 public class ATMProxy implements Account {
     private final BankAccount realAccount;
 
+    //  creates a new BankAccount from the given pin and initialBalance.
     public ATMProxy(String pin, double initialBalance) {
         this.realAccount = new BankAccount(pin, initialBalance);
     }

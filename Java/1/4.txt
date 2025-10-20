@@ -457,6 +457,15 @@ public class SortExample {
         System.out.println(names);  // [date, cherry, banana, apple]
     }
 }
+
+
+MyNotes:
+Collections.sort could be replaced with List.sort 
+
+names.sort(Collections.reverseOrder());
+
+Use `List.sort` (added in Java 8) because it’s the more modern, object‑oriented API and is the preferred, readable way to sort a list
+
 ---------------------------------------------------
 
 import java.util.Arrays;
