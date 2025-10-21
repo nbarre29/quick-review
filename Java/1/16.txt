@@ -580,4 +580,102 @@ By using `computeIfAbsent` with a lambda expression, the code achieves both conc
 		
 _____________________________________________________________________________________
 
+-> The `java.time` API (JSR-310) — including `LocalDate`, `Instant`, `LocalDateTime`, `ZonedDateTime`, etc. — is still the recommended and preferred date/time API in modern Java (Java 8+). It is immutable, thread-safe, clearer than `java.util.Date`, `java.util.Calendar`, and should be used for new code. Use `LocalDate` for date-only values, `Instant` for an UTC timestamp, and `ZonedDateTime`/`OffsetDateTime` when you need zone/offset information.
 
+Example: convert between `Instant` and `LocalDate` using a `ZoneId`, and get a zoned timestamp when needed.
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
+public class Example {
+    public static void main(String[] args) {
+        Instant now = Instant.now();
+
+        // Instant -> LocalDate using system default zone
+        LocalDate localDate = now.atZone(ZoneId.systemDefault()).toLocalDate();
+
+        // LocalDate -> Instant (start of day in a zone)
+        Instant startOfDayInstant = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
+
+        // When you need zone-aware timestamp
+        ZonedDateTime zdt = now.atZone(ZoneId.of("UTC"));
+
+
+        System.out.println("Current Instant: " + now);
+        System.out.println("LocalDate: " + localDate);
+        System.out.println("Start of Day Instant: " + startOfDayInstant);
+        System.out.println("ZonedDateTime (UTC): " + zdt);
+    }
+}
+
+
+Output:
+Current Instant: 2025-10-21T02:06:45.936434900Z
+LocalDate: 2025-10-20
+Start of Day Instant: 2025-10-20T04:00:00Z
+ZonedDateTime (UTC): 2025-10-21T02:06:45.936434900Z[UTC]
+
+-------------------------------------------------------------------------------------
+
+-> `Date` and `Calendar` are in package `java.util` (fully qualified: `java.util.Date`, `java.util.Calendar`). Note there is also `java.sql.Date` in `java.sql` used for JDBC.
+
+
+import java.util.Calendar;
+import java.util.Date;
+
+public class Example {
+    public static void main(String[] args) {
+        Date d = new Date(); // java.util.Date
+        Calendar c = Calendar.getInstance(); // java.util.Calendar
+
+        java.sql.Date sqlDate = new java.sql.Date(d.getTime()); // java.sql.Date
+
+        System.out.println("util.Date: " + d);
+        System.out.println("Calendar: " + c.getTime());
+        System.out.println("sql.Date: " + sqlDate);
+
+        // explain the differences between java.util.Date vs java.sql.Date
+        System.out.println("java.util.Date represents both date and time, while java.sql.Date is intended to represent only the date part (year, month, day) without time information.");
+    }
+}
+
+Output:
+util.Date: Mon Oct 20 22:04:37 EDT 2025
+Calendar: Mon Oct 20 22:04:37 EDT 2025
+sql.Date: 2025-10-20
+java.util.Date represents both date and time, while java.sql.Date is intended to represent only the date part (year, month, day) without time information.
+
+_____________________________________________________________________________________
+
+-> Instant.now().atZone(ZoneId.systemDefault())
+
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
+public class ZonedDateTimeExample {
+    public static void main(String[] args) {
+        // Get the current Instant (a point in time in UTC)
+        Instant instant = Instant.now();  // we can have this variable name as currentTimeInUTC to be even more descriptive
+        System.out.println("Current Instant (UTC): " + instant);
+
+        // Get the system's default time zone
+        ZoneId systemDefaultZone = ZoneId.systemDefault();
+        System.out.println("System Default ZoneId: " + systemDefaultZone);
+
+        // Convert the Instant to a ZonedDateTime in the system's default time zone
+        ZonedDateTime zonedDateTime = instant.atZone(systemDefaultZone);
+        System.out.println("ZonedDateTime in System Default Zone: " + zonedDateTime);
+
+        System.out.println(Instant.now().atZone(ZoneId.systemDefault()));
+    }
+}
+
+Output:
+Current Instant (UTC): 2025-10-21T12:44:33.917193100Z
+System Default ZoneId: America/New_York
+ZonedDateTime in System Default Zone: 2025-10-21T08:44:33.917193100-04:00[America/New_York]
+2025-10-21T08:44:33.954764-04:00[America/New_York]
+_____________________________________________________________________________________
