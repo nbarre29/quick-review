@@ -1,0 +1,140 @@
+-> Loan Programs
+
+In mortgage terminology, names like:
+
+* **Jumbo**
+* **Jumbo Manual**
+* **Jumbo AUS**
+* **Agency Enhanced**
+
+are indeed examples of **loan programs** (sometimes also called **loan products** depending on your company’s internal naming convention).
+
+---
+
+### 🔹 Here’s what that means in context
+
+Each of those terms represents a **distinct set of lending rules and eligibility criteria** that define *how* the loan is processed, priced, and underwritten.
+
+| Loan Program        | Meaning / Key Features                                                                                                                                                                |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Jumbo**           | A loan amount that exceeds conforming loan limits set by Fannie Mae and Freddie Mac. These are funded and held by private investors.                                                  |
+| **Jumbo Manual**    | A **Jumbo loan** that is **manually underwritten** — i.e., an underwriter reviews credit, income, and assets instead of relying on an automated system.                               |
+| **Jumbo AUS**       | A **Jumbo loan** that uses an **Automated Underwriting System (AUS)** for eligibility (like DU or LP). Some investors allow this for streamlined processing.                          |
+| **Agency Enhanced** | A **conforming loan** that follows **Fannie Mae/Freddie Mac (“agency”)** guidelines but with **enhanced features** — e.g., higher LTVs, expanded DTI, or special pricing adjustments. |
+
+---
+
+### 🔹 Why they are considered Loan Programs
+
+Each of these:
+
+* Defines **loan limits**, **credit score cutoffs**, **LTV/DTI caps**, and **rate sheets**
+* Is selectable in pricing or underwriting systems (like Optimal Blue, Encompass, or your internal pricing engine)
+* Drives logic for eligibility, pricing, and documentation requirements
+
+______________________________________________________________________________________________________________
+
+-> Non-QM and DSCR are also Loan Programs
+
+| Category            | Is it a Loan Program? | Description                             |
+| ------------------- | --------------------- | --------------------------------------- |
+| **Jumbo**           | ✅ Yes                 | Above conforming limit loans            |
+| **Agency Enhanced** | ✅ Yes                 | Conforming with expanded guidelines     |
+| **Non-QM**          | ✅ Yes                 | Non-qualified loans (flexible rules)    |
+| **DSCR**            | ✅ Yes                 | Investment property loans based on rent |
+
+______________________________________________________________________________________________________________
+
+-> JPQM30 and JPQM15 
+
+Excellent question — and you’re clearly thinking like someone building or interpreting a **mortgage pricing or eligibility engine** 👏
+
+Let’s decode those two terms:
+
+---
+
+### 🔹 **JPQM30** and **JPQM15**
+
+These are **specific loan program codes** (or product codes) used *within the Jumbo Manual loan family*.
+
+They typically stand for:
+
+| Code       | Expanded Name                                        | Typical Meaning                                                                                          |
+| ---------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| **JPQM30** | **Jumbo Program Qualified Mortgage – 30 Year Fixed** | A **Jumbo Manual** loan that meets **Qualified Mortgage (QM)** rules, with a **30-year fixed rate term** |
+| **JPQM15** | **Jumbo Program Qualified Mortgage – 15 Year Fixed** | A **Jumbo Manual** loan that meets **QM** rules, with a **15-year fixed rate term**                      |
+
+---
+
+### 🔹 Breaking It Down
+
+Let’s unpack the naming convention piece by piece:
+
+| Part        | Meaning                                                                                           |
+| ----------- | ------------------------------------------------------------------------------------------------- |
+| **J**       | Jumbo (the overall loan category)                                                                 |
+| **P**       | Program (sometimes stands for “Product” or “Program Type”)                                        |
+| **QM**      | Qualified Mortgage — meaning it meets the CFPB’s *Ability-to-Repay* and *QM* safe harbor criteria |
+| **30 / 15** | Loan term in years (30-year or 15-year fixed)                                                     |
+
+So:
+**JPQM30 = Jumbo Program (Manual) Qualified Mortgage, 30-year fixed**
+**JPQM15 = Jumbo Program (Manual) Qualified Mortgage, 15-year fixed**
+
+______________________________________________________________________________________________________________
+
+-> JPQM30, JPQM15, JPQM56, JPQM76, JPQM106
+
+Those codes — **JPQM30, JPQM15, JPQM56, JPQM76, JPQM106** — are **loan program codes** (or **product codes**) used internally by lenders or pricing engines, especially for **Jumbo Non-QM loan programs**. Let’s break them down:
+
+---
+
+### 🔹 General Pattern:
+
+**JPQMxx**
+
+* **J** → Jumbo
+* **PQM** → likely stands for *Prime / Private / Portfolio Qualified Mortgage* (or *Jumbo Prime Qualified Mortgage*) — it refers to **Non-QM or near-prime Jumbo loans**.
+* **xx** → the **number** usually represents the **loan term or program type**.
+
+---
+
+### 🔍 Likely Meaning of Each Code:
+
+| Code        | Likely Meaning                     | Explanation                                                                                                                                                                        |
+| ----------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **JPQM30**  | Jumbo Prime / Non-QM 30-Year Fixed | A **30-year fixed-rate Jumbo Non-QM** loan program. Typically for borrowers who don’t meet standard agency (Fannie/Freddie) criteria but qualify under lender-specific guidelines. |
+| **JPQM15**  | Jumbo Prime / Non-QM 15-Year Fixed | A **15-year fixed-rate Jumbo Non-QM** loan program. Shorter term, lower rate, higher monthly payment.                                                                              |
+| **JPQM56**  | Jumbo Prime / Non-QM 5/6 ARM       | A **5-year adjustable-rate mortgage** where rate adjusts every 6 months after initial 5 years. (“5/6” = 5 years fixed, adjusts every 6 months.)                                    |
+| **JPQM76**  | Jumbo Prime / Non-QM 7/6 ARM       | A **7-year ARM**, fixed for 7 years, adjusts every 6 months afterward.                                                                                                             |
+| **JPQM106** | Jumbo Prime / Non-QM 10/6 ARM      | A **10-year ARM**, fixed for 10 years, adjusts every 6 months thereafter. Most stable ARM option among the three.                                                                  |
+
+---
+
+### 💡 Context:
+
+These codes typically appear in:
+
+* **Rate sheets / Pricing Engines** (e.g., Optimal Blue, EPPS, Polly)
+* **Lock Desk systems**
+* **Loan origination systems (LOS)** under the “Loan Program” dropdown
+
+They define what type of **product** the borrower is locking — in this case, a **Jumbo Non-QM loan**, either **fixed** or **ARM** (adjustable).
+
+---
+
+### 🏠 Summary:
+
+All of these are **Jumbo Non-QM loan programs**, where:
+
+* “JPQM” = Jumbo Prime/Non-QM
+* The number indicates the **term and ARM structure**:
+
+  * `30` → 30-year fixed
+  * `15` → 15-year fixed
+  * `56` → 5/6 ARM
+  * `76` → 7/6 ARM
+  * `106` → 10/6 ARM
+
+---
+______________________________________________________________________________________________________________

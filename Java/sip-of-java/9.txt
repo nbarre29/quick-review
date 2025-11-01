@@ -111,6 +111,15 @@ public class Main {
 
 Output:
 Billy, David, Denys, José, Nicolai
+
+
+MyNotes:
+`Iterable<? extends CharSequence> elements` is a parameter type that means:
+
+- `Iterable`: Any object that can be iterated over (like a `List`, `Set`, etc.).
+- `? extends CharSequence`: The elements inside the iterable must be of a type that is `CharSequence` or a subclass (e.g., `String`, `StringBuilder`).
+
+This allows teh method to accept a collection of any objects that are CharSequence or its subclasses, not just String. For example `String.join(CharSequence delimiter, Iterable<? extends CharSequence> elements)` can join a List<String>, List<StringBuilder>, etc.
 _____________________________________________________________________
 
 -> String.join() can also take a varargs of items like shown here:
@@ -124,6 +133,22 @@ public class Main {
 
 Output:
 Billy, David, Denys, José, Nicolai
+
+---------------------------------------------------------------------
+
+public class Main {
+
+    public static void main(String[] args) {
+        // array of names
+        String[] names = {"Billy", "David", "Denys", "José", "Nicolai" };
+        System.out.println(String.join(" | ", names));
+
+    }
+}
+
+Output:
+Billy | David | Denys | José | Nicolai
+_____________________________________________________________________
 
 
 

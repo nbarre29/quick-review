@@ -431,12 +431,12 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Main {
-    // method that works on lists of Number and the subtypes of Number, such as Integer, Double, and Float, you would specify List<? extends Number>.
+    // method that works on lists of Number and the subtypes ( subclasses ) of Number, such as Integer, Double, and Float, you would specify List<? extends Number>.
     public static double sumOfList(List<? extends Number> list) {
-        double s = 0.0;
-        for (Number n : list)
-            s += n.doubleValue();
-        return s;
+        double sum = 0.0;
+        for (Number num : list)
+            sum += num.doubleValue();
+        return sum;
     }
 
     public static void main(String[] args) {
@@ -1146,6 +1146,85 @@ public class Main {
 Output:
 Object List: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 Number List: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+______________________________________________________________________________________________________________________
+
+-> Here’s a clear comparison between **`double`** and **`float`** in **Java**, with both **practical examples** and **technical details**:
+
+---
+
+### 🧠 1. Basic Difference
+
+| Feature                         | `float`                                            | `double`                                                   |
+| ------------------------------- | -------------------------------------------------- | ---------------------------------------------------------- |
+| **Size (bits)**                 | 32 bits (4 bytes)                                  | 64 bits (8 bytes)                                          |
+| **Precision**                   | ~6–7 decimal digits                                | ~15–16 decimal digits                                      |
+| **Suffix when writing literal** | `f` or `F` → e.g. `3.14f`                          | Optional → e.g. `3.14`                                     |
+| **Speed**                       | Slightly faster on some older CPUs                 | Usually same on modern hardware                            |
+| **When to use**                 | When memory matters (e.g., large arrays, graphics) | Default choice for decimals (finance, science, most cases) |
+
+---
+
+### 💡 2. Example
+
+
+public class FloatDoubleExample {
+    public static void main(String[] args) {
+        float f = 3.14159265358979f;   // need 'f' suffix
+        double d = 3.14159265358979;   // default type is double
+
+        System.out.println("Float:  " + f);
+        System.out.println("Double: " + d);
+    }
+}
+
+
+**Output:**
+
+Float:  3.1415927
+Double: 3.14159265358979
+
+➡️ Notice how the `float` value loses precision after 7 digits.
+
+---
+
+
+### ⚠️ 3. Common Pitfalls
+
+1. **Type mismatch**
+
+
+   float x = 1.23; // ❌ error (1.23 is double by default)
+   float x = 1.23f; // ✅ correct
+
+
+2. **Equality check**
+
+
+   double a = 0.1 + 0.2;
+   System.out.println(a);  // 0.30000000000000004
+   System.out.println(a == 0.3); // false (floating-point rounding)
+
+
+3. **BigDecimal preferred for money**
+
+
+   BigDecimal amount = new BigDecimal("0.1");
+
+
+   ✅ Avoids rounding issues entirely.
+
+---
+
+### ⚙️ 4. Rule of Thumb
+
+* ✅ **Use `double`** for general-purpose math.
+* ✅ **Use `float`** when:
+
+  * You have **huge arrays** and need to save memory (e.g., 3D graphics, game engines).
+  * Precision isn’t critical beyond 7 digits.
+* ❌ **Never use float/double for money** → use `BigDecimal`.
+
+---
 ______________________________________________________________________________________________________________________
 
 
