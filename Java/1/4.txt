@@ -93,6 +93,44 @@ public class MapIterationExample {
     }
 }
 _________________________________________________________________________________
+->
+import java.util.HashMap;
+import java.util.Map;
+
+public class Main {
+    public static void main(String[] args) {
+
+        Map<String, Integer> studentScores = new HashMap<>();
+        studentScores.put("Alice", 85);
+        studentScores.put("Bob", 92);
+        studentScores.put("Charlie", 78);
+
+        // Using forEach with a lambda expression
+        studentScores.forEach((student, score) ->
+                System.out.println("Student: " + student + ", Score: " + score)
+        );
+
+        // Alternatively, using entrySet and a for-each loop
+        for (Map.Entry<String, Integer> entry : studentScores.entrySet()) {
+            System.out.println("Student: " + entry.getKey() + ", Score: " + entry.getValue());
+        }
+
+        // Using entrySet with a for-each loop to print in a different format
+        for (Map.Entry<String, Integer> entry : studentScores.entrySet()) {
+            String student = entry.getKey();
+            Integer score = entry.getValue();
+            System.out.println(student + ": " + score);
+        }
+
+        // Another way using keySet and getting values
+        for (String student : studentScores.keySet()) {
+            Integer score = studentScores.get(student);
+            System.out.println("Student: " + student + ", Score: " + score);
+        }
+
+    }
+}
+_________________________________________________________________________________
 
 -> 
 import java.util.Map;

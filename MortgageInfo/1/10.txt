@@ -1,0 +1,113 @@
+-> A hedge position is a financial protection strategy used by lenders to offset the risk of interest rate changes between the time a loan is locked with a borrower and the time it is sold in the secondary market.
+
+
+This practice is fundamental to the financial stability of any mortgage lender. The period you described—between locking a rate with a borrower and selling the completed loan—is the lender's single biggest risk exposure, known as **pipeline risk**.
+
+---
+
+## The Concept of Mortgage Hedging
+
+Here is a breakdown of why lenders use a **hedge position** to manage this risk:
+
+### The Risk: Interest Rate Volatility
+
+When a lender agrees to lock an interest rate for a borrower (say, at **6.0%**), they are making a commitment for 30 to 60 days. During this lock period, interest rates in the bond market can fluctuate:
+
+* **If Rates Go Up:** The market value of the borrower's **6.0%** loan immediately decreases because investors can now buy a newer loan at, say, **6.5%**. If the lender sells the 6.0% loan, they take a loss.
+* **If Rates Go Down:** This creates **fall-out risk**. The borrower may decide to abandon the 6.0% loan and go to a competitor for a new loan at the lower rate (e.g., 5.5%). The lender has spent time and money processing the initial loan and has nothing to sell.
+
+### The Solution: The Hedge Position
+
+To offset these risks, the lender simultaneously takes a **hedge position** in the financial markets—usually by selling mortgage-backed securities (MBS) or Treasury bonds on the futures market.
+
+1.  **If Rates Go Up (Loan Value Drops):** The loss the lender takes when selling the 6.0% loan is offset by the **profit** they make on their sold bond position.
+2.  **If Rates Go Down (Borrower Walks):** The loss from the borrower walking away is offset by the **profit** the lender makes on their sold bond position.
+
+By implementing this hedge, the lender ensures that the economic value of their loan portfolio remains stable regardless of market movements, allowing them to focus on originating loans without the paralyzing fear of interest rate risk. 
+
+
+
+To understand how a hedge position is established**, you need to see the mechanics behind what’s happening between the **lock desk**, **pipeline**, and the **secondary market**.
+
+---
+
+## 🏦 1) What Triggers the Need for a Hedge
+
+When a borrower **locks an interest rate**, the lender is **making a promise**:
+
+> “No matter what happens to market rates, we will fund your loan at 6.50%.”
+
+That promise exposes the lender to **interest rate risk**, because:
+
+* The loan won’t close for 30–60 days (sometimes longer).
+* If market rates change during that time, the **market value** of that loan changes.
+
+---
+
+### 📉 Example of Risk Without a Hedge
+
+* Borrower locks 6.50% on a $500,000 loan.
+* Market rates rise to 7.00% before loan sale.
+* Investors now pay **less** for a 6.50% loan (because it yields below-market returns).
+* Lender must sell it for a **discount**, say 98.5¢ on the dollar instead of 100¢.
+  → Loss of $7,500 on that single loan.
+
+Multiply that across hundreds of loans — losses could be in the **millions**.
+
+---
+
+## 🧩 2) The Idea of a Hedge Position
+
+To neutralize that risk, lenders create an **offsetting financial position** — a **hedge** — that moves **in the opposite direction** of loan values when rates change.
+
+> When rates go up, the loans lose value, but the hedge gains value.
+> When rates go down, the loans gain value, but the hedge loses value.
+> → Net result ≈ no loss.
+
+This is the **hedge position**.
+
+---
+
+## ⚙️ 3) How the Hedge Is Established 
+
+### Step 1: Loan Lock Pipeline Analysis
+
+Every day, the **capital markets / secondary team** looks at:
+
+* Total loans locked but not closed (the **pipeline**)
+* Loan types (conforming, jumbo, FHA, VA, etc.)
+* Expected closing probability (the **pull-through rate**)
+
+
+
+## 📊 4) What Happens at Sale
+
+When loans close, the lender delivers them to investors.
+At that point:
+
+* The **loan sale** creates real cash inflow.
+* The **hedge position** (TBA short) is **closed out** — usually at a gain or loss.
+
+The gain or loss on the hedge **offsets** the loss or gain in the loan sale value, keeping the lender’s **net margin stable**.
+
+---
+
+## 🧠 In Simple Words
+
+> A **hedge position** is a set of **offsetting trades** (usually TBA short positions or forward commitments) that **protects the lender’s pipeline** of locked loans from interest rate volatility until those loans are sold.
+
+---
+
+### 🔸 Key Takeaways
+
+| Concept               | Description                                                        |
+| --------------------- | ------------------------------------------------------------------ |
+| **Lock Desk**         | Accepts rate locks from originators; creates pricing exposure.     |
+| **Pipeline**          | All loans locked but not yet sold.                                 |
+| **Pull-Through Rate** | % of locks that are expected to close (determines hedge size).     |
+| **Hedge Position**    | Short sale of TBAs or similar instruments to offset pipeline risk. |
+| **Pair-Off**          | Closing the hedge when the loan sells (gain/loss realized).        |
+
+---
+
+______________________________________________________________________________________________________________

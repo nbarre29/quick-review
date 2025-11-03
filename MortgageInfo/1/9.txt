@@ -138,3 +138,54 @@ All of these are **Jumbo Non-QM loan programs**, where:
 
 ---
 ______________________________________________________________________________________________________________
+
+-> What Is a Conforming Loan Limit?
+
+This is a core concept in the U.S. mortgage industry.
+
+A **Conforming Loan Limit** is the maximum dollar amount set by the **Federal Housing Finance Agency (FHFA)** that a single mortgage loan can have while still being eligible for purchase by **Fannie Mae** and **Freddie Mac**.
+
+In simple terms, it is the threshold that determines if your loan is a **Conventional Loan** (conforming) or a **Jumbo Loan** (non-conforming). 
+
+---
+
+## Why Conforming Limits Matter
+The conforming loan limit is crucial because it dictates who can buy the loan and, consequently, how the loan is priced.
+
+### 1. The Role of Fannie Mae and Freddie Mac
+Fannie Mae and Freddie Mac are Government-Sponsored Enterprises (GSEs). They do not lend money directly to borrowers; instead, they buy mortgages from primary lenders (banks, credit unions) and package them into securities to sell to investors. This process provides liquidity to the entire housing market.
+
+
+When a loan **conforms** to their size limit and underwriting standards, it means:
+
+* **Standardization:** The loan meets the strict, standardized criteria (credit score, debt ratio, documentation) required by the GSEs.
+* **Liquidity:** The lender knows they can easily sell the loan to Fannie or Freddie. This transfer of risk and immediate cash flow allows the lender to make more loans.
+
+
+### 2. Impact on Interest Rates
+
+Loans that conform to the limit are viewed as lower risk because they are backed by the GSEs. This makes them highly desirable to investors, which results in:
+
+* **Lower Interest Rates:** Conforming loans almost always have **lower interest rates** than non-conforming (Jumbo) loans.
+* **Easier Qualifications:** The qualification process is generally more straightforward and automated through the GSEs' systems (like DU or LPA).
+
+---
+
+
+## How the Limit is Calculated
+
+The FHFA sets the baseline conforming loan limit annually based on a federal housing price index.
+
+1.  **Baseline Limit (General):** This is the standard limit that applies to most counties in the United States.
+2.  **High-Cost Areas:** In areas where the median home value significantly exceeds the baseline, the FHFA adjusts the limit higher, up to **150%** of the baseline. These are called **high-balance conforming loans** or **high-cost area loans**, and they still qualify for purchase by the GSEs.
+
+### Example
+
+If the standard conforming limit for a single-family home is set at, say, **$766,550**:
+
+* **Loan of $700,000:** This is a **Conforming Loan**.
+* **Loan of $800,000:** This is a **Non-Conforming (Jumbo) Loan** in a standard county, and it must be held on the lender's books or sold to a private investor.
+* **Loan of $800,000 in a High-Cost Area:** If the local high-cost limit is $1,149,825, this is still a **Conforming High-Balance Loan**.
+
+The limit provides the critical dividing line in mortgage financing between the widely traded, low-risk loans and the more specialized, higher-rate Jumbo loans.
+______________________________________________________________________________________________________________
