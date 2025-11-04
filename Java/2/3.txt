@@ -358,4 +358,48 @@ public enum PaymentMethod {
 }
 ______________________________________________________________________________
 
+->
+
+import java.time.DayOfWeek;
+
+public class Main {
+    public static void main(String[] args) {
+
+        DayOfWeek day = DayOfWeek.MONDAY;
+        System.out.println("Day of the week: " + day);
+
+        System.out.println("Numeric value of " + day + ": " + day.getValue());
+        System.out.println("Is " + day + " a weekend? " + (day == DayOfWeek.SATURDAY || day == DayOfWeek.SUNDAY));
+
+        // few methods of DayOfWeek
+        DayOfWeek nextDay = day.plus(1);
+        System.out.println("Next day after " + day + " is " + nextDay);
+        DayOfWeek previousDay = day.minus(1);
+        System.out.println("Previous day before " + day + " is " + previousDay);
+
+        // Iterate through all days of the week
+        System.out.println("All days of the week:");
+        for (DayOfWeek d : DayOfWeek.values()) {
+            System.out.println(d);
+        }
+    }
+}
+
+Output:
+Day of the week: MONDAY
+Numeric value of MONDAY: 1
+Is MONDAY a weekend? false
+Next day after MONDAY is TUESDAY
+Previous day before MONDAY is SUNDAY
+All days of the week:
+MONDAY
+TUESDAY
+WEDNESDAY
+THURSDAY
+FRIDAY
+SATURDAY
+SUNDAY
+
+______________________________________________________________________________
+
 

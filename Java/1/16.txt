@@ -679,3 +679,145 @@ System Default ZoneId: America/New_York
 ZonedDateTime in System Default Zone: 2025-10-21T08:44:33.917193100-04:00[America/New_York]
 2025-10-21T08:44:33.954764-04:00[America/New_York]
 _____________________________________________________________________________________
+
+
+->
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+
+public class Main {
+    public static void main(String[] args) {
+
+        String[] timeZones = {
+                "America/New_York",
+                "America/Chicago",
+                "America/Denver",
+                "America/Los_Angeles",
+                "America/Anchorage",
+                "America/Adak"
+        };
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
+        for (String zone : timeZones) {
+            ZonedDateTime currentTime = ZonedDateTime.now(ZoneId.of(zone));
+            String formattedTime = currentTime.format(formatter);
+            System.out.println("Current time in " + zone + ": " + formattedTime);
+        }
+    }
+}
+
+Output:
+Current time in America/New_York: 2025-11-03 19:53:00 EST
+Current time in America/Chicago: 2025-11-03 18:53:00 CST
+Current time in America/Denver: 2025-11-03 17:53:00 MST
+Current time in America/Los_Angeles: 2025-11-03 16:53:00 PST
+Current time in America/Anchorage: 2025-11-03 15:53:00 AKST
+Current time in America/Adak: 2025-11-03 14:53:00 HAST
+-------------------------------------------------------------------------------------
+
+-> Refactored  to use `Instant` and `LocalDateTime` with `DateTimeFormatter`; invalid zones are handled.
+
+
+import java.time.DateTimeException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+
+public class Main {
+    public static void main(String[] args) {
+
+        String[] timeZones = {
+                "America/New_York",
+                "America/Chicago",
+                "America/Denver",
+                "America/Los_Angeles",
+                "America/Anchorage",
+                "America/Adak"
+        };
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        Instant now = Instant.now();
+
+        for (String zone : timeZones) {
+            try {
+                ZoneId zoneId = ZoneId.of(zone);
+                LocalDateTime localDateTime = LocalDateTime.ofInstant(now, zoneId);
+                String formattedTime = localDateTime.format(formatter);
+                System.out.println("Current time in " + zone + ": " + formattedTime);
+            } catch (DateTimeException e) {
+                System.err.println("Invalid time zone: " + zone + " - " + e.getMessage());
+            }
+        }
+    }
+}
+
+Output:
+Current time in America/New_York: 2025-11-03 20:04:59
+Current time in America/Chicago: 2025-11-03 19:04:59
+Current time in America/Denver: 2025-11-03 18:04:59
+Current time in America/Los_Angeles: 2025-11-03 17:04:59
+Current time in America/Anchorage: 2025-11-03 16:04:59
+Current time in America/Adak: 2025-11-03 15:04:59
+-------------------------------------------------------------------------------------
+
+-> You can’t use `z` with a `LocalDateTime` because `z` needs timezone information. Use `ZonedDateTime` (or `OffsetDateTime`) so the formatter has zone data.
+
+
+import java.time.DateTimeException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+
+public class Main {
+    public static void main(String[] args) {
+
+        String[] timeZones = {
+                "America/New_York",
+                "America/Chicago",
+                "America/Denver",
+                "America/Los_Angeles",
+                "America/Anchorage",
+                "America/Adak"
+        };
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
+        Instant now = Instant.now();
+
+        for (String zone : timeZones) {
+            try {
+                ZoneId zoneId = ZoneId.of(zone);
+                ZonedDateTime zdt = now.atZone(zoneId);
+                String formattedTime = zdt.format(formatter);
+                System.out.println("Current time in " + zone + ": " + formattedTime);
+            } catch (DateTimeException e) {
+                System.err.println("Invalid time zone: " + zone + " - " + e.getMessage());
+            }
+        }
+    }
+}
+
+Output:
+Current time in America/New_York: 2025-11-03 20:08:46 EST
+Current time in America/Chicago: 2025-11-03 19:08:46 CST
+Current time in America/Denver: 2025-11-03 18:08:46 MST
+Current time in America/Los_Angeles: 2025-11-03 17:08:46 PST
+Current time in America/Anchorage: 2025-11-03 16:08:46 AKST
+Current time in America/Adak: 2025-11-03 15:08:46 HAST
+-------------------------------------------------------------------------------------
+-> For a stable numeric offset, use pattern `XXX` or `Z` instead of `z`.   can you update the code
+
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss XXX");
+
+Output:
+Current time in America/New_York: 2025-11-03 20:12:06 -05:00
+Current time in America/Chicago: 2025-11-03 19:12:06 -06:00
+Current time in America/Denver: 2025-11-03 18:12:06 -07:00
+Current time in America/Los_Angeles: 2025-11-03 17:12:06 -08:00
+Current time in America/Anchorage: 2025-11-03 16:12:06 -09:00
+Current time in America/Adak: 2025-11-03 15:12:06 -10:00
+
+_____________________________________________________________________________________
