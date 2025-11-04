@@ -814,4 +814,10 @@ Current time in America/Los_Angeles: 2025-11-03 17:12:06 -08:00
 Current time in America/Anchorage: 2025-11-03 16:12:06 -09:00
 Current time in America/Adak: 2025-11-03 15:12:06 -10:00
 
+MyNotes:
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm:ss.SSS'Z'");
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yyyy HH:mm:ssa");
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm:ss.SSSX").withZone(ZoneId.of("UTC"));
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm:ssX").withZone(ZoneId.of("UTC"));
+
 _____________________________________________________________________________________
