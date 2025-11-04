@@ -679,10 +679,7 @@ System Default ZoneId: America/New_York
 ZonedDateTime in System Default Zone: 2025-10-21T08:44:33.917193100-04:00[America/New_York]
 2025-10-21T08:44:33.954764-04:00[America/New_York]
 _____________________________________________________________________________________
-
-
 ->
-
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -716,9 +713,7 @@ Current time in America/Los_Angeles: 2025-11-03 16:53:00 PST
 Current time in America/Anchorage: 2025-11-03 15:53:00 AKST
 Current time in America/Adak: 2025-11-03 14:53:00 HAST
 -------------------------------------------------------------------------------------
-
 -> Refactored  to use `Instant` and `LocalDateTime` with `DateTimeFormatter`; invalid zones are handled.
-
 
 import java.time.DateTimeException;
 import java.time.Instant;
@@ -765,7 +760,6 @@ Current time in America/Adak: 2025-11-03 15:04:59
 
 -> You can’t use `z` with a `LocalDateTime` because `z` needs timezone information. Use `ZonedDateTime` (or `OffsetDateTime`) so the formatter has zone data.
 
-
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -808,7 +802,7 @@ Current time in America/Los_Angeles: 2025-11-03 17:08:46 PST
 Current time in America/Anchorage: 2025-11-03 16:08:46 AKST
 Current time in America/Adak: 2025-11-03 15:08:46 HAST
 -------------------------------------------------------------------------------------
--> For a stable numeric offset, use pattern `XXX` or `Z` instead of `z`.   can you update the code
+-> For a stable numeric offset, use pattern `XXX` or `Z` instead of `z`.
 
 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss XXX");
 
