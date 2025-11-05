@@ -205,6 +205,35 @@ public class TimeZoneConversionExample {
 
     }
 }
+-------------------------------------------------------------------------------------
+-> 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+
+public class TimeZoneConversionExample {
+    public static void main(String[] args) {
+
+        Instant currentInstant = Instant.now();
+        ZoneId newYorkZoneId = ZoneId.of("America/New_York");
+        ZonedDateTime newYorkDateTime = currentInstant.atZone(newYorkZoneId);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
+        System.out.println("NewYork Time: " + newYorkDateTime.format(formatter));
+
+    }
+}
+
+Output:
+NewYork Time: 2025-11-04 20:05:33 EST
+
+
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss a");		2025-11-04 20:06:23 PM
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss a");		2025-11-04 08:07:22 PM
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm:ss.SSS'Z'");		2025-11-04T08:08:43.012Z
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yyyy HH:mm:ssa");		11/4/2025 20:10:06PM	
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ssa");		11/04/2025 20:11:35PM
 _____________________________________________________________________________________
 
 -> Java code to get current EST time:
@@ -679,6 +708,23 @@ System Default ZoneId: America/New_York
 ZonedDateTime in System Default Zone: 2025-10-21T08:44:33.917193100-04:00[America/New_York]
 2025-10-21T08:44:33.954764-04:00[America/New_York]
 _____________________________________________________________________________________
+
+-> 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Current Date and Time: " + DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z")
+                .withZone(ZoneId.systemDefault())
+                .format(Instant.now()));
+    }
+}
+
+Output:
+Current Date and Time: 2025-11-05 10:08:13 EST
+_____________________________________________________________________________________
 ->
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -758,7 +804,9 @@ Current time in America/Anchorage: 2025-11-03 16:04:59
 Current time in America/Adak: 2025-11-03 15:04:59
 -------------------------------------------------------------------------------------
 
--> LocalDateTime and ZonedDateTime are both classes in Java's java.time package used for representing date and time, but they differ significantly in their handling of time zones. 
+-> LocalDateTime vs ZonedDateTime
+
+LocalDateTime and ZonedDateTime are both classes in Java's java.time package used for representing date and time, but they differ significantly in their handling of time zones. 
 
 LocalDateTime: 
 • Represents a date and time without any time zone information. It's like a wall clock time in a specific location, but without knowing which location. 
