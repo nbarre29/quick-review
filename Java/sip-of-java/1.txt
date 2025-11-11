@@ -71,7 +71,29 @@ public class Main {
         System.out.println(result);  // Sunday
     }
 }
+-----------------------------------------------------------------------------
+->  Java 8 already provides `java.time.DayOfWeek`, so custom `DaysOfWeek` in the above code is redundant for common use.
 
+import java.time.DayOfWeek;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        DayOfWeek dayOfWeek = DayOfWeek.SUNDAY;
+        String result = switch (dayOfWeek) {
+            case SUNDAY -> "Sunday";
+            case MONDAY -> "Monday";
+            case TUESDAY -> "Tuesday";
+            case WEDNESDAY -> "Wednesday";
+            case THURSDAY -> "Thursday";
+            case FRIDAY -> "Friday";
+            case SATURDAY -> "Saturday";
+        };
+
+        System.out.println(result);  // Sunday
+    }
+}
 ______________________________________________________________________________
 
 -> 
@@ -125,7 +147,6 @@ ______________________________________________________________________________
 -> rewritten the same example here, https://docs.oracle.com/javase/tutorial/java/javaOO/enum.html
 
 
-
 public enum Day {
     SUNDAY, MONDAY, TUESDAY, WEDNESDAY,
     THURSDAY, FRIDAY, SATURDAY 
@@ -168,4 +189,29 @@ Weekends are best.
 
 MyNotes:
 We can make  "Day day;"  as "private final Day day;" to ensure the day field immutable and only accessible within the class. This is a common best practise for fields set via the constructor.
+
+-----------------------------------------------------------------------------
+
+-> EnumTest.java in the above code can be converted to record class.
+
+public record EnumTest(Day day) {
+
+    public void tellItLikeItIs() {
+        String message = switch (day) {
+            case MONDAY -> "Mondays are bad.";
+            case FRIDAY -> "Fridays are better.";
+            case SATURDAY, SUNDAY -> "Weekends are best.";
+            default -> "Midweek days are so-so.";
+        };
+        System.out.println(message);
+    }
+
+    public static void main(String[] args) {
+        new EnumTest(Day.MONDAY).tellItLikeItIs();
+        new EnumTest(Day.WEDNESDAY).tellItLikeItIs();
+        new EnumTest(Day.FRIDAY).tellItLikeItIs();
+        new EnumTest(Day.SATURDAY).tellItLikeItIs();
+        new EnumTest(Day.SUNDAY).tellItLikeItIs();
+    }
+}
 ______________________________________________________________________________

@@ -712,6 +712,7 @@ ________________________________________________________________________________
 -> 
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Main {
@@ -719,11 +720,18 @@ public class Main {
         System.out.println("Current Date and Time: " + DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z")
                 .withZone(ZoneId.systemDefault())
                 .format(Instant.now()));
+        System.out.println("Current Date and Time: " + ZonedDateTime.now()
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z")));
     }
 }
 
 Output:
-Current Date and Time: 2025-11-05 10:08:13 EST
+Current Date and Time: 2025-11-05 22:20:47 EST
+Current Date and Time: 2025-11-05 22:20:47 EST
+
+MyNotes:
+The `ZonedDateTime.now()` uses the JVM system default `ZoneId`, so the second line prints the current time in the system default timezone. The first line also uses system default because you call `.withZone(ZoneId.systemDefault())`. Note: pattern `z` prints a timezone name/abbreviation (can vary); use `XXX` for a stable numeric offset (e.g., `-04:00`).
+
 _____________________________________________________________________________________
 ->
 import java.time.ZoneId;
