@@ -122,6 +122,87 @@ System.out.println("Name: " + user.name() + ", Email: " + user.email());
 
 ______________________________________________________________________________________________________
 
+-> Another example to demonstrate Single Responsibility Principle (SRP)
+
+
+
+public class Employee {
+    private final String name;
+    private final double salary;
+
+    public Employee(String name, double salary) {
+        this.name = name;
+        this.salary = salary;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getSalary() {
+        return salary;
+    }
+}
+
+
+
+public class PayrollCalculator {
+    public double calculateBonus(Employee employee){
+        return employee.getSalary() * 0.10; // 10% bonus
+    }
+}
+
+
+
+public class PayrollReporter {
+    public void generateReport(Employee employee, PayrollCalculator calculator) {
+        double bonus = calculator.calculateBonus(employee);
+        System.out.println("Payroll Report for: " + employee.getName());
+        System.out.println("Base salary: $" + employee.getSalary());
+        System.out.println("Bonus: $" + bonus);
+        System.out.println("Total Compensation: $" + (employee.getSalary() + bonus));
+    }
+}
+
+
+
+public class Main {
+    public static void main(String[] args) {
+        Employee employee = new Employee("Alice", 80000);
+
+        PayrollCalculator calculator = new PayrollCalculator();
+
+        PayrollReporter reporter = new PayrollReporter();
+        reporter.generateReport(employee, calculator);
+    }
+}
+
+
+
+### ✅ **Overall Assessment**
+
+| Class               | Responsibility               | SRP Compliant? |
+| ------------------- | ---------------------------- | -------------- |
+| `Employee`          | Data holder                  | ✅              |
+| `PayrollCalculator` | Business logic (computation) | ✅              |
+| `PayrollReporter`   | Output/reporting             | ✅              |
+
+
+Each class has **a single, distinct reason to change**:
+
+* Change employee structure → only `Employee`.
+* Change calculation logic → only `PayrollCalculator`.
+* Change reporting format → only `PayrollReporter`.
+* Change program flow → only `Main`.
+
+---
+
+### 💡 **Conclusion**
+
+Each class handles one focused concern and delegates appropriately.
+
+______________________________________________________________________________________________________
+
 -> provide an example to demonstrate Open/Closed Principle (OCP)
 
 The Open/Closed Principle (OCP) states that software entities (classes, modules, functions, etc.) should be open for extension but closed for modification. This means you should be able to add new functionality without changing existing code.
