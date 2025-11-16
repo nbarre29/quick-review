@@ -12,3 +12,14 @@ https://inside.java/2023/05/01/sip076/
 6) Collectors.filtering
 
 7) 
+
+8) 
+
+9) 
+a) java.util.EnumMap
+b) java.util.Base64.getEncoder().encode(byte[])
+c) java.util.Base64.getEncoder().encodeToString(byte[])
+d) Usage of javax.crypto.Mac` with `"HmacSHA256"
+
+
+10) regular constructor vs canonical / compact canonical constructor in record

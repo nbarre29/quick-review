@@ -29,6 +29,44 @@ Copied array with padding: [1, 2, 3, 4, 5, 0]
 copyOfNumbers - is an example of a simple copy of an array.
 copyOfSomeNumbers - is an example of copying only a portion of an array.
 copyOfNumbersWithPadding - is an example of copying an array and adding padding. The padded values are the default value for the type; in the case of int, that is 0.
+---------------------------------------------------------------------
+
+-> real time use case to demonstrate Arrays.copyOf(boolean[] original, int newLength)
+
+import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) {
+        
+        // Real-time seat availability tracking in a theater
+        boolean[] seatsOccupied = {true, false, true}; // true = occupied, false = available
+        int totalSeats = 6; // new seats added
+
+        // Expand the seats array to accommodate new seats (default to false, i.e., available)
+        boolean[] updatedSeats = java.util.Arrays.copyOf(seatsOccupied, totalSeats);
+
+        System.out.println(Arrays.toString(updatedSeats)); // Output: [true, false, true, false, false, false]
+
+        // Display the updated seat availability
+        System.out.println("Updated Seat Availability:");
+        for (int i = 0; i < updatedSeats.length; i++) {
+            System.out.println("Seat " + (i + 1) + ": " + (updatedSeats[i] ? "Occupied" : "Available"));
+        }
+
+    }
+}
+
+Output:
+Updated Seat Availability:
+Seat 1: Occupied
+Seat 2: Available
+Seat 3: Occupied
+Seat 4: Available
+Seat 5: Available
+Seat 6: Available
+[true, false, true, false, false, false]
+
+ 
 
 _____________________________________________________________________
 

@@ -124,8 +124,6 @@ ________________________________________________________________________________
 
 -> Another example to demonstrate Single Responsibility Principle (SRP)
 
-
-
 public class Employee {
     private final String name;
     private final double salary;
@@ -145,13 +143,11 @@ public class Employee {
 }
 
 
-
 public class PayrollCalculator {
     public double calculateBonus(Employee employee){
         return employee.getSalary() * 0.10; // 10% bonus
     }
 }
-
 
 
 public class PayrollReporter {
@@ -163,7 +159,6 @@ public class PayrollReporter {
         System.out.println("Total Compensation: $" + (employee.getSalary() + bonus));
     }
 }
-
 
 
 public class Main {
@@ -193,9 +188,7 @@ Each class has **a single, distinct reason to change**:
 * Change employee structure → only `Employee`.
 * Change calculation logic → only `PayrollCalculator`.
 * Change reporting format → only `PayrollReporter`.
-* Change program flow → only `Main`.
 
----
 
 ### 💡 **Conclusion**
 
