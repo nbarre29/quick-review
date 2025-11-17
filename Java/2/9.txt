@@ -111,11 +111,72 @@ CANCELLED: 2
 
 
 MyNotes:
-Use a more descriptive noun phrase. Recommended name: `countsByStatus` (or `statusCounts` / `countsPerStatus`) 
+1) we get the same output if we use below as well:
+statusCount.forEach((status, count) -> {
+            System.out.println(status + ": " + count);
+        });
+
+2) Use a more descriptive noun phrase. Recommended name: `countsByStatus` (or `statusCounts` / `countsPerStatus`) 
 
 ```java
 EnumMap<Status, Integer> countsByStatus = new EnumMap<>(Status.class);
 ```
+
+3) Use a more descriptive enum name like OrderStatus or LoanStatus.
+
+## Why "Status" is Too Generic
+
+The name `Status` is:
+- ❌ **Too vague** - Status of what? Orders? Loans? Shipments? Users?
+
+```java
+// ✅ Clear and specific
+public enum OrderStatus {
+    NEW,
+    IN_PROGRESS,
+    COMPLETED,
+    CANCELLED
+}
+
+public enum LoanStatus {
+    NEW,
+    IN_PROGRESS,
+    COMPLETED,
+    CANCELLED
+}
+
+public enum ShipmentStatus {
+    PENDING,
+    IN_TRANSIT,
+    DELIVERED,
+    RETURNED
+}
+
+public enum UserStatus {
+    ACTIVE,
+    INACTIVE,
+    SUSPENDED,
+    DELETED
+}
+```
+
+
+## Benefits of Descriptive Enum Names
+
+| **Generic Name** | **Specific Name**  | **Benefit**                       |
+| ---------------- | ------------------ | --------------------------------- |
+| `Status`         | `OrderStatus`      | Immediately clear it's for orders |
+| `Type`           | `PaymentType`      | Self-documenting                  |
+| `State`          | `UserAccountState` | No ambiguity                      |
+| `Category`       | `ProductCategory`  | Domain-specific                   |
+
+
+## Naming Convention for Enums
+
+Follow the same rule as classes:
+- **PascalCase** (CapitalizeEachWord)
+- **Singular noun or noun phrase** that describes what the enum represents
+- **Be specific about the domain/context**
 
 -----------------------------------------------------------
 -> In Java, variable names should generally be descriptive noun phrases.
@@ -192,6 +253,74 @@ public static final int MAX_CONNECTIONS = 100;
 ## Best Practice:
 **"Use descriptive noun phrases that clearly communicate what the variable holds."**
 
+-----------------------------------------------------------
+-> Class Naming Rules
+
+Java class names should be:
+1. **Nouns or noun phrases** (representing things/concepts)
+2. **PascalCase** (CapitalizeEachWord)
+3. **Descriptive and meaningful**
+4. **Singular** (not plural, except for utility classes)
+
+## Examples:## Quick Reference Table
+
+| **Class Type** | **Naming Pattern**        | **Examples**                                |
+| -------------- | ------------------------- | ------------------------------------------- |
+| Entity/Model   | Singular noun             | `Customer`, `Order`, `Product`              |
+| Service        | Noun + `Service`          | `EmailService`, `PaymentService`            |
+| Controller     | Noun + `Controller`       | `UserController`, `OrderController`         |
+| Manager        | Noun + `Manager`          | `ConnectionManager`, `SessionManager`       |
+| Utility        | Plural/Noun + `Utils`     | `StringUtils`, `DateFormatter`              |
+| Exception      | Description + `Exception` | `InvalidEmailException`, `TimeoutException` |
+| Interface      | Adjective or Noun         | `Runnable`, `Comparable`, `Repository`      |
+| Abstract       | Abstract/Base + Noun      | `AbstractUser`, `BaseController`            |
+| Test           | ClassName + `Test`        | `CustomerTest`, `OrderServiceTest`          |
+
+
+## Key Differences from Variables:
+
+| **Aspect**   | **Variables**  | **Classes**       |
+| ------------ | -------------- | ----------------- |
+| Case         | camelCase      | PascalCase        |
+| Example      | `customerName` | `CustomerService` |
+| First letter | Lowercase      | Uppercase         |
+
+
+**Remember:** Classes are **things** (nouns), methods are **actions** (verbs), variables are **data** (nouns/adjectives).
+-----------------------------------------------------------
+-> Java method naming conventions:
+
+## Method Naming Rules
+
+Java methods should:
+1. **Start with a verb** (methods perform actions)
+2. **Use camelCase** (firstWordLowercase)
+
+| **Method Type** | **Prefix**                 | **Returns**        | **Examples**                         |
+| --------------- | -------------------------- | ------------------ | ------------------------------------ |
+| Getter          | `get`                      | Value              | `getName()`, `getPrice()`            |
+| Setter          | `set`                      | `void`             | `setName()`, `setAge()`              |
+| Boolean         | `is` / `has` / `can`       | `boolean`          | `isValid()`, `hasAccess()`           |
+| Action          | verb                       | varies             | `save()`, `delete()`, `process()`    |
+| Create          | `create` / `build`         | Object             | `createUser()`, `buildReport()`      |
+| Find            | `find` / `search` / `get`  | Object/List        | `findById()`, `getUsers()`           |
+| Convert         | `to` / `convert`           | Type               | `toString()`, `toJson()`             |
+| Validate        | `validate` / `verify`      | `boolean` / `void` | `validateEmail()`, `verifyToken()`   |
+| Calculate       | `calculate` / `compute`    | Number             | `calculateTotal()`, `computeScore()` |
+| Collection      | `add` / `remove` / `clear` | `void`             | `addItem()`, `removeItem()`          |
+
+
+## Summary Comparison:
+
+| **Element** | **Convention**  | **Example**         |
+| ----------- | --------------- | ------------------- |
+| Class       | PascalCase noun | `CustomerService`   |
+| Method      | camelCase verb  | `getCustomerName()` |
+| Variable    | camelCase noun  | `customerName`      |
+| Constant    | ALL_CAPS        | `MAX_SIZE`          |
+
+
+**Remember:** Methods DO things (verbs), Classes ARE things (nouns)!
 -----------------------------------------------------------
 -> "**Switch-like**" in the statement simply means:
 
@@ -422,7 +551,7 @@ Use EnumMap when:
 If your keys are *not* enums → use HashMap.
 If your enum has extremely large sparse values → HashMap *may* work better (rare scenario).
 
-_______________________________________________________________________________________
+_________________________________________________________________________________________
 
 -> Here’s a clear explanation of **“sparse values”** in the context of enums and why it matters.
 
@@ -539,7 +668,7 @@ In this very extreme case, **HashMap is better** because it grows only as needed
 
 Sparse enums are an **edge case** mostly seen in code generation or weird legacy systems.
 
-_______________________________________________________________________________________
+_________________________________________________________________________________________
 
 -> demonstrate the usage of java.util.Base64
 
@@ -580,6 +709,15 @@ Input: Hello World
 Encoded (byte[]): [83, 71, 86, 115, 98, 71, 56, 103, 86, 50, 57, 121, 98, 71, 81, 61]
 Encoded (as String): SGVsbG8gV29ybGQ=
 
+
+MyNotes:
+1) 
+a) specify the charset explicitly. Using StandardCharsets.UTF_8 avoids platform-dependent defaults and is the correct choice for UTF-8 text.
+ // Convert string to bytes using explicit charset
+ byte[] inputBytes = input.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+ 
+b)Prefer to supply an explicit Charset (avoids platform-default charset variability). 
+System.out.println("Encoded (as String): " + new String(encodedBytes, java.nio.charset.StandardCharsets.UTF_8));
 
 
 # ✅ **2) Using `Base64.getEncoder().encodeToString(byte[])`**
@@ -636,7 +774,7 @@ public class Base64DecodeExample {
 Output:
 Decoded String: Hello World
 
-_______________________________________________________________________________________
+_________________________________________________________________________________________
 
 
 -> **Difference Between `javax.crypto.Mac` and `java.util.Base64`**
@@ -727,7 +865,7 @@ This is **not cryptography** — it is reversible.
 **`javax.crypto.Mac` = secure hashing with a key (authentication)**
 **`java.util.Base64` = reversible encoding (data formatting)**
 
-_______________________________________________________________________________________
+_________________________________________________________________________________________
 
 -> Below are **simple, clear Java examples** showing how to use
 `javax.crypto.Mac` with `"HmacSHA256"`.
@@ -940,7 +1078,78 @@ public class HmacSha256Base64Example {
 Output:
 HMAC-SHA256 (Base64): Sblx61Z44Ay8p5LA5k8qFjFG6CHLiPOj8FbTak1osjo=
 
-_______________________________________________________________________________________
+_________________________________________________________________________________________
+
+-> 
+Summary:
+- computes an HMAC using HmacSHA256 for a plaintext string and prints:
+  - the original string
+  - the message encoded in Base64
+  - the HMAC in Base64
+  - the HMAC in hex
+  
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        String message = "Hello, World!";
+        String secret = "mysecretkey";
+
+        try {
+            Mac hmacSHA256 = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+            hmacSHA256.init(secretKeySpec);
+
+            byte[] hmac = hmacSHA256.doFinal(message.getBytes(StandardCharsets.UTF_8));
+            String hmacBase64 = Base64.getEncoder().encodeToString(hmac);
+            String messageBase64 = Base64.getEncoder().encodeToString(message.getBytes(StandardCharsets.UTF_8));
+            String hmacHex = bytesToHex(hmac);
+
+            System.out.println("original string: " + message);
+            System.out.println("encoded string: " + messageBase64);
+            System.out.println("hmac (base64): " + hmacBase64);
+            System.out.println("hmac (hex): " + hmacHex);
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder(bytes.length * 2);
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b & 0xff));
+        }
+        return sb.toString();
+    }
+}
+
+Output:
+original string: Hello, World!
+encoded string: SGVsbG8sIFdvcmxkIQ==
+hmac (base64): GV16bk+ihCWkjOFoEqpDgdRP3cRxXRP1pkf+O+OI8O4=
+hmac (hex): 195d7a6e4fa28425a48ce16812aa4381d44fddc4715d13f5a647fe3be388f0ee
+
+
+Primary use cases
+- API request signing: create a signature to authenticate requests between clients and servers.
+- Webhook verification: verify that incoming webhook payloads come from a trusted sender by comparing HMACs.
+- Session/token signing: sign cookies, JWT payloads, or opaque tokens to detect tampering.
+- Message integrity: ensure a received message hasn’t been modified in transit.
+- License/key generation: produce/verifiable signatures for license files or activation keys.
+- Debugging/learning: inspect HMAC outputs and encodings while developing crypto-related features.
+
+Practical notes and cautions
+- Don’t hardcode secrets like `mysecretkey`; use secure storage (vault, environment variables, OS keystore).
+- Choose appropriate key length and algorithm for your threat model; HmacSHA256 is generally good.
+- Avoid printing secrets or signatures to logs in production.
+- Ensure consistent character encoding (UTF-8) on both signing and verification sides.
+
+_________________________________________________________________________________________
 
 -> **UTF-8** is a **character encoding** — a way of converting text (letters, symbols, emojis) into bytes so computers can store and transmit them.
 
@@ -1034,7 +1243,7 @@ ________________________________________________________________________________
 | **ASCII compatible?**    | Yes (it **is** ASCII)                             | Yes (first 128 characters identical) | No                                          |
 | **Most popular today?**  | ❌ Old                                             | ✅ **Yes—used everywhere**            | Used mostly in memory/Windows               |
 
-_____________________________________________________________________________________
+_________________________________________________________________________________________
 
 -> “Java internally represents text as UTF-16, and external data formats (files, network, JSON, XML) commonly use UTF-8 — so Java often converts between UTF-16 internally and UTF-8 externally.”     
 
@@ -1053,7 +1262,7 @@ Here's why your statement is spot-on:
 
 Your statement clearly articulates the "what" (UTF-16 vs. UTF-8) and the "how" (the necessity of conversion) in a single, well-structured sentence.
 
-_____________________________________________________________________________________
+_________________________________________________________________________________________
 
 
 
