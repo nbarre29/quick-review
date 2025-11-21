@@ -107,6 +107,28 @@ Course: History, Students: [David]
 Course: Math, Students: [Alice, Charlie]
 ______________________________________________________________________________
 
+-> 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class Main {
+    public static void main(String[] args) {
+
+        Map<String, List<String>> courseStudents = new HashMap<>();
+
+        courseStudents.computeIfAbsent("Math", k -> List.of("Alice", "Bob"));
+        courseStudents.computeIfAbsent("Science", k -> List.of("Charlie", "David"));
+
+        courseStudents.forEach((course, students) -> {
+            System.out.println("Course: " + course + ", Students: " + students);
+
+        });
+
+    }
+}
+______________________________________________________________________________
+
 -> Changes to above code:
  Used a Map<String, Set<String>> instead of Map<String, List<String>>, which prevents duplicate student names per course:
 

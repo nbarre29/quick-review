@@ -23,3 +23,5 @@ d) Usage of javax.crypto.Mac` with `"HmacSHA256"
 
 
 10) regular constructor vs canonical / compact canonical constructor in record
+Objects.requireNonNull
+Objects.requireNonNullElse

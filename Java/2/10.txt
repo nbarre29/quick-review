@@ -208,3 +208,168 @@ isEmpty vs isBlank (brief)
 - Because your code calls `trim()` first, a whitespace-only input becomes empty, so `isEmpty()` and `isBlank()` behave the same in that specific case. If you remove `trim()`, prefer `isBlank()` to reject whitespace-only names.
 - `isBlank()` uses `Character.isWhitespace` semantics and requires Java 11+.
 _________________________________________________________________________________________
+
+==> demonstrate Objects.requireNonNull
+
+public class Main {
+    public static void main(String[] args) {
+        String name = null;
+        try {
+            String finalName = validateName(name);
+            System.out.println("Final Name: " + finalName);
+        } catch (NullPointerException e) {
+            System.out.println("Validation failed: " + e.getMessage());
+        }
+    }
+
+    // Validates the method argument and throws NullPointerException with a message if null
+    public static String validateName(String name) {
+        return java.util.Objects.requireNonNull(name, "name must not be null");
+    }
+}
+
+Output:
+Validation failed: name must not be null
+
+The program is **correct** and it’s a nice, minimal demo of `Objects.requireNonNull`. 
+But if we look at it from a “real-world Java” point of view, there are a few improvements
+
+## 🔧 Suggested improvements (for “real-world” style)
+
+### 1️) Don’t normally *catch* `NullPointerException`
+
+Catching `NullPointerException` is usually considered a **code smell**.
+NPE usually indicates a programmer error, not a recoverable runtime condition.
+
+For a demo, it’s okay, but in real code you’d typically:
+
+* Validate *before* calling, or
+* Let the exception propagate and fix the caller.
+
+If you want to show both success and failure, you could do:
+
+```java
+public static void main(String[] args) {
+    System.out.println(validateName("Alice"));   // OK
+    System.out.println(validateName(null));      // Throws at runtime
+}
+```
+
+and let the NPE show in stack trace.
+
+
+## Why Catching NPE is a Code Smell
+
+**1. NPE Indicates Programming Bugs**
+`NullPointerException` typically signals a logic error in your code—something you should fix during development, not handle at runtime. It means you're trying to use an object reference that hasn't been properly initialized.
+
+**2. Masks Real Problems**
+Catching NPE hides the underlying issue instead of fixing it. You're treating a symptom rather than the cause.
+
+**3. Not a Recoverable Condition**
+Unlike `IOException` or `SQLException` (which can happen due to external factors like network issues or database problems), NPE is almost always preventable with proper null checks and validation.
+
+---
+
+### 2️) Consider using `IllegalArgumentException` instead of `NullPointerException`
+
+For *method argument validation*, many teams prefer:
+
+```java
+if (name == null) {
+    throw new IllegalArgumentException("name must not be null");
+}
+```
+
+But since `Objects.requireNonNull` is *specifically designed* to throw NPE, your version is still acceptable — especially if the method contract says “name must not be null”.
+
+If you want to keep `requireNonNull` but avoid catching NPE, you could just do:
+
+```java
+public static void main(String[] args) {
+    String name = null;
+    String finalName = validateName(name); // will throw if null
+    System.out.println("Final Name: " + finalName);
+}
+```
+
+---
+
+### 3️) Tiny stylistic improvements
+
+* Use a static import to simplify the code:
+
+  ```java
+  import static java.util.Objects.requireNonNull;
+
+  public static String validateName(String name) {
+      return requireNonNull(name, "name must not be null");
+  }
+  ```
+
+* (Optional) Do normalization as well, if that’s your learning goal:
+
+  ```java
+  public static String validateName(String name) {
+      name = requireNonNull(name, "name must not be null").trim();
+      if (name.isEmpty()) {
+          throw new IllegalArgumentException("name must not be blank");
+      }
+      return name;
+  }
+  ```
+
+This ties nicely into your earlier “normalization + validation” notes.
+
+---
+
+## ⭐ Summary
+
+* **For a learning/demo program**: ✅ Looks good.
+* **For production-style code**:
+
+  * Don’t catch `NullPointerException` just to print a message.
+  * Either let it fail, or validate earlier.
+  * Consider `IllegalArgumentException` if you want to signal “bad argument”.
+_________________________________________________________________________________________
+
+==> demonstrate Objects.requireNonNullElse
+
+import java.util.Objects;
+
+public class Main {
+    public static void main(String[] args) {
+        String name = null;
+        String finalName = validateName(name);
+        System.out.println("Final Name: " + finalName);
+    }
+
+    // Returns the given name, or "Unknown" if the name is null
+    public static String validateName(String name) {
+        return Objects.requireNonNullElse(name, "Unknown");
+    }
+}
+
+Output:
+Final Name: Unknown
+
+
+1. **Maybe demo both null and non-null cases**
+
+   To show behavior clearly:
+
+   ```java
+   public static void main(String[] args) {
+       System.out.println("null  -> " + validateName(null));      // "Unknown"
+       System.out.println("\"Bob\" -> " + validateName("Bob"));   // "Bob"
+   }
+   ```
+
+4. **Remember: default must not be null**
+
+   `requireNonNullElse(value, defaultValue)` will throw `NullPointerException` if **both** are `null`. Your code is fine because `"Unknown"` is a constant, but it’s worth noting for your mental model.
+   
+_________________________________________________________________________________________
+
+
+  

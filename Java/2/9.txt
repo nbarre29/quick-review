@@ -1017,27 +1017,36 @@ Using `StandardCharsets.UTF_8` is **safer, faster, exception-free, and the moder
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 public class HmacSha256HexExample {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
 
         String secret = "super-secret";
         String message = "API message";
 
-        Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
-        SecretKeySpec key = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-        sha256_HMAC.init(key);
+        try {
+            Mac hmacSHA256 = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+            hmacSHA256.init(secretKeySpec);
 
-        byte[] hash = sha256_HMAC.doFinal(message.getBytes(StandardCharsets.UTF_8));
+            byte[] hmacBytes = hmacSHA256.doFinal(message.getBytes(StandardCharsets.UTF_8));
 
-        // Convert to hex
-        StringBuilder hexString = new StringBuilder();
-        for (byte b : hash) {
-            hexString.append(String.format("%02x", b));
+            // Convert the binary HMAC output to a hexadecimal string representation.			
+            // Iterate over each byte in the hmacBytes array, which contains the raw HMAC-SHA256 output.
+            // For each byte, we format it as a two-digit hexadecimal string using String.format("%02x", b)
+            // and append it to a StringBuilder to build the complete hex representation.
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hmacBytes) {
+                hexString.append(String.format("%02x", b));
+            }
+
+            System.out.println("HMAC-SHA256 (hex): " + hexString);
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            throw new RuntimeException(e);
         }
-
-        System.out.println("HMAC-SHA256 (hex): " + hexString);
     }
 }
 
@@ -1105,10 +1114,10 @@ public class Main {
             SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
             hmacSHA256.init(secretKeySpec);
 
-            byte[] hmac = hmacSHA256.doFinal(message.getBytes(StandardCharsets.UTF_8));
-            String hmacBase64 = Base64.getEncoder().encodeToString(hmac);
+            byte[] hmacBytes = hmacSHA256.doFinal(message.getBytes(StandardCharsets.UTF_8));
+            String hmacBase64 = Base64.getEncoder().encodeToString(hmacBytes);
             String messageBase64 = Base64.getEncoder().encodeToString(message.getBytes(StandardCharsets.UTF_8));
-            String hmacHex = bytesToHex(hmac);
+            String hmacHex = bytesToHex(hmacBytes);
 
             System.out.println("original string: " + message);
             System.out.println("encoded string: " + messageBase64);

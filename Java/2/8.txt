@@ -11,11 +11,15 @@ public record Person(String name, int age) {
     public static void main(String[] args) {
         Person p = new Person("Alice", 30);
         System.out.println(p);
+        System.out.println("Name: " + p.name());
+        System.out.println("Age: " + p.age());
     }
 }
 
 Output:
 Person[name=Alice, age=30]
+Name: Alice
+Age: 30
 
 
 
@@ -343,4 +347,261 @@ If you’d like, next step I can:
 * Or turn this into a tiny **“pricing engine stub”** that picks a program based on inputs (loan amount, jumbo vs conforming, fixed vs ARM).
 
 
+_________________________________________________________________________________________
+
+==> A sealed interface in Java restricts which classes can implement it and which interfaces can extend it, providing fine-grained control over the inheritance hierarchy. This feature, standardized in Java 17, allows developers to define a closed set of permitted subtypes, which is useful for domain modeling and ensuring API integrity.
+
+Key Concepts 
+
+• sealed modifier: Declares an interface as sealed. 
+• permits clause: Explicitly lists the classes or interfaces that are allowed to directly implement or extend the sealed interface. This list is mandatory unless the permitted subtypes are in the same source file. 
+• Controlled inheritance: Only the types specified in the  clause can be direct subtypes. Any other class or interface attempting to be a direct subtype will cause a compile-time error. 
+
+• Subtype modifiers: Every permitted subtype of a sealed interface must be declared with one of the following modifiers: 
+
+	• final: Cannot be extended further. (Records and enums are implicitly final). 
+	• sealed: Can only be extended by its own set of permitted subtypes 
+	• non-sealed: Opens up the hierarchy, allowing any class to extend or implement it further.
+
+
+Benefits :
+
+• Improved maintainability and security: By strictly controlling the set of implementers, developers can maintain the integrity of APIs and make refactoring safer. 
+• Exhaustiveness in switch: A major benefit of sealed interfaces is their use with enhanced switch statements (pattern matching for switch, finalized in Java 21). The compiler can verify that all possible subtypes are covered, eliminating the need for a default case and ensuring code exhaustiveness.
+• Exhaustive checking: When using a sealed interface with pattern matching in a expression, the Java compiler can verify that all possible subtypes are handled, eliminating the need for a  clause and preventing runtime errors. 
+
+AI responses may include mistakes.
+
+[1] https://medium.com/javarevisited/sealed-classes-and-interfaces-in-java-b3f3fdf76bef
+[2] https://docs.oracle.com/en/java/javase/17/language/sealed-classes-and-interfaces.html
+[3] https://www.theserverside.com/tip/Use-sealed-classes-in-Java-to-control-your-inheritance
+[4] https://medium.com/codex/sealed-classes-in-java-17-8f00351d27f4
+[5] https://docs.oracle.com/en/java/javase/15/language/sealed-classes-and-interfaces.html
+[6] https://www.tutorialspoint.com/java/java_sealed_classes.htm
+[7] https://stackoverflow.com/questions/76288573/can-a-java-enum-implement-a-sealed-interface
+[8] https://rollbar.com/blog/what-are-sealed-classes-in-java/
+[9] https://openjdk.org/jeps/409
+[10] https://stackoverflow.com/questions/75272580/java-17-sealed-classes-business-use-case
+
+
+// A sealed interface representing a Vehicle
+public sealed interface Vehicle permits Car, Bike {
+    void start();
+}
+
+
+// A permitted class (must be final, non-sealed, or sealed)
+public final class Car implements Vehicle{
+    @Override
+    public void start() {
+        System.out.println("Car is starting");
+    }
+}
+
+
+// Another permitted class
+// final is not required as it is a record which is implicitly final
+public record Bike() implements Vehicle {
+    @Override
+    public void start() {
+        System.out.println("Bike is starting");
+    }
+}
+
+
+public class Main {
+    public static void main(String[] args) {
+        Vehicle myCar = new Car();
+        myCar.start();
+
+        Vehicle myBike = new Bike();
+        myBike.start();
+    }
+}
+
+
+Output:
+Car is starting
+Bike is starting
+_________________________________________________________________________________________
+
+==> https://docs.oracle.com/en/java/javase/17/language/sealed-classes-and-interfaces.html
+
+## Key Features:
+
+
+1. **Main method** - Creates instances of all shape types and demonstrates their use
+2. **Pattern matching** - Shows exhaustive switch expressions (no default needed!)
+3. **All three sealed modifiers**:
+   - `Circle` is `final` (can't be extended)
+   - `Square` is `non-sealed` (any class can extend it)
+   - `Rectangle` is `sealed` (only `FilledRectangle` can extend it)
+
+The example demonstrates the main benefit of sealed classes: **exhaustive pattern matching** where the compiler knows all possible subtypes, so you don't need a default case.
+
+// Shape.java - Sealed class definition
+public sealed abstract class Shape permits Circle, Square, Rectangle {
+    // You can add common methods here if needed
+    public abstract double area();
+    public abstract String describe();
+}
+
+// Circle.java - Final subclass (cannot be extended further)
+public final class Circle extends Shape {
+    public float radius;
+    
+    public Circle(float radius) {
+        this.radius = radius;
+    }
+    
+    @Override
+    public double area() {
+        return Math.PI * radius * radius;
+    }
+    
+    @Override
+    public String describe() {
+        return String.format("Circle with radius %.2f", radius);
+    }
+}
+
+// Square.java - Non-sealed subclass (can be extended by any class)
+public non-sealed class Square extends Shape {
+    public double side;
+    
+    public Square(double side) {
+        this.side = side;
+    }
+    
+    @Override
+    public double area() {
+        return side * side;
+    }
+    
+    @Override
+    public String describe() {
+        return String.format("Square with side %.2f", side);
+    }
+}
+
+// Rectangle.java - Sealed subclass (can only be extended by FilledRectangle)
+public sealed class Rectangle extends Shape permits FilledRectangle {
+    public double length;
+    public double width;
+    
+    public Rectangle(double length, double width) {
+        this.length = length;
+        this.width = width;
+    }
+    
+    @Override
+    public double area() {
+        return length * width;
+    }
+    
+    @Override
+    public String describe() {
+        return String.format("Rectangle with dimensions %.2f x %.2f", length, width);
+    }
+}
+
+// FilledRectangle.java - Final subclass of Rectangle
+public final class FilledRectangle extends Rectangle {
+    public int red;
+    public int green;
+    public int blue;
+    
+    public FilledRectangle(double length, double width, int red, int green, int blue) {
+        super(length, width);
+        this.red = red;
+        this.green = green;
+        this.blue = blue;
+    }
+    
+    @Override
+    public String describe() {
+        return String.format("FilledRectangle (%.2f x %.2f) with RGB(%d, %d, %d)", 
+                           length, width, red, green, blue);
+    }
+}
+
+// Main class to demonstrate sealed classes
+public class SealedClassDemo {
+    public static void main(String[] args) {
+        System.out.println("=== Sealed Classes Demo ===\n");
+        
+        // Create various shapes
+        Shape circle = new Circle(5.0f);
+        Shape square = new Square(4.0);
+        Shape rectangle = new Rectangle(6.0, 3.0);
+        Shape filledRect = new FilledRectangle(8.0, 2.0, 255, 128, 64);
+        
+        // Store shapes in an array
+        Shape[] shapes = {circle, square, rectangle, filledRect};
+        
+        // Process shapes using pattern matching with switch (Java 17+)
+        System.out.println("Processing shapes with pattern matching:\n");
+        for (Shape shape : shapes) {
+            processShape(shape);
+            System.out.println();
+        }
+        
+        // Calculate total area
+        double totalArea = 0;
+        for (Shape shape : shapes) {
+            totalArea += shape.area();
+        }
+        System.out.printf("Total area of all shapes: %.2f\n", totalArea);
+    }
+    
+    // Demonstrates exhaustive pattern matching with sealed classes
+    // No default case needed - compiler knows all possibilities!
+    private static void processShape(Shape shape) {
+        switch (shape) {
+            case Circle c -> {
+                System.out.println(c.describe());
+                System.out.printf("Area: %.2f\n", c.area());
+                System.out.printf("Circumference: %.2f\n", 2 * Math.PI * c.radius);
+            }
+            case Square s -> {
+                System.out.println(s.describe());
+                System.out.printf("Area: %.2f\n", s.area());
+                System.out.printf("Perimeter: %.2f\n", 4 * s.side);
+            }
+            case FilledRectangle fr -> {
+                System.out.println(fr.describe());
+                System.out.printf("Area: %.2f\n", fr.area());
+                System.out.printf("Perimeter: %.2f\n", 2 * (fr.length + fr.width));
+                System.out.println("This rectangle is filled with color!");
+            }
+            case Rectangle r -> {
+                System.out.println(r.describe());
+                System.out.printf("Area: %.2f\n", r.area());
+                System.out.printf("Perimeter: %.2f\n", 2 * (r.length + r.width));
+            }
+        }
+    }
+}
+
+Output:
+Processing shapes with pattern matching:
+
+Circle with radius 5.00
+Area: 78.54
+Circumference: 31.42
+
+Square with side 4.00
+Area: 16.00
+Perimeter: 16.00
+
+Rectangle with dimensions 6.00 x 3.00
+Area: 18.00
+Perimeter: 18.00
+
+FilledRectangle (8.00 x 2.00) with RGB(255, 128, 64)
+Area: 16.00
+Perimeter: 20.00
+This rectangle is filled with color!
+
+Total area of all shapes: 128.54
 _________________________________________________________________________________________
