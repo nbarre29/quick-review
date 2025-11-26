@@ -124,6 +124,9 @@ public record Person(String name, int age) {
         
         // Normalize the name
         name = name.trim();
+		
+		 // Normalize the name to have the first letter capitalized and the rest lowercase
+        // name = name.substring(0,1).toUpperCase() + name.substring(1).toLowerCase(); 
         
         // Validate age
         if (age < 0) {

@@ -127,6 +127,19 @@ public class Main {
 
     }
 }
+
+Mynotes:
+a) what does k -> mean above ?
+In the above context, `k ->`  k is the parameter and arrow of a Java lambda expression. `computeIfAbsent` expects a `Function<K, V>` (a function that receives the missing key and returns the value to insert). So `k` is simply the name chosen for that single parameter (the key), and the arrow (`->`) separates the parameter list from the lambda body.
+
+
+b) instead of "k" we can make it more descriptive?
+Yes — use a descriptive parameter name. The lambda receives the missing map key, so names like `key` or `course` make the code clearer.
+
+```java
+courseStudents.computeIfAbsent("Math", key -> List.of("Alice", "Bob"));
+courseStudents.computeIfAbsent("Science", course -> List.of("Charlie", "David"));
+```
 ______________________________________________________________________________
 
 -> Changes to above code:
@@ -205,17 +218,17 @@ import java.util.Map;
 
 public class ComputeIfAbsentExample {
     public static void main(String[] args) {
-        Map<String, Integer> wordCounts = new HashMap<>();
+        Map<String, Integer> fruitCounts = new HashMap<>();
 
-        // Using computeIfAbsent to count word occurrences
-        String[] words = {"apple", "banana", "apple", "orange", "banana", "apple"};
-        for (String word : words) {
-            wordCounts.computeIfAbsent(word, k -> 0);
-            wordCounts.put(word, wordCounts.get(word) + 1);
+        // Using computeIfAbsent to count the fruit occurrences
+        String[] fruits = {"apple", "banana", "apple", "orange", "banana", "apple"};
+        for (String fruit : fruits) {
+            fruitCounts.computeIfAbsent(fruit, k -> 0);
+            fruitCounts.put(fruit, fruitCounts.get(fruit) + 1);
         }
 
-        // Print the word counts
-        wordCounts.forEach((word, count) -> System.out.println(word + ": " + count));
+        // Print the fruit counts
+        fruitCounts.forEach((fruit, count) -> System.out.println(fruit + ": " + count));
     }
 }
 
@@ -401,7 +414,14 @@ public class CacheExample {
     }
 
     private static int getSquare(int number) {
+
         return cache.computeIfAbsent(number, n -> {
+            // add some delay to simulate a time-consuming calculation
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             System.out.println("Calculating square for: " + n); // Log only when calculating
             return n * n;
         });
@@ -416,7 +436,6 @@ Square of 10: 100
 Square of 5 again (cached): 25
 Cache contents: {5=25, 10=100}
 
-
 computing square of numbers (expensive for large calculations):
 
 Why this is powerful:
@@ -430,6 +449,16 @@ Real-world scenarios where caching with computeIfAbsent is useful:
     Database queries: Cache the result of expensive queries.
     API results: Cache external API call results.
     File reads: Cache file contents after reading once.
+
+MyNotes:
+a) private static final Map<Integer, Integer> cache = new HashMap<>();
+why is cache declared as final, we keep on adding elements to the Map right, so i think it can't be final?
+
+final only prevents reassigning the reference, it does not make the Map itself immutable. You can still add/remove entries from a final Map; what you cannot do is assign a new Map object to that variable.
+
+Example consequences:
+- Allowed: `cache.put(1, 1);` — mutating the object is fine.
+- Not allowed: `cache = new HashMap<>();` — compile error, because the variable is final.
 ______________________________________________________________________________
 
 -> Advanced Example: Caching Employee Objects

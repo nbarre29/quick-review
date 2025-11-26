@@ -133,3 +133,136 @@ VP approved: Data center hardware ($50000.0)
 * If no handler consumes the request, decide what should happen (fail fast, default handler, or explicit error).
 * Don’t let chains get too long—group related steps.
 _____________________________________________________________________________________________________
+
+==> Using Claude Sonnet 4.5 from Github Copilot:
+
+# Chain of Responsibility Pattern Example
+
+The Chain of Responsibility pattern passes a request along a chain of handlers. Each handler decides either to process the request or pass it to the next handler.
+
+## Handler Interface
+
+```java
+public interface SupportHandler {
+    void setNext(SupportHandler handler);
+    void handleRequest(SupportRequest request);
+}
+```
+
+## Support Request Class
+
+```java
+public class SupportRequest {
+    private final String issue;
+    private final int priority;
+
+    public SupportRequest(String issue, int priority) {
+        this.issue = issue;
+        this.priority = priority;
+    }
+
+    public String getIssue() {
+        return issue;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+}
+```
+
+## Concrete Handlers
+
+```java
+public class Level1Support implements SupportHandler {
+    private SupportHandler nextHandler;
+
+    @Override
+    public void setNext(SupportHandler handler) {
+        this.nextHandler = handler;
+    }
+
+    @Override
+    public void handleRequest(SupportRequest request) {
+        if (request.getPriority() <= 1) {
+            System.out.println("Level 1 Support handled: " + request.getIssue());
+        } else if (nextHandler != null) {
+            nextHandler.handleRequest(request);
+        }
+    }
+}
+```
+
+```java
+public class Level2Support implements SupportHandler {
+    private SupportHandler nextHandler;
+
+    @Override
+    public void setNext(SupportHandler handler) {
+        this.nextHandler = handler;
+    }
+
+    @Override
+    public void handleRequest(SupportRequest request) {
+        if (request.getPriority() == 2) {
+            System.out.println("Level 2 Support handled: " + request.getIssue());
+        } else if (nextHandler != null) {
+            nextHandler.handleRequest(request);
+        }
+    }
+}
+```
+
+```java
+public class Level3Support implements SupportHandler {
+    private SupportHandler nextHandler;
+
+    @Override
+    public void setNext(SupportHandler handler) {
+        this.nextHandler = handler;
+    }
+
+    @Override
+    public void handleRequest(SupportRequest request) {
+        if (request.getPriority() >= 3) {
+            System.out.println("Level 3 Support handled: " + request.getIssue());
+        }
+    }
+}
+```
+
+## Usage Example
+
+```java
+public class ChainOfResponsibilityDemo {
+    public static void main(String[] args) {
+        // Create handlers
+        SupportHandler level1 = new Level1Support();
+        SupportHandler level2 = new Level2Support();
+        SupportHandler level3 = new Level3Support();
+
+        // Build the chain
+        level1.setNext(level2);
+        level2.setNext(level3);
+
+        // Create requests
+        SupportRequest request1 = new SupportRequest("Password reset", 1);
+        SupportRequest request2 = new SupportRequest("Software installation", 2);
+        SupportRequest request3 = new SupportRequest("System crash", 3);
+
+        // Process requests through the chain
+        level1.handleRequest(request1);
+        level1.handleRequest(request2);
+        level1.handleRequest(request3);
+    }
+}
+```
+
+Output:
+Level 1 Support handled: Password reset
+Level 2 Support handled: Software installation
+Level 3 Support handled: System crash
+
+This example demonstrates a support ticket system where requests are handled by different support levels based on priority. Each handler checks if it can handle the request, otherwise passes it to the next handler in the chain.
+
+_____________________________________________________________________________________________________

@@ -172,6 +172,31 @@ public class Main {
     }
 }
 
+MyNotes:
+a) Should i rename PayrollCalculator to BonusCalculator ?
+
+Yes — if the class's single responsibility is computing bonuses, renaming `PayrollCalculator` to `BonusCalculator` improves clarity and intent.
+
+Pros:
+- More accurate name for the current behavior (calculating bonuses).
+- Easier to find and understand when reading code.
+
+When to keep `PayrollCalculator`:
+- If you expect to add other payroll operations later (taxes, deductions, net pay), keep the broader `PayrollCalculator` name to reflect wider responsibility.
+
+Recommended quick steps:
+1. Use IntelliJ Refactor → Rename on `PayrollCalculator` (class + file) so references update automatically.
+
+
+b) keyboard shortcut to use IntelliJ refactor ?
+
+Yes. On Windows:
+
+- `Shift+F6` — Rename (place caret on `PayrollCalculator` class or file in Project view, type new name, Enter; use Preview if needed).  
+- `Ctrl+Alt+Shift+T` — Refactor This (shows available refactor actions).  
+- `Alt+Enter` — Quick-fix / intentions (sometimes offers refactor hints).  
+- Menu: Refactor → Rename.
+
 
 
 ### ✅ **Overall Assessment**
@@ -193,6 +218,36 @@ Each class has **a single, distinct reason to change**:
 ### 💡 **Conclusion**
 
 Each class handles one focused concern and delegates appropriately.
+-----------------------------------------------------------------------------------------------------
+-> Convert Employee to record class and littl refactoring:
+
+public record Employee(String name, double salary) {
+}
+
+
+public class BonusCalculator {
+    public static double calculateBonus(Employee employee) {
+        return employee.salary() * 0.10; // 10% bonus
+    }
+}
+
+public class PayrollReporter {
+    public static void generateReport(Employee employee) {
+        double bonus = BonusCalculator.calculateBonus(employee);
+        System.out.println("Payroll Report for: " + employee.name());
+        System.out.println("Base salary: $" + employee.salary());
+        System.out.println("Bonus: $" + bonus);
+        System.out.println("Total Compensation: $" + (employee.salary() + bonus));
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Employee employee = new Employee("Alice", 80000);
+
+        PayrollReporter.generateReport(employee);
+    }
+} 
 
 ______________________________________________________________________________________________________
 
@@ -304,6 +359,103 @@ Problem:
 
     If a new payment method (e.g., Bitcoin) needs to be added, the processPayment method must be modified.
     This violates OCP because the class is not closed for modification—you need to change existing code every time a new payment method is added.
+	
+------------------------------------------------
+-> using switch
+public class PaymentProcessor {
+    public void processPayment(String paymentType) {
+        switch (paymentType) {
+            case "CreditCard":
+                System.out.println("Processing credit card payment.");
+                break;
+            case "PayPal":
+                System.out.println("Processing PayPal payment.");
+                break;
+            case "BankTransfer":
+                System.out.println("Processing bank transfer payment.");
+                break;
+            default:
+                System.out.println("Unknown payment type.");
+                break;
+        }
+    }
+
+    public static void main(String[] args) {
+        PaymentProcessor paymentProcessor = new PaymentProcessor();
+        paymentProcessor.processPayment("CreditCard");
+        paymentProcessor.processPayment("PayPal");
+        paymentProcessor.processPayment("BankTransfer");
+        paymentProcessor.processPayment("Bitcoin");
+    }
+}
+------------------------------------------------
+-> using switch expression
+public class PaymentProcessor {
+    public void processPayment(String paymentType) {
+        String message = switch (paymentType) {
+            case "CreditCard" -> "Processing credit card payment.";
+            case "PayPal" -> "Processing PayPal payment.";
+            case "BankTransfer" -> "Processing bank transfer payment.";
+            default -> "Unknown payment type.";
+        };
+        System.out.println(message);
+    }
+
+    public static void main(String[] args) {
+        PaymentProcessor paymentProcessor = new PaymentProcessor();
+        paymentProcessor.processPayment("CreditCard");
+        paymentProcessor.processPayment("PayPal");
+        paymentProcessor.processPayment("BankTransfer");
+        paymentProcessor.processPayment("Bitcoin");
+    }
+}
+------------------------------------------------
+-> few improvements to consider:
+
+**Issues:**
+
+1. **Magic strings** — `"CreditCard"`, `"PayPal"`, etc. are hardcoded. Use an `enum` for type safety.
+2. **No validation** — `null` input will throw `NullPointerException`.
+3. **Mixed concerns** — `processPayment` prints directly instead of returning the message (harder to test/reuse).
+
+**Improved version:**
+
+```java
+public class PaymentProcessor {
+
+    public enum PaymentType {
+        CREDIT_CARD,
+        PAYPAL,
+        BANK_TRANSFER
+    }
+
+    public String processPayment(PaymentType paymentType) {
+        if (paymentType == null) {
+            return "Invalid payment type.";
+        }
+
+        return switch (paymentType) {
+            case CREDIT_CARD -> "Processing credit card payment.";
+            case PAYPAL -> "Processing PayPal payment.";
+            case BANK_TRANSFER -> "Processing bank transfer payment.";
+        };
+    }
+
+    public static void main(String[] args) {
+        PaymentProcessor paymentProcessor = new PaymentProcessor();
+
+        System.out.println(paymentProcessor.processPayment(PaymentType.CREDIT_CARD));
+        System.out.println(paymentProcessor.processPayment(PaymentType.PAYPAL));
+        System.out.println(paymentProcessor.processPayment(PaymentType.BANK_TRANSFER));
+        System.out.println(paymentProcessor.processPayment(null));
+    }
+}
+```
+
+**Benefits:**
+- Compile-time safety (can't pass invalid strings).
+- Easier to refactor/maintain.
+- Separation of concerns (caller decides what to do with the message).
 	
 -----------------------------------------------------------------------------------------------------	
 Refactored Code (Follows OCP)

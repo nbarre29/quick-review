@@ -206,6 +206,64 @@ Well-Paid Employees by Department (Salary > 2000):
     - Judy (Salary: 4000.0)
     - Alice (Salary: 3500.0)
     - Charlie (Salary: 2100.0)
+	
+------------------------------------
+-> 
+// filter employees with salary > 2000 and group them by department
+        Map<Department, List<Employee>> wellPaidEmployeesByDepartment = employees.stream()
+                .filter(emp -> emp.salary() > 2000) // Filter employees with salary > 2000
+                .collect(Collectors.groupingBy(Employee::department));
+						
+						
+Output:
+Well-Paid Employees by Department (Salary > 2000):
+  ENGINEERING:
+    - Alice (Salary: 3500.0)
+    - Charlie (Salary: 2100.0)
+    - Judy (Salary: 4000.0)
+  SALES:
+    - David (Salary: 2500.0)
+  MARKETING:
+    - Heidi (Salary: 3000.0)
+  HR:
+    - Eve (Salary: 2200.0)
+						
+
+The `filter(emp -> emp.salary() > 2000)` operation is applied before the `collect(Collectors.groupingBy(...))` operation.
+
+The only employee in the `FINANCE` department, Ivan, has a salary of exactly 2000.00, which does not satisfy the `> 2000` condition. Therefore, Ivan is filtered out from the stream.
+
+The `groupingBy` collector then creates a map only from the employees who passed the filter. Since no employees from the `FINANCE` department are left in the stream, the resulting map does not contain an entry for the `FINANCE` department at all. Your code only prints departments that exist as keys in the final map.
+
+------------------------------------	
+-> To include all departments in the output, you should group by department first and then filter the employees within each group. You can achieve this by using a downstream collector with `Collectors.filtering`.
+
+```java
+// Group employees by department, and for each department, filter for employees with salary > 2000.
+        Map<Department, List<Employee>> wellPaidEmployeesByDepartment = employees.stream()
+                .collect(Collectors.groupingBy(
+                        Employee::department,
+                        Collectors.filtering(emp -> emp.salary() > 2000, Collectors.toList())
+                ));
+```		
+
+Output:
+Well-Paid Employees by Department (Salary > 2000):
+  MARKETING:
+    - Heidi (Salary: 3000.0)
+  ENGINEERING:
+    - Alice (Salary: 3500.0)
+    - Charlie (Salary: 2100.0)
+    - Judy (Salary: 4000.0)
+  SALES:
+    - David (Salary: 2500.0)
+  FINANCE:
+    (No well-paid employees in this department)
+  HR:
+    - Eve (Salary: 2200.0)	
+	
+------------------------------------	
+
 ______________________________________________________________________________________
 
 

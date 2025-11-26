@@ -1,0 +1,166 @@
+==> Here's a Java example demonstrating proper null checks for Strings:
+
+```java
+public class StringNullCheckDemo {
+
+    public static void main(String[] args) {
+        // Different String states
+        String nullString = null;
+        String emptyString = "";
+        String whitespaceString = "   ";
+        String validString = "Hello World";
+
+        System.out.println("=== Basic Null Check ===");
+        checkNull(nullString);
+        checkNull(emptyString);
+        checkNull(validString);
+
+        System.out.println("\n=== Null or Empty Check ===");
+        checkNullOrEmpty(nullString);
+        checkNullOrEmpty(emptyString);
+        checkNullOrEmpty(validString);
+
+        System.out.println("\n=== Null, Empty, or Blank Check ===");
+        checkNullOrBlank(nullString);
+        checkNullOrBlank(emptyString);
+        checkNullOrBlank(whitespaceString);
+        checkNullOrBlank(validString);
+
+        System.out.println("\n=== Safe String Operations ===");
+        safeStringOperations(nullString);
+        safeStringOperations(validString);
+    }
+
+    // Basic null check
+    public static void checkNull(String str) {
+        if (str == null) {
+            System.out.println("String is null");
+        } else {
+            System.out.println("String is not null: '" + str + "'");
+        }
+    }
+
+    // Check for null OR empty
+    public static void checkNullOrEmpty(String str) {
+        //isEmpty() can only be called on a non-null string
+        //if the String is null, it will throw a NullPointerException
+        if (str == null || str.isEmpty()) {
+            System.out.println("String is null or empty");
+        } else {
+            System.out.println("String has content: '" + str + "'");
+        }
+    }
+
+    // Check for null, empty, or only whitespace
+    public static void checkNullOrBlank(String str) {
+        //isBlank() can only be called on a non-null string
+        //if the String is null, it will throw a NullPointerException
+        if (str == null || str.isBlank()) {
+            System.out.println("String is null or blank");
+        } else {
+            System.out.println("String has content: '" + str + "'");
+        }
+    }
+
+    // Safe string operations with null checks
+    public static void safeStringOperations(String str) {
+        System.out.println("\nProcessing string: " + str);
+
+        // WRONG - Will throw NullPointerException if str is null
+        // if (str.equals("test")) { ... }
+
+        // RIGHT - Safe approaches
+
+        // Approach 1: Check null first
+        if (str != null && str.equals("test")) {
+            System.out.println("String equals 'test'");
+        }
+
+        // Approach 2: Use constant first (avoids NPE)
+        if ("test".equals(str)) {
+            System.out.println("String equals 'test'");
+        }
+
+        // Approach 3: Use Objects.equals (Java 7+)
+        if (java.util.Objects.equals(str, "test")) {
+            System.out.println("String equals 'test'");
+        }
+
+        // Safe length check
+        int length = (str != null) ? str.length() : 0;
+        System.out.println("Length: " + length);
+
+        // Using Optional (Java 8+)
+        java.util.Optional.ofNullable(str)
+                .ifPresent(s -> System.out.println("String present: " + s));
+    }
+}
+```
+
+Output:
+=== Basic Null Check ===
+String is null
+String is not null: ''
+String is not null: 'Hello World'
+
+=== Null or Empty Check ===
+String is null or empty
+String is null or empty
+String has content: 'Hello World'
+
+=== Null, Empty, or Blank Check ===
+String is null or blank
+String is null or blank
+String is null or blank
+String has content: 'Hello World'
+
+=== Safe String Operations ===
+
+Processing string: null
+Length: 0
+
+Processing string: Hello World
+Length: 11
+String present: Hello World
+
+
+**Key Points:**
+
+1. **`== null`** - Basic null check, most common and readable
+2. **`isEmpty()`** - Checks if length is 0 (requires null check first)
+3. **`isBlank()`** - Java 11+, checks for null, empty, or only whitespace (requires null check first)
+4. **Always check null before calling methods** to avoid NullPointerException
+5. **"constant".equals(variable)** is safer than **variable.equals("constant")**
+6. **`Objects.equals()`** is null-safe for both arguments
+
+**Common Mistakes to Avoid:**
+```java
+// DON'T DO THIS - Will throw NPE if str is null
+if (str.equals("test")) { }
+
+// DO THIS INSTEAD
+if (str != null && str.equals("test")) { }
+// OR
+if ("test".equals(str)) { }
+```
+______________________________________________________________________________________
+
+==> Both `String.isBlank()` and `String.isEmpty()` will throw `NullPointerException` if called on a `null` string reference, 
+
+
+# 👍 If you want null-safe utility methods below can be useful:
+
+### Apache Commons:
+
+```java
+StringUtils.isBlank(s); 
+// returns true for null, "", or only whitespace
+```
+
+### Spring’s `StringUtils`:
+
+```java
+org.springframework.util.StringUtils.hasText(s); 
+// false for null, empty, or whitespace
+```
+______________________________________________________________________________________

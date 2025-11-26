@@ -251,3 +251,48 @@ public class Main {
     }
 }
 _____________________________________________________________________________________
+
+==> Always use == operator to compare enums for correctness, efficiency, and compile-time safety
+
+enum constants are compile-time constants and are implemented as public static final instances of the enum type, guaranteeing singleton behavior
+
+public enum USState {   
+    TX,
+    CA,
+    NY
+}
+
+
+public class EnumComparisonDemo {
+    public static void main(String[] args) {
+        USState state = USState.TX;
+        
+        if(state == USState.TX) {
+            System.out.println("State is Texas(usiing == operator)");
+        }
+
+        // Although this works, it is not the preferred way to compare enums 
+        if(state.equals(USState.TX)) {
+            System.out.println("State is Texas(using equals method)");
+        }
+
+        // This will always evaluate to false because state is of type USState and cannot be equal to a String
+        if(state.equals("TX")) {
+            System.out.println("This will not print because state is not equal to string \"TX\"");
+        }
+
+        // The following line will cause a compile-time error because you cannot compare an enum with a String using the == operator
+        // if(state == "TX") {
+        //     System.out.println("This will not compile because you cannot compare enum with string using == operator");
+        // }
+
+        // Compile-time safety: if you refactor USState, invalid comparisons will be caught at compile time
+        // For example, if you rename TX to TEXAS, the following line will cause a compile-time error
+        // if(state == USState.TX) {
+        //     System.out.println("This will not compile if TX is renamed to TEXAS");
+        // }
+
+        // Summary: Always use == operator to compare enums for correctness, efficiency, and compile-time safety
+    }
+}
+_____________________________________________________________________________________
