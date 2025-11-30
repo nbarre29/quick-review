@@ -203,7 +203,7 @@ forEach method is part of the Iterable interface, which is available in collecti
 https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/stream/IntStream.html#forEach(java.util.function.IntConsumer)
 https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Iterable.html#forEach(java.util.function.Consumer)
 
----------------------------------------------------------------------------------
+_________________________________________________________________________________
 
 -> forEach method is part of the IntStream class when working with primitive int arrays, and other primitive streams like DoubleStream or LongStream.
 
@@ -228,6 +228,43 @@ public class ForEachWithIntStreamExample {
 		// IntStream.of(1,2,3,4,5).forEach(System.out::println);
     }
 }
+
+MyNotes:
+**you *can* pass an array** to the `IntStream.of(int... values)` method.
+
+Because:
+
+> `int... values` is **varargs**, and varargs in Java is internally just an **array**.
+
+So both of these are valid:
+
+---
+
+# ✅ **1. Passing individual values**
+
+```java
+IntStream stream = IntStream.of(1, 2, 3, 4, 5);
+```
+
+---
+
+# ✅ **2. Passing an int[] array**
+
+```java
+int[] arr = {1, 2, 3, 4, 5};
+IntStream stream = IntStream.of(arr);
+```
+
+This works because varargs (`int...`) accepts:
+
+* multiple individual ints **OR**
+* a single `int[]` array
+
+---
+
+# 🔍 Why does this work?
+
+Varargs is just syntax sugar for arrays.
 
 _________________________________________________________________________________
 
@@ -480,6 +517,10 @@ public class SortExample {
         System.out.println(names); // [apple, banana, cherry, date]
     }
 }
+
+MyNotes:
+names.sort(Comparator.naturalOrder()); // [apple, banana, cherry, date]
+names.sort(Comparator.reverseOrder()); // [date, cherry, banana, apple]
 ---------------------------------------------------
 import java.util.Arrays;
 import java.util.Collections;

@@ -44,6 +44,33 @@ public class Main {
         greetingService.greet("Alice");
     }
 }
+
+MyNotes:
+a) In Java lambda expressions, parentheses around the parameter are optional when there's **exactly one parameter** and it has an inferred type.
+
+Both forms are valid:
+
+```java
+
+// With parentheses (your current code)
+GreetingService greetingService = (name) -> System.out.println("Hello, " + name + "!");
+
+// Without parentheses  (also valid)
+// without parentheses is perfectly fine and follows common Java conventions for single-parameter lambdas.
+GreetingService greetingService = name -> System.out.println("Hello, " + name + "!");
+
+// With type and parentheses (also valid)
+GreetingService greetingService = (String name) -> System.out.println("Hello, " + name + "!");
+```
+
+**When parentheses are required:**
+- Zero parameters: `() -> expression`
+- Multiple parameters: `(a, b) -> expression`
+- Explicit type declaration: `(String name) -> expression`
+
+
+b) @FunctionalInterface  is optional
+
 ______________________________________________________________________________________________________
 
 -> Lazy Evaluation in Java Streams
@@ -81,7 +108,299 @@ public class Main {
     }
 }
 
------------------------------------------------------------
+MyNotes:
+@FunctionalInterface
+public interface Function<T, R> {
+    R apply(T t);
+    // default and static methods removed
+	}
+
+**Your example above uses the same type:**
+```java
+.map(n -> n * 2)  // Integer -> Integer
+```
+
+**But you could transform to a different type:**
+```java
+.map(n -> "Number: " + n)  // Integer -> String
+```
+
+In this case:
+- Input type `T` = `Integer`
+- Output type `R` = `String`
+
+The method signature uses different type variables (`T` and `R`) to give you **flexibility**—you can keep the same type or change it.
+______________________________________________________________________________________________________
+
+==> This program calculates the sum of all even numbers in a list using Java Streams.
+
+import java.util.Arrays;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        List<Integer> numbers = Arrays.asList(1,2,3,4,5,6,7,8,9,10);
+
+        int sumOfEvens = numbers.stream()
+                                .filter(n -> n % 2 == 0)
+                                .mapToInt(Integer::intValue)
+                                .sum();
+        System.out.println("Sum of even numbers: " + sumOfEvens);   // Sum of even numbers: 30
+
+    }
+}
+
+MyNotes:
+a) For understanding if we have to replace the method reference `Integer::intValue` with a lambda expression:
+
+```java
+.mapToInt(n -> n.intValue())
+```
+
+Or more concisely, since `n` is already an `Integer`:
+
+```java
+.mapToInt(n -> n)
+```
+
+The second form works because Java automatically unboxes the `Integer` to `int` when needed.
+______________________________________________________________________________________________________
+
+==> Calculate the sum of the numbers in the list
+
+```
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+
+        List<Integer> numbers = List.of(1, 2, 3, 4, 5);        
+        int sum = numbers.stream().mapToInt(Integer::intValue).sum();
+        System.out.println("Sum: " + sum);  // Sum: 15
+
+    }
+}
+```
+______________________________________________________________________________________________________
+
+==> calculate the sum of squares in the list
+
+```
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+
+        List<Integer> numbers = List.of(1, 2, 3, 4, 5);
+        int sumOfSquares = numbers.stream()
+                .mapToInt(n -> n * n)
+                .sum();
+        System.out.println("Sum of squares: " + sumOfSquares);  //Sum of squares: 55
+
+    }
+}
+```
+______________________________________________________________________________________________________
+
+==> Using mapToInt to get an int array of string lengths
+
+import java.util.Arrays;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        List<String> wordsList = Arrays.asList("Java", "Streams", "are", "powerful");
+
+        int[] wordLengths = wordsList.stream()
+                .mapToInt(String::length)
+                .toArray();
+        System.out.println(Arrays.toString(wordLengths)); // [4, 7, 3, 8]
+    }
+}
+
+------------------------------------------------
+==> format the output by collecting the words and their lengths into a formatted string.
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class Main {
+    public static void main(String[] args) {
+        List<String> wordsList = Arrays.asList("Java", "Streams", "are", "powerful");
+
+        String result = wordsList.stream()
+                .map(word -> word + " - " + word.length())
+                .collect(Collectors.joining(", "));
+
+        System.out.println(result); // Java - 4, Streams - 7, are - 3, powerful - 8
+    }
+}
+
+MyNotes:
+a) String result = wordsList.stream()
+                .map((word) -> {
+                    return word + " - " + word.length();
+                })
+                .collect(Collectors.joining(", "));
+				
+b) String result = wordsList.stream()
+                .map((word) -> {
+                    return (word + " - " + word.length());
+                })
+                .collect(Collectors.joining(", "));
+______________________________________________________________________________________________________
+
+==> A real scenario is to find the maximum user ID from a list of user IDs represented as strings.
+A real scenario is to parse the numeric part of user IDs and find the newest user ID.
+
+Frankly it is just for learning some stream methods.
+
+```
+import java.util.stream.Stream;
+
+public class Main {
+    public static void main(String[] args) {
+
+        int maxValue = Stream.of("user1", "user2", "user3")
+                .map(user -> user.substring(4)) // remove "user" prefix
+                .mapToInt(Integer::parseInt)// Convert to integer
+                .max() // Find the maximum value
+                .orElseThrow();  // handle empty stream
+
+        System.out.println("Max value: " + maxValue); // Max value: 3
+    }
+}
+```
+
+------------------------------------------------------------------------------------------------------
+
+==> demonstrate `orElseThrow()` with both success and failure cases:
+
+This demonstrates:
+- **Case 1**: Normal operation when a value exists
+- **Case 2**: `orElseThrow()` throwing `NoSuchElementException` on an empty stream
+- **Case 3**: Using `orElseThrow(Supplier)` to throw a custom exception
+
+```
+import java.util.NoSuchElementException;
+import java.util.stream.Stream;
+
+public class Main {
+    public static void main(String[] args) {
+
+        // Case 1: Stream with values - orElseThrow() returns the max value
+        int maxValue = Stream.of("user1", "user2", "user3")
+                .map(user -> user.substring(4))
+                .mapToInt(Integer::parseInt)
+                .max()
+                .orElseThrow();
+
+        System.out.println("Max value: " + maxValue);
+
+        // Case 2: Empty stream - orElseThrow() throws NoSuchElementException
+        try {
+            int emptyMax = Stream.<String>empty()
+                    .map(user -> user.substring(4))
+                    .mapToInt(Integer::parseInt)
+                    .max()
+                    .orElseThrow();
+
+            System.out.println("This won't print: " + emptyMax);
+        } catch (NoSuchElementException e) {
+            System.out.println("Exception caught: No value present in empty stream");
+        }
+
+        // Case 3: Custom exception with orElseThrow(Supplier)
+        try {
+            int customMax = Stream.<String>empty()
+                    .map(user -> user.substring(4))
+                    .mapToInt(Integer::parseInt)
+                    .max()
+                    .orElseThrow(() -> new IllegalStateException("No users found!"));
+        } catch (IllegalStateException e) {
+            System.out.println("Custom exception: " + e.getMessage());
+        }
+    }
+}
+```
+
+```
+Output:
+Max value: 3
+Exception caught: No value present in empty stream
+Custom exception: No users found!
+```
+
+MyNotes:
+a) **Why use a custom exception?**
+
+- **More descriptive**: `IllegalStateException("No users found!")` provides domain-specific context about *why* the error occurred
+- **Better error handling**: Callers can catch specific exception types for different error scenarios
+- **Clearer intent**: The exception type and message communicate the business logic failure, not just "value is missing"
+
+For example, in a real application:
+- `NoSuchElementException` is generic - "no value present"
+- `IllegalStateException("No users found!")` is specific - "the user list is unexpectedly empty"
+
+This demonstrates the flexibility of `orElseThrow()` - you can use the default exception or provide a more meaningful one for your use case.
+
+b) To declare an **empty `Stream<String>`** in Java, use the built-in `Stream.empty()` method:
+
+```java
+Stream<String> emptyStream = Stream.empty();
+```
+______________________________________________________________________________________________________
+
+==> Given a list of fruit names , capitalize the first letter of each fruit.
+
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+
+        List<String> fruits = List.of("apple", "banana", "cherry");
+
+        // convert the first letter of each fruit to uppercase
+        List<String> capitalizedFruits = fruits.stream()
+                .map(fruit -> fruit.substring(0, 1).toUpperCase() + fruit.substring(1))
+                .toList();
+
+        System.out.println(capitalizedFruits);	// [Apple, Banana, Cherry]
+
+    }
+}
+
+MyNotes:
+a) List.of() creates an immutable list. Is it okay to use it here?
+
+`List.of()` creates an **immutable** list, but you're not modifying the original list elements here—you're creating a **new** list with transformed values using `.stream().map().toList()`.
+
+The original `fruits` list remains unchanged. The `capitalizedFruits` variable holds a completely separate list with the capitalized strings.
+
+If you were trying to modify elements *in place* (like `fruits.set(0, "Apple")`), then yes, `List.of()` would throw an `UnsupportedOperationException`. But that's not what's happening here.
+
+Your current code works fine with `List.of()`.
+
+
+b) Here, you are attempting to modify an immutable list, which will cause a runtime error.
+`List.of()` creates an **immutable list** that cannot be modified. When you call `replaceAll()`, it will throw an `UnsupportedOperationException`.
+
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        List<String> fruits = List.of("apple", "banana", "cherry");
+        fruits.replaceAll(fruit -> fruit.substring(0,1).toUpperCase() + fruit.substring(1));
+        System.out.println(fruits);
+    }
+}
+
+Fix: to make the list mutable use,  List<String> fruits = new ArrayList<>(List.of("apple", "banana", "cherry"));
+______________________________________________________________________________________________________
+
+
+==>
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -222,6 +541,164 @@ Key Benefits of Text Blocks
         Text Blocks: ✅ High		
 		
 ______________________________________________________________________________________________________
+
+==> Demonstrate all three `Integer.valueOf()` methods:
+
+* `valueOf(String, int)` → parse a number in a given radix (base)
+* `valueOf(String)` → parse a decimal string
+* `valueOf(int)` → box an `int` into an `Integer`
+
+---
+
+# ✅ **Java Program Demonstrating All Three `Integer.valueOf()` Methods**
+
+```java
+public class IntegerValueOfDemo {
+    public static void main(String[] args) {
+
+        // 1. valueOf(String s, int radix)
+        // Converts a number in the given base (radix) to an Integer
+        Integer fromBinary = Integer.valueOf("1010", 2);   // binary 1010 = 10
+        Integer fromHex = Integer.valueOf("1F", 16);       // hex 1F = 31
+
+        // 2. valueOf(String s)
+        // Converts a decimal string into Integer
+        Integer fromString = Integer.valueOf("123");       // decimal 123
+
+        // 3. valueOf(int i)
+        // Converts an int into an Integer (boxing)
+        Integer fromInt = Integer.valueOf(456);
+
+        // Print results
+        System.out.println("valueOf(\"1010\", 2) = " + fromBinary);
+        System.out.println("valueOf(\"1F\", 16) = " + fromHex);
+        System.out.println("valueOf(\"123\") = " + fromString);
+        System.out.println("valueOf(456) = " + fromInt);
+    }
+}
+```
+
+---
+
+# 📌 **Program Output**
+
+```
+valueOf("1010", 2) = 10
+valueOf("1F", 16) = 31
+valueOf("123") = 123
+valueOf(456) = 456
+```
+
+---
+
+# 📝 Quick Explanation
+
+| Method                         | What It Does                                   | Example              |
+| ------------------------------ | ---------------------------------------------- | -------------------- |
+| `Integer.valueOf(String, int)` | Parses the string using the given radix (2–36) | `"1010", 2 → 10`     |
+| `Integer.valueOf(String)`      | Parses a decimal string                        | `"123" → 123`        |
+| `Integer.valueOf(int)`         | Boxes an int to an Integer                     | `456 → Integer(456)` |
+
+-----------------------------------------------------------------------------------------------------
+
+==> In Java (and in math/computer science), **radix** simply means **the base of a number system**.
+
+It tells Java **how to interpret the digits in the string** you pass to `Integer.valueOf()`.
+
+---
+
+# ⭐ **Radix = Base of the number system**
+
+Different number systems use different bases:
+
+| Number System | Radix (Base) | Digits Used | Example         |
+| ------------- | ------------ | ----------- | --------------- |
+| **Binary**    | 2            | 0–1         | `1010` (base 2) |
+| **Octal**     | 8            | 0–7         | `17` (base 8)   |
+| **Decimal**   | 10           | 0–9         | `123` (base 10) |
+| **Hex**       | 16           | 0–9, A–F    | `1F` (base 16)  |
+| **Base-36**   | 36           | 0–9, A–Z    | `Z` (base 36)   |
+
+Java allows radixes from **2 to 36**.
+
+---
+
+# 📌 **How radix works in practice**
+
+### ✔ Example 1: Using radix 2 (binary)
+
+```java
+Integer value = Integer.valueOf("1010", 2);
+```
+
+Interpret `"1010"` in **base 2**:
+
+```
+1×2³ + 0×2² + 1×2¹ + 0×2⁰
+= 8 + 0 + 2 + 0
+= 10 (decimal)
+```
+
+---
+
+### ✔ Example 2: Using radix 16 (hex)
+
+```java
+Integer value = Integer.valueOf("1F", 16);
+```
+
+Interpret `"1F"` in **base 16**:
+
+```
+1×16¹ + F×16⁰
+= 1×16 + 15×1
+= 31
+```
+
+Here `F` means 15 in hex.
+
+---
+
+### ✔ Example 3: Using radix 8 (octal)
+
+```java
+Integer value = Integer.valueOf("17", 8);
+```
+
+Interpret `"17"` in **base 8**:
+
+```
+1×8¹ + 7×8⁰
+= 8 + 7 = 15
+```
+
+---
+
+# 🎯 **Why we use radix?**
+
+Because numbers written as strings may not be decimal.
+
+It allows converting strings in **any number system** to normal Java integers.
+
+Use cases:
+
+* reading binary from files
+* parsing hex color codes
+* parsing user input in various bases
+* converting base-36 short codes
+* working with cryptography or hardware interfaces
+
+---
+
+# ⭐ **Simple definition**
+
+> **Radix = the base in which the number string is written.
+> Java uses it to correctly convert the string into an integer.**
+
+______________________________________________________________________________________________________
+
+
+
 
 
 

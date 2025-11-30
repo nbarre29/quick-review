@@ -1473,6 +1473,26 @@ public class LambdaExample3 {
 Output:
 two
 three
+
+MyNotes:
+a) We can also use List<String> strings = List.of("one", "two", "three", "four");
+
+We're not modifying `strings`, we're creating a new list `filtered` from it, so `List.of()` is fine here.
+
+However, if we need to modify the list later, use:
+
+```java
+List<String> strings = new ArrayList<>(List.of("one", "two", "three", "four"));
+```
+
+**Key differences:**
+- `List.of()` → immutable (read-only)
+- `new ArrayList<>()` → mutable (can add/remove/modify)
+
+OR 
+
+better use,  List<String> strings = Arrays.asList("one", "two", "three", "four"); if you need to modify like sort, or update a particular element
+
 -----------------------------------------------------------------------------------------------------
 3a) replace .collect(Collectors.toList()) with .toList()
 

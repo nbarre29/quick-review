@@ -800,21 +800,13 @@ ________________________________________________________________________________
 public class ArithmeticExceptionDemo {
 
     public static void main(String[] args) {
-        // ✅ Correct division
+      
         try {
             int result = 20 / 5;
             System.out.println("20 / 5 = " + result);
         } catch (ArithmeticException e) {
             System.err.println("Error in division: " + e.getMessage());
-        }
-
-        // ❌ Incorrect division: divisor is zero
-        try {
-            int result = 10 / 0; // This will throw ArithmeticException
-            System.out.println("10 / 0 = " + result);
-        } catch (ArithmeticException e) {
-            System.err.println("Error in division: " + e.getMessage());
-        }
+        }        
 
     }
 }
@@ -822,6 +814,65 @@ public class ArithmeticExceptionDemo {
 Output:
 20 / 5 = 4
 Error in division: / by zero
+
+
+MyNotes:
+
+catching `ArithmeticException` in above code is unnecessary and considered bad practice!**
+
+Here's why:
+
+## Problems with that code:
+
+1. **You know the values at compile time** - `20 / 5` will never throw an exception, so the try-catch is pointless
+
+2. **The catch block will never execute** - It's dead code that adds clutter
+
+3. **It suggests you don't understand when exceptions occur** - If you're catching exceptions for operations that can't fail, it shows unclear thinking
+
+## When is catching ArithmeticException bad?
+
+**Almost always!** Here are the scenarios:
+
+### ❌ Bad: Known values at compile time
+```java
+try {
+    int result = 20 / 5;  // This will NEVER fail
+} catch (ArithmeticException e) {
+    // Dead code - will never run
+}
+```
+
+### ❌ Bad: You control the divisor
+```java
+try {
+    int result = numerator / denominator;
+} catch (ArithmeticException e) {
+    return 0;  // Hiding the real problem
+}
+```
+
+### ✅ Good: Check before dividing
+```java
+if (denominator == 0) {
+    throw new IllegalArgumentException("Cannot divide by zero");
+}
+int result = numerator / denominator;
+```
+
+## The corrected version of your code:
+
+```java
+public class ArithmeticExceptionDemo {
+    public static void main(String[] args) {
+        // No try-catch needed - this will never fail
+        int result = 20 / 5;
+        System.out.println("20 / 5 = " + result);
+    }
+}
+```
+
+Rule of thumb: If you're tempted to catch ArithmeticException, ask yourself: "Why might this fail?" Then prevent the failure with validation, don't catch it with exception handling.
 
 _________________________________________________________________________________
 

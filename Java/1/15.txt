@@ -195,17 +195,14 @@ Charlie
 
 1) The Traditional for loop above can be replaced with 'List.replaceAll' 
 
-		List<String> modifiableList = new ArrayList<>(List.of("a", "b", "c"));
-        System.out.println("\n2. Traditional For Loop (uppercase conversion):");
+		List<String> modifiableList = new ArrayList<>(List.of("a", "b", "c"));        
         modifiableList.replaceAll(String::toUpperCase);
         System.out.println(modifiableList);
 		
 		
 2) The while loop can be replaced with 'Collection.removeIf' 
 
-
-        List<String> namesWithRemove = new ArrayList<>(List.of("keep", "removeMe", "stay"));
-        System.out.println("\n3. Iterator with Safe Removal:");       
+        List<String> namesWithRemove = new ArrayList<>(List.of("keep", "removeMe", "stay"));            
         namesWithRemove.removeIf("removeMe"::equals);
         System.out.println(namesWithRemove); 
 		
@@ -296,3 +293,825 @@ public class EnumComparisonDemo {
     }
 }
 _____________________________________________________________________________________
+
+==> Some more most common Java mistakes
+
+```
+import java.math.BigDecimal;
+
+public class CommonJavaMistakes {
+
+    public static void main(String[] args) {
+
+        // MISTAKE 1: Using == to compare Strings
+        System.out.println("=== 1. String Comparison ===");
+        mistake1_StringComparison();
+
+        // MISTAKE 2: Using double/float for money
+        System.out.println("\n=== 2. Money Calculation ===");
+        mistake2_MoneyCalculation();
+
+        // MISTAKE 3: Ignoring return value of String methods
+        System.out.println("\n=== 3. String Immutability ===");
+        mistake3_StringImmutability();
+    }
+
+    // MISTAKE 1: Using == to compare Strings
+    static void mistake1_StringComparison() {
+        String s1 = "hello";
+        String s2 = "hello";
+        String s3 = new String("hello");
+
+        System.out.println("❌ WRONG: s1 == s3 = " + (s1 == s3)); // false
+        System.out.println("✓ CORRECT: s1.equals(s3) = " + s1.equals(s3)); // true
+
+        System.out.println("\nWhy? == compares references, not content!");
+        System.out.println("Always use .equals() for String comparison");
+    }
+
+
+    // MISTAKE 2: Using double/float for money
+    static void mistake2_MoneyCalculation() {
+        // WRONG WAY
+        double price = 0.1;
+        double total = price + price + price;
+        System.out.println("❌ Using double: 0.1 + 0.1 + 0.1 = " + total); // 0.30000000000000004
+
+        // CORRECT WAY
+        BigDecimal priceDecimal = new BigDecimal("0.1");
+        BigDecimal totalDecimal = priceDecimal.add(priceDecimal).add(priceDecimal);
+        System.out.println("✓ Using BigDecimal: 0.1 + 0.1 + 0.1 = " + totalDecimal); // 0.3
+
+        System.out.println("\nAlways use BigDecimal for money calculations!");
+    }
+
+
+    // MISTAKE 3: Forgetting Strings are immutable
+    static void mistake3_StringImmutability() {
+        String text = "hello";
+
+        System.out.println("❌ WRONG: Ignoring return value");
+        text.toUpperCase(); // Returns new String, but we ignore it!
+        System.out.println("text = " + text); // Still "hello"
+
+        System.out.println("\n✓ CORRECT: Assign the return value");
+        text = text.toUpperCase();
+        System.out.println("text = " + text); // Now "HELLO"
+
+        System.out.println("\nRemember: String methods return NEW strings!");
+    }
+
+}
+```
+
+
+```
+Output:
+=== 1. String Comparison ===
+❌ WRONG: s1 == s3 = false
+✓ CORRECT: s1.equals(s3) = true
+
+Why? == compares references, not content!
+Always use .equals() for String comparison
+
+=== 2. Money Calculation ===
+❌ Using double: 0.1 + 0.1 + 0.1 = 0.30000000000000004
+✓ Using BigDecimal: 0.1 + 0.1 + 0.1 = 0.3
+
+Always use BigDecimal for money calculations!
+
+=== 3. String Immutability ===
+❌ WRONG: Ignoring return value
+text = hello
+
+✓ CORRECT: Assign the return value
+text = HELLO
+
+Remember: String methods return NEW strings!
+```
+_____________________________________________________________________________________
+
+==> Demonstrate the below two mistakes:
+
+- Catching `Exception` instead of specific exceptions
+- Not handling `null` properly (use `Objects.requireNonNull()` or Optional)
+
+```
+// Simple User class
+public record User(String email) {
+}
+```
+
+```
+import java.util.*;
+
+public class ExceptionAndNullMistakes {
+    
+    public static void main(String[] args) {
+        
+        // MISTAKE 1: Catching Exception instead of specific exceptions
+        System.out.println("=== MISTAKE 1: Catching Generic Exception ===\n");
+        wrongExceptionHandling();
+        System.out.println();
+        correctExceptionHandling();
+        
+        // MISTAKE 2: Not handling null properly
+        System.out.println("\n\n=== MISTAKE 2: Not Handling Null Properly ===\n");
+        wrongNullHandling();
+        System.out.println();
+        correctNullHandling();
+    }
+    
+    // ========== MISTAKE 1: Exception Handling ==========
+    
+    private static void wrongExceptionHandling() {
+        System.out.println("❌ WRONG: Catching generic Exception");
+        System.out.println("-----------------------------------");
+        
+        try {
+            String numberStr = "abc";
+            int number = Integer.parseInt(numberStr);
+            int result = 100 / number;
+            
+        } catch (Exception e) {  // TOO BROAD!
+            System.out.println("Something went wrong: " + e.getMessage());
+            // Problem: Can't handle different errors differently
+            // Problem: Might catch exceptions you didn't expect
+            // Problem: Hides programming errors
+        }
+        
+        System.out.println("\nProblems:");
+        System.out.println("- Can't distinguish between different error types");
+        System.out.println("- Catches even RuntimeExceptions (programming bugs)");
+        System.out.println("- Makes debugging harder");
+    }
+    
+    private static void correctExceptionHandling() {
+        System.out.println("✓ CORRECT: Catching specific exceptions");
+        System.out.println("---------------------------------------");
+        
+        try {
+            String numberStr = "abc";
+            int number = Integer.parseInt(numberStr);
+            int result = 100 / number;
+            
+        } catch (NumberFormatException e) {
+            // Handle invalid number format
+            System.out.println("Invalid number format: " + e.getMessage());
+            System.out.println("Action: Ask user to enter a valid number");
+            
+        } catch (ArithmeticException e) {
+            // Handle division by zero
+            System.out.println("Cannot divide by zero: " + e.getMessage());
+            System.out.println("Action: Use a non-zero divisor");
+            
+        } catch (Exception e) {
+            // Only for truly unexpected errors (last resort)
+            System.out.println("Unexpected error: " + e.getMessage());
+            throw new RuntimeException("Unexpected error", e);
+        }
+        
+        System.out.println("\nBenefits:");
+        System.out.println("- Clear error handling for each case");
+        System.out.println("- Better user feedback");
+        System.out.println("- Easier debugging");
+    }
+    
+    // ========== MISTAKE 2: Null Handling ==========
+    
+    private static void wrongNullHandling() {
+        System.out.println("❌ WRONG: Not handling null properly");
+        System.out.println("-----------------------------------");
+        
+        // Example 1: Direct use without null check
+        String name = getUserName(); // might return null
+        try {
+            int length = name.length(); // NullPointerException!
+            System.out.println("Name length: " + length);
+        } catch (NullPointerException e) {
+            System.out.println("Error: name is null!");
+        }
+        
+        // Example 2: Returning null from method
+        User user = findUser(999);
+        try {
+            System.out.println("User email: " + user.email()); // NPE!
+        } catch (NullPointerException e) {
+            System.out.println("Error: user is null!");
+        }
+        
+        System.out.println("\nProblems:");
+        System.out.println("- NullPointerException crashes program");
+        System.out.println("- Hard to trace where null came from");
+        System.out.println("- Defensive coding needed everywhere");
+    }
+    
+    private static void correctNullHandling() {
+        System.out.println("✓ CORRECT: Proper null handling");
+        System.out.println("-------------------------------");
+        
+        // Solution 1: Use Objects.requireNonNull()
+        System.out.println("Solution 1: Objects.requireNonNull()");
+        try {
+            String name = getUserName();
+            Objects.requireNonNull(name, "Name cannot be null");
+            System.out.println("Name length: " + name.length());
+        } catch (NullPointerException e) {
+            System.out.println("Validation failed: " + e.getMessage());
+        }
+        
+        // Solution 2: Use Optional
+        System.out.println("\nSolution 2: Use Optional");
+        Optional<User> userOpt = findUserOptional(999);
+        String email = userOpt
+            .map(User::email)
+            .orElse("no-email@example.com");
+        System.out.println("User email: " + email);
+        
+        // Solution 3: Traditional null check
+        System.out.println("\nSolution 3: Traditional null check");
+        String userName = getUserName();
+        if (userName != null) {
+            System.out.println("Name length: " + userName.length());
+        } else {
+            System.out.println("Name is not available");
+        }
+        
+        // Solution 4: Objects.requireNonNullElse()
+        System.out.println("\nSolution 4: Objects.requireNonNullElse()");
+        String safeName = Objects.requireNonNullElse(getUserName(), "Guest");
+        System.out.println("Safe name: " + safeName);
+        
+        System.out.println("\nBenefits:");
+        System.out.println("- Fails fast with clear error messages");
+        System.out.println("- Makes null handling explicit");
+        System.out.println("- Prevents unexpected NPEs later");
+    }
+    
+    // ========== Real-World Example ==========
+    
+    private static void realWorldExample() {
+        System.out.println("\n\n=== REAL-WORLD EXAMPLE ===\n");
+        
+        // Processing user data with proper error handling
+        processUserData("john@example.com");
+        processUserData(null);
+        processUserData("invalid-email");
+    }
+    
+    private static void processUserData(String email) {
+        System.out.println("\nProcessing email: " + email);
+        
+        try {
+            // Validate not null
+            Objects.requireNonNull(email, "Email cannot be null");
+            
+            // Validate format
+            if (!email.contains("@")) {
+                throw new IllegalArgumentException("Invalid email format");
+            }
+            
+            // Process the email
+            System.out.println("✓ Email validated and processed successfully");
+            
+        } catch (NullPointerException e) {
+            System.out.println("❌ Error: " + e.getMessage());
+            System.out.println("   Action: Prompt user to enter email");
+            
+        } catch (IllegalArgumentException e) {
+            System.out.println("❌ Error: " + e.getMessage());
+            System.out.println("   Action: Show email format example");
+            
+        } catch (Exception e) {
+            System.out.println("❌ Unexpected error: " + e.getMessage());
+            System.out.println("   Action: Log error and notify admin");
+        }
+    }
+    
+    // ========== Helper Methods ==========
+    
+    private static String getUserName() {
+        return null; // Simulating null return
+    }
+    
+    private static User findUser(int id) {
+        return null; // User not found
+    }
+    
+    private static Optional<User> findUserOptional(int id) {
+        return Optional.empty(); // User not found
+    }
+}
+```
+
+```
+Output:
+=== MISTAKE 1: Catching Generic Exception ===
+
+❌ WRONG: Catching generic Exception
+-----------------------------------
+Something went wrong: For input string: "abc"
+
+Problems:
+- Can't distinguish between different error types
+- Catches even RuntimeExceptions (programming bugs)
+- Makes debugging harder
+
+✓ CORRECT: Catching specific exceptions
+---------------------------------------
+Invalid number format: For input string: "abc"
+Action: Ask user to enter a valid number
+
+Benefits:
+- Clear error handling for each case
+- Better user feedback
+- Easier debugging
+
+
+=== MISTAKE 2: Not Handling Null Properly ===
+
+❌ WRONG: Not handling null properly
+-----------------------------------
+Error: name is null!
+Error: user is null!
+
+Problems:
+- NullPointerException crashes program
+- Hard to trace where null came from
+- Defensive coding needed everywhere
+
+✓ CORRECT: Proper null handling
+-------------------------------
+Solution 1: Objects.requireNonNull()
+Validation failed: Name cannot be null
+
+Solution 2: Use Optional
+User email: no-email@example.com
+
+Solution 3: Traditional null check
+Name is not available
+
+Solution 4: Objects.requireNonNullElse()
+Safe name: Guest
+
+Benefits:
+- Fails fast with clear error messages
+- Makes null handling explicit
+- Prevents unexpected NPEs later
+```
+
+MyNotes:
+
+a) Catching `NullPointerException` is generally considered **bad practice**.
+
+## Why you shouldn't catch NullPointerException:
+
+1. **It's a programming bug** - NPEs indicate a flaw in your code logic, not a recoverable error condition
+2. **Masks the real problem** - Instead of fixing the root cause (the null reference), you're just hiding it
+3. **Makes debugging harder** - You lose the stack trace that shows where the null originated
+4. **Poor error handling** - Recovery from NPE is often impossible or leads to corrupted state
+
+## What to do instead:
+
+**Prevent NPEs proactively:**
+
+```java
+// ✓ CORRECT: Prevent null before it happens
+String name = getUserName();
+Objects.requireNonNull(name, "Name cannot be null");
+int length = name.length(); // Safe now
+
+// ✓ CORRECT: Check before using
+String name = getUserName();
+if (name != null) {
+    int length = name.length();
+}
+
+// ✓ CORRECT: Use Optional
+Optional<String> nameOpt = Optional.ofNullable(getUserName());
+nameOpt.ifPresent(n -> System.out.println(n.length()));
+
+// ✓ CORRECT: Provide default
+String name = Objects.requireNonNullElse(getUserName(), "Guest");
+```
+
+**Exception:** The only valid case for catching NPE is in testing frameworks or reflection-heavy code where you're explicitly testing for null behavior. In normal application code, avoid it completely.
+
+Your example code should be refactored to prevent the NPE rather than catch it.
+
+
+b) in correctNullHandling() method ,the below selected code doesn't require to catch NullPointerException right as we are already checking for Objects.requireNonNull ?
+
+ try {
+            String name = getUserName();
+            Objects.requireNonNull(name, "Name cannot be null");
+            System.out.println("Name length: " + name.length());
+        } catch (NullPointerException e) {
+            System.out.println("Validation failed: " + e.getMessage());
+        }
+		
+You're absolutely correct! When using `Objects.requireNonNull()`, the intention is typically to fail fast and let the exception propagate, not to catch it immediately. Catching it right after defeats the purpose of the validation.
+
+Here's the improved version:
+
+```java
+// Let the exception propagate - fail fast
+String name = getUserName();
+Objects.requireNonNull(name, "Name cannot be null");
+System.out.println("Name length: " + name.length());
+```
+
+**Why remove the try-catch:**
+
+- `Objects.requireNonNull()` is meant to validate preconditions and fail fast
+- The caller should handle the `NullPointerException` if needed
+- Catching it immediately is redundant and hides the validation's intent
+- If you want to handle null gracefully, use `Optional` or a simple `if` check instead
+
+**Alternative approaches if you need graceful handling:**
+
+```java
+// Option 1: Simple null check
+String name = getUserName();
+if (name != null) {
+    System.out.println("Name length: " + name.length());
+} else {
+    System.out.println("Name is not available");
+}
+
+// Option 2: Use requireNonNullElse
+String name = Objects.requireNonNullElse(getUserName(), "Guest");
+System.out.println("Name length: " + name.length());
+_____________________________________________________________________________________
+
+==> In Java, the common guidance **“Don’t catch RuntimeExceptions (programming bugs)”** means:
+
+> **You should not handle errors caused by incorrect code logic. Fix the bug instead of catching it.**
+
+RuntimeExceptions usually mean your code is wrong.
+Catching them hides the real problem.
+
+Let's break it down with examples.
+
+---
+
+# ✅ **What is a RuntimeException?**
+
+RuntimeExceptions happen **because of programming errors**:
+
+* `NullPointerException`
+* `ArrayIndexOutOfBoundsException`
+* `IllegalArgumentException`
+* `ArithmeticException`
+* `ClassCastException`
+* `NumberFormatException`
+* etc.
+
+These usually indicate:
+
+* Wrong assumptions
+* Wrong logic
+* Bad data flow
+* Incorrect indexing
+* Unintended null values
+
+**You should fix these, not catch them.**
+
+---
+
+# ❌ **Wrong Practice: Catching RuntimeExceptions**
+
+### Example: Trying to catch `NullPointerException`
+
+```java
+public void process(User user) {
+    try {
+        System.out.println(user.getName()); // may throw NPE
+    } catch (NullPointerException e) {
+        System.out.println("User was null, continuing...");
+    }
+}
+```
+
+### Why this is bad:
+
+* You hide the bug.
+* The program continues in an inconsistent state.
+* You make debugging much harder.
+* You mask the real root cause.
+
+Instead, **fix the bug**:
+
+```java
+public void process(User user) {
+    if (user == null) {
+        throw new IllegalArgumentException("User cannot be null");
+    }
+    System.out.println(user.getName());
+}
+```
+
+This is **explicit**, safe, and intentional.
+
+---
+
+# ❌ **Another Bad Example: Catching ArrayIndexOutOfBoundsException**
+
+```java
+try {
+    int x = arr[5];  // arr length may be < 6
+} catch (ArrayIndexOutOfBoundsException e) {
+    System.out.println("Index invalid, ignoring...");
+}
+```
+
+Bad because:
+
+* You're ignoring incorrect indexing logic.
+* RuntimeExceptions are telling you: "Fix the code!"
+
+Correct approach:
+
+```java
+if (index < 0 || index >= arr.length) {
+    throw new IllegalArgumentException("Invalid index: " + index);
+}
+int x = arr[index];
+```
+
+---
+
+# 🚫 **Why catching RuntimeExceptions is dangerous?**
+
+### ❌ Hides programming mistakes
+You might think your code works, but it’s just catching errors silently.
+
+### ❌ Makes debugging difficult
+Stack traces disappear.
+
+### ❌ Leads to corrupted state
+Your app may continue running with bad data.
+
+### ❌ Violates best practices
+RuntimeExceptions indicate developer mistakes — not recoverable conditions.
+
+---
+
+# 👍 **When SHOULD you catch RuntimeExceptions?**
+
+Rare, but legitimate cases exist:
+
+### ✔ Catching at top-level boundary
+
+Example: web server catching all exceptions to return a 500 error.
+
+```java
+try {
+    controller.handleRequest();
+} catch (RuntimeException e) {
+    log.error("Unexpected internal error", e);
+    return HttpResponse.internalServerError();
+}
+```
+
+### ✔ Frameworks catching them (Spring, JUnit, servers)
+
+To prevent app crash.
+
+But **you**, inside application logic, should avoid catching RuntimeExceptions.
+
+---
+
+# ⭐ Final Summary
+
+* **RuntimeExceptions usually mean your program logic is wrong**
+* **Don’t catch them to hide errors**
+* **Fix the root cause instead**
+
+RuntimeExceptions = **programmer mistakes**, not recoverable situations.
+
+_____________________________________________________________________________________
+
+==> program to demonstrate catching ArrayIndexOutOfBoundsException is bad
+
+below program shows how both valid and invalid indices are handled in each approach, making the difference clear.
+
+```
+public class ArrayIndexExample {
+    
+    // BAD: Catching ArrayIndexOutOfBoundsException
+    public static void badApproach(int[] arr, int index) {
+        try {
+            int x = arr[index];
+            System.out.println("Value: " + x);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("Index invalid, ignoring...");
+        }
+    }
+    
+    // GOOD: Validating before accessing
+    public static void goodApproach(int[] arr, int index) {
+        if (index < 0 || index >= arr.length) {
+            throw new IllegalArgumentException("Invalid index: " + index + 
+                " (array length: " + arr.length + ")");
+        }
+        int x = arr[index];
+        System.out.println("Value: " + x);
+    }
+    
+    public static void main(String[] args) {
+        int[] arr = {10, 20, 30, 40, 50};
+        
+        System.out.println("=== BAD APPROACH ===");
+        System.out.println("Valid index (2):");
+        badApproach(arr, 2);
+        
+        System.out.println("\nInvalid index (10):");
+        badApproach(arr, 10);  // Silently fails!
+        
+        System.out.println("\nInvalid index (-1):");
+        badApproach(arr, -1);  // Silently fails!
+        
+        System.out.println("\n=== GOOD APPROACH ===");
+        System.out.println("Valid index (2):");
+        goodApproach(arr, 2);
+        
+        System.out.println("\nInvalid index (10):");
+        try {
+            goodApproach(arr, 10);  // Fails with clear error
+        } catch (IllegalArgumentException e) {
+            System.out.println("Caught: " + e.getMessage());
+        }
+        
+        System.out.println("\nInvalid index (-1):");
+        try {
+            goodApproach(arr, -1);  // Fails with clear error
+        } catch (IllegalArgumentException e) {
+            System.out.println("Caught: " + e.getMessage());
+        }
+    }
+}
+```
+
+```
+Output:
+=== BAD APPROACH ===
+Valid index (2):
+Value: 30
+
+Invalid index (10):
+Index invalid, ignoring...
+
+Invalid index (-1):
+Index invalid, ignoring...
+
+=== GOOD APPROACH ===
+Valid index (2):
+Value: 30
+
+Invalid index (10):
+Caught: Invalid index: 10 (array length: 5)
+
+Invalid index (-1):
+Caught: Invalid index: -1 (array length: 5)
+```
+
+**Bad Approach:**
+- Silently swallows errors with a generic message
+- No information about what went wrong
+- Program continues despite logic errors
+
+**Good Approach:**
+- Provides clear, specific error messages
+- Tells you exactly what index was invalid and why
+- Makes debugging much easier
+_____________________________________________________________________________________
+
+==> program to demonstrate catching ArithmeticException is bad
+
+```
+public class ArithmeticExceptionExample {
+    
+    // BAD: Catching ArithmeticException
+    public static int badDivide(int numerator, int denominator) {
+        try {
+            int result = numerator / denominator;
+            return result;
+        } catch (ArithmeticException e) {
+            System.out.println("Division error, returning 0...");
+            return 0;  // Silent failure with arbitrary value
+        }
+    }
+    
+    // GOOD: Validating before dividing
+    public static int goodDivide(int numerator, int denominator) {
+        if (denominator == 0) {
+            throw new IllegalArgumentException(
+                "Cannot divide by zero: " + numerator + " / " + denominator);
+        }
+        return numerator / denominator;
+    }
+    
+    // Another example: calculating average
+    public static double badAverage(int[] numbers) {
+        try {
+            int sum = 0;
+            for (int num : numbers) {
+                sum += num;
+            }
+            return sum / numbers.length;  // ArithmeticException if empty
+        } catch (ArithmeticException e) {
+            System.out.println("Average calculation error, returning 0...");
+            return 0.0;
+        }
+    }
+    
+    public static double goodAverage(int[] numbers) {
+        if (numbers == null || numbers.length == 0) {
+            throw new IllegalArgumentException(
+                "Cannot calculate average of empty array");
+        }
+        int sum = 0;
+        for (int num : numbers) {
+            sum += num;
+        }
+        return (double) sum / numbers.length;
+    }
+    
+    public static void main(String[] args) {
+        System.out.println("=== BAD APPROACH: Division ===");
+        System.out.println("10 / 2 = " + badDivide(10, 2));
+        System.out.println("10 / 0 = " + badDivide(10, 0));  // Returns 0!
+        System.out.println("100 / 0 = " + badDivide(100, 0));  // Also returns 0!
+        System.out.println("Problem: You can't tell if 0 is the real answer or an error!\n");
+        
+        System.out.println("=== GOOD APPROACH: Division ===");
+        System.out.println("10 / 2 = " + goodDivide(10, 2));
+        try {
+            System.out.println("10 / 0 = " + goodDivide(10, 0));
+        } catch (IllegalArgumentException e) {
+            System.out.println("Caught: " + e.getMessage());
+        }
+        
+        System.out.println("\n=== BAD APPROACH: Average ===");
+        System.out.println("Average of [5, 10, 15]: " + badAverage(new int[]{5, 10, 15}));
+        System.out.println("Average of []: " + badAverage(new int[]{}));  // Returns 0!
+        System.out.println("Problem: Is the average really 0, or did it fail?\n");
+        
+        System.out.println("=== GOOD APPROACH: Average ===");
+        System.out.println("Average of [5, 10, 15]: " + goodAverage(new int[]{5, 10, 15}));
+        try {
+            System.out.println("Average of []: " + goodAverage(new int[]{}));
+        } catch (IllegalArgumentException e) {
+            System.out.println("Caught: " + e.getMessage());
+        }
+    }
+}
+```
+
+```
+Output:
+=== BAD APPROACH: Division ===
+10 / 2 = 5
+Division error, returning 0...
+10 / 0 = 0
+Division error, returning 0...
+100 / 0 = 0
+Problem: You can't tell if 0 is the real answer or an error!
+
+=== GOOD APPROACH: Division ===
+10 / 2 = 5
+Caught: Cannot divide by zero: 10 / 0
+
+=== BAD APPROACH: Average ===
+Average of [5, 10, 15]: 10.0
+Average calculation error, returning 0...
+Average of []: 0.0
+Problem: Is the average really 0, or did it fail?
+
+=== GOOD APPROACH: Average ===
+Average of [5, 10, 15]: 10.0
+Caught: Cannot calculate average of empty array
+```
+
+**Problems with the Bad Approach:**
+
+1. **Ambiguous results**: When you catch the exception and return 0, you can't distinguish between:
+   - A legitimate result of 0 (like `0 / 5 = 0`)
+   - An error condition that returned 0
+
+2. **Hidden bugs**: The division-by-zero error indicates a logic bug in your program that should be fixed, not hidden
+
+3. **Silent failures**: The program continues with incorrect data, potentially causing cascading errors
+
+**Why the Good Approach is Better:**
+
+- Validates input before the operation
+- Provides clear error messages about what went wrong
+- Forces the caller to handle the error properly
+- Makes bugs obvious during development
+- No ambiguous return values
+
+The key principle: **If you know division by zero is possible, check for it explicitly rather than catching the exception!**
+_____________________________________________________________________________________
+

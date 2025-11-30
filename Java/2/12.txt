@@ -1,0 +1,1390 @@
+==>  java.util.stream.Collector Interface 
+https://docs.oracle.com/en/java/javase/23/docs/api/java.base/java/util/stream/Collector.html#
+
+# 🎯 **What is a `Collector` (simple explanation)?**
+
+A **Collector** is just a recipe that tells the Stream:
+
+> **“How do I take all these elements and turn them into a single result?”**
+
+Without collectors, a stream can transform but not *produce* a final output.
+
+### Example:
+
+```java
+List<String> list = names.stream().collect(Collectors.toList());
+```
+
+Here:
+* The stream produces elements one-by-one.
+* `Collector.toList()` is the recipe telling Java how to build the final **List**.
+
+
+Every Collector is made of 4 steps:
+
+1. **Supplier** → How to create an empty result container
+2. **Accumulator** → How to add each stream element into the container
+3. **Combiner** – merges **two** containers into one
+3. **Finisher** → How to turn the container into the final result
+
+
+**90%** of the time, you don’t write collectors manually.
+You use **prebuilt collectors** from `Collectors`:
+
+* `toList()`
+* `toSet()`
+* `joining()`
+* `counting()`
+* `groupingBy()`
+* `partitioningBy()`
+* `mapping()`
+* `collectingAndThen()`
+* `toMap()`
+
+These are just *ready-made collector recipes*.
+
+
+# 🎉 FINAL SIMPLE DEFINITION
+
+> **A Collector is a set of rules that explains how a Stream should turn its elements into a final result (List, Set, Map, Integer, String, etc.).**
+
+It's the glue between Streams and the final output.
+______________________________________________________________________________________________________
+
+==> java.util.stream.Collectors Class :  Implementations of Collector that implement various useful reduction operations, such as accumulating elements into collections, summarizing elements according to various criteria, etc.
+
+https://docs.oracle.com/en/java/javase/23/docs/api/java.base/java/util/stream/Collectors.html
+
+
+public record Person(String name, int age, String city) {
+
+}
+
+import java.util.*;
+import java.util.stream.*;
+
+public class StreamCollectDemo {
+
+    public static void main(String[] args) {
+        // Create a list of people
+        List<Person> people = Arrays.asList(
+                new Person("Alice", 25, "New York"),
+                new Person("Bob", 30, "Los Angeles"),
+                new Person("Charlie", 35, "Chicago"),
+                new Person("David", 28, "Houston"),
+                new Person("Eve", 22, "Phoenix"),
+                new Person("Frank", 45, "Philadelphia"),
+                new Person("Grace", 31, "San Antonio")
+        );
+
+        System.out.println("=== Original List of People ===");
+        people.forEach(System.out::println);
+
+        System.out.println("\n=== Example 1: Collect Names to List ===");
+        // Accumulate names into a List
+        List<String> nameList = people.stream()
+                .map(Person::name)
+                .collect(Collectors.toList());
+
+        System.out.println("Names: " + nameList);
+
+        System.out.println("\n=== Example 2: Filter and Collect ===");
+        // Get names of people older than 30
+        List<String> namesOver30 = people.stream()
+                .filter(p -> p.age() > 30)
+                .map(Person::name)
+                .collect(Collectors.toList());
+
+        System.out.println("People over 30: " + namesOver30);
+
+        System.out.println("\n=== Example 3: Collect to Set (unique values) ===");
+        // Collect cities (unique)
+        Set<String> cities = people.stream()
+                .map(Person::city)
+                .collect(Collectors.toSet());
+
+        System.out.println("Unique Cities: " + cities);
+
+        System.out.println("\n=== Example 4: Collect to Map ===");
+        // Create a map of name -> age
+        Map<String, Integer> nameToAge = people.stream()
+                .collect(Collectors.toMap(Person::name, Person::age));
+
+        System.out.println("Name to Age Map: " + nameToAge);
+
+        System.out.println("\n=== Example 5: GroupingBy ===");
+        // Group people by city
+        Map<String, List<Person>> peopleByCity = people.stream()
+                .collect(Collectors.groupingBy(Person::city));
+
+        System.out.println("People grouped by city:");
+        peopleByCity.forEach((city, personList) -> {
+            System.out.println("  " + city + ": " +
+                    personList.stream()
+                            .map(Person::name)
+                            .collect(Collectors.joining(", ")));
+        });
+
+        System.out.println("\n=== Example 6: Joining Strings ===");
+        // Join all names with comma
+        String allNames = people.stream()
+                .map(Person::name)
+                .collect(Collectors.joining(", "));
+
+        System.out.println("All names joined: " + allNames);
+
+        System.out.println("\n=== Example 7: Collect with Custom Delimiter ===");
+        // Join names with custom format
+        String formattedNames = people.stream()
+                .map(Person::name)
+                .collect(Collectors.joining(", ", "[", "]"));
+
+        System.out.println("Formatted names: " + formattedNames);
+
+        System.out.println("\n=== Example 8: Partitioning ===");
+        // Partition people into adults (30+) and young
+        Map<Boolean, List<Person>> partitioned = people.stream()
+                .collect(Collectors.partitioningBy(p -> p.age() >= 30));
+
+        System.out.println("Adults (30+): " +
+                partitioned.get(true).stream()
+                        .map(Person::name)
+                        .collect(Collectors.toList()));
+
+        System.out.println("Young (<30): " +
+                partitioned.get(false).stream()
+                        .map(Person::name)
+                        .collect(Collectors.toList()));
+
+        System.out.println("\n=== Example 9: Counting ===");
+        // Count people by city
+        Map<String, Long> countByCity = people.stream()
+                .collect(Collectors.groupingBy(Person::city, Collectors.counting()));
+
+        System.out.println("Count by city: " + countByCity);
+
+        System.out.println("\n=== Example 10: Collect to ArrayList (specific type) ===");
+        // Collect to a specific List implementation
+        ArrayList<String> arrayList = people.stream()
+                .map(Person::name)
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        System.out.println("ArrayList type: " + arrayList.getClass().getSimpleName());
+        System.out.println("Names in ArrayList: " + arrayList);
+    }
+}
+
+Output:
+=== Original List of People ===
+Person[name=Alice, age=25, city=New York]
+Person[name=Bob, age=30, city=Los Angeles]
+Person[name=Charlie, age=35, city=Chicago]
+Person[name=David, age=28, city=Houston]
+Person[name=Eve, age=22, city=Phoenix]
+Person[name=Frank, age=45, city=Philadelphia]
+Person[name=Grace, age=31, city=San Antonio]
+
+=== Example 1: Collect Names to List ===
+Names: [Alice, Bob, Charlie, David, Eve, Frank, Grace]
+
+=== Example 2: Filter and Collect ===
+People over 30: [Charlie, Frank, Grace]
+
+=== Example 3: Collect to Set (unique values) ===
+Unique Cities: [New York, San Antonio, Chicago, Phoenix, Los Angeles, Philadelphia, Houston]
+
+=== Example 4: Collect to Map ===
+Name to Age Map: {Bob=30, Eve=22, Grace=31, Alice=25, Charlie=35, David=28, Frank=45}
+
+=== Example 5: GroupingBy ===
+People grouped by city:
+  New York: Alice
+  San Antonio: Grace
+  Chicago: Charlie
+  Phoenix: Eve
+  Los Angeles: Bob
+  Philadelphia: Frank
+  Houston: David
+
+=== Example 6: Joining Strings ===
+All names joined: Alice, Bob, Charlie, David, Eve, Frank, Grace
+
+=== Example 7: Collect with Custom Delimiter ===
+Formatted names: [Alice, Bob, Charlie, David, Eve, Frank, Grace]
+
+=== Example 8: Partitioning ===
+Adults (30+): [Bob, Charlie, Frank, Grace]
+Young (<30): [Alice, David, Eve]
+
+=== Example 9: Counting ===
+Count by city: {New York=1, San Antonio=1, Chicago=1, Phoenix=1, Los Angeles=1, Philadelphia=1, Houston=1}
+
+=== Example 10: Collect to ArrayList (specific type) ===
+ArrayList type: ArrayList
+Names in ArrayList: [Alice, Bob, Charlie, David, Eve, Frank, Grace]
+
+______________________________________________________________________________________________________
+
+==>  https://docs.oracle.com/en/java/javase/23/docs/api/java.base/java/util/stream/Collectors.html
+
+
+1. **Department enum** - with ENGINEERING, SALES, MARKETING, HR, and FINANCE
+
+2. **Employee record** - with name, salary, and department
+
+3. **Student record** - with name and grade
+
+4. **examples:**
+   - ✅ TreeSet collection (sorted, unique names)
+   - ✅ Joining with commas
+   - ✅ Summing salaries
+   - ✅ Grouping employees by department
+   - ✅ Sum of salaries by department
+   - ✅ Partitioning students (pass/fail)
+   - ✅ Average salary by department
+   - ✅ Count employees by department
+   - ✅ Multi-level grouping (department + salary range)
+   - ✅ Salary statistics (min, max, average, count, sum)
+   - ✅ Custom collection types (LinkedList, TreeSet)
+
+The code is structured in 4 parts for clarity:
+- Part 1: Person examples (TreeSet, joining)
+- Part 2: Employee examples (grouping, summing by department)
+- Part 3: Student examples (partitioning pass/fail)
+- Part 4: Advanced examples (multi-level grouping, statistics)
+
+
+// Department.java
+public enum Department {
+    ENGINEERING,
+    SALES,
+    MARKETING,
+    HR,
+    FINANCE
+}
+
+// Person.java
+public record Person(String name, int age, String city) {
+}
+
+// Employee.java
+public record Employee(String name, int salary, Department department) {
+}
+
+// Student.java
+public record Student(String name, int grade) {
+}
+
+// StreamCollectDemo.java
+import java.util.*;
+import java.util.stream.*;
+
+public class StreamCollectDemo {
+
+    private static final int PASS_THRESHOLD = 60;
+
+    public static void main(String[] args) {
+        
+        // ============ PART 1: Person Examples ============
+        List<Person> people = Arrays.asList(
+                new Person("Alice", 25, "New York"),
+                new Person("Bob", 30, "Los Angeles"),
+                new Person("Charlie", 35, "Chicago"),
+                new Person("David", 28, "Houston"),
+                new Person("Eve", 22, "Phoenix"),
+                new Person("Frank", 45, "Philadelphia"),
+                new Person("Grace", 31, "San Antonio"),
+                new Person("Alice", 27, "Boston") // Duplicate name
+        );
+
+        System.out.println("=== Original List of People ===");
+        people.forEach(System.out::println);
+
+        // Example 1: Accumulate names into a TreeSet (sorted, unique)
+        System.out.println("\n=== Example 1: Collect Names to TreeSet ===");
+        Set<String> nameTreeSet = people.stream()
+                .map(Person::name)
+                .collect(Collectors.toCollection(TreeSet::new));
+        
+        System.out.println("Names in TreeSet (sorted, unique): " + nameTreeSet);
+
+        // Example 2: Convert elements to strings and concatenate them, separated by commas
+        System.out.println("\n=== Example 2: Joining with Commas ===");
+        String joinedNames = people.stream()
+                .map(Object::toString)  // Convert each Person to its string representation
+                .collect(Collectors.joining(", "));	// Join with commas
+        
+        System.out.println("Joined people: " + joinedNames);
+
+        // Example 3: Simple joining of names
+        String simpleJoined = people.stream()
+                .map(Person::name)
+                .collect(Collectors.joining(", "));
+        
+        System.out.println("Simple joined names: " + simpleJoined);
+
+        
+        // ============ PART 2: Employee Examples ============
+        List<Employee> employees = Arrays.asList(
+                new Employee("John", 75000, Department.ENGINEERING),
+                new Employee("Sarah", 85000, Department.ENGINEERING),
+                new Employee("Mike", 60000, Department.SALES),
+                new Employee("Lisa", 70000, Department.SALES),
+                new Employee("Tom", 55000, Department.MARKETING),
+                new Employee("Anna", 65000, Department.MARKETING),
+                new Employee("Peter", 50000, Department.HR),
+                new Employee("Emma", 90000, Department.FINANCE),
+                new Employee("James", 95000, Department.ENGINEERING)
+        );
+
+        System.out.println("\n\n=== Original List of Employees ===");
+        employees.forEach(System.out::println);
+
+        // Example 4: Compute sum of salaries of employees
+        System.out.println("\n=== Example 4: Sum of All Salaries ===");
+        int totalSalary = employees.stream()
+                .collect(Collectors.summingInt(Employee::salary));
+        
+        System.out.println("Total salary of all employees: $" + totalSalary);
+
+        // Example 5: Group employees by department
+        System.out.println("\n=== Example 5: Group Employees by Department ===");
+        Map<Department, List<Employee>> byDept = employees.stream()
+                .collect(Collectors.groupingBy(Employee::department));
+        
+        byDept.forEach((dept, empList) -> {
+            System.out.println(dept + ":");
+            empList.forEach(emp -> System.out.println("  - " + emp.name() + 
+                    " ($" + emp.salary() + ")"));
+        });
+
+        // Example 6: Compute sum of salaries by department
+        System.out.println("\n=== Example 6: Total Salary by Department ===");
+        Map<Department, Integer> totalByDept = employees.stream()
+                .collect(Collectors.groupingBy(Employee::department,
+                        Collectors.summingInt(Employee::salary)));
+        
+        totalByDept.forEach((dept, total) -> 
+                System.out.println(dept + ": $" + total));
+
+        // Additional: Average salary by department
+        System.out.println("\n=== Bonus: Average Salary by Department ===");
+        Map<Department, Double> avgByDept = employees.stream()
+                .collect(Collectors.groupingBy(Employee::department,
+                        Collectors.averagingInt(Employee::salary)));
+        
+        avgByDept.forEach((dept, avg) -> 
+                System.out.printf("%s: $%.2f%n", dept, avg));
+
+        // Additional: Count employees by department
+        System.out.println("\n=== Bonus: Count Employees by Department ===");
+        Map<Department, Long> countByDept = employees.stream()
+                .collect(Collectors.groupingBy(Employee::department,
+                        Collectors.counting()));
+        
+        countByDept.forEach((dept, count) -> 
+                System.out.println(dept + ": " + count + " employees"));
+
+        
+        // ============ PART 3: Student Examples ============
+        List<Student> students = Arrays.asList(
+                new Student("Amy", 85),
+                new Student("Brian", 92),
+                new Student("Carol", 45),
+                new Student("Daniel", 78),
+                new Student("Emily", 55),
+                new Student("Frank", 67),
+                new Student("George", 40),
+                new Student("Hannah", 95),
+                new Student("Ivan", 72),
+                new Student("Julia", 58)
+        );
+
+        System.out.println("\n\n=== Original List of Students ===");
+        students.forEach(System.out::println);
+
+        // Example 7: Partition students into passing and failing
+        System.out.println("\n=== Example 7: Partition Students (Pass/Fail) ===");
+        System.out.println("Pass threshold: " + PASS_THRESHOLD);
+        
+        Map<Boolean, List<Student>> passingFailing = students.stream()
+                .collect(Collectors.partitioningBy(s -> s.grade() >= PASS_THRESHOLD));
+        
+        System.out.println("\nPASSING Students:");
+        passingFailing.get(true).forEach(s -> 
+                System.out.println("  - " + s.name() + ": " + s.grade()));
+        
+        System.out.println("\nFAILING Students:");
+        passingFailing.get(false).forEach(s -> 
+                System.out.println("  - " + s.name() + ": " + s.grade()));
+
+        // Additional: Count passing vs failing
+        System.out.println("\n=== Bonus: Count Passing vs Failing ===");
+        Map<Boolean, Long> passingFailingCount = students.stream()
+                .collect(Collectors.partitioningBy(
+                        s -> s.grade() >= PASS_THRESHOLD,
+                        Collectors.counting()));
+        
+        System.out.println("Passing: " + passingFailingCount.get(true));
+        System.out.println("Failing: " + passingFailingCount.get(false));
+
+        // Additional: Average grade for passing vs failing
+        System.out.println("\n=== Bonus: Average Grade for Passing vs Failing ===");
+        Map<Boolean, Double> avgGradeByStatus = students.stream()
+                .collect(Collectors.partitioningBy(
+                        s -> s.grade() >= PASS_THRESHOLD,
+                        Collectors.averagingInt(Student::grade)));
+        
+        System.out.printf("Average grade (Passing): %.2f%n", avgGradeByStatus.get(true));
+        System.out.printf("Average grade (Failing): %.2f%n", avgGradeByStatus.get(false));
+
+        
+        // ============ PART 4: Additional Advanced Examples ============
+        
+        // Example: Multi-level grouping - employees by department, then salary range
+        System.out.println("\n\n=== Advanced: Multi-level Grouping ===");
+        Map<Department, Map<String, List<Employee>>> multiLevel = employees.stream()
+                .collect(Collectors.groupingBy(Employee::department,
+                        Collectors.groupingBy(e -> e.salary() >= 70000 ? "High" : "Low")));
+        
+        multiLevel.forEach((dept, salaryGroups) -> {
+            System.out.println(dept + ":");
+            salaryGroups.forEach((level, empList) -> {
+                System.out.println("  " + level + " salary:");
+                empList.forEach(emp -> System.out.println("    - " + emp.name() + 
+                        " ($" + emp.salary() + ")"));
+            });
+        });
+
+        // Example: Collect to specific collection types
+        System.out.println("\n=== Advanced: Custom Collection Types ===");
+        
+        LinkedList<String> linkedList = people.stream()
+                .map(Person::name)
+                .collect(Collectors.toCollection(LinkedList::new));
+        System.out.println("LinkedList: " + linkedList);
+
+        TreeSet<String> treeSet = people.stream()
+                .map(Person::city)
+                .collect(Collectors.toCollection(TreeSet::new));
+        System.out.println("TreeSet (sorted cities): " + treeSet);
+
+        // Example: Collect statistics
+        System.out.println("\n=== Advanced: Salary Statistics ===");
+        IntSummaryStatistics salaryStats = employees.stream()
+                .collect(Collectors.summarizingInt(Employee::salary));
+        
+        System.out.println("Count: " + salaryStats.getCount());
+        System.out.println("Sum: $" + salaryStats.getSum());
+        System.out.println("Min: $" + salaryStats.getMin());
+        System.out.println("Max: $" + salaryStats.getMax());
+        System.out.printf("Average: $%.2f%n", salaryStats.getAverage());
+    }
+}
+
+
+Output:
+=== Original List of People ===
+Person[name=Alice, age=25, city=New York]
+Person[name=Bob, age=30, city=Los Angeles]
+Person[name=Charlie, age=35, city=Chicago]
+Person[name=David, age=28, city=Houston]
+Person[name=Eve, age=22, city=Phoenix]
+Person[name=Frank, age=45, city=Philadelphia]
+Person[name=Grace, age=31, city=San Antonio]
+Person[name=Alice, age=27, city=Boston]
+
+=== Example 1: Collect Names to TreeSet ===
+Names in TreeSet (sorted, unique): [Alice, Bob, Charlie, David, Eve, Frank, Grace]
+
+=== Example 2: Joining with Commas ===
+Joined people: Person[name=Alice, age=25, city=New York], Person[name=Bob, age=30, city=Los Angeles], Person[name=Charlie, age=35, city=Chicago], Person[name=David, age=28, city=Houston], Person[name=Eve, age=22, city=Phoenix], Person[name=Frank, age=45, city=Philadelphia], Person[name=Grace, age=31, city=San Antonio], Person[name=Alice, age=27, city=Boston]
+Simple joined names: Alice, Bob, Charlie, David, Eve, Frank, Grace, Alice
+
+
+=== Original List of Employees ===
+Employee[name=John, salary=75000, department=ENGINEERING]
+Employee[name=Sarah, salary=85000, department=ENGINEERING]
+Employee[name=Mike, salary=60000, department=SALES]
+Employee[name=Lisa, salary=70000, department=SALES]
+Employee[name=Tom, salary=55000, department=MARKETING]
+Employee[name=Anna, salary=65000, department=MARKETING]
+Employee[name=Peter, salary=50000, department=HR]
+Employee[name=Emma, salary=90000, department=FINANCE]
+Employee[name=James, salary=95000, department=ENGINEERING]
+
+=== Example 4: Sum of All Salaries ===
+Total salary of all employees: $645000
+
+=== Example 5: Group Employees by Department ===
+ENGINEERING:
+  - John ($75000)
+  - Sarah ($85000)
+  - James ($95000)
+HR:
+  - Peter ($50000)
+MARKETING:
+  - Tom ($55000)
+  - Anna ($65000)
+SALES:
+  - Mike ($60000)
+  - Lisa ($70000)
+FINANCE:
+  - Emma ($90000)
+
+=== Example 6: Total Salary by Department ===
+ENGINEERING: $255000
+HR: $50000
+MARKETING: $120000
+SALES: $130000
+FINANCE: $90000
+
+=== Bonus: Average Salary by Department ===
+ENGINEERING: $85000.00
+HR: $50000.00
+MARKETING: $60000.00
+SALES: $65000.00
+FINANCE: $90000.00
+
+=== Bonus: Count Employees by Department ===
+ENGINEERING: 3 employees
+HR: 1 employees
+MARKETING: 2 employees
+SALES: 2 employees
+FINANCE: 1 employees
+
+
+=== Original List of Students ===
+Student[name=Amy, grade=85]
+Student[name=Brian, grade=92]
+Student[name=Carol, grade=45]
+Student[name=Daniel, grade=78]
+Student[name=Emily, grade=55]
+Student[name=Frank, grade=67]
+Student[name=George, grade=40]
+Student[name=Hannah, grade=95]
+Student[name=Ivan, grade=72]
+Student[name=Julia, grade=58]
+
+=== Example 7: Partition Students (Pass/Fail) ===
+Pass threshold: 60
+
+PASSING Students:
+  - Amy: 85
+  - Brian: 92
+  - Daniel: 78
+  - Frank: 67
+  - Hannah: 95
+  - Ivan: 72
+
+FAILING Students:
+  - Carol: 45
+  - Emily: 55
+  - George: 40
+  - Julia: 58
+
+=== Bonus: Count Passing vs Failing ===
+Passing: 6
+Failing: 4
+
+=== Bonus: Average Grade for Passing vs Failing ===
+Average grade (Passing): 81.50
+Average grade (Failing): 49.50
+
+
+=== Advanced: Multi-level Grouping ===
+ENGINEERING:
+  High salary:
+    - John ($75000)
+    - Sarah ($85000)
+    - James ($95000)
+HR:
+  Low salary:
+    - Peter ($50000)
+MARKETING:
+  Low salary:
+    - Tom ($55000)
+    - Anna ($65000)
+SALES:
+  High salary:
+    - Lisa ($70000)
+  Low salary:
+    - Mike ($60000)
+FINANCE:
+  High salary:
+    - Emma ($90000)
+
+=== Advanced: Custom Collection Types ===
+LinkedList: [Alice, Bob, Charlie, David, Eve, Frank, Grace, Alice]
+TreeSet (sorted cities): [Boston, Chicago, Houston, Los Angeles, New York, Philadelphia, Phoenix, San Antonio]
+
+=== Advanced: Salary Statistics ===
+Count: 9
+Sum: $645000
+Min: $50000
+Max: $95000
+Average: $71666.67
+
+
+______________________________________________________________________________________________________
+
+==> Explain,  public static <T,K> Collector<T,?,Map<K,List<T>>> groupingBy(Function<? super T,? extends K> classifier)
+
+https://docs.oracle.com/en/java/javase/23/docs/api/java.base/java/util/stream/Collectors.html#groupingBy(java.util.function.Function)
+
+
+Great question! Let me break down this method signature in detail:
+
+```java
+public static <T,K> Collector<T,?,Map<K,List<T>>> groupingBy(Function<? super T,? extends K> classifier)
+```
+
+## **Breaking Down Each Part:**
+
+### **1. `public static`**
+- **public**: The method is accessible from anywhere
+- **static**: It's a static method in the `Collectors` class, so you call it as `Collectors.groupingBy(...)` or with static import: `groupingBy(...)`
+
+### **2. `<T,K>` - Generic Type Parameters**
+These are the type variables for the method:
+- **`T`**: The type of elements in the input stream (e.g., `Person`, `Employee`)
+- **`K`**: The type of keys in the resulting Map (e.g., `City`, `String`, `Department`)
+
+### **3. `Collector<T, ?, Map<K,List<T>>>` - Return Type**
+This is what the method returns - a `Collector` with three type parameters:
+
+```java
+Collector<T, ?, Map<K,List<T>>>
+         │  │  └─────────────── Final result type
+         │  └──────────────────── Intermediate accumulator (? means we don't care)
+         └─────────────────────── Input element type
+```
+
+- **`T`**: Input type - the type of elements the collector will process
+- **`?`**: Wildcard - the intermediate accumulation type (internal implementation detail we don't need to know)
+- **`Map<K,List<T>>`**: Final result type - a Map where:
+  - Keys are of type `K` (the grouping key)
+  - Values are `List<T>` (lists of elements of type `T`)
+
+### **4. `Function<? super T, ? extends K>` - The Parameter**
+This is the classifier function that determines how to group elements:
+
+```java
+Function<? super T, ? extends K> classifier
+        │        │  └──────────── Returns type K or any subtype
+        │        └─────────────── Accepts type T or any supertype
+        └──────────────────────── It's a Function (takes input, returns output)
+```
+
+- **`Function<INPUT, OUTPUT>`**: A functional interface that takes one argument and produces a result
+- **`? super T`**: The function can accept `T` or any supertype of `T` (contravariance)
+- **`? extends K`**: The function returns `K` or any subtype of `K` (covariance)
+
+## **Practical Examples:**
+
+### **Example 1: Group People by City**
+```java
+record Person(String name, City city) {}
+
+List<Person> people = Arrays.asList(
+    new Person("Alice", City.NYC),
+    new Person("Bob", City.LA),
+    new Person("Charlie", City.NYC)
+);
+
+// Here: T = Person, K = City
+Map<City, List<Person>> result = people.stream()
+    .collect(groupingBy(Person::city));
+    //                  └─────────── classifier: Person -> City
+
+// Result:
+// {
+//   NYC -> [Person("Alice", NYC), Person("Charlie", NYC)],
+//   LA -> [Person("Bob", LA)]
+// }
+```
+
+**Type mapping:**
+- `T` = `Person` (stream element type)
+- `K` = `City` (grouping key type)
+- `Function<? super T, ? extends K>` = `Function<Person, City>` = `Person::city`
+- Return: `Collector<Person, ?, Map<City, List<Person>>>`
+
+### **Example 2: Group Employees by Department**
+```java
+record Employee(String name, String department) {}
+
+List<Employee> employees = Arrays.asList(
+    new Employee("John", "Engineering"),
+    new Employee("Sarah", "Engineering"),
+    new Employee("Mike", "Sales")
+);
+
+// Here: T = Employee, K = String
+Map<String, List<Employee>> result = employees.stream()
+    .collect(groupingBy(Employee::department));
+
+// Result:
+// {
+//   "Engineering" -> [Employee("John", "Engineering"), Employee("Sarah", "Engineering")],
+//   "Sales" -> [Employee("Mike", "Sales")]
+// }
+```
+
+**Type mapping:**
+- `T` = `Employee`
+- `K` = `String`
+- `Function<? super T, ? extends K>` = `Function<Employee, String>` = `Employee::department`
+- Return: `Collector<Employee, ?, Map<String, List<Employee>>>`
+
+## **Visual Flow Diagram:**
+
+```
+Input Stream: Stream<T>
+      │
+      ▼
+   classifier: Function<T, K>
+      │
+      ├─── Extracts key from each element
+      │
+      ▼
+Grouping Process:
+      │
+      ├─── Element1 → Key1 → Add to List at Key1
+      ├─── Element2 → Key1 → Add to List at Key1
+      ├─── Element3 → Key2 → Add to List at Key2
+      │
+      ▼
+Result: Map<K, List<T>>
+      │
+      └─── Key1 -> [Element1, Element2]
+      └─── Key2 -> [Element3]
+```
+
+## **Why the Wildcards (`? super` and `? extends`)?**
+
+### **`? super T` (Contravariance)**
+Allows flexibility in what the function accepts:
+```java
+class Animal {}
+class Dog extends Animal {}
+
+// If classifier accepts Animal, it can also accept Dog
+Function<Animal, String> classifier = Animal::getSpecies;
+
+List<Dog> dogs = ...;
+// This works because Dog is a subtype of Animal
+dogs.stream().collect(groupingBy(classifier));
+```
+
+### **`? extends K` (Covariance)**
+Allows flexibility in what the function returns:
+```java
+class Category {}
+class SpecificCategory extends Category {}
+
+// If classifier returns SpecificCategory, it can be used where Category is expected
+Function<Product, SpecificCategory> classifier = Product::getCategory;
+
+List<Product> products = ...;
+// This works because SpecificCategory extends Category
+Map<Category, List<Product>> result = products.stream()
+    .collect(groupingBy(classifier));
+```
+
+## **Complete Working Example:**
+
+```java
+import java.util.*;
+import java.util.stream.*;
+
+public class GroupingByExplanation {
+    
+    record Person(String name, String city, int age) {}
+    
+    public static void main(String[] args) {
+        List<Person> people = Arrays.asList(
+            new Person("Alice", "NYC", 25),
+            new Person("Bob", "LA", 30),
+            new Person("Charlie", "NYC", 35),
+            new Person("David", "LA", 28)
+        );
+        
+        // T = Person
+        // K = String (city)
+        // classifier = Person::city (extracts city from Person)
+        // Result = Map<String, List<Person>>
+        
+        Map<String, List<Person>> peopleByCity = people.stream()
+            .collect(Collectors.groupingBy(Person::city));
+        
+        System.out.println("People grouped by city:");
+        peopleByCity.forEach((city, personList) -> {
+            System.out.println(city + ":");
+            personList.forEach(p -> System.out.println("  - " + p.name()));
+        });
+        
+        // Output:
+        // People grouped by city:
+        // NYC:
+        //   - Alice
+        //   - Charlie
+        // LA:
+        //   - Bob
+        //   - David
+    }
+}
+```
+
+## **Key Takeaways:**
+
+1. **`<T,K>`**: Declares the generic types used in the method
+2. **`Collector<T,?,Map<K,List<T>>>`**: Returns a collector that produces a Map
+3. **`Function<? super T, ? extends K>`**: The classifier extracts the grouping key from each element
+4. The result is always a **Map where values are Lists** of the original elements
+
+______________________________________________________________________________________________________
+
+==> https://docs.oracle.com/en/java/javase/23/docs/api/java.base/java/util/stream/Collectors.html#groupingBy(java.util.function.Function)
+
+1) public static <T,K> Collector<T,?,Map<K,List<T>>> groupingBy(Function<? super T,? extends K> classifier)
+
+
+2) public static <T,K,A,D> Collector<T,?,Map<K,D>> groupingBy(Function<? super T,? extends K> classifier,
+ Collector<? super T,A,D> downstream) 
+ 
+For example, to compute the set of last names of people in each city:
+
+ Map<City, Set<String>> namesByCity
+   = people.stream().collect(
+     groupingBy(Person::getCity,
+                mapping(Person::getLastName,
+                        toSet())));
+						
+
+3) public static <T,K,D,A,M extends Map<K,D>>
+Collector<T,?,M> groupingBy(Function<? super T,? extends K> classifier,
+ Supplier<M> mapFactory,
+ Collector<? super T,A,D> downstream)
+
+For example, to compute the set of last names of people in each city, where the city names are sorted:
+
+
+ Map<City, Set<String>> namesByCity
+   = people.stream().collect(
+     groupingBy(Person::getCity,
+                TreeMap::new,
+                mapping(Person::getLastName,
+                        toSet()))); 
+						
+						
+demonstrate the above three groupingBy methods.
+
+
+A comprehensive demonstration of all three `groupingBy()` method variations! Here's what the code includes:
+
+## **Method 1: Simple groupingBy**
+- Groups people by city → `Map<City, List<Person>>`
+- Groups employees by department
+- Groups people by last name
+
+## **Method 2: groupingBy with Downstream Collector**
+Includes the **exact example from the documentation**:
+```java
+Map<City, Set<String>> lastNamesByCity = people.stream()
+    .collect(groupingBy(Person::city,
+            mapping(Person::lastName, toSet())));
+```
+
+Plus additional examples:
+- Counting people by city
+- Sum of salaries by department
+- Average salary by department
+- List of first names by city
+- Joining employee names
+- Max salary employee by department
+
+## **Method 3: groupingBy with Map Factory and Downstream**
+Includes the **exact example from the documentation**:
+```java
+Map<City, Set<String>> sortedLastNamesByCity = people.stream()
+    .collect(groupingBy(Person::city,
+            TreeMap::new,
+            mapping(Person::lastName, toSet())));
+```
+
+Plus additional examples using:
+- `TreeMap::new` for sorted keys
+- `LinkedHashMap::new` for insertion order
+- Various downstream collectors (counting, averaging, mapping)
+
+## **Comparison Summary**
+The code ends with a side-by-side comparison showing:
+- Map type returned by each method
+- Value type in the map
+- Practical differences	
+	
+
+// City enum
+public enum City {
+    NEW_YORK,
+    LOS_ANGELES,
+    CHICAGO,
+    HOUSTON,
+    PHOENIX
+}
+
+// Person record with firstName and lastName
+public record Person(String firstName, String lastName, City city, int age) {
+    
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
+}
+
+// Employee record
+public record Employee(String name, int salary, String department) {
+}
+
+// GroupingByVariationsDemo
+import java.util.*;
+import static java.util.stream.Collectors.*;
+
+public class GroupingByVariationsDemo {
+
+    public static void main(String[] args) {
+        
+        // Sample data
+        List<Person> people = Arrays.asList(
+                new Person("John", "Smith", City.NEW_YORK, 25),
+                new Person("Jane", "Doe", City.NEW_YORK, 30),
+                new Person("Bob", "Smith", City.LOS_ANGELES, 35),
+                new Person("Alice", "Johnson", City.LOS_ANGELES, 28),
+                new Person("Charlie", "Brown", City.CHICAGO, 22),
+                new Person("David", "Smith", City.CHICAGO, 45),
+                new Person("Emma", "Wilson", City.HOUSTON, 31),
+                new Person("Frank", "Taylor", City.HOUSTON, 27),
+                new Person("Grace", "Anderson", City.PHOENIX, 33),
+                new Person("Henry", "Thomas", City.PHOENIX, 29)
+        );
+
+        List<Employee> employees = Arrays.asList(
+                new Employee("John", 75000, "Engineering"),
+                new Employee("Sarah", 85000, "Engineering"),
+                new Employee("Mike", 60000, "Sales"),
+                new Employee("Lisa", 70000, "Sales"),
+                new Employee("Tom", 55000, "Marketing"),
+                new Employee("Anna", 65000, "Marketing"),
+                new Employee("Peter", 50000, "HR"),
+                new Employee("Emma", 90000, "Finance"),
+                new Employee("James", 95000, "Engineering")
+        );
+
+        System.out.println("=== Original People Data ===");
+        people.forEach(System.out::println);
+        
+        System.out.println("\n=== Original Employee Data ===");
+        employees.forEach(System.out::println);
+
+        // ========================================================================
+        // METHOD 1: groupingBy(Function<T, K> classifier)
+        // Returns: Collector<T, ?, Map<K, List<T>>>
+        // Simple grouping - groups elements into a Map<K, List<T>>
+        // ========================================================================
+        
+        System.out.println("\n\n========== METHOD 1: Simple groupingBy ==========");
+        
+        // Example 1.1: Group people by city
+        System.out.println("\n--- Example 1.1: Group People by City ---");
+        Map<City, List<Person>> peopleByCity = people.stream()
+                .collect(groupingBy(Person::city));
+        
+        peopleByCity.forEach((city, personList) -> {
+            System.out.println(city + ":");
+            personList.forEach(p -> System.out.println("  - " + p.getFullName()));
+        });
+
+        // Example 1.2: Group employees by department
+        System.out.println("\n--- Example 1.2: Group Employees by Department ---");
+        Map<String, List<Employee>> employeesByDept = employees.stream()
+                .collect(groupingBy(Employee::department));
+        
+        employeesByDept.forEach((dept, empList) -> {
+            System.out.println(dept + ":");
+            empList.forEach(emp -> System.out.println("  - " + emp.name() + 
+                    " ($" + emp.salary() + ")"));
+        });
+
+        // Example 1.3: Group people by last name
+        System.out.println("\n--- Example 1.3: Group People by Last Name ---");
+        Map<String, List<Person>> peopleByLastName = people.stream()
+                .collect(groupingBy(Person::lastName));
+        
+        peopleByLastName.forEach((lastName, personList) -> {
+            System.out.println(lastName + " (" + personList.size() + " people):");
+            personList.forEach(p -> System.out.println("  - " + p.firstName() + 
+                    " from " + p.city()));
+        });
+
+        // ========================================================================
+        // METHOD 2: groupingBy(Function<T, K> classifier, Collector downstream)
+        // Returns: Collector<T, ?, Map<K, D>>
+        // Groups elements and applies a downstream collector to each group
+        // ========================================================================
+        
+        System.out.println("\n\n========== METHOD 2: groupingBy with Downstream Collector ==========");
+        
+        // Example 2.1: Count people in each city
+        System.out.println("\n--- Example 2.1: Count People by City ---");
+        Map<City, Long> countByCity = people.stream()
+                .collect(groupingBy(Person::city, counting()));
+        
+        countByCity.forEach((city, count) -> 
+                System.out.println(city + ": " + count + " people"));
+
+        // Example 2.2: Get set of last names in each city (EXACT EXAMPLE FROM DOCS)
+        System.out.println("\n--- Example 2.2: Set of Last Names by City ---");
+        Map<City, Set<String>> lastNamesByCity = people.stream()
+                .collect(groupingBy(Person::city,
+                        mapping(Person::lastName, toSet())));
+        
+        lastNamesByCity.forEach((city, lastNames) -> 
+                System.out.println(city + ": " + lastNames));
+
+        // Example 2.3: Sum of salaries by department
+        System.out.println("\n--- Example 2.3: Total Salary by Department ---");
+        Map<String, Integer> salaryByDept = employees.stream()
+                .collect(groupingBy(Employee::department,
+                        summingInt(Employee::salary)));
+        
+        salaryByDept.forEach((dept, total) -> 
+                System.out.println(dept + ": $" + total));
+
+        // Example 2.4: Average salary by department
+        System.out.println("\n--- Example 2.4: Average Salary by Department ---");
+        Map<String, Double> avgSalaryByDept = employees.stream()
+                .collect(groupingBy(Employee::department,
+                        averagingInt(Employee::salary)));
+        
+        avgSalaryByDept.forEach((dept, avg) -> 
+                System.out.printf("%s: $%.2f%n", dept, avg));
+
+        // Example 2.5: Get list of first names by city
+        System.out.println("\n--- Example 2.5: List of First Names by City ---");
+        Map<City, List<String>> firstNamesByCity = people.stream()
+                .collect(groupingBy(Person::city,
+                        mapping(Person::firstName, toList())));
+        
+        firstNamesByCity.forEach((city, names) -> 
+                System.out.println(city + ": " + names));
+
+        // Example 2.6: Joining employee names by department
+        System.out.println("\n--- Example 2.6: Employee Names Joined by Department ---");
+        Map<String, String> namesJoinedByDept = employees.stream()
+                .collect(groupingBy(Employee::department,
+                        mapping(Employee::name, joining(", "))));
+        
+        namesJoinedByDept.forEach((dept, names) -> 
+                System.out.println(dept + ": " + names));
+
+        // Example 2.7: Max salary employee in each department
+        System.out.println("\n--- Example 2.7: Highest Paid Employee by Department ---");
+        Map<String, Optional<Employee>> maxSalaryByDept = employees.stream()
+                .collect(groupingBy(Employee::department,
+                        maxBy(Comparator.comparing(Employee::salary))));
+        
+        maxSalaryByDept.forEach((dept, optEmp) -> 
+                optEmp.ifPresent(emp -> System.out.println(dept + ": " + 
+                        emp.name() + " ($" + emp.salary() + ")")));
+
+        // ========================================================================
+        // METHOD 3: groupingBy(Function classifier, Supplier mapFactory, Collector downstream)
+        // Returns: Collector<T, ?, M extends Map<K, D>>
+        // Groups elements with custom Map implementation and downstream collector
+        // ========================================================================
+        
+        System.out.println("\n\n========== METHOD 3: groupingBy with Map Factory and Downstream ==========");
+        
+        // Example 3.1: Get set of last names by city, with cities sorted (EXACT EXAMPLE FROM DOCS)
+        System.out.println("\n--- Example 3.1: Last Names by City (Cities Sorted in TreeMap) ---");
+        Map<City, Set<String>> sortedLastNamesByCity = people.stream()
+                .collect(groupingBy(Person::city,
+                        TreeMap::new,
+                        mapping(Person::lastName, toSet())));
+        
+        System.out.println("Map type: " + sortedLastNamesByCity.getClass().getSimpleName());
+        sortedLastNamesByCity.forEach((city, lastNames) -> 
+                System.out.println(city + ": " + lastNames));
+
+        // Example 3.2: Count by department in sorted TreeMap
+        System.out.println("\n--- Example 3.2: Employee Count by Department (Sorted) ---");
+        Map<String, Long> sortedCountByDept = employees.stream()
+                .collect(groupingBy(Employee::department,
+                        TreeMap::new,
+                        counting()));
+        
+        System.out.println("Map type: " + sortedCountByDept.getClass().getSimpleName());
+        sortedCountByDept.forEach((dept, count) -> 
+                System.out.println(dept + ": " + count));
+
+        // Example 3.3: First names by city using LinkedHashMap (insertion order)
+        System.out.println("\n--- Example 3.3: First Names by City (Insertion Order - LinkedHashMap) ---");
+        Map<City, List<String>> orderedFirstNamesByCity = people.stream()
+                .collect(groupingBy(Person::city,
+                        LinkedHashMap::new,
+                        mapping(Person::firstName, toList())));
+        
+        System.out.println("Map type: " + orderedFirstNamesByCity.getClass().getSimpleName());
+        orderedFirstNamesByCity.forEach((city, names) -> 
+                System.out.println(city + ": " + names));
+
+        // Example 3.4: Average age by city in TreeMap (sorted)
+        System.out.println("\n--- Example 3.4: Average Age by City (Sorted TreeMap) ---");
+        Map<City, Double> sortedAvgAgeByCity = people.stream()
+                .collect(groupingBy(Person::city,
+                        TreeMap::new,
+                        averagingInt(Person::age)));
+        
+        sortedAvgAgeByCity.forEach((city, avgAge) -> 
+                System.out.printf("%s: %.2f years%n", city, avgAge));
+
+        // Example 3.5: Set of first names by last name in sorted TreeMap
+        System.out.println("\n--- Example 3.5: First Names by Last Name (Sorted) ---");
+        Map<String, Set<String>> firstNamesByLastName = people.stream()
+                .collect(groupingBy(Person::lastName,
+                        TreeMap::new,
+                        mapping(Person::firstName, toSet())));
+        
+        firstNamesByLastName.forEach((lastName, firstNames) -> 
+                System.out.println(lastName + ": " + firstNames));
+
+        // ========================================================================
+        // COMPARISON SUMMARY
+        // ========================================================================
+        
+        System.out.println("\n\n========== COMPARISON SUMMARY ==========");
+        
+        // Method 1: Default Map (HashMap), List of elements
+        Map<City, List<Person>> method1 = people.stream()
+                .collect(groupingBy(Person::city));
+        System.out.println("\nMethod 1 - Simple groupingBy:");
+        System.out.println("  Map Type: " + method1.getClass().getSimpleName());
+        System.out.println("  Value Type: List<Person>");
+        System.out.println("  Example: " + method1.keySet().iterator().next() + 
+                " -> " + method1.values().iterator().next().size() + " people");
+
+        // Method 2: Default Map (HashMap), custom collector result
+        Map<City, Long> method2 = people.stream()
+                .collect(groupingBy(Person::city, counting()));
+        System.out.println("\nMethod 2 - groupingBy with downstream:");
+        System.out.println("  Map Type: " + method2.getClass().getSimpleName());
+        System.out.println("  Value Type: Long (from counting())");
+        System.out.println("  Example: " + method2.keySet().iterator().next() + 
+                " -> " + method2.values().iterator().next() + " count");
+
+        // Method 3: Custom Map (TreeMap), custom collector result
+        Map<City, Long> method3 = people.stream()
+                .collect(groupingBy(Person::city, TreeMap::new, counting()));
+        System.out.println("\nMethod 3 - groupingBy with map factory and downstream:");
+        System.out.println("  Map Type: " + method3.getClass().getSimpleName());
+        System.out.println("  Value Type: Long (from counting())");
+        System.out.println("  Keys are sorted: " + new ArrayList<>(method3.keySet()));
+    }
+}
+
+
+Output:
+=== Original People Data ===
+Person[firstName=John, lastName=Smith, city=NEW_YORK, age=25]
+Person[firstName=Jane, lastName=Doe, city=NEW_YORK, age=30]
+Person[firstName=Bob, lastName=Smith, city=LOS_ANGELES, age=35]
+Person[firstName=Alice, lastName=Johnson, city=LOS_ANGELES, age=28]
+Person[firstName=Charlie, lastName=Brown, city=CHICAGO, age=22]
+Person[firstName=David, lastName=Smith, city=CHICAGO, age=45]
+Person[firstName=Emma, lastName=Wilson, city=HOUSTON, age=31]
+Person[firstName=Frank, lastName=Taylor, city=HOUSTON, age=27]
+Person[firstName=Grace, lastName=Anderson, city=PHOENIX, age=33]
+Person[firstName=Henry, lastName=Thomas, city=PHOENIX, age=29]
+
+=== Original Employee Data ===
+Employee[name=John, salary=75000, department=Engineering]
+Employee[name=Sarah, salary=85000, department=Engineering]
+Employee[name=Mike, salary=60000, department=Sales]
+Employee[name=Lisa, salary=70000, department=Sales]
+Employee[name=Tom, salary=55000, department=Marketing]
+Employee[name=Anna, salary=65000, department=Marketing]
+Employee[name=Peter, salary=50000, department=HR]
+Employee[name=Emma, salary=90000, department=Finance]
+Employee[name=James, salary=95000, department=Engineering]
+
+
+========== METHOD 1: Simple groupingBy ==========
+
+--- Example 1.1: Group People by City ---
+NEW_YORK:
+  - John Smith
+  - Jane Doe
+HOUSTON:
+  - Emma Wilson
+  - Frank Taylor
+CHICAGO:
+  - Charlie Brown
+  - David Smith
+LOS_ANGELES:
+  - Bob Smith
+  - Alice Johnson
+PHOENIX:
+  - Grace Anderson
+  - Henry Thomas
+
+--- Example 1.2: Group Employees by Department ---
+Engineering:
+  - John ($75000)
+  - Sarah ($85000)
+  - James ($95000)
+Sales:
+  - Mike ($60000)
+  - Lisa ($70000)
+Finance:
+  - Emma ($90000)
+HR:
+  - Peter ($50000)
+Marketing:
+  - Tom ($55000)
+  - Anna ($65000)
+
+--- Example 1.3: Group People by Last Name ---
+Thomas (1 people):
+  - Henry from PHOENIX
+Brown (1 people):
+  - Charlie from CHICAGO
+Johnson (1 people):
+  - Alice from LOS_ANGELES
+Taylor (1 people):
+  - Frank from HOUSTON
+Smith (3 people):
+  - John from NEW_YORK
+  - Bob from LOS_ANGELES
+  - David from CHICAGO
+Wilson (1 people):
+  - Emma from HOUSTON
+Doe (1 people):
+  - Jane from NEW_YORK
+Anderson (1 people):
+  - Grace from PHOENIX
+
+
+========== METHOD 2: groupingBy with Downstream Collector ==========
+
+--- Example 2.1: Count People by City ---
+NEW_YORK: 2 people
+HOUSTON: 2 people
+CHICAGO: 2 people
+LOS_ANGELES: 2 people
+PHOENIX: 2 people
+
+--- Example 2.2: Set of Last Names by City ---
+NEW_YORK: [Smith, Doe]
+HOUSTON: [Taylor, Wilson]
+CHICAGO: [Brown, Smith]
+LOS_ANGELES: [Johnson, Smith]
+PHOENIX: [Thomas, Anderson]
+
+--- Example 2.3: Total Salary by Department ---
+Engineering: $255000
+Sales: $130000
+Finance: $90000
+HR: $50000
+Marketing: $120000
+
+--- Example 2.4: Average Salary by Department ---
+Engineering: $85000.00
+Sales: $65000.00
+Finance: $90000.00
+HR: $50000.00
+Marketing: $60000.00
+
+--- Example 2.5: List of First Names by City ---
+NEW_YORK: [John, Jane]
+HOUSTON: [Emma, Frank]
+CHICAGO: [Charlie, David]
+LOS_ANGELES: [Bob, Alice]
+PHOENIX: [Grace, Henry]
+
+--- Example 2.6: Employee Names Joined by Department ---
+Engineering: John, Sarah, James
+Sales: Mike, Lisa
+Finance: Emma
+HR: Peter
+Marketing: Tom, Anna
+
+--- Example 2.7: Highest Paid Employee by Department ---
+Engineering: James ($95000)
+Sales: Lisa ($70000)
+Finance: Emma ($90000)
+HR: Peter ($50000)
+Marketing: Anna ($65000)
+
+
+========== METHOD 3: groupingBy with Map Factory and Downstream ==========
+
+--- Example 3.1: Last Names by City (Cities Sorted in TreeMap) ---
+Map type: TreeMap
+NEW_YORK: [Smith, Doe]
+LOS_ANGELES: [Johnson, Smith]
+CHICAGO: [Brown, Smith]
+HOUSTON: [Taylor, Wilson]
+PHOENIX: [Thomas, Anderson]
+
+--- Example 3.2: Employee Count by Department (Sorted) ---
+Map type: TreeMap
+Engineering: 3
+Finance: 1
+HR: 1
+Marketing: 2
+Sales: 2
+
+--- Example 3.3: First Names by City (Insertion Order - LinkedHashMap) ---
+Map type: LinkedHashMap
+NEW_YORK: [John, Jane]
+LOS_ANGELES: [Bob, Alice]
+CHICAGO: [Charlie, David]
+HOUSTON: [Emma, Frank]
+PHOENIX: [Grace, Henry]
+
+--- Example 3.4: Average Age by City (Sorted TreeMap) ---
+NEW_YORK: 27.50 years
+LOS_ANGELES: 31.50 years
+CHICAGO: 33.50 years
+HOUSTON: 29.00 years
+PHOENIX: 31.00 years
+
+--- Example 3.5: First Names by Last Name (Sorted) ---
+Anderson: [Grace]
+Brown: [Charlie]
+Doe: [Jane]
+Johnson: [Alice]
+Smith: [Bob, John, David]
+Taylor: [Frank]
+Thomas: [Henry]
+Wilson: [Emma]
+
+
+========== COMPARISON SUMMARY ==========
+
+Method 1 - Simple groupingBy:
+  Map Type: HashMap
+  Value Type: List<Person>
+  Example: NEW_YORK -> 2 people
+
+Method 2 - groupingBy with downstream:
+  Map Type: HashMap
+  Value Type: Long (from counting())
+  Example: NEW_YORK -> 2 count
+
+Method 3 - groupingBy with map factory and downstream:
+  Map Type: TreeMap
+  Value Type: Long (from counting())
+  Keys are sorted: [NEW_YORK, LOS_ANGELES, CHICAGO, HOUSTON, PHOENIX]
+
+______________________________________________________________________________________________________

@@ -169,9 +169,9 @@ public class StreamFilteringExample {
         Map<Department, Set<Employee>> wellPaidEmployeesByDepartment = employees.stream()
                 .collect(
                         Collectors.groupingBy(
-                                Employee::department, // Classifier function: groups by Department (using getter)
+                                Employee::department,
                                 Collectors.filtering(
-                                        e -> e.salary() > 2000, // Predicate: filters employees within each group (using getter)
+                                        e -> e.salary() > 2000,
                                         Collectors.toSet() // Downstream collector: collects the filtered employees into a Set
                                 )
                         )
