@@ -855,7 +855,7 @@ public class BooleanStreamsDemo {
         
         // Count how many are TRUE
         long trueCount = flags.stream()
-                              .filter(Boolean.TRUE::equals)
+                              .filter(Boolean.TRUE::equals)     // .filter(flag -> Boolean.TRUE.equals(flag))
                               .count();
         
         System.out.println("Count of TRUE values: " + trueCount);
@@ -1465,8 +1465,9 @@ public class Main {
 
 
         // above code in functional style
+        // same as java.util.Arrays.stream(numbers).sum() , https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/stream/IntStream.html#sum()
         int functionalSum = java.util.Arrays.stream(numbers)
-                .reduce(0, Integer::sum);
+                .reduce(0, Integer::sum);       
         System.out.println("The sum of the array using functional style is: " + functionalSum);
     }
 }

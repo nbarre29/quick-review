@@ -54,8 +54,6 @@ Explanation:
 	
 -> Example of Generic method.
 
-
-
 public class GenericMethodDemo {
 
     // Generic method to print elements of an array
@@ -125,6 +123,7 @@ public class GenericExamples {
         for (Object obj : list) {
             System.out.println("Item in unbounded list: " + obj);
         }
+		
         
         // list.add(new Object()); // Not allowed, because we don't know the element type.
     }
@@ -222,7 +221,7 @@ class Puppy extends Dog {}
 public class Test {
     public static void main(String[] args) {
 
-        List<? super Puppy> list = new ArrayList<Animal>();
+        List<? super Puppy> list = new ArrayList<>();
         list.add(new Puppy());     // ✅ OK — exactly Puppy
         list.add(new Dog());       // ❌ ERROR — Dog is a superclass of Puppy
         list.add(new Animal());    // ❌ ERROR — Animal is a superclass of Puppy

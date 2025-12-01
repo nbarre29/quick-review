@@ -1,0 +1,179 @@
+==> demonstrate the complex use of **logical AND (`&&`) operator** in a meaningful way.
+
+This program simulates a **loan approval system** where multiple conditions must be true before approval is granted.
+
+
+
+
+
+```
+public class LoanApprovalDemo {
+
+    public static void main(String[] args) {
+
+        int creditScore = 735;
+        double annualIncome = 120_000;
+        double dtiRatio = 0.32; // Debt-to-income ratio
+        boolean hasStableJob = true;
+        boolean hasPriorBankruptcy = false;
+
+        // Complex condition using &&
+        boolean isApproved =
+                creditScore >= 700 &&
+                        annualIncome >= 80_000 &&
+                        dtiRatio < 0.40 &&
+                        hasStableJob &&
+                        !hasPriorBankruptcy;
+
+        System.out.println("Loan Application Summary:");
+        System.out.println("--------------------------");
+        System.out.println("Credit Score: " + creditScore);
+        System.out.println("Annual Income: $" + annualIncome);
+        System.out.println("Debt-to-Income Ratio: " + dtiRatio);
+        System.out.println("Stable Job: " + hasStableJob);
+        System.out.println("Prior Bankruptcy: " + hasPriorBankruptcy);
+
+        System.out.println("\nLoan Status: " + (isApproved ? "APPROVED" : "DENIED"));
+    }
+}
+```
+
+```
+Output:
+
+Loan Application Summary:
+--------------------------
+Credit Score: 735
+Annual Income: $120000.0
+Debt-to-Income Ratio: 0.32
+Stable Job: true
+Prior Bankruptcy: false
+
+Loan Status: APPROVED
+```
+
+MyNotes: 
+
+a) The underscore numeric literal feature (introduced in Java 7) is **more commonly used with large integers** to improve readability:
+
+```
+int largeNumber = 1_000_000;  // Common
+long population = 7_800_000_000L;  // Common
+```
+
+That said, using `120_000` is **valid and readable**, just less conventional for doubles. It's perfectly fine if you prefer the visual clarity.
+_____________________________________________________________________________________
+
+==> demonstrate the complex use of **logical OR (`||`) operator** 
+
+This example simulates an **Access Control System** used in companies.
+A user may be granted access if **any one** of several conditions is true.
+
+
+```
+public class AccessControlSystem {
+
+    public static void main(String[] args) {
+
+        String role = "Employee";
+        boolean hasTemporaryPass = false;
+        boolean isSecurityOverrideActive = false;
+        boolean isVIP = false;
+        boolean afterHours = true;
+        boolean managerApproval = true;
+
+        // Complex OR expression:
+        boolean canEnterBuilding =
+                role.equals("Admin") ||               // Admin always allowed
+                        isVIP ||                              // VIP has access anytime
+                        hasTemporaryPass ||                   // Temporary pass allowed
+                        (afterHours && managerApproval) ||    // After-hours allowed with approval
+                        isSecurityOverrideActive;             // Emergency override
+
+        System.out.println("Access Control Check");
+        System.out.println("--------------------");
+        System.out.println("Role: " + role);
+        System.out.println("Has Temporary Pass: " + hasTemporaryPass);
+        System.out.println("VIP: " + isVIP);
+        System.out.println("After Hours: " + afterHours);
+        System.out.println("Manager Approval: " + managerApproval);
+        System.out.println("Security Override: " + isSecurityOverrideActive);
+
+        System.out.println("\nAccess Granted? " + (canEnterBuilding ? "YES" : "NO"));
+    }
+}
+
+```
+
+
+```
+Output:
+
+Access Control Check
+--------------------
+Role: Employee
+Has Temporary Pass: false
+VIP: false
+After Hours: true
+Manager Approval: true
+Security Override: false
+
+Access Granted? YES
+```
+_____________________________________________________________________________________
+
+==> Demonstrating Combined && + ||
+
+```
+public class FraudDetectionSystem {
+
+    public static void main(String[] args) {
+
+        double transactionAmount = 4500.00;
+        String location = "Foreign";
+        boolean unusualTime = true;
+        boolean deviceNotRecognized = false;
+        boolean accountFrozen = false;
+        boolean rapidMultipleTransactions = true;
+        boolean cardReportedLost = false;
+
+        // Complex logic using OR + AND:
+        boolean isFraud =
+                accountFrozen ||                                 // immediate fraud condition
+                        cardReportedLost ||                              // card is reported lost → fraud
+                        (transactionAmount > 3000 && location.equals("Foreign")) ||  // high-value foreign transaction
+                        (unusualTime && deviceNotRecognized) ||          // odd time + unknown device combo
+                        rapidMultipleTransactions;                       // too many transactions in short time
+
+        System.out.println("Fraud Detection Input:");
+        System.out.println("-----------------------");
+        System.out.println("Amount: $" + transactionAmount);
+        System.out.println("Location: " + location);
+        System.out.println("Unusual Time: " + unusualTime);
+        System.out.println("Unknown Device: " + deviceNotRecognized);
+        System.out.println("Account Frozen: " + accountFrozen);
+        System.out.println("Rapid Transactions: " + rapidMultipleTransactions);
+        System.out.println("Card Reported Lost: " + cardReportedLost);
+
+        System.out.println("\nTransaction Status: " + (isFraud ? "FLAGGED AS FRAUD" : "SAFE"));
+    }
+}
+```
+
+```
+Output:
+
+Fraud Detection Input:
+-----------------------
+Amount: $4500.0
+Location: Foreign
+Unusual Time: true
+Unknown Device: false
+Account Frozen: false
+Rapid Transactions: true
+Card Reported Lost: false
+
+Transaction Status: FLAGGED AS FRAUD
+```
+_____________________________________________________________________________________
+
