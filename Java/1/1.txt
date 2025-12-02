@@ -1377,7 +1377,7 @@ public class OptionalExample {
 }
 ______________________________________________________________________________________________________
 
-==> simulate a database search and demonstrates returning Optional.empty() when the user is not found.
+==> simulate a database search and return Optional.empty() when the user is not found.
 
 ```
 public record User(String name, int age) {
