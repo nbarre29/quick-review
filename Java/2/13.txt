@@ -2,10 +2,6 @@
 
 This program simulates a **loan approval system** where multiple conditions must be true before approval is granted.
 
-
-
-
-
 ```
 public class LoanApprovalDemo {
 
@@ -79,8 +75,8 @@ public class AccessControlSystem {
         boolean hasTemporaryPass = false;
         boolean isSecurityOverrideActive = false;
         boolean isVIP = false;
-        boolean afterHours = true;
-        boolean managerApproval = true;
+        boolean afterHours = true;		//better rename to isAfterHours
+        boolean managerApproval = true;		//better rename to hasManagerApproval or isManagerApproved
 
         // Complex OR expression:
         boolean canEnterBuilding =
@@ -131,11 +127,11 @@ public class FraudDetectionSystem {
 
         double transactionAmount = 4500.00;
         String location = "Foreign";
-        boolean unusualTime = true;
-        boolean deviceNotRecognized = false;
-        boolean accountFrozen = false;
-        boolean rapidMultipleTransactions = true;
-        boolean cardReportedLost = false;
+        boolean unusualTime = true;		//better rename to isUnusualTime
+        boolean deviceNotRecognized = false;	// better rename to isDeviceNotRecognized
+        boolean accountFrozen = false;		// better rename to isAccountFrozen
+        boolean rapidMultipleTransactions = true;	// better rename to hasRapidMultipleTransactions
+        boolean cardReportedLost = false;		// better rename to isCardReportedLost
 
         // Complex logic using OR + AND:
         boolean isFraud =
