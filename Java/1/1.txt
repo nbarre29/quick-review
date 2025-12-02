@@ -1283,7 +1283,33 @@ public class OptionalExample {
 Output:
 Value is present: Hello, World!
 Value is absent
------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
+
+==> Above program can be simplified as below:
+```
+import java.util.Optional;
+
+public class OptionalExample {
+
+    public static void main(String[] args) {
+        String value1 = "Hello, World!";
+        String value2 = null;
+
+        // Example with a non-null value
+        Optional<String> nonEmptyOptional = Optional.ofNullable(value1);
+        nonEmptyOptional.ifPresent(value -> System.out.println("Value is present: " + value));
+
+        // Example with a null value
+        Optional<String> emptyOptional = Optional.ofNullable(value2);
+        emptyOptional.ifPresentOrElse(
+                value -> System.out.println("Value is present: " + value),
+                () -> System.out.println("Value is absent")
+        );
+    }
+
+}
+```
+______________________________________________________________________________________________________
 -> In this modified code from above:
 orElseThrow is used to throw an exception if the value is absent.
 A try-catch block is used to handle the exception for the case where the value is absent.
@@ -1349,6 +1375,128 @@ public class OptionalExample {
         System.out.println("Uppercase Value2: " + optional2.map(String::toUpperCase).orElse("No Value")); // "No Value"
     }
 }
+______________________________________________________________________________________________________
+
+==> simulate a database search and demonstrates returning Optional.empty() when the user is not found.
+
+```
+public record User(String name, int age) {
+
+}
+
+
+import java.util.*;
+
+public class OptionalDemo {
+
+    public static void main(String[] args) {
+
+        // Simulated database (in-memory)
+        Map<String, User> database = new HashMap<>();
+        database.put("alice@example.com", new User("Alice", 30));
+        database.put("bob@example.com", new User("Bob", 28));
+
+        // Test 1: Existing user
+        Optional<User> found1 = findUserByEmail("alice@example.com", database);
+        found1.ifPresentOrElse(
+                user -> System.out.println("User found: " + user),
+                () -> System.out.println("User NOT found!")
+        );
+
+        // Test 2: Non-existing user
+        Optional<User> found2 = findUserByEmail("charlie@example.com", database);
+        found2.ifPresentOrElse(
+                user -> System.out.println("User found: " + user),
+                () -> System.out.println("User NOT found!")
+        );
+    }
+
+    // ---------------------------------------------------
+    // Method demonstrating Optional.empty()
+    // ---------------------------------------------------
+    public static Optional<User> findUserByEmail(String email, Map<String, User> db) {
+
+        User user = db.get(email);  // returns null if email not found
+
+        if (user == null) {
+            return Optional.empty();    // nothing found
+        }
+
+        return Optional.of(user);
+    }
+}
+```
+
+```
+Output:
+User found: User[name=Alice, age=30]
+User NOT found!
+```
+
+______________________________________________________________________________________________________
+
+==> Another example to demonstrating Optional.empty() from findFirst()
+
+```
+public record Product(String id, String name, double price) {
+
+    @Override
+    public String toString() {
+        return id + " - " + name + " ($" + price + ")";
+    }
+}
+
+
+import java.util.*;
+
+public class ProductSearchDemo {
+
+    public static void main(String[] args) {
+
+        // Create inventory (List<Product>)
+        List<Product> inventory = Arrays.asList(
+                new Product("P101", "iPhone 15", 999.99),
+                new Product("P102", "Samsung Galaxy S24", 899.99),
+                new Product("P103", "Google Pixel 9", 799.99)
+        );
+
+        // -------------------------------
+        // Case 1: Existing product
+        // -------------------------------
+        Optional<Product> result1 = findProductById(inventory, "P101");
+
+        result1.ifPresentOrElse(
+                p -> System.out.println("FOUND: " + p),
+                () -> System.out.println("NOT FOUND!")
+        );
+
+        // -------------------------------
+        // Case 2: Product not in inventory
+        // -------------------------------
+        Optional<Product> result2 = findProductById(inventory, "P999");
+
+        result2.ifPresentOrElse(
+                p -> System.out.println("FOUND: " + p),
+                () -> System.out.println("NOT FOUND!")
+        );
+    }
+
+    // ------------------------------------------------------------
+    // Method that returns Optional.empty() when product not found
+    // ------------------------------------------------------------
+    public static Optional<Product> findProductById(List<Product> products, String id) {
+        return products.stream()
+                .filter(p -> p.id().equals(id))
+                .findFirst();  // returns Optional.empty() if none match
+    }
+}
+```
+
+```
+Output:
+FOUND: P101 - iPhone 15 ($999.99)
+NOT FOUND!
+```
 ______________________________________________________________________________________________________
 
 -> Few alternatives to using Optional in Java?
