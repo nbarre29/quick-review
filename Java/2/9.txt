@@ -78,7 +78,53 @@ You cannot call new EnumMap<>() without the enum class because EnumMap has no no
 * Maintains natural enum order (e.g., MONDAY → SUNDAY).
 * More efficient than `HashMap<Enum, ?>`.
 
------------------------------------------------------------
+_________________________________________________________________________________________
+
+==> Java 8 already provides `java.time.DayOfWeek`, so custom `Day` enum in the above code is redundant for common use.
+
+import java.time.DayOfWeek;
+import java.util.EnumMap;
+import java.util.Map;
+
+public class EnumMapExample {
+
+    public static void main(String[] args) {
+
+        // Step 2: Create an EnumMap with enum type as key
+        EnumMap<DayOfWeek, String> timetable = new EnumMap<>(DayOfWeek.class);
+
+        // Step 3: Put values into the map
+        timetable.put(DayOfWeek.MONDAY, "Workout");
+        timetable.put(DayOfWeek.TUESDAY, "Team Meeting");
+        timetable.put(DayOfWeek.WEDNESDAY, "Project Work");
+        timetable.put(DayOfWeek.THURSDAY, "Learning Session");
+        timetable.put(DayOfWeek.FRIDAY, "Code Review");
+
+        // Step 4: Retrieve values
+        System.out.println("Wednesday Plan: " + timetable.get(DayOfWeek.WEDNESDAY));
+
+        // Step 5: Iterate through entries
+        System.out.println("\nFull Timetable:");
+        for (Map.Entry<DayOfWeek, String> entry : timetable.entrySet()) {
+            System.out.println(entry.getKey() + " : " + entry.getValue());
+        }
+
+        // Step 5.1:  use forEach method
+        System.out.println("\nUsing forEach method:");
+        timetable.forEach((day, activity) ->
+                System.out.println(day + " -> " + activity)
+        );
+
+        // Step 6: Check if a key exists
+        System.out.println("\nContains Friday? " + timetable.containsKey(DayOfWeek.FRIDAY));
+
+        // Step 7: Remove a key
+        timetable.remove(DayOfWeek.FRIDAY);
+        System.out.println("After removing Friday: " + timetable);
+    }
+}
+
+_________________________________________________________________________________________
 
 # ⭐ Another Example — EnumMap with Switch-like Usage
 

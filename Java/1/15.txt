@@ -267,11 +267,29 @@ public class Main {
     }
 }
 
+MyNotes: 
+a) The `%05d` is a format specifier used with `String.format()`:
+
+- `%` - indicates the start of a format specifier
+- `0` - specifies that leading zeros should be used for padding (instead of spaces)
+- `5` - defines the minimum width of the output (5 characters)
+- `d` - indicates the argument is a decimal integer
+
+So `%05d` means: "format as a decimal integer with a minimum width of 5 characters, padding with leading zeros if necessary."
+
+For example:
+- `"123"` becomes `"00123"` (padded with 2 leading zeros)
+- `"45"` becomes `"00045"` (padded with 3 leading zeros)
+- `"12345"` remains `"12345"` (already 5 digits)
+
+
+
 Option 2:
 
 public class Main {
     public static void main(String[] args) {
         String zipCode = "123";
+
 
         // pad zip cod if < 5 digits
         if (zipCode != null && zipCode.length() < 5) {
@@ -281,6 +299,24 @@ public class Main {
         System.out.println("Padded Zip Code: " + zipCode);
     }
 }
+
+MyNotes:
+a) The `%5s` is a format specifier used with `String.format()`:
+
+- `%` - indicates the start of a format specifier
+- `5` - defines the minimum width of the output (5 characters)
+- `s` - indicates the argument is a string
+
+So `%5s` means: "format as a string with a minimum width of 5 characters, padding with spaces on the left if necessary."
+
+The `.replace(' ', '0')` then converts those leading spaces into zeros.
+
+For example:
+- `"123"` becomes `"  123"` after format (2 leading spaces), then `"00123"` after replace
+- `"45"` becomes `"   45"` after format (3 leading spaces), then `"00045"` after replace
+- `"12345"` remains `"12345"` (already 5 characters, no padding needed)
+
+This is a two-step approach: first pad with spaces, then replace spaces with zeros.
 
 
 Here’s a clear comparison of **Option 1 vs Option 2** and which one is *preferred in real-world Java code*.
