@@ -282,6 +282,31 @@ For example:
 - `"45"` becomes `"00045"` (padded with 3 leading zeros)
 - `"12345"` remains `"12345"` (already 5 digits)
 
+b) why if 0 is infront of 5, it is 5 digits and padded with 0's. I though if 1 is before 5 it should be padded with 1's right?
+
+No, The `0` in `%05d` is a **flag**, not a padding character choice.
+
+In format specifiers:
+- The `0` flag means "pad with zeros instead of spaces"
+- The `5` is the **width** (minimum number of characters)
+
+So `%05d` means:
+- Pad with **zeros** (the `0` flag tells it to use zeros)
+- Make it **5** characters wide (the `5` is the width)
+
+Examples:
+- `%5d` → pads with **spaces** to width 5: `"  123"`
+- `%05d` → pads with **zeros** to width 5: `"00123"`
+- `%15d` → pads with **spaces** to width 15: `"            123"`
+- `%015d` → pads with **zeros** to width 15: `"000000000000123"`
+
+You **cannot** choose arbitrary padding characters like `1`. The `0` flag specifically means "use zero padding" - it's not a customizable character.
+
+If you needed to pad with a different character, you'd need to use `String.replace()`:
+```java
+String.format("%5s", zipCode).replace(' ', '1')  // Pads with 1's, then output will be 11123
+```
+
 
 
 Option 2:

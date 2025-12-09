@@ -1013,7 +1013,55 @@ Features needing configuration: [aiAssistant]
 | Default value = false OK       | ✅         |           |
 
 	  
-_____________________________________________________________________________________																					 
+_____________________________________________________________________________________		
+
+==> This shows:
+
+* How to combine multiple boolean checks
+* Safely handle nulls
+* Return an object based on Boolean.TRUE.equals()
+
+```java
+public class Main {
+    public static void main(String[] args) {
+
+        System.out.println(getApprovalMessage(true, null));   // APPROVED
+        System.out.println(getApprovalMessage(false, true));  // APPROVED
+        System.out.println(getApprovalMessage(null, null));   // NOT APPROVED
+    }
+
+    private static String getApprovalMessage(Boolean supervisorApproved, Boolean managerApproved) {
+        String result = "NOT APPROVED";
+
+        if (Boolean.TRUE.equals(supervisorApproved) || Boolean.TRUE.equals(managerApproved)) {
+            result = "APPROVED";
+        }
+
+        return result;
+    }
+}
+
+```
+
+
+MyNotes:
+a) 
+Above method safely handles null values through the use of Boolean.TRUE.equals() method. 
+
+How null safety is achieved:
+Using Boolean.TRUE.equals(value) instead of value.equals(Boolean.TRUE) or value == true
+When you call Boolean.TRUE.equals(supervisorApproved), if supervisorApproved is null, the equals() method simply returns false instead of throwing a NullPointerException
+This is because you're calling the method on the non-null constant Boolean.TRUE, not on the potentially null variable
+
+Why this is safe:
+Boolean.TRUE.equals(null) → returns false (no exception)
+Boolean.TRUE.equals(false) → returns false
+Boolean.TRUE.equals(true) → returns true
+
+
+
+
+_____________________________________________________________________________________
 -> java.util.function.Supplier<T> at a glance
 
 What it is : A functional interface with a single method T get(); that returns a value and accepts no arguments.

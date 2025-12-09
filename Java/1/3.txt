@@ -164,6 +164,69 @@ Or more concisely, since `n` is already an `Integer`:
 ```
 
 The second form works because Java automatically unboxes the `Integer` to `int` when needed.
+
+______________________________________________________________________________________________________
+
+==> Calculate the sum of all even numbers in an array using Java Streams.
+
+import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) {
+        int[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+        int sumOfEvens = Arrays.stream(numbers)
+                .filter(n -> n % 2 == 0)
+                .sum();
+        System.out.println("Sum of even numbers: " + sumOfEvens);   // Sum of even numbers: 30
+
+    }
+}
+
+______________________________________________________________________________________________________
+
+==> Is it okay to have multiple filters
+
+import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) {
+        int[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+        Arrays.stream(numbers)
+                .filter(n -> n % 2 == 0)
+                .filter(n -> n > 5)
+                .forEach(System.out::println);
+
+    }
+}
+
+Yes, it's **perfectly fine** to have multiple filters. This is actually a **common and recommended practice** in Java Streams.
+
+**Benefits of multiple filters:**
+- **Readability**: Each filter expresses a single, clear condition
+- **Maintainability**: Easy to add, remove, or modify individual conditions
+- **Debugging**: Easier to identify which condition is filtering what
+- **Testability**: Each filter can be understood independently
+
+**Your code is good as-is.** However, you could also combine them into one filter:
+
+```java
+Arrays.stream(numbers)
+    .filter(n -> n % 2 == 0 && n > 5)
+    .forEach(System.out::println);
+```
+
+**When to use multiple filters vs. one:**
+- **Multiple filters**: When conditions are logically distinct or might change independently
+- **Single filter**: When conditions are tightly coupled and always evaluated together
+
+**Performance note**: Multiple filters have negligible performance difference from a single combined filter. The readability benefit usually outweighs any micro-optimization.
+
+Your current approach with two separate filters is clear and maintainable.
+
+MyNotes: In above case both conditions are simple checks on the same number, combining them into one filter would be slightly more effecient (avoids creating an intermediate stream) and more concise. However, the performance difference is negligible for small datasets.
+
 ______________________________________________________________________________________________________
 
 ==> Calculate the sum of the numbers in the list

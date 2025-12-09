@@ -698,6 +698,40 @@ No specific items provided.
 
 ______________________________________________________________________________
 
+==> demonstrate Optional.of(value)` - Throws `NullPointerException` if value is `null`
+
+public class Main {
+    public static void main(String[] args) {      
+        
+        try {
+            String value = null;
+            java.util.Optional<String> optionalValue = java.util.Optional.of(value);
+        } catch (NullPointerException e) {
+            System.out.println("Caught NullPointerException as expected when using Optional.of() with null value.");
+        }
+
+    }
+}
+
+The issue is that `Optional.of()` does **not** accept `null` values—it throws a `NullPointerException` when you pass `null` to it.
+
+To safely wrap a potentially null value, use `Optional.ofNullable()` instead:
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        String value = null;
+        java.util.Optional<String> optionalValue = java.util.Optional.ofNullable(value);
+    }
+}
+```
+
+**Key difference:**
+- `Optional.of(value)` — requires a non-null value, throws NPE if null
+- `Optional.ofNullable(value)` — safely handles null, returns `Optional.empty()` if null
+
+______________________________________________________________________________
+
 ==> many developers wonder why `Optional.of(...)` even exists when `Optional.ofNullable(...)` seems “safer”.
 
 Here is the **real reason** and **clear examples**.

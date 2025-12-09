@@ -236,6 +236,41 @@ Output:
 orange: 1
 banana: 2
 apple: 3
+
+MyNotes:
+a) **`Map` does not implement `Iterable`**.
+
+**Why `forEach` works here:**
+
+`Map` has its own `forEach` method (added in Java 8) that is **not** from the `Iterable` interface. It accepts a `BiConsumer<K, V>` to process each key-value pair.
+
+**The difference:**
+
+```java
+// Map.forEach (what you're using) - takes BiConsumer
+fruitCounts.forEach((fruit, count) -> 
+    System.out.println(fruit + ": " + count)
+);
+
+// Iterable.forEach (NOT available on Map) - would take Consumer
+// fruitCounts.forEach(entry -> ...) // ❌ This doesn't work directly
+```
+
+**To use the `Iterable` approach, you need to convert to a collection first:**
+
+```java
+// Stream the entry set (Iterable)
+fruitCounts.entrySet().forEach(entry ->
+    System.out.println(entry.getKey() + ": " + entry.getValue())
+);
+```
+
+**Summary:**
+- `Map` is **not** `Iterable`
+- `Map.forEach(BiConsumer)` is a **separate method** added in Java 8 for convenience
+- If you want to use the `Iterable.forEach` or stream API, use `entrySet()`, `keySet()`, or `values()`
+
+Your current code is correct and idiomatic — `Map.forEach` is the cleanest way to iterate over a map's entries!
 ______________________________________________________________________________
 
 -> 
