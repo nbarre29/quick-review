@@ -1,0 +1,249 @@
+==> Find the average of salaries in each department
+
+public record Employee(String name, String department, double salary) {
+}
+
+```
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+
+        List<Employee> employees = List.of(
+                new Employee("Alice", "Engineering", 90000),
+                new Employee("Bob", "Engineering", 85000),
+                new Employee("Charlie", "HR", 60000),
+                new Employee("Diana", "HR", 65000),
+                new Employee("Eve", "Marketing", 70000)
+        );
+
+        employees.stream()
+                .collect(
+                        java.util.stream.Collectors.groupingBy(
+                                Employee::department,
+                                java.util.stream.Collectors.averagingDouble(Employee::salary)
+                        )
+                )
+                .forEach((department, avgSalary) ->
+                        System.out.println("Department: " + department + ", Average Salary: " + avgSalary)
+                );
+    }
+}
+```
+
+```
+Output:
+Department: Engineering, Average Salary: 87500.0
+Department: HR, Average Salary: 62500.0
+Department: Marketing, Average Salary: 70000.0
+```
+
+MyNotes:
+a) Map<String, Double> averageSalaryByDepartment = employees.stream()
+                .collect(Collectors.groupingBy(Employee::department, Collectors.averagingDouble(Employee::salary)));
+
+   averageSalaryByDepartment.forEach((department, avgSalary) ->
+                System.out.println("Department: " + department + ", Average Salary: " + avgSalary));
+				
+				
+b) // Find the highest paid employee
+        Employee highestPaid = employees.stream()
+                .max(java.util.Comparator.comparingDouble(Employee::salary))
+                .orElseThrow();      // we could also have .orElse(null);
+
+        System.out.println("Highest Paid Employee: " + highestPaid.name() + ", Salary: " + highestPaid.salary());	
+
+
+with lambda it will be: .max((e1, e2) -> Double.compare(e1.salary(), e2.salary()))	
+
+c) // Calculate average salary of all employees
+        double overallAvgSalary = employees.stream()
+                .mapToDouble(Employee::salary)
+                .average()
+                .orElse(0.0);   // we cannot use `orElse(null)` with `OptionalDouble`** — it won’t compile.
+        System.out.println("Overall Average Salary: " + overallAvgSalary);	
+
+
+REFERENCE:
+https://www.youtube.com/watch?v=JVRy0IKLH0A
+
+________________________________________________________________________________________
+
+==> // Calculate average salary of all employees
+        double overallAvgSalary = employees.stream()
+                .mapToDouble(Employee::salary)
+                .average()
+                .orElse(0.0);
+        System.out.println("Overall Average Salary: " + overallAvgSalary);
+
+
+ choosing between **`orElse(0.0)`**, **`orElse(null)`**, and **`orElseThrow()`** depends entirely on what the *absence of a value* means in your domain.
+
+Let’s break it down clearly.
+
+---
+
+# ✅ **Your specific example**
+
+```java
+employees.stream()
+    .mapToDouble(Employee::salary)
+    .average()
+```
+
+* `.average()` returns an `OptionalDouble`.
+* It **cannot** contain `null` because primitive optionals (`OptionalDouble`, `OptionalInt`, `OptionalLong`) do NOT allow null.
+
+👉 **So you cannot use `orElse(null)` with `OptionalDouble`** — it won’t compile.
+`null` does not match the required primitive `double`.
+
+Therefore, in your case:
+
+* `orElse(0.0)` ✔ valid
+* `orElseThrow()` ✔ valid
+* `orElse(null)` ❌ not possible
+
+---
+
+# ✅ General usage in other optionals (e.g., `Optional<T>`)
+
+
+---
+
+# 📊 **Comparison Table: `orElse(0.0)` vs `orElse(null)` vs `orElseThrow()`**
+
+| Method                                                               | When to Use                                                                       | What It Means                          | Pros                                                                        | Cons                                                                        |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------------- | -------------------------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| **`orElse(0.0)`**                                                    | When you want a *safe default* value that makes sense in your domain              | Returns a default if Optional is empty | Simple; avoids exceptions; good for numeric calculations                    | Can hide bugs if 0.0 is not a meaningful value                              |
+| **`orElse(null)`** (only for `Optional<T>`, not primitive optionals) | When `null` is a *valid domain signal* and the caller is designed to handle nulls | Returns `null` on empty                | Works when integrating with older APIs; can intentionally represent absence | Brings back `NullPointerException` problems; not recommended in modern Java |
+| **`orElseThrow()`**                                                  | When *absence is an error condition*                                              | Throws exception if Optional is empty  | Very explicit; good for invariants; prevents silent failures                | Caller must handle exception; not good for “normal empty” cases             |
+
+---
+
+# 🔍 When should you use each?
+
+## ✔ **Use `orElse(0.0)` when:**
+
+* You're doing math and `0.0` is a sensible fallback.
+* Missing data is **normal**, not exceptional.
+* You want safe, predictable behavior.
+
+**Example:**
+
+```java
+double avg = optionalAvg.orElse(0.0);
+```
+
+Good for:
+
+* totals
+* averages
+* counters
+* scoring
+
+---
+
+## ✔ **Use `orElse(null)` when:**
+
+* You’re working with `Optional<T>` (not primitive types).
+* Your system already uses `null` to represent absence.
+* You’re interfacing with *legacy code* that expects nulls.
+
+✔ Only use when null is an intentional part of your domain model.
+✘ Avoid if you can — Optionals were invented *to avoid nulls*.
+
+---
+
+## ✔ **Use `orElseThrow()` when:**
+
+* A missing value means **your code is in an invalid state**.
+* You want to fail fast and loudly.
+* The value must be present logically.
+
+**Example:**
+
+```java
+double avg = optionalAvg.orElseThrow(() -> new IllegalStateException("No employees"));
+```
+
+Good for:
+
+* Required configuration values
+* Required database lookups
+* Authentication/authorization flows
+* Invariants ("this must never be empty")
+
+---
+
+# ⭐ Recommendation for *your* code
+
+In your exact example:
+
+### **If 0.0 is a reasonable average when there are no employees → use:**
+
+```java
+.orElse(0.0)
+```
+
+### **If having 0 employees is a bug → use:**
+
+```java
+.orElseThrow(() -> new IllegalStateException("No employees to calculate average"))
+```
+
+### **You cannot use `orElse(null)` here**
+
+because `OptionalDouble` only accepts primitives.
+
+---
+
+# ✔ Final Summary Table (Short Version)
+
+| Scenario                                                   | Best Choice                           |
+| ---------------------------------------------------------- | ------------------------------------- |
+| Normal empty case; want default                            | `orElse(0.0)`                         |
+| Absence is exceptional; should fail                        | `orElseThrow()`                       |
+| Need to return null intentionally (non-primitive Optional) | `orElse(null)`                        |
+| Using OptionalDouble                                       | `orElse(0.0)` or `orElseThrow()` only |
+
+---
+
+________________________________________________________________________________________
+
+==> Find all unique skills from a list of employees
+
+
+import java.util.List;
+
+public record Employee(String name, List<String> skills) {
+
+}
+
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+// this program demonstrates the use of flatMap to extract unique skills from a list of employees
+public class Main {
+    public static void main(String[] args) {
+
+        List<Employee> employees = Arrays.asList(
+                new Employee("Dillip", Arrays.asList("Java", "Spring", "SQL")),
+                new Employee("Kiran", Arrays.asList("Java", "React", "AWS")),
+                new Employee("Ravi", Arrays.asList("Python", ".Net", "AWS"))
+        );
+
+        Set<String> uniqueSkills = employees.stream()
+                .flatMap(emp -> emp.skills().stream()) // flattening the skills lists into a single stream
+                .collect(Collectors.toSet()); // collecting unique skills into a set
+        System.out.println(uniqueSkills);  // [Java, .Net, Spring, React, AWS, SQL, Python]
+
+
+    }
+}
+
+REFERENCE: https://www.youtube.com/watch?v=EFXJSG52nao
+________________________________________________________________________________________
+
+________________________________________________________________________________________
