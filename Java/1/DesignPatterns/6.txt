@@ -56,7 +56,7 @@ public class Client {
     }
 }
 
-MyNotes:
+#### MyNotes:
 MediaPlayer adapter = new MediaAdapter(new OldPlayer());  // just to reduce from 2 lines to a single line
 
 

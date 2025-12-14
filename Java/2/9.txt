@@ -67,7 +67,7 @@ Contains Friday? true
 After removing Friday: {MONDAY=Workout, TUESDAY=Team Meeting, WEDNESDAY=Project Work, THURSDAY=Learning Session}
 
 
-MyNotes:
+#### MyNotes:
 You cannot call new EnumMap<>() without the enum class because EnumMap has no no-argument constructor — it needs the enum Class at runtime to build its internal array and validate keys (type erasure removes generic information at runtime). HashMap doesn't need that, so it provides a no-arg constructor.
 
 
@@ -156,7 +156,7 @@ COMPLETED: 10
 CANCELLED: 2
 
 
-MyNotes:
+#### MyNotes:
 1) we get the same output if we use below as well:
 statusCount.forEach((status, count) -> {
             System.out.println(status + ": " + count);
@@ -756,7 +756,7 @@ Encoded (byte[]): [83, 71, 86, 115, 98, 71, 56, 103, 86, 50, 57, 121, 98, 71, 81
 Encoded (as String): SGVsbG8gV29ybGQ=
 
 
-MyNotes:
+#### MyNotes:
 1) 
 a) specify the charset explicitly. Using StandardCharsets.UTF_8 avoids platform-dependent defaults and is the correct choice for UTF-8 text.
  // Convert string to bytes using explicit charset
@@ -950,7 +950,7 @@ public class HmacSha256Example1 {
 Output:
 HMAC (raw bytes): [44, -41, -62, 80, 37, 25, -115, 68, 88, 0, 44, -21, 6, 74, -45, 124, -49, -69, -28, 102, 80, -121, 109, 105, 63, 94, 8, 11, -39, 84, -28, 73]
 
-MyNotes:
+#### MyNotes:
 java.nio.charset.StandardCharsets.UTF_8 should be used instead of "UTF-8"
 
 # ✅ **1. `StandardCharsets.UTF_8` is Compile-Time Safe**

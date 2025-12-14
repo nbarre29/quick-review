@@ -172,7 +172,7 @@ public class Main {
     }
 }
 
-MyNotes:
+#### MyNotes:
 a) Should i rename PayrollCalculator to BonusCalculator ?
 
 Yes — if the class's single responsibility is computing bonuses, renaming `PayrollCalculator` to `BonusCalculator` improves clarity and intent.

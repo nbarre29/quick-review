@@ -267,7 +267,7 @@ public class Main {
     }
 }
 
-MyNotes: 
+#### MyNotes: 
 a) The `%05d` is a format specifier used with `String.format()`:
 
 - `%` - indicates the start of a format specifier
@@ -325,7 +325,7 @@ public class Main {
     }
 }
 
-MyNotes:
+#### MyNotes:
 a) The `%5s` is a format specifier used with `String.format()`:
 
 - `%` - indicates the start of a format specifier
@@ -852,7 +852,7 @@ Benefits:
 - Prevents unexpected NPEs later
 ```
 
-MyNotes:
+#### MyNotes:
 
 a) Catching `NullPointerException` is generally considered **bad practice**.
 

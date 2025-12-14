@@ -472,7 +472,7 @@ Item[name=Headphones, price=149.99]
 
 The key insight is that `flatMap()` expects a function that returns a `Stream`, and it automatically flattens all these streams into a single stream.
 
-MyNotes:
+#### MyNotes:
 a) .flatMap(list -> list.stream())
 
 we can replace the lambda with method reference:

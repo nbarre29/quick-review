@@ -12,10 +12,10 @@ public class Test {
     public static void main(String[] args) {
         String input = "axccbdd";
 
-        /*final Map<String, Long> collect = Arrays.stream(input.split("")).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        /* Map<String, Long> collect = Arrays.stream(input.split("")).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
         System.out.println(collect);*/
 
-        final List<String> duplicateElements = Arrays.stream(input.split("")).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+        List<String> duplicateElements = Arrays.stream(input.split("")).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                 .entrySet()
                 .stream()
                 .filter(x -> x.getValue() > 1)     // x.getValue() == 1  for uniqueElements
@@ -25,8 +25,72 @@ public class Test {
         System.out.println(duplicateElements);
     }
 }
-----------------------------------------------------
 
+-------------------------------------------------------------------------------------
+==> any improvements to above code ?
+
+The code works correctly but can be improved for readability and efficiency:
+
+**Issues:**
+1. **Long method chain**: The stream pipeline is hard to read on one line
+2. **Intermediate list collection**: Not necessary if you just want to print
+3. **Legacy `toList()`**: Java 16+ has a simpler alternative
+
+**Improved version:**
+
+```java
+import java.util.Arrays;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+public class Test {
+    public static void main(String[] args) {
+        String input = "axccbdd";
+
+        Map<String, Long> charCounts = Arrays.stream(input.split(""))
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+        charCounts.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue() > 1)
+                .map(Map.Entry::getKey)
+                .forEach(System.out::println);
+    }
+}
+```
+
+**Alternative - more efficient approach without `split()`:**
+
+```java
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+public class Test {
+    public static void main(String[] args) {
+        String input = "axccbdd";
+
+        input.chars()
+                .mapToObj(c -> (char) c)
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                .entrySet()
+                .stream()
+                .filter(entry -> entry.getValue() > 1)
+                .map(Map.Entry::getKey)
+                .forEach(System.out::println);
+    }
+}
+```
+
+**Benefits:**
+- Avoids creating intermediate String array with `split()`
+- More readable with intermediate variable
+- Uses `forEach()` instead of collecting to a list just for printing
+
+______________________________________________________________________________________
+
+==> Find duplicate words in a string using Java Streams
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -37,28 +101,74 @@ public class Test {
     public static void main(String[] args) {
         String input = "Fear leads to anger anger leads to hatred hatred leads to conflict conflict leads to suffering";
 
-        /*final Map<String, Long> collect = Arrays.stream(input.split("")).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-        System.out.println(collect);*/
-
-        final List<String> duplicateWords = Arrays.stream(input.split("\\s")).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+        List<String> duplicateWords = Arrays.stream(input.split("\\s"))
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                 .entrySet()
                 .stream()
                 .filter(x -> x.getValue() > 1)
                 .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
+                .toList();
 
         System.out.println(duplicateWords);
     }
 }
-----------------------------------------------------
-final List<String> duplicateWords = Arrays.stream(input.split("\\s+")).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+--------------------------------------------------------------------------------------
+
+==> Any improvements to above code ?
+
+Here are some improvements to consider:
+
+1. **Case-insensitive comparison**: Words like "Anger" and "anger" would be treated as different
+2. **Simplify stream operations**: Combine the two streams into one
+3. **Add input validation**: Handle null or empty input
+4. **Extract constants**: Make the regex pattern clearer
+5. **Improve variable naming**: Be more descriptive
+
+**Improved version:**
+
+```java
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+public class Test {
+    private static final String WHITESPACE_PATTERN = "\\s+";
+
+    public static void main(String[] args) {
+        String input = "Fear leads to anger anger leads to hatred hatred leads to conflict conflict leads to suffering";
+
+        List<String> duplicateWords = findDuplicateWords(input);
+        System.out.println(duplicateWords);
+    }
+
+    private static List<String> findDuplicateWords(String text) {
+        if (text == null || text.isBlank()) {
+            return Collections.emptyList();
+        }
+
+        return Arrays.stream(text.toLowerCase().split(WHITESPACE_PATTERN))
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                 .entrySet()
                 .stream()
-                .filter(x -> x.getValue() > 1)
+                .filter(entry -> entry.getValue() > 1)
                 .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-____________________________________________________
-// find first non-repeat element from a given string
+                .toList();
+    }
+}
+```
+
+**Key changes:**
+- Added null/empty check
+- Made comparison case-insensitive with `toLowerCase()`
+- Used `\\s+` to handle multiple whitespaces
+- Extracted method for better testability and reusability
+- Used constant for regex pattern
+______________________________________________________________________________________
+
+==> Find the first non-repeating character in a string using Java 8 features
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.function.Function;
@@ -68,13 +178,13 @@ public class Test {
     public static void main(String[] args) {
         String input = "ilovejavatechie";
 
-        final String firstNonRepeatElement = Arrays.stream(input.split("")).collect(Collectors.groupingBy(Function.identity(), LinkedHashMap::new, Collectors.counting()))
+        final String firstNonRepeatElement = Arrays.stream(input.split(""))
+                .collect(Collectors.groupingBy(Function.identity(), LinkedHashMap::new, Collectors.counting()))
                 .entrySet()
                 .stream()
                 .filter(x -> x.getValue() == 1)      // x.getValue() > 1 to get the first repeat element
                 .findFirst().get().getKey();
         System.out.println("1st non repeat element " + firstNonRepeatElement);
-
 
     }
 }
@@ -201,49 +311,7 @@ public class Test {
 }
 ```
 ______________________________________________________________________________________
-//print all the shortest strings in an array of strings
-import java.util.Arrays;
 
-public class Test {
-    public static void main(String[] args) {
-        String[] strArray = {"apple", "banana", "cat", "dog", "elephant"};
-
-// Find the length of the shortest string
-        int shortestLength = Arrays.stream(strArray)
-                .mapToInt(String::length)
-                .min()
-                .orElse(0);
-
-// Print all the shortest strings
-        Arrays.stream(strArray)
-                .filter(word -> word.length() == shortestLength)
-                .forEach(System.out::println);
-
-
-    }
-}
-______________________________________________________________________________________
-//print all the longest strings in an array of strings
-import java.util.Arrays;
-
-public class Test {
-    public static void main(String[] args) {
-        String[] strArray = {"apple", "banana", "antelope", "cat", "dog", "elephant", "flounder"};
-
-// Find the length of the longest string
-        int longestLength = Arrays.stream(strArray)
-                .mapToInt(String::length)
-                .max()
-                .orElse(0);
-
-// Print all the longest strings
-        Arrays.stream(strArray)
-                .filter(word -> word.length() == longestLength)
-                .forEach(System.out::println);
-
-    }
-}
-______________________________________________________________________________________
 ==> print all elements in an array which starts with 1
 
 import java.util.Arrays;
@@ -261,7 +329,7 @@ public class FindNumbersStartingWith1 {
     }
 }
 ---------------------------------------------------------------------------------------
-==> Do not convert int to String above:
+==> Do not convert int to String above code:
 
  Yes 👍 — you **can do it without converting the number to a String**, using **pure numeric logic**.
 Whether it’s *simpler* depends on how you define simplicity, but it is definitely more **efficient and interview-friendly**.
@@ -378,7 +446,6 @@ Just tell me!
 
 ______________________________________________________________________________________
 
-
 ==> String.join
 import java.util.Arrays;
 import java.util.List;
@@ -391,7 +458,7 @@ public class Test {
     }
 }
 
-----------------------------------------------------
+---------------------------------------------------------------------------------------
 //Skip & limit method usecase based example
 import java.util.stream.IntStream;
 

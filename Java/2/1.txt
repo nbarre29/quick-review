@@ -1044,7 +1044,7 @@ public class Main {
 ```
 
 
-MyNotes:
+#### MyNotes:
 a) 
 Above method safely handles null values through the use of Boolean.TRUE.equals() method. 
 
@@ -1524,7 +1524,7 @@ Output:
 The sum of the array is: 15
 The sum of the array using functional style is: 15
 
-MyNotes:
+#### MyNotes:
 a) 
 int functionalSum = IntStream.of(numbers)
                 .reduce(0, Integer::sum);
@@ -1643,7 +1643,7 @@ Output:
 Total Price: $23.73
 Total (optional): $23.73
 
-MyNotes:
+#### MyNotes:
 a) .reduce(0.0, (total, price) -> total + price)
 
 Here are the iterations for the `reduce` call:

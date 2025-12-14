@@ -816,7 +816,7 @@ Output:
 Error in division: / by zero
 
 
-MyNotes:
+#### MyNotes:
 
 catching `ArithmeticException` in above code is unnecessary and considered bad practice!**
 

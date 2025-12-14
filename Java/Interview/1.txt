@@ -38,7 +38,7 @@ Department: HR, Average Salary: 62500.0
 Department: Marketing, Average Salary: 70000.0
 ```
 
-MyNotes:
+#### MyNotes:
 a) Map<String, Double> averageSalaryByDepartment = employees.stream()
                 .collect(Collectors.groupingBy(Employee::department, Collectors.averagingDouble(Employee::salary)));
 
@@ -53,8 +53,22 @@ b) // Find the highest paid employee
 
         System.out.println("Highest Paid Employee: " + highestPaid.name() + ", Salary: " + highestPaid.salary());	
 
+#### MyNotes: 
 
-with lambda it will be: .max((e1, e2) -> Double.compare(e1.salary(), e2.salary()))	
+a) with lambda it will be: ```.max((e1, e2) -> Double.compare(e1.salary(), e2.salary()))```
+
+b) If we just want the highest salary, we can use the max() method from DoubleStream
+
+```
+double maxSalary = employees.stream()
+                .mapToDouble(Employee::salary)
+                .max()
+                .orElse(0.0);
+
+System.out.println("Maximum Salary: " + maxSalary);
+```
+
+
 
 c) // Calculate average salary of all employees
         double overallAvgSalary = employees.stream()
@@ -62,6 +76,37 @@ c) // Calculate average salary of all employees
                 .average()
                 .orElse(0.0);   // we cannot use `orElse(null)` with `OptionalDouble`** — it won’t compile.
         System.out.println("Overall Average Salary: " + overallAvgSalary);	
+		
+#### MyNotes:  
+a) **`mapToDouble()` converts from `Employee` objects to primitive `double` values.**
+
+Here's the breakdown:
+
+1. **Input**: `Stream<Employee>` (stream of objects)
+2. **`mapToDouble(Employee::salary)`**: Extracts the `salary()` from each `Employee` and creates a `DoubleStream`
+3. **Output**: `DoubleStream` (stream of primitive `double` values)
+
+**Why use `mapToDouble()` instead of `map()`?**
+
+```java
+// Using mapToDouble() - returns DoubleStream
+employees.stream()
+    .mapToDouble(Employee::salary)  // DoubleStream
+    .average()                       // returns OptionalDouble
+
+// Using map() - returns Stream<Double>
+employees.stream()
+    .map(Employee::salary)           // Stream<Double> (boxed objects)
+    .mapToDouble(Double::doubleValue) // need extra step
+    .average()
+```
+
+**Benefits of `mapToDouble()`:**
+- **Performance** - avoids boxing/unboxing overhead (no `Double` wrapper objects created)
+- **Specialized operations** - `DoubleStream` has methods like `average()`, `sum()`, `min()`, `max()` that work directly with primitives
+- **Cleaner code** - direct conversion in one step
+
+So `mapToDouble()` is actually **unboxing** - going from objects to primitives, which is more efficient.
 
 
 REFERENCE:
@@ -246,7 +291,7 @@ public class Main {
 
 REFERENCE: https://www.youtube.com/watch?v=EFXJSG52nao
 
-MyNotes:
+#### MyNotes:
 a) List<String> uniqueSkills = employees.stream()
                 .flatMap(emp -> emp.skills().stream())
                 .distinct()

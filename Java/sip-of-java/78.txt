@@ -34,7 +34,7 @@ public class Main {
 
 }
 
-MyNotes:
+#### MyNotes:
 `Objects.equals(a, b)` safely compares two objects and returns `true` if they are equal, `false` otherwise. It does not throw a `NullPointerException` even if either or both arguments are `null`.
 _____________________________________________________________________
 

@@ -113,7 +113,7 @@ Output:
 Billy, David, Denys, José, Nicolai
 
 
-MyNotes:
+#### MyNotes:
 `Iterable<? extends CharSequence> elements` is a parameter type that means:
 
 - `Iterable`: Any object that can be iterated over (like a `List`, `Set`, etc.).

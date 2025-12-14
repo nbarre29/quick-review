@@ -60,7 +60,7 @@ public abstract class CoffeeDecorator implements Coffee {
     }
 }
 
-MyNotes: 
+#### MyNotes: 
 1) The class is marked as `abstract` because it is intended to serve as a base for other decorators and should not be instantiated directly. While it does not declare any abstract methods, marking it as `abstract` prevents direct instantiation and signals its role in the design pattern. This is a common practice in the Decorator pattern to enforce proper usage.
 
 2) `protected` allows subclasses to access `decoratedCoffee`, which is useful in the Decorator pattern since concrete decorators often need to interact with the wrapped object.  
@@ -88,7 +88,7 @@ public class MilkDecorator extends CoffeeDecorator {
     }
 }
 
-MyNotes: 
+#### MyNotes: 
 1)
 public MilkDecorator(Coffee decoratedCoffee) {
         super(decoratedCoffee);

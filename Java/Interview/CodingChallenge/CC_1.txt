@@ -160,25 +160,4 @@ public class ReverseNumber {
     }
 }
 ____________________________________________________
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
-public class LongestStrings {
-    public static List<String> longestStrings(String... arguments) {
-        int longestLength = Arrays.stream(arguments)
-                .mapToInt(String::length)
-                .max()
-                .orElse(0);
-
-        return Arrays.stream(arguments)
-                .filter(str -> str.length() == longestLength)
-                .collect(Collectors.toList());
-    }
-
-    public static void main(String[] args) {
-        List<String> result = longestStrings("apple", "banana", "cherry", "orange", "kiwi");
-        System.out.println(result); // Output: ["banana", "cherry"]
-    }
-}
-____________________________________________________

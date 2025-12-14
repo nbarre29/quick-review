@@ -183,7 +183,7 @@ Time in London: 2025-04-13T02:56:40.179911800+01:00[Europe/London]
 This approach ensures that the same point in time is represented correctly in different time zones.
 
 -----------------------------------------------------------------------------------
-MyNotes:
+#### MyNotes:
 1) A better variable name would be currentInstant, as it clearly indicates that the variable holds the current timestamp as an Instant
 2) newYorkZoneId is a clearer variable as it explicitly indicates that the variable holds a ZoneId object, improving code readability
 3) newYorkTime is clear, but it can be improved for precision. Since the variable is a ZonedDateTime, a more descriptive name like newYorkDateTime or currentNewYorkDateTime would convey its type and purpose.
@@ -729,7 +729,7 @@ Output:
 Current Date and Time: 2025-11-05 22:20:47 EST
 Current Date and Time: 2025-11-05 22:20:47 EST
 
-MyNotes:
+#### MyNotes:
 The `ZonedDateTime.now()` uses the JVM system default `ZoneId`, so the second line prints the current time in the system default timezone. The first line also uses system default because you call `.withZone(ZoneId.systemDefault())`. Note: pattern `z` prints a timezone name/abbreviation (can vary); use `XXX` for a stable numeric offset (e.g., `-04:00`).
 
 _____________________________________________________________________________________
@@ -890,7 +890,7 @@ Current time in America/Los_Angeles: 2025-11-03 17:12:06 -08:00
 Current time in America/Anchorage: 2025-11-03 16:12:06 -09:00
 Current time in America/Adak: 2025-11-03 15:12:06 -10:00
 
-MyNotes:
+#### MyNotes:
 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm:ss.SSS'Z'");
 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yyyy HH:mm:ssa");
 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm:ss.SSSX").withZone(ZoneId.of("UTC"));

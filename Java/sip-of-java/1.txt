@@ -187,7 +187,7 @@ Fridays are better.
 Weekends are best.
 Weekends are best.
 
-MyNotes:
+#### MyNotes:
 We can make  "Day day;"  as "private final Day day;" to ensure the day field immutable and only accessible within the class. This is a common best practise for fields set via the constructor.
 
 -----------------------------------------------------------------------------

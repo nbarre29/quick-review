@@ -229,7 +229,7 @@ public class ForEachWithIntStreamExample {
     }
 }
 
-MyNotes:
+#### MyNotes:
 **you *can* pass an array** to the `IntStream.of(int... values)` method.
 
 Because:
@@ -518,7 +518,7 @@ public class SortExample {
     }
 }
 
-MyNotes:
+#### MyNotes:
 names.sort(Comparator.naturalOrder()); // [apple, banana, cherry, date]
 names.sort(Comparator.reverseOrder()); // [date, cherry, banana, apple]
 ---------------------------------------------------
@@ -538,7 +538,7 @@ public class SortExample {
 }
 
 
-MyNotes:
+#### MyNotes:
 Collections.sort could be replaced with List.sort 
 
 names.sort(Collections.reverseOrder());

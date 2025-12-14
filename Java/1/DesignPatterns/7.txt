@@ -65,7 +65,7 @@ public abstract class Shape {
 }
 
 
-MyNotes:
+#### MyNotes:
 1) To improve encapsulation and immutability, We can make "protected Color color;"  as "private final Color color;"  and add 
 public Color getColor() {
 return color;

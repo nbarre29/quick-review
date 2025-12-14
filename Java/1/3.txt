@@ -45,7 +45,7 @@ public class Main {
     }
 }
 
-MyNotes:
+#### MyNotes:
 a) In Java lambda expressions, parentheses around the parameter are optional when there's **exactly one parameter** and it has an inferred type.
 
 Both forms are valid:
@@ -108,7 +108,7 @@ public class Main {
     }
 }
 
-MyNotes:
+#### MyNotes:
 @FunctionalInterface
 public interface Function<T, R> {
     R apply(T t);
@@ -150,7 +150,7 @@ public class Main {
     }
 }
 
-MyNotes:
+#### MyNotes:
 a) For understanding if we have to replace the method reference `Integer::intValue` with a lambda expression:
 
 ```java
@@ -225,7 +225,7 @@ Arrays.stream(numbers)
 
 Your current approach with two separate filters is clear and maintainable.
 
-MyNotes: In above case both conditions are simple checks on the same number, combining them into one filter would be slightly more effecient (avoids creating an intermediate stream) and more concise. However, the performance difference is negligible for small datasets.
+#### MyNotes: In above case both conditions are simple checks on the same number, combining them into one filter would be slightly more effecient (avoids creating an intermediate stream) and more concise. However, the performance difference is negligible for small datasets.
 
 ______________________________________________________________________________________________________
 
@@ -300,7 +300,7 @@ public class Main {
     }
 }
 
-MyNotes:
+#### MyNotes:
 a) String result = wordsList.stream()
                 .map((word) -> {
                     return word + " - " + word.length();
@@ -395,7 +395,7 @@ Exception caught: No value present in empty stream
 Custom exception: No users found!
 ```
 
-MyNotes:
+#### MyNotes:
 a) **Why use a custom exception?**
 
 - **More descriptive**: `IllegalStateException("No users found!")` provides domain-specific context about *why* the error occurred
@@ -434,7 +434,7 @@ public class Main {
     }
 }
 
-MyNotes:
+#### MyNotes:
 a) List.of() creates an immutable list. Is it okay to use it here?
 
 `List.of()` creates an **immutable** list, but you're not modifying the original list elements here—you're creating a **new** list with transformed values using `.stream().map().toList()`.

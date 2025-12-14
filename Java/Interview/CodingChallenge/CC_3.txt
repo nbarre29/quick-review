@@ -147,7 +147,8 @@ public class Main {
     public static void main(String[] args) {
         int[] arrayOfInts = {32, 87, 3, 589, 12, 1076, 2000, 8, 622, 127};
 
-        boolean isPresent = Arrays.stream(arrayOfInts).anyMatch(num -> Objects.equals(num, 12));
+        boolean isPresent = Arrays.stream(arrayOfInts)
+                .anyMatch(num -> Objects.equals(num, 12));
 
         if (isPresent) {
             System.out.println("Found");
@@ -176,6 +177,7 @@ boolean isPresent = Arrays.stream(arrayOfInts).anyMatch(num -> num == 12);
 This avoids the unnecessary boxing operation and is more idiomatic for primitive comparisons. The rest of the code is fine.
 
 ______________________________________________________________________________________
+
 ==> search for an integer in an array using Arrays.asList and contains method.
 
 import java.util.Arrays;

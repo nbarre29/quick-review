@@ -1433,7 +1433,7 @@ User found: User[name=Alice, age=30]
 User NOT found!
 ```
 
-MyNotes:
+#### MyNotes:
 a) rewrite the findUserByEmail method to use the Stream API with filter() and findFirst(). This is a cleaner, more functional approach.
 
 public static Optional<User> findUserByEmail(String email, Map<String, User> db) {
@@ -1689,7 +1689,7 @@ Output:
 two
 three
 
-MyNotes:
+#### MyNotes:
 a) We can also use List<String> strings = List.of("one", "two", "three", "four");
 
 We're not modifying `strings`, we're creating a new list `filtered` from it, so `List.of()` is fine here.

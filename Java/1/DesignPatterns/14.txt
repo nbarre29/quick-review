@@ -68,7 +68,7 @@ public class LightOnCommand implements Command {
     }
 }
 
-MyNotes: It is a good practice to use @Override when overriding methods from an interface or superclass. It helps catch errors at compile time if the method signature does not match and improves code readability. When doing code reviews ask people to add this annotation if not added.
+#### MyNotes: It is a good practice to use @Override when overriding methods from an interface or superclass. It helps catch errors at compile time if the method signature does not match and improves code readability. When doing code reviews ask people to add this annotation if not added.
 
 
 
@@ -118,7 +118,7 @@ public class RemoteControl {
     }
 }
 
-MyNotes:
+#### MyNotes:
 We are not using a constructor and instead using **setCommand** as it allows to change the command at runtime dynamically, which is the key part of the Command pattern's flexibility. If we only use a constructor we lose the ability to change the command after the RemoteControl is created. 
 
 

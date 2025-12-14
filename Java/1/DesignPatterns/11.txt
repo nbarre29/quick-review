@@ -93,7 +93,7 @@ public class ConcreteBullet implements Bullet {
     }
 }
 
-MyNotes:
+#### MyNotes:
 use formatted arguments for type safety and clearer output:
 System.out.printf(
                 "Firing %s bullet at (%.2f, %.2f) direction: %s, speed: %.2f, damage: %d%n",
@@ -131,7 +131,7 @@ public class BulletFactory {
     }
 }
 
-MyNotes:
+#### MyNotes:
 
 1) The `bullet == null` check in `BulletFactory.getBullet` is not to prevent a `NullPointerException`. It is used to determine if a bullet of the requested type already exists in the cache. If it does not exist (`null`), a new bullet is created and cached. This is part of the Flyweight pattern to ensure object reuse.
 
@@ -194,7 +194,7 @@ public class BulletFactory {
 
 }
 
-MyNotes:
+#### MyNotes:
 Using the `final` keyword for the `bulletType` parameter in the `getBullet` method ensures that its value cannot be changed within the method body. This improves code safety by preventing accidental reassignment, clarifies intent for other developers, and can help avoid bugs related to parameter modification. It is a best practice for immutability and readability, but not strictly required for functionality.
 ____________________________________________________________________________________________________
 

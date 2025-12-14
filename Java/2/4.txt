@@ -93,7 +93,7 @@ public class Main {
     }
 }
 
-MyNotes:  
+#### MyNotes:  
 Use a lambda-based forEach loop, or simply a forEach with a lambda expression. It uses the Map.forEach method introduced in Java 8, allowing concise iteration over map entries.
 
 courseStudents.forEach((course, students) -> {
@@ -128,7 +128,7 @@ public class Main {
     }
 }
 
-Mynotes:
+#### MyNotes:
 a) what does k -> mean above ?
 In the above context, `k ->`  k is the parameter and arrow of a Java lambda expression. `computeIfAbsent` expects a `Function<K, V>` (a function that receives the missing key and returns the value to insert). So `k` is simply the name chosen for that single parameter (the key), and the arrow (`->`) separates the parameter list from the lambda body.
 
@@ -237,7 +237,7 @@ orange: 1
 banana: 2
 apple: 3
 
-MyNotes:
+#### MyNotes:
 a) **`Map` does not implement `Iterable`**.
 
 **Why `forEach` works here:**
@@ -485,7 +485,7 @@ Real-world scenarios where caching with computeIfAbsent is useful:
     API results: Cache external API call results.
     File reads: Cache file contents after reading once.
 
-MyNotes:
+#### MyNotes:
 a) private static final Map<Integer, Integer> cache = new HashMap<>();
 why is cache declared as final, we keep on adding elements to the Map right, so i think it can't be final?
 
@@ -621,7 +621,7 @@ public class CountryService {
     }
 }
 
-MyNotes:
+#### MyNotes:
 1) When a switch case contains a return statement, the method exits immediately, so break is not needed. The return prevents any further code (including falling through to the next case) from executing. In the code above, each case returns a value, so break is unnecessary.
 
 2) rename the class name from "CountryService" to "CountryCapitalService" or "CountryCapitalFetcher" to follow proper naming convention to improve readability.
@@ -812,7 +812,7 @@ public class CountryCapitalSwitchTest {
     }
 }
 
-MyNotes:
+#### MyNotes:
 case "usa":
 case "united states":
         capital = "Washington, D.C.";

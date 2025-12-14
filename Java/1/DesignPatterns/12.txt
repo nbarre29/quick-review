@@ -170,7 +170,7 @@ public class BankAccount implements Account {
     }
 }
 
-MyNotes:
+#### MyNotes:
 1) The return; statement immediately exists the current method without executing any further code in that method. In this context, it stops the withdraw method if the PIN is invalid or if there are insufficient funds.
 2) To avoid NullPointerException above reverse the comparison:
    if(!correctPin.equals(pin)) {
@@ -193,7 +193,7 @@ public class ATMProxy implements Account {
     }
 }
 
-MyNotes:
+#### MyNotes:
 "private final Account realAccount;" would be better to have instead of "private final BankAccount realAccount;" above  if we want ATMProxy to work with any implementation of the Account interface. This allows us to substitute Account implementations without changing ATMProxy
 
 ### 4. Client
