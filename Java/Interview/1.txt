@@ -85,7 +85,7 @@ Let’s break it down clearly.
 
 # ✅ **Your specific example**
 
-```java
+```
 employees.stream()
     .mapToDouble(Employee::salary)
     .average()
@@ -130,7 +130,7 @@ Therefore, in your case:
 
 **Example:**
 
-```java
+```
 double avg = optionalAvg.orElse(0.0);
 ```
 
@@ -162,7 +162,7 @@ Good for:
 
 **Example:**
 
-```java
+```
 double avg = optionalAvg.orElseThrow(() -> new IllegalStateException("No employees"));
 ```
 
@@ -181,13 +181,13 @@ In your exact example:
 
 ### **If 0.0 is a reasonable average when there are no employees → use:**
 
-```java
+```
 .orElse(0.0)
 ```
 
 ### **If having 0 employees is a bug → use:**
 
-```java
+```
 .orElseThrow(() -> new IllegalStateException("No employees to calculate average"))
 ```
 
@@ -212,7 +212,7 @@ ________________________________________________________________________________
 
 ==> Find all unique skills from a list of employees
 
-
+```
 import java.util.List;
 
 public record Employee(String name, List<String> skills) {
@@ -242,8 +242,15 @@ public class Main {
 
     }
 }
+```
 
 REFERENCE: https://www.youtube.com/watch?v=EFXJSG52nao
+
+MyNotes:
+a) List<String> uniqueSkills = employees.stream()
+                .flatMap(emp -> emp.skills().stream())
+                .distinct()
+                .toList();
 ________________________________________________________________________________________
 
-________________________________________________________________________________________
+

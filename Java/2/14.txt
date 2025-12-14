@@ -312,8 +312,10 @@ public class FlatMapDemo {
                 "FlatMap Example"
         );
 
+        // 1. can also use .flatMap(sentence -> Stream.of(sentence.split(" "))) below
+		// 2. use sentence.split("\\s+") 
         List<String> words = sentences.stream()
-                .flatMap(sentence -> Arrays.stream(sentence.split(" ")))
+                .flatMap(sentence -> Arrays.stream(sentence.split(" ")))   
                 .collect(Collectors.toList());
 
         System.out.println("All words: " + words);
@@ -477,6 +479,8 @@ we can replace the lambda with method reference:
 (Collection::stream)  or (List::stream)
 
 Both are functionally equivalent in this case. Use List::stream for clarity since we know that we're working with lists specifically.
+
+b) In a regular expression, `\s` matches any whitespace character (space, tab, newline, carriage return, form feed). The `+` quantifier means "one or more". In Java string literals the backslash must be escaped, so use `\\s+`. This pattern matches one-or-more consecutive whitespace characters, so splitting on it treats runs of whitespace as a single delimiter and avoids empty tokens from extra or leading/trailing spaces.
 
 _____________________________________________________________________________________
 

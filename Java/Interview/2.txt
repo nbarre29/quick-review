@@ -1,0 +1,527 @@
+==> You are asked to generate an Ecommerce report
+
+- Each order has a list of products and each product belongs to a category
+- Total quantity sold but
+- Only include orders whose **total order value > ₹500**
+- Excluding products marked **"OUT_OF_STOCK"** (even if was part of the order),
+- Sort result by **total quantity DESC**
+
+---
+
+```
+import java.math.BigDecimal;
+
+public record Product(
+        String name,
+        String category,
+        int quantity,           // quantity purchased in this order
+        BigDecimal price,       // price per unit
+        StockStatus stockStatus // IN_STOCK / OUT_OF_STOCK
+) {
+}
+
+
+import java.util.List;
+
+public record Order(
+        int id,
+        List<Product> products
+) {
+}
+
+public enum StockStatus {IN_STOCK, OUT_OF_STOCK}
+
+
+
+import java.util.*;
+import java.math.BigDecimal;
+import java.util.stream.Collectors;
+
+public class EcommerceReport {
+
+    public static void main(String[] args) {
+
+        List<Order> orders = getOrders(); // assume method returns sample data
+
+        Map<String, Integer> report = orders.stream()
+
+                // 1️⃣ Filter only orders with total value > 500
+                .filter(order -> order.products().stream()
+                        .map(p -> p.price().multiply(BigDecimal.valueOf(p.quantity())))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add)
+                        .compareTo(new BigDecimal("500")) > 0
+                )
+
+                // 2️⃣ Extract all products from all orders
+                .flatMap(order -> order.products().stream())
+
+                // 3️⃣ Exclude OUT_OF_STOCK products
+                .filter(p -> p.stockStatus() == StockStatus.IN_STOCK)
+
+                // 4️⃣ Group by product category, summing quantities
+                .collect(Collectors.groupingBy(
+                        Product::category,
+                        Collectors.summingInt(Product::quantity)
+                ));
+
+        // 5️⃣ Sort by quantity DESC
+        LinkedHashMap<String, Integer> sortedReport = report.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (a, b) -> a,
+                        LinkedHashMap::new
+                ));
+
+        // 6️⃣ Print the final report
+        System.out.println("=== CATEGORY SALES REPORT ===");
+        sortedReport.forEach((category, qty) ->
+                System.out.println(category + ": " + qty));
+    }
+
+    // Sample data generator
+    private static List<Order> getOrders() {
+        return List.of(
+                new Order(1, List.of(
+                        new Product("Keyboard", "Electronics", 2, new BigDecimal("700"), StockStatus.IN_STOCK),
+                        new Product("Mouse", "Electronics", 1, new BigDecimal("300"), StockStatus.OUT_OF_STOCK),
+                        new Product("Notebook", "Stationery", 5, new BigDecimal("50"), StockStatus.IN_STOCK)
+                )),
+                new Order(2, List.of(
+                        new Product("Laptop", "Electronics", 1, new BigDecimal("55000"), StockStatus.IN_STOCK),
+                        new Product("Pen", "Stationery", 10, new BigDecimal("10"), StockStatus.IN_STOCK)
+                )),
+                new Order(3, List.of(
+                        new Product("Pencil", "Stationery", 2, new BigDecimal("20"), StockStatus.IN_STOCK)
+                ))
+        );
+    }
+}
+
+```
+
+---
+
+# 📌 **Explanation of Each Step**
+
+### ✔ Step 1 — Filter only expensive orders
+
+```
+order.products().stream()
+    .map(p -> p.price() * p.quantity)
+    .reduce(BigDecimal.ZERO, BigDecimal::add)
+```
+
+### ✔ Step 2 — Flatten products from all orders
+
+Using:
+
+```
+.flatMap(order -> order.products().stream())
+```
+
+### ✔ Step 3 — Keep only IN_STOCK products
+
+```
+.filter(p -> p.stockStatus() == StockStatus.IN_STOCK)
+```
+
+### ✔ Step 4 — Group by category and sum quantities
+
+```
+Collectors.groupingBy(Product::category, Collectors.summingInt(Product::quantity))
+```
+
+### ✔ Step 5 — Sort by quantity descending
+
+Using sorted + LinkedHashMap.
+
+---
+
+# 🎯 **Example Output**
+
+```
+=== CATEGORY SALES REPORT ===
+Stationery: 15
+Electronics: 3
+```
+
+Because:
+
+- Order 3 is excluded (< 500)
+- Out-of-stock Mouse is excluded
+- Electronics: Keyboard (2) + Laptop (1) = 3
+- Stationery: Notebook (5) + Pen (10) = 15
+
+---
+
+**REFERENCE**
+https://www.youtube.com/watch?v=lm3rgUM1tDk
+
+_______________________________________________________________________________________
+
+==> Updated the above code to support **(1) “orders in the last 24 hours with total value > 500”** and **(2) “include the product ID”**, we need **two small model changes**:
+
+1. `Order` must have a timestamp (ex: `createdAt`)
+2. `Product` must have a `productId`
+
+---
+
+## Order.java (add `createdAt`)
+
+```
+import java.time.Instant;
+import java.util.List;
+
+public record Order(
+        int id,
+        Instant createdAt,
+        List<Product> products
+) {
+}
+```
+
+---
+
+## Product.java (add `productId`)
+
+```
+import java.math.BigDecimal;
+
+public record Product(
+        long productId,
+        String name,
+        String category,
+        int quantity,           // quantity purchased in this order
+        BigDecimal price,       // price per unit
+        StockStatus stockStatus // IN_STOCK / OUT_OF_STOCK
+) {
+}
+```
+
+---
+
+## StockStatus ( No changes)
+
+```
+public enum StockStatus {IN_STOCK, OUT_OF_STOCK}
+```
+
+---
+
+## EcommerceReport.java (filter last 24h + total > 500, and print productId)
+
+```
+import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class EcommerceReport {
+
+    public static void main(String[] args) {
+
+        List<Order> orders = getOrders(); // assume method returns sample data
+
+        Map<String, Integer> report = orders.stream()
+
+                // 1️⃣ Filter only orders with total value > 500
+                .filter(order -> order.products().stream()
+                        .map(p -> p.price().multiply(BigDecimal.valueOf(p.quantity())))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add)
+                        .compareTo(new BigDecimal("500")) > 0
+                )
+
+                // 2️⃣ Extract all products from all orders
+                .flatMap(order -> order.products().stream())
+
+                // 3️⃣ Exclude OUT_OF_STOCK products
+                .filter(p -> p.stockStatus() == StockStatus.IN_STOCK)
+
+                // 4️⃣ Group by product category, summing quantities
+                .collect(Collectors.groupingBy(
+                        Product::category,
+                        Collectors.summingInt(Product::quantity)
+                ));
+
+        // 5️⃣ Sort by quantity DESC
+        LinkedHashMap<String, Integer> sortedReport = report.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (a, b) -> a,
+                        LinkedHashMap::new
+                ));
+
+        // 6️⃣ Print the final report
+        System.out.println("=== CATEGORY SALES REPORT ===");
+        sortedReport.forEach((category, qty) ->
+                System.out.println(category + ": " + qty));
+    }
+
+    // Sample data generator
+    private static List<Order> getOrders() {
+        Instant now = Instant.now();
+
+        return List.of(
+                // ✅ Qualifies: within 24h + total > 500
+                new Order(1, now.minus(Duration.ofHours(2)), List.of(
+                        new Product(101L, "Keyboard", "Electronics", 2, new BigDecimal("700"), StockStatus.IN_STOCK),
+                        new Product(102L, "Mouse", "Electronics", 1, new BigDecimal("300"), StockStatus.OUT_OF_STOCK),
+                        new Product(201L, "Notebook", "Stationery", 5, new BigDecimal("50"), StockStatus.IN_STOCK)
+                )),
+
+                // ❌ NOT within 24h (30 hours ago)
+                new Order(2, now.minus(Duration.ofHours(30)), List.of(
+                        new Product(301L, "Laptop", "Electronics", 1, new BigDecimal("55000"), StockStatus.IN_STOCK),
+                        new Product(202L, "Pen", "Stationery", 10, new BigDecimal("10"), StockStatus.IN_STOCK)
+                )),
+
+                // ❌ Within 24h, but total <= 500
+                new Order(3, now.minus(Duration.ofHours(10)), List.of(
+                        new Product(203L, "Pencil", "Stationery", 2, new BigDecimal("20"), StockStatus.IN_STOCK)
+                ))
+        );
+    }
+}
+
+```
+
+# **Output**
+
+```
+=== CATEGORY SALES REPORT ===
+Stationery: 15
+Electronics: 3
+```
+
+---
+_______________________________________________________________________________________
+
+==> I want the output to be a list of product IDs aggregated (ex: productId -> totalQuantitySold or productId -> totalRevenue) instead of printing each order,  adjust the stream to produce that report.
+
+
+Perfect — this is a **classic, real-world Java Streams aggregation use case** 👍
+We’ll transform the stream so that **instead of printing orders**, it produces **aggregated reports by `productId`**.
+
+We’ll do **both** variants:
+
+1️⃣ `productId → totalQuantitySold`
+2️⃣ `productId → totalRevenue`
+
+(Only considering **orders in the last 24 hours AND order total > 500**.)
+
+---
+
+## ✅ Key idea (pipeline shape)
+
+```
+orders
+ → filter last 24h
+ → filter orderTotal > 500
+ → flatMap(order → order.products)
+ → groupBy(productId)
+ → aggregate (quantity or revenue)
+```
+
+`flatMap` is the key step that lets us aggregate **across orders**.
+
+---
+
+## 🧾 1️⃣ Product ID → Total Quantity Sold
+
+```
+import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class EcommerceReport {
+
+    public static void main(String[] args) {
+
+        List<Order> orders = getOrders();
+        Instant cutoff = Instant.now().minus(Duration.ofHours(24));
+
+        Map<Long, Integer> totalQuantityByProduct =
+                orders.stream()
+                        // Orders in last 24 hours
+                        .filter(order -> order.createdAt().isAfter(cutoff))
+
+                        // Order total > 500
+                        .filter(order -> order.products().stream()
+                                .map(p -> p.price().multiply(BigDecimal.valueOf(p.quantity())))
+                                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                                .compareTo(new BigDecimal("500")) > 0
+                        )
+
+                        // Flatten products across qualifying orders
+                        .flatMap(order -> order.products().stream())
+
+                        // Aggregate quantity per productId
+                        .collect(Collectors.groupingBy(
+                                Product::productId,
+                                Collectors.summingInt(Product::quantity)
+                        ));
+
+        System.out.println("=== ProductId → Total Quantity Sold ===");
+        totalQuantityByProduct.forEach((productId, qty) ->
+                System.out.println(productId + " -> " + qty)
+        );
+    }
+
+    // Sample data generator
+    private static List<Order> getOrders() {
+        Instant now = Instant.now();
+
+        return List.of(
+                // ✅ Qualifies: within 24h + total > 500
+                new Order(1, now.minus(Duration.ofHours(2)), List.of(
+                        new Product(101L, "Keyboard", "Electronics", 2, new BigDecimal("700"), StockStatus.IN_STOCK),
+                        new Product(102L, "Mouse", "Electronics", 1, new BigDecimal("300"), StockStatus.OUT_OF_STOCK),
+                        new Product(201L, "Notebook", "Stationery", 5, new BigDecimal("50"), StockStatus.IN_STOCK)
+                )),
+
+                // ❌ NOT within 24h (30 hours ago)
+                new Order(2, now.minus(Duration.ofHours(30)), List.of(
+                        new Product(301L, "Laptop", "Electronics", 1, new BigDecimal("55000"), StockStatus.IN_STOCK),
+                        new Product(202L, "Pen", "Stationery", 10, new BigDecimal("10"), StockStatus.IN_STOCK)
+                )),
+
+                // ❌ Within 24h, but total <= 500
+                new Order(3, now.minus(Duration.ofHours(10)), List.of(
+                        new Product(203L, "Pencil", "Stationery", 2, new BigDecimal("20"), StockStatus.IN_STOCK)
+                ))
+        );
+    }
+}
+
+```
+
+### ✅ Sample Output
+
+```
+=== ProductId → Total Quantity Sold ===
+101 -> 2
+102 -> 1
+201 -> 5
+```
+
+---
+
+## 💰 2️⃣ Product ID → Total Revenue
+
+```
+import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class EcommerceReport {
+
+    public static void main(String[] args) {
+
+        List<Order> orders = getOrders();
+        Instant cutoff = Instant.now().minus(Duration.ofHours(24));
+
+        Map<Long, BigDecimal> totalRevenueByProduct =
+                orders.stream()
+                        .filter(order -> order.createdAt().isAfter(cutoff))
+                        .filter(order -> order.products().stream()
+                                .map(p -> p.price().multiply(BigDecimal.valueOf(p.quantity())))
+                                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                                .compareTo(new BigDecimal("500")) > 0
+                        )
+                        .flatMap(order -> order.products().stream())
+                        .collect(Collectors.groupingBy(
+                                Product::productId,
+                                Collectors.reducing(
+                                        BigDecimal.ZERO,
+                                        p -> p.price().multiply(BigDecimal.valueOf(p.quantity())),
+                                        BigDecimal::add
+                                )
+                        ));
+
+        System.out.println("=== ProductId → Total Revenue ===");
+        totalRevenueByProduct.forEach((productId, revenue) ->
+                System.out.println(productId + " -> " + revenue)
+        );
+    }
+
+    // Sample data generator
+    private static List<Order> getOrders() {
+        Instant now = Instant.now();
+
+        return List.of(
+                // ✅ Qualifies: within 24h + total > 500
+                new Order(1, now.minus(Duration.ofHours(2)), List.of(
+                        new Product(101L, "Keyboard", "Electronics", 2, new BigDecimal("700"), StockStatus.IN_STOCK),
+                        new Product(102L, "Mouse", "Electronics", 1, new BigDecimal("300"), StockStatus.OUT_OF_STOCK),
+                        new Product(201L, "Notebook", "Stationery", 5, new BigDecimal("50"), StockStatus.IN_STOCK)
+                )),
+
+                // ❌ NOT within 24h (30 hours ago)
+                new Order(2, now.minus(Duration.ofHours(30)), List.of(
+                        new Product(301L, "Laptop", "Electronics", 1, new BigDecimal("55000"), StockStatus.IN_STOCK),
+                        new Product(202L, "Pen", "Stationery", 10, new BigDecimal("10"), StockStatus.IN_STOCK)
+                )),
+
+                // ❌ Within 24h, but total <= 500
+                new Order(3, now.minus(Duration.ofHours(10)), List.of(
+                        new Product(203L, "Pencil", "Stationery", 2, new BigDecimal("20"), StockStatus.IN_STOCK)
+                ))
+        );
+    }
+}
+
+```
+
+### ✅ Sample Output
+
+```
+=== ProductId → Total Revenue ===
+101 -> 1400
+102 -> 300
+201 -> 250
+```
+
+---
+
+## 🧠 Why this solution is *correct & idiomatic*
+
+### ✔ Uses `flatMap` to aggregate across orders
+
+### ✔ Filters **orders**, not products (important business rule)
+
+### ✔ Uses `groupingBy` + collectors (clean, readable)
+
+### ✔ No mutation, no loops
+
+### ✔ Scales well for large datasets
+
+This is **exactly how production reporting pipelines are written** in Java.
+
+---
+
+## 🏁 Summary
+
+| Requirement            | How it’s solved                     |
+| ---------------------- | ----------------------------------- |
+| Orders in last 24h     | `order.createdAt().isAfter(cutoff)` |
+| Order total > 500      | stream + `reduce`                   |
+| Aggregate by productId | `flatMap` + `groupingBy`            |
+| Quantity               | `Collectors.summingInt`             |
+| Revenue                | `Collectors.reducing(BigDecimal)`   |
+
+---
+
+_______________________________________________________________________________________
