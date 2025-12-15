@@ -327,7 +327,7 @@ public class Main {
 
         int maxValue = Stream.of("user1", "user2", "user3")
                 .map(user -> user.substring(4)) // remove "user" prefix
-                .mapToInt(Integer::parseInt)// Convert to integer
+                .mapToInt(Integer::parseInt)// Convert to primivite integer
                 .max() // Find the maximum value
                 .orElseThrow();  // handle empty stream
 

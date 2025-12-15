@@ -105,14 +105,18 @@ public class Test {
 
 ### Option 3: Using Streams (Modern Java)
 ```java
+import java.util.Set;
+
 public class Test {
     public static void main(String[] args) {
         String str = "Naveen";
         Set<Character> vowels = Set.of('a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U');
         
         boolean hasVowel = str.chars()
-                .mapToObj(c -> (char) c)
+                .mapToObj(ch -> (char) ch)
                 .anyMatch(vowels::contains);
+                // if lambda expression is used
+                // .anyMatch(ch -> vowels.contains(ch));
         
         System.out.println(hasVowel ? "The string contains a vowel." : "The string does not contain a vowel.");
     }
@@ -195,7 +199,8 @@ public class Main {
     public static void main(String[] args) {
         String str = "Naveen";
 
-        boolean hasVowel = str.toLowerCase().chars()
+        boolean hasVowel = str.toLowerCase()
+                .chars()
                 .anyMatch(ch -> "aeiou".indexOf(ch) != -1);
 
         System.out.println(hasVowel ? "Contains vowel" : "No vowel");
@@ -345,10 +350,13 @@ str.replaceAll("[^aeiouAEIOU]", "")
 public class Test {
     public static void main(String[] args) {
         String str = "Naveen";
+
         long vowelCount = str.toLowerCase().chars()
                 .filter(ch -> "aeiou".indexOf(ch) != -1)
                 .count();
+
         System.out.println("The string contains " + vowelCount + " vowels.");
+//        System.out.println("Number of vowels in the string \"" + str + "\": " + vowelCount);
     }
 }
 ```

@@ -1,0 +1,174 @@
+Here’s a **curated list of LATEST + most-asked Core Java interview questions** (2024–2025), focusing on **what interviewers actually ask today**, not outdated trivia.
+
+I’ve grouped them by topic and marked ⭐ **high-frequency questions**.
+
+---
+
+## 🔥 **Core Java – Must-Know Interview Questions (2025)**
+
+---
+
+## 1️⃣ **Java Basics & Language Fundamentals**
+
+⭐ Is Java pass-by-value or pass-by-reference? Explain with example.
+⭐ Difference between `==` and `.equals()`
+⭐ Why is `String` immutable? Benefits?
+⭐ Difference between `String`, `StringBuilder`, and `StringBuffer`
+⭐ What happens internally when you write `String s = "abc"`?
+⭐ What is the Java memory model (stack vs heap)?
+What is `final`, `finally`, and `finalize()`?
+What is autoboxing and unboxing?
+Why is `main()` method static?
+Can we overload `main()`?
+
+---
+
+## 2️⃣ **Object-Oriented Programming (Very Important)**
+
+⭐ Difference between abstract class and interface (Java 8+)
+⭐ Can an interface have constructors?
+⭐ Can we override static methods? Why/why not?
+⭐ What is runtime polymorphism?
+⭐ What is method hiding vs method overriding?
+⭐ Can a class extend multiple classes? Why not?
+What is composition vs inheritance?
+What is the diamond problem and how Java solves it?
+
+---
+
+## 3️⃣ **Collections Framework (EXTREMELY IMPORTANT)**
+
+⭐ Difference between `ArrayList` and `LinkedList`
+⭐ Difference between `HashMap`, `LinkedHashMap`, `TreeMap`
+⭐ How does `HashMap` work internally? (Java 8+)		DONE
+⭐ Why is `HashMap` not thread-safe?
+⭐ Difference between `HashMap` and `ConcurrentHashMap`
+⭐ What happens when hash collisions occur?
+⭐ Why should `equals()` and `hashCode()` be overridden together?
+What is the load factor in HashMap?
+Difference between `Set` and `List`
+Why is `HashSet` faster than `TreeSet`?
+
+---
+
+## 4️⃣ **Java 8+ Features (VERY HOT AREA)**
+
+⭐ Difference between `map()` and `flatMap()`
+⭐ Difference between `forEach()` and enhanced for-loop
+⭐ Why some teams ban `forEach()`
+⭐ What is a functional interface?
+⭐ What is `Optional` and why should we use it?
+⭐ Difference between `stream()` and `parallelStream()`
+⭐ What are intermediate vs terminal operations?
+What is method reference?
+What is lambda expression internally converted to?
+
+---
+
+## 5️⃣ **Exception Handling**
+
+⭐ Checked vs unchecked exceptions
+⭐ Why `NullPointerException` occurs and how to avoid it
+⭐ Can we have multiple catch blocks? Order?
+⭐ Can we throw an exception from `finally`?
+⭐ Difference between `throw` and `throws`
+⭐ Custom exception creation
+What happens if exception occurs in `finally`?
+Can we catch `Error`?
+
+---
+
+## 6️⃣ **Multithreading & Concurrency (CRITICAL)**
+
+⭐ Difference between `Runnable` and `Callable`
+⭐ Difference between `synchronized` and `ReentrantLock`
+⭐ What is `volatile` and when to use it?
+⭐ What is deadlock? How to prevent it?
+⭐ Difference between `wait()` and `sleep()`
+⭐ Difference between `ExecutorService` and `Thread`
+⭐ What is thread-safe collection?
+What is race condition?
+What is ForkJoinPool?
+
+---
+
+## 7️⃣ **Immutability & Design Concepts**
+
+⭐ How to create an immutable class?
+⭐ Why are wrapper classes immutable?
+⭐ Why is immutability important in concurrency?
+What is defensive copying?
+What is shallow copy vs deep copy?
+
+---
+
+## 8️⃣ **Java Memory & JVM (Advanced but Popular)**
+
+⭐ What are heap generations?
+⭐ What is garbage collection?
+⭐ Difference between Minor GC and Major GC
+⭐ What causes memory leaks in Java?
+⭐ What is Metaspace (vs PermGen)?
+What are strong, weak, soft references?
+What is OutOfMemoryError?
+
+---
+
+## 9️⃣ **Coding-Style Interview Questions (VERY COMMON)**
+
+⭐ Reverse a string without using built-in functions
+⭐ Find duplicate characters in a string
+⭐ Check if string contains vowels
+⭐ Swap two strings without temp variable (and why not recommended)		DONE
+⭐ Find first non-repeating character
+⭐ Count word frequency using Java 8 streams
+⭐ Sort a map by values
+⭐ Find second highest number in array
+
+---
+
+## 10️⃣ **Trick / Conceptual Interview Traps**
+
+⭐ Why Java doesn’t support multiple inheritance
+⭐ Why `Integer == Integer` sometimes returns true
+⭐ Can we make constructor private? Why?
+⭐ Why `String` is final
+⭐ What happens if `hashCode()` changes after insertion in HashMap?
+⭐ Why `forEach()` cannot use `break`
+⭐ Can we overload `equals()`?
+
+---
+
+## 🎯 **Most Asked “Explain with Example” Questions**
+
+Interviewers LOVE these:
+
+* Pass-by-value vs pass-by-reference
+* HashMap internal working
+* map vs flatMap
+* for-each vs forEach
+* equals vs hashCode
+* synchronized vs ConcurrentHashMap
+
+---
+
+## 🏁 **How to Prepare Smartly**
+
+If time is limited:
+
+1️⃣ Master **Collections + Java 8 Streams**
+2️⃣ Be rock-solid on **pass-by-value**
+3️⃣ Practice **string & map coding problems**
+4️⃣ Understand **HashMap internals**
+5️⃣ Know **basic concurrency concepts**
+
+---
+
+If you want next:
+
+* ✅ **Top 30 Java interview Q&A with answers**
+* ✅ **Java coding interview practice sheet**
+* ✅ **Java 8 streams cheat-sheet**
+* ✅ **System-design-style Java questions**
+
+Just tell me what you want 👍

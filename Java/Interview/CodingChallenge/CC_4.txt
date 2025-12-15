@@ -275,17 +275,21 @@ public class Test {
 ______________________________________________________________________________________
 
 ==> Find the longest string from given array
+```
 import java.util.Arrays;
 
 public class Test {
     public static void main(String[] args) {
         String[] strArray = {"java", "techie", "springboot", "microservices"};
 
-        String longestString = Arrays.stream(strArray).reduce((word1, word2) -> word1.length() > word2.length() ? word1 : word2).get();
+        String longestString = Arrays.stream(strArray)
+                .reduce((word1, word2) -> word1.length() > word2.length() ? word1 : word2)
+                .get();
         System.out.println(longestString);
 
     }
 }
+```
 ---------------------------------------------------------------------------------------
 ==> a simpler approach! The new version uses Arrays.stream().max() with Comparator.comparingInt(String::length), which is more straightforward than using reduce().
 
