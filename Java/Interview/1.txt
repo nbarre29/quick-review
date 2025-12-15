@@ -108,6 +108,24 @@ employees.stream()
 
 So `mapToDouble()` is actually **unboxing** - going from objects to primitives, which is more efficient.
 
+c.1) 
+```
+employees.stream()
+                .mapToDouble(Employee::salary)
+                .average()
+                .ifPresent(avgSalary -> System.out.println("Average Salary: " + avgSalary));
+```
+
+c.2)
+```
+employees.stream()
+                .mapToDouble(Employee::salary)
+                .average()
+                .ifPresentOrElse(
+                        avgSalary -> System.out.println("Average salary: " + avgSalary),
+                        () -> System.out.println("Could not calculate average salary.")
+                );
+```
 
 REFERENCE:
 https://www.youtube.com/watch?v=JVRy0IKLH0A
