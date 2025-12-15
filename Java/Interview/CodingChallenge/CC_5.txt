@@ -487,7 +487,7 @@ public record Person(String name, int age) implements Comparable<Person> {
     public int compareTo(Person other) {
         return Integer.compare(this.age, other.age);
 		// return Integer.compare(this.age(), other.age());  // better to use accessor methods
-		// return Integer.compare(this.age(), other.age()); // sorts in desc order of age
+		// return Integer.compare(other.age(), this.age()); // sorts in desc order of age
     }
 
 //    // Sort by name

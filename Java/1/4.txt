@@ -699,6 +699,33 @@ Coffee - $2.99
 Espresso - $3.49
 Latte - $4.25
 
+#### MyNotes:
+a) Convert Product to record 
+
+```
+import java.math.BigDecimal;
+
+public record Product(String name, BigDecimal price) implements Comparable<Product> {
+    
+    @Override
+    public int compareTo(Product other) {
+        return this.price().compareTo(other.price());
+    }
+
+    @Override
+    public String toString() {
+        return this.name() + " - $" + this.price();
+    }
+}
+```
+
+b) to sort by desc price
+```
+ @Override
+    public int compareTo(Product other) {
+        return other.price().compareTo(this.price());  // 🔹 Natural monetary comparison
+    }
+```
 _________________________________________________________________________________
 
 -> Product class in above example  converted to record class
