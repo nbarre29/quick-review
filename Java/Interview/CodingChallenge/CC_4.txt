@@ -18,7 +18,7 @@ public class Test {
         List<String> duplicateElements = Arrays.stream(input.split("")).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                 .entrySet()
                 .stream()
-                .filter(x -> x.getValue() > 1)     // x.getValue() == 1  for uniqueElements
+                .filter(entry -> entry.getValue() > 1)     // entry.getValue() == 1  for uniqueElements
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
 
@@ -169,6 +169,7 @@ public class Test {
 ______________________________________________________________________________________
 
 ==> Find the first non-repeating character in a string using Java 8 features
+```
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.function.Function;
@@ -182,12 +183,141 @@ public class Test {
                 .collect(Collectors.groupingBy(Function.identity(), LinkedHashMap::new, Collectors.counting()))
                 .entrySet()
                 .stream()
-                .filter(x -> x.getValue() == 1)      // x.getValue() > 1 to get the first repeat element
+                .filter(entry -> entry.getValue() == 1)      // entry.getValue() > 1 to get the first repeat element
                 .findFirst().get().getKey();
         System.out.println("1st non repeat element " + firstNonRepeatElement);
 
     }
 }
+```
+---------------------------------------------------------------------------------------
+==> Any improvements to above code:
+
+Yes 👍 — your solution is **correct and already quite good**, but it **can be simplified and made cleaner**, while keeping it **Java-8-only and interview-friendly**.
+
+Below I’ll show **progressive simplifications**, explain *why* they’re better, and point out a couple of **small improvements**.
+
+---
+
+## ✅ What’s good in your current code
+
+* ✔ Correct logic
+* ✔ Preserves insertion order using `LinkedHashMap`
+* ✔ Uses Streams properly
+* ✔ Interview-ready
+
+---
+
+## 🔧 Improvements / Simplifications
+
+### 1️⃣ Avoid `split("")` (inefficient + regex-based)
+
+`split("")`:
+
+* Uses regex
+* Creates a `String[]`
+* Slightly heavy
+
+Better to stream characters directly.
+
+---
+
+## ✅ **Cleanest & Most Idiomatic Java 8 Solution**
+
+```java
+import java.util.LinkedHashMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+public class Test {
+    public static void main(String[] args) {
+        String input = "ilovejavatechie";
+
+        Character firstNonRepeating =
+                input.chars()
+                     .mapToObj(c -> (char) c)
+                     .collect(Collectors.groupingBy(
+                             Function.identity(),
+                             LinkedHashMap::new,
+                             Collectors.counting()
+                     ))
+                     .entrySet()
+                     .stream()
+                     .filter(e -> e.getValue() == 1)
+                     .map(e -> e.getKey())
+                     .findFirst()
+                     .orElse(null);
+
+        System.out.println("1st non repeating char: " + firstNonRepeating);
+    }
+}
+```
+
+### ✅ Why this is better
+
+* No regex
+* No intermediate arrays
+* More idiomatic Java 8
+* Safer (`orElse(null)` instead of `.get()`)
+
+---
+
+## ⚠️ Important Safety Improvement
+
+### ❌ Avoid this
+
+```java
+.findFirst().get(); // can throw NoSuchElementException
+```
+
+### ✅ Prefer this
+
+```java
+.orElse(null);
+// or
+.orElseThrow(() -> new RuntimeException("No non-repeating character"));
+```
+
+Interviewers **notice this**.
+
+---
+
+## 🧠 Alternative (More functional, no map exposed)
+
+```java
+Character first =
+        input.chars()
+             .mapToObj(c -> (char) c)
+             .filter(ch -> input.indexOf(ch) == input.lastIndexOf(ch))
+             .findFirst()
+             .orElse(null);
+```
+
+### Trade-off
+
+* ✔ Very concise
+* ❌ O(n²) internally
+* ❌ Not ideal for large strings
+
+Good for **short strings only**.
+
+---
+
+## 🎯 Interview-Perfect One-Line Explanation
+
+> “I use a LinkedHashMap to count character occurrences while preserving order, then return the first character with count 1.”
+
+---
+
+## 🏁 Final Recommendation
+
+| Approach                  | Use Case              |
+| ------------------------- | --------------------- |
+| Your original             | ✔ Correct             |
+| `chars()` + LinkedHashMap | ✅ **Best & cleanest** |
+| `indexOf/lastIndexOf`     | Quick demo only       |
+
+---
 
 ______________________________________________________________________________________
 ==> 
@@ -219,7 +349,8 @@ public class Test {
     public static void main(String[] args) {
         int[] numbers = {5, 9, 11, 2, 8, 21, 1};
 
-        Integer secondHighestNumber = Arrays.stream(numbers).boxed()
+        Integer secondHighestNumber = Arrays.stream(numbers)
+                .boxed()
                 .sorted(Comparator.reverseOrder())
                 .skip(1)
                 .findFirst()
@@ -239,15 +370,40 @@ public class Test {
     public static void main(String[] args) {
         int[] numbers = {5};
 
-        Integer secondHighestNumber = Arrays.stream(numbers).boxed()
+        Integer secondHighestNumber = Arrays.stream(numbers)
+                .boxed()
                 .sorted(Comparator.reverseOrder())
                 .skip(1)
-                .findFirst().orElseThrow(() -> new IllegalArgumentException("Array must contain at least two distinct numbers"));
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Array must contain at least two distinct numbers"));
         System.out.println(secondHighestNumber);
 
     }
 }
 ```
+
+```
+import java.util.Arrays;
+import java.util.Comparator;
+
+public class Test {
+    public static void main(String[] args) {
+        int[] numbers = {5, 9, 11, 2, 8, 21, 1};
+
+        Arrays.stream(numbers)
+                .boxed()
+                .sorted(Comparator.reverseOrder())
+                .skip(1)
+                .findFirst()
+                .ifPresentOrElse(secondHighest ->
+                        System.out.println("The second highest number is: " + secondHighest),
+                    () -> System.out.println("There is no second highest number.")
+                );
+
+    }
+}
+```
+
 ---------------------------------------------------------------------------------------
 
 ==> Another approach of converting an IntStream to a Stream<Integer>
@@ -261,7 +417,8 @@ public class Test {
     public static void main(String[] args) {
         int[] numbers = {5, 9, 11, 2, 8, 21, 1};
 
-        Integer secondHighestNumber = Arrays.stream(numbers).mapToObj(Integer::valueOf)
+        Integer secondHighestNumber = Arrays.stream(numbers)
+                .mapToObj(Integer::valueOf)
                 .sorted(Comparator.reverseOrder())
                 .skip(1)
                 .findFirst()
@@ -310,6 +467,26 @@ public class Test {
                 .max(Comparator.comparingInt(String::length))
                 .get();
         System.out.println(longestString);
+
+    }
+}
+```
+
+#### MyNotes:
+a)
+```
+import java.util.Arrays;
+import java.util.Comparator;
+
+public class Test {
+    public static void main(String[] args) {
+        String[] strArray = {"java", "techie", "springboot", "microservices"};
+
+        Arrays.stream(strArray)
+                .max(Comparator.comparingInt(String::length))
+                .ifPresentOrElse(longestString ->
+                                System.out.println("Longest string: " + longestString),
+                        () -> System.out.println("Array is empty"));
 
     }
 }

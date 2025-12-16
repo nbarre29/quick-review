@@ -1607,7 +1607,7 @@ import java.util.List;
 public class LambdaExample2 {
     public static void main(String[] args) {
         List<String> names = Arrays.asList("Alice", "Bob", "Charlie", "David");
-        names.sort((s1, s2) -> s1.compareTo(s2)); // Can be replaced with 'Comparator. naturalOrder'
+        names.sort((s1, s2) -> s1.compareTo(s2)); // Can be replaced with 'Comparator.naturalOrder'
         names.forEach(System.out::println);
     }
 }
@@ -1621,7 +1621,7 @@ import java.util.List;
 public class LambdaExample2 {
     public static void main(String[] args) {
         List<String> names = Arrays.asList("Alice", "Bob", "Charlie", "David");
-        names.sort((s1, s2) -> s2.compareTo(s1)); // Can be replaced with 'Comparator. reverseOrder'
+        names.sort((s1, s2) -> s2.compareTo(s1)); // Can be replaced with 'Comparator.reverseOrder'
         names.forEach(System.out::println);
     }
 }
@@ -1639,6 +1639,12 @@ public class LambdaExample2 {
         names.forEach(System.out::println);
     }
 }
+
+#### MyNotes:
+```
+ // Sort names in reverse alphabetical order using method reference
+     names.sort(Collections.reverseOrder(String::compareTo));
+```
 -----------------------------------------------------------------------------------------------------
 2c) To replace the custom comparator with Comparator.naturalOrder(), you can modify the sort method call as follows:
 
