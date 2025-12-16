@@ -39,10 +39,10 @@ What is the diamond problem and how Java solves it?
 ## 3️⃣ **Collections Framework (EXTREMELY IMPORTANT)**
 
 ⭐ Difference between `ArrayList` and `LinkedList`
-⭐ Difference between `HashMap`, `LinkedHashMap`, `TreeMap`
+⭐ Difference between `HashMap`, `LinkedHashMap`, `TreeMap`		DONE
 ⭐ How does `HashMap` work internally? (Java 8+)		DONE
 ⭐ Why is `HashMap` not thread-safe?
-⭐ Difference between `HashMap` and `ConcurrentHashMap`
+⭐ Difference between `HashMap` and `ConcurrentHashMap`		DONE
 ⭐ What happens when hash collisions occur?
 ⭐ Why should `equals()` and `hashCode()` be overridden together?
 What is the load factor in HashMap?
@@ -131,7 +131,7 @@ What is OutOfMemoryError?
 
 ⭐ Why Java doesn’t support multiple inheritance
 ⭐ Why `Integer == Integer` sometimes returns true
-⭐ Can we make constructor private? Why?
+⭐ Can we make constructor private? Why?		DONE
 ⭐ Why `String` is final
 ⭐ What happens if `hashCode()` changes after insertion in HashMap?
 ⭐ Why `forEach()` cannot use `break`

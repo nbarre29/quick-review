@@ -320,7 +320,9 @@ Good for **short strings only**.
 ---
 
 ______________________________________________________________________________________
-==> 
+
+==> Find the second highest number in an array of integers
+```
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -328,14 +330,17 @@ public class Test {
     public static void main(String[] args) {
         int[] numbers = {5, 9, 11, 2, 8, 21, 1};
 
-        Integer secondHighestNumber = Arrays.stream(numbers).boxed()
+        Integer secondHighestNumber = Arrays.stream(numbers)
+                .boxed()
                 .sorted(Comparator.reverseOrder())
                 .skip(1)
-                .findFirst().get();
+                .findFirst()
+                .get();
         System.out.println(secondHighestNumber);  //11
 
     }
 }
+```
 ---------------------------------------------------------------------------------------
 ==> Above code calls .get on an Optional without checking if a value is present first. This can throw NoSuchElementException if the array has fewer than 2 elements.
 
@@ -357,6 +362,25 @@ public class Test {
                 .orElse(null);
         System.out.println(secondHighestNumber);
 
+    }
+}
+```
+
+
+```
+import java.util.Arrays;
+import java.util.Comparator;
+
+public class Test {
+    public static void main(String[] args) {
+        int[] numbers = {5, 9, 11, 2, 8, 21, 1};
+
+        Arrays.stream(numbers)
+                .boxed()
+                .sorted(Comparator.reverseOrder())
+                .skip(1)
+                .findFirst()
+                .ifPresent(System.out::println);
     }
 }
 ```
