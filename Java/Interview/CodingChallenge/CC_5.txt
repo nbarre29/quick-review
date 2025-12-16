@@ -476,6 +476,20 @@ Name: Alice, Age: 25
 Name: Bob, Age: 35
 Name: John, Age: 30
 ```
+
+#### MyNotes:
+a)
+// Sort the employees by age in descending order
+        List<Employee> sortedEmployeesByAgeDesc = employees.stream()
+                .sorted(Comparator.comparingInt(Employee::age).reversed())
+                .toList();
+				
+b) 		
+ // Sort the employees by name in descending order
+        List<Employee> sortedEmployeesByNameDesc = employees.stream()
+                .sorted(Comparator.comparing(Employee::name).reversed())
+                .toList();		
+
 ______________________________________________________________________________________
 
 ==> A simple Java demonstration of sorting custom objects using the Comparable interface.
