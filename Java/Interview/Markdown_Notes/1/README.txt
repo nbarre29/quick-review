@@ -9,3 +9,5 @@
 5) Difference between `HashMap`, `LinkedHashMap`, `TreeMap`
 
 6) Can we make constructor private? Why?
+
+7) Time complexity notations: O(1)  and O(log n)

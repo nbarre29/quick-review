@@ -739,3 +739,89 @@ public class MapVsFlatMap {
 [397937955, 21654725, 89563865, 2487238947, 38946328654, 3286487236, 389246829364, 948609467]
 ```
 ______________________________________________________________________________________
+
+==> Here's a small example demonstrating `(char)` casting:
+
+```
+public class Main {
+    public static void main(String[] args) {
+        // ASCII value to char
+        int asciiValue = 65;
+        char ch = (char) asciiValue;
+        System.out.println(ch); // Output: A
+
+        // Numeric operations
+        int num = 97;
+        char letter = (char) num;
+        System.out.println(letter); // Output: a
+
+        // Character arithmetic
+        char c = 'A';
+        int nextChar = c + 1;
+        System.out.println((char) nextChar); // Output: B
+
+        // Converting back
+        char x = 'Z';
+        int value = (int) x;
+        System.out.println(value); // Output: 90
+    }
+}
+
+```
+
+The `(char)` cast converts an integer to its corresponding Unicode/ASCII character representation.
+
+______________________________________________________________________________________
+
+==> Demonstrates the difference between using (char) cast and not using it
+```
+
+public class Main {
+    public static void main(String[] args) {
+        String text = "Hello";
+
+        System.out.println("Without (char) cast:");
+        text.chars()
+                .forEach(ch -> System.out.println(ch + " is an int"));
+
+        System.out.println("\nWith (char) cast:");
+        text.chars()
+                .mapToObj(ch -> (char) ch)
+                .forEach(ch -> System.out.println(ch + " is a char"));
+
+        //using (char) but without mapToObj
+        System.out.println("\nWith (char) cast but without mapToObj:");
+        text.chars()
+                .forEach(ch -> System.out.println((char) ch + " is a char"));
+
+
+    }
+}
+
+```
+#### Output:
+```
+Without (char) cast:
+72 is an int
+101 is an int
+108 is an int
+108 is an int
+111 is an int
+
+With (char) cast:
+H is a char
+e is a char
+l is a char
+l is a char
+o is a char
+
+With (char) cast but without mapToObj:
+H is a char
+e is a char
+l is a char
+l is a char
+o is a char
+```
+______________________________________________________________________________________
+
+
