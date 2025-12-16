@@ -370,6 +370,39 @@ public class Test {
 The key improvement is **handling case sensitivity**. Your logic is sound, but always test with mixed-case strings like "Naveen" to catch this issue!
 ______________________________________________________________________________________
 
+==> Print all vowels in a given string
+
+```
+public class Main {
+    public static void main(String[] args) {
+        String str = "Naveen";
+
+        str.toLowerCase()
+                .chars()
+                .filter(ch -> "aeiou".indexOf(ch) != -1)
+                .mapToObj(ch -> (char) ch)
+                .forEach(System.out::println);
+
+    }
+}
+```
+
+#### MyNotes: The below program is just to show that `.mapToObj(ch -> (char) ch)` can be placed above also
+```
+public class Main {
+    public static void main(String[] args) {
+        String str = "Naveen";
+
+        str.toLowerCase()
+                .chars()
+                .mapToObj(ch -> (char) ch)
+                .filter(ch -> "aeiou".indexOf(ch) != -1)
+                .forEach(System.out::println);
+    }
+}
+```
+______________________________________________________________________________________
+
 ==> remove spaces from a string in Java
 public class Test {
     public static void main(String[] args) {
