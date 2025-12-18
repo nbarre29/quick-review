@@ -1,0 +1,253 @@
+
+==> Here’s a **simple Java program** that demonstrates `DoubleStream.mapToObj()`.
+
+### ✅ Example: Convert doubles → formatted Strings and custom objects
+
+```
+public record ProductPrice(String productId, double price) {
+
+    @Override
+    public String toString() {
+        return "ProductPrice{productId='" + productId + "', price=" + price + "}";
+    }
+}
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.DoubleStream;
+
+public class DoubleStreamMapToObjDemo {
+
+    public static void main(String[] args) {
+
+        // DoubleStream -> Stream<String>
+        List<String> priceLabels =
+                DoubleStream.of(12.5, 99.99, 100.0, 7.25)
+                        .mapToObj(price -> String.format("$%.2f", price))
+                        .toList();
+
+        System.out.println("Price labels: " + priceLabels);
+
+        AtomicInteger counter = new AtomicInteger(1000);
+        // DoubleStream -> Stream<ProductPrice> (custom objects)
+        List<ProductPrice> products =
+                DoubleStream.of(12.5, 99.99, 100.0, 7.25)
+                        .mapToObj(price -> new ProductPrice("SKU-" + counter.getAndIncrement(), price))
+                        .toList();
+
+        System.out.println("Product objects:");
+        products.forEach(System.out::println);
+    }
+
+
+}
+```
+
+#### Output:
+```
+Price labels: [$12.50, $99.99, $100.00, $7.25]
+Product objects:
+ProductPrice{productId='SKU-1000', price=12.5}
+ProductPrice{productId='SKU-1001', price=99.99}
+ProductPrice{productId='SKU-1002', price=100.0}
+ProductPrice{productId='SKU-1003', price=7.25}
+```
+
+
+
+### What this demonstrates
+
+* `DoubleStream` is a **primitive stream** (`double` values).
+* `mapToObj(...)` converts each `double` into an **object** (`String`, POJO, etc.).
+* Result becomes a normal `Stream<T>`.
+
+
+#### MyNotes:
+a)
+```
+// DoubleStream -> Stream<ProductPrice> (custom objects)
+        List<ProductPrice> products =
+                DoubleStream.of(12.5, 99.99, 100.0, 7.25)
+                        .mapToObj(price -> new ProductPrice(UUID.randomUUID().toString(), price))
+                        .toList();
+```
+---
+---
+______________________________________________________________________________________________________________
+
+==> mapToObj vs boxed()
+
+Both convert a **primitive stream** (like `IntStream`, `LongStream`, `DoubleStream`) into a **Stream of objects**, but they’re used for different goals.
+
+---
+
+## Core difference
+
+### ✅ `boxed()`
+
+> Converts primitives into their **wrapper types** only.
+
+* `IntStream` → `Stream<Integer>`
+* `DoubleStream` → `Stream<Double>`
+
+```java
+Stream<Double> s = DoubleStream.of(1.1, 2.2).boxed();
+```
+
+---
+
+### ✅ `mapToObj(...)`
+
+> Converts primitives into **any object type you want** (String, DTO, BigDecimal, etc.)
+
+```java
+Stream<String> s =
+    DoubleStream.of(1.1, 2.2)
+                .mapToObj(d -> "Value=" + d);
+```
+
+---
+
+## Quick comparison table
+
+| Feature       | `boxed()`                                                         | `mapToObj()`                                            |
+| ------------- | ----------------------------------------------------------------- | ------------------------------------------------------- |
+| Output type   | Wrapper only (`Integer`, `Long`, `Double`)                        | Any object type (`T`)                                   |
+| Typical use   | You need wrapper objects (Collectors, APIs expecting `Stream<T>`) | You want to transform into a DTO/string/BigDecimal/etc. |
+| Equivalent to | `mapToObj(x -> (Wrapper)x)`                                       | Custom mapping function                                 |
+| Flexibility   | Low                                                               | High                                                    |
+
+---
+
+## Examples
+
+### 1) When to use `boxed()`
+
+You just want wrappers to collect into a List:
+
+```java
+List<Double> list =
+    DoubleStream.of(1.1, 2.2, 3.3)
+                .boxed()
+                .toList();
+```
+
+
+---
+
+### 2) When to use `mapToObj()`
+
+You want objects other than wrappers:
+
+```java
+List<String> labels =
+    DoubleStream.of(1.1, 2.2, 3.3)
+                .mapToObj(d -> String.format("$%.2f", d))
+                .collect(java.util.stream.Collectors.toList());
+```
+
+Or convert to `BigDecimal`:
+
+```java
+List<java.math.BigDecimal> amounts =
+    DoubleStream.of(1.1, 2.2)
+                .mapToObj(java.math.BigDecimal::valueOf)
+                .collect(java.util.stream.Collectors.toList());
+```
+
+---
+
+## Rule of thumb
+
+* Use **`boxed()`** when you only need wrapper types (`Integer`, `Double`, `Long`)
+* Use **`mapToObj()`** when you want **custom objects** or custom formatting
+
+
+---
+---
+______________________________________________________________________________________________________________
+
+==> https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html#join(java.lang.CharSequence,java.lang.CharSequence...)
+
+import java.util.Arrays;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        // Join with hyphen
+        String message = String.join("-", "Java", "is", "cool");
+        System.out.println(message); // Java-is-cool
+
+        // different way to join with hyphen, passing an array
+        String[] strArray = {"Java", "is", "cool"};
+        System.out.println(String.join("-", strArray));
+
+        // Join with comma and space
+        String csv = String.join(", ", "apple", "banana", "orange");
+        System.out.println(csv); // apple, banana, orange
+
+        // Join elements from a List
+        List<String> names = Arrays.asList("Alice", "Bob", "Charlie");
+        String nameList = String.join(" | ", names);
+        System.out.println(nameList); // Alice | Bob | Charlie
+
+        // Join with empty delimiter
+        String noDelimiter = String.join("", "H", "e", "l", "l", "o");
+        System.out.println(noDelimiter); // Hello
+
+        // Join with newline character
+        String lines = String.join("\n", "Line 1", "Line 2", "Line 3");
+        System.out.println(lines);
+        // Line 1
+        // Line 2
+        // Line 3
+
+        // Join numbers (converted to strings)
+        String numbers = String.join(" + ", "1", "2", "3", "4");
+        System.out.println(numbers); // 1 + 2 + 3 + 4
+
+        // Join with tab character
+        String tabbed = String.join("\t", "Column1", "Column2", "Column3");
+        System.out.println(tabbed); // Column1	Column2	Column3
+
+        // Join with custom delimiter
+        String custom = String.join(" <-> ", "A", "B", "C");
+        System.out.println(custom); // A <-> B <-> C
+
+        // Join with space
+        String spaced = String.join(" ", "This", "is", "a", "test");
+        System.out.println(spaced); // This is a test
+
+    }
+}
+
+---
+---
+______________________________________________________________________________________________________________
+
+==> https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html#join(java.lang.CharSequence,java.lang.Iterable)
+
+```
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+public class Main {
+    public static void main(String[] args) {
+        List<String> wordList = List.of("Java", "is", "cool");
+        String message = String.join(" ", wordList);
+        System.out.println(message);  // Java is cool
+
+        Set<String> uniqueWords =
+                new LinkedHashSet<>(List.of("Java", "is", "very", "cool"));
+        String message1 = String.join("-", uniqueWords);
+        System.out.println(message1);    // Java-is-very-cool
+
+    }
+}
+
+```
+
+---
+---
+______________________________________________________________________________________________________________

@@ -46,12 +46,25 @@ a) Map<String, Double> averageSalaryByDepartment = employees.stream()
                 System.out.println("Department: " + department + ", Average Salary: " + avgSalary));
 				
 				
-b) // Find the highest paid employee
+b) 
+```
+// Find the highest paid employee
         Employee highestPaid = employees.stream()
                 .max(java.util.Comparator.comparingDouble(Employee::salary))
                 .orElseThrow();      // we could also have .orElse(null);
 
         System.out.println("Highest Paid Employee: " + highestPaid.name() + ", Salary: " + highestPaid.salary());	
+```
+		
+b.1) 	
+```
+employees.stream()
+                .max(Comparator.comparingDouble(Employee::salary))
+                .ifPresentOrElse(
+                        employee -> System.out.println("Highest paid: " + employee.name() + " - $" + employee.salary()),
+                        () -> System.out.println("No employees found")
+                );	
+```
 
 #### MyNotes: 
 
@@ -125,6 +138,15 @@ employees.stream()
                         avgSalary -> System.out.println("Average salary: " + avgSalary),
                         () -> System.out.println("Could not calculate average salary.")
                 );
+```
+
+d) Calculate total salary for Engineering department
+```
+double totalEngineeringSalary = employees.stream()
+                .filter(emp -> emp.department().equals("Engineering"))
+                .mapToDouble(Employee::salary)
+                .sum();
+        System.out.println("Total salary for Engineering department: " + totalEngineeringSalary);
 ```
 
 REFERENCE:
