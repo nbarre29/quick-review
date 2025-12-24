@@ -565,20 +565,6 @@ instead of expensive modulo `%`.
 
 > HashMap stores key–value pairs in an internal array of buckets. The key’s hashcode is processed using a hash-spreading function to compute a bucket index. Multiple entries may exist in the same bucket due to hash collisions. Initially, entries are stored in a linked list, but in Java 8 and later, if a bucket becomes too large, the list is converted into a Red-Black tree to ensure O(log n) performance in the worst case.
 
----
-
-### ✔ Verdict
-
-Your explanation was **80–85% correct**.
-With these corrections and additions, it is now **100% interview-ready**.
-
-If you want, I can:
-
-* Rewrite this as a **30-second spoken answer**
-* Draw an **ASCII diagram**
-* Explain **ConcurrentHashMap internals**
-* Compare Java 7 vs Java 8 HashMap behavior
-
 
 ---
 ---

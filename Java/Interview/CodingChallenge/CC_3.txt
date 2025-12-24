@@ -158,6 +158,14 @@ public class Main {
 
     }
 }
+
+#### MyNotes:
+a) Objects.equals(num, 12):  we passed 12, a primitive but Objects.equals expects objects right ?
+
+You're correct to notice this! However, the code works due to **autoboxing**.
+
+When you pass the primitive `int` value `12` to `Objects.equals()`, Java automatically converts it to an `Integer` object. Similarly, the `num` parameter from the stream is also autoboxed from `int` to `Integer`.
+
 ---------------------------------------------------------------------------------------
 
 ==> is the above code okay ?

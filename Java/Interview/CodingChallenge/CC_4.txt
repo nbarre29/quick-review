@@ -26,6 +26,9 @@ public class Test {
     }
 }
 
+#### MyNotes:
+a) `.map(Map.Entry::getKey)` is same as `.map(entry -> entry.getKey())`
+
 -------------------------------------------------------------------------------------
 ==> any improvements to above code ?
 
@@ -515,6 +518,14 @@ public class Test {
     }
 }
 ```
+
+b) Find the shortest string in the array using min() method 
+```
+Arrays.stream(strArray)
+                .min(Comparator.comparingInt(String::length))
+                .ifPresent(System.out::println);
+```
+
 ______________________________________________________________________________________
 
 ==> print all elements in an array which starts with 1

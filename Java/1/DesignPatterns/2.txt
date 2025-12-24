@@ -1,4 +1,13 @@
-Abstract Factory pattern: Provide an interface to create families of related objects without specifying concrete classes.
+Abstract Factory pattern: 
+
+#### Definition:
+a) Provide an interface to create families of related objects without specifying concrete classes.
+
+
+b) allows you to produce families of related objects without specifying their concrete classes.
+Think of it as a "factory of factories." It provides an interface for creating a suite of products, but it leaves the actual instantiation of those products to concrete factory classes.
+
+
 
 // Step 1: Define Abstract Products
 // These interfaces declare the types of objects to be created by the factory.

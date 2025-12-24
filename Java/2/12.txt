@@ -90,12 +90,12 @@ public class StreamCollectDemo {
 
         System.out.println("\n=== Example 2: Filter and Collect ===");
         // Get names of people older than 30
-        List<String> namesOver30 = people.stream()
+        List<String> namesAbove30 = people.stream()
                 .filter(p -> p.age() > 30)
                 .map(Person::name)
                 .collect(Collectors.toList());
 
-        System.out.println("People over 30: " + namesOver30);
+        System.out.println("People over 30: " + namesAbove30);
 
         System.out.println("\n=== Example 3: Collect to Set (unique values) ===");
         // Collect cities (unique)
@@ -143,6 +143,8 @@ public class StreamCollectDemo {
 
         System.out.println("\n=== Example 8: Partitioning ===");
         // Partition people into adults (30+) and young
+        // have a more descriptive variable name like partitionedByAge, peopleByAgeGroup,
+        // ageGroups, peoplePartitionedByAge, agePartition etc
         Map<Boolean, List<Person>> partitioned = people.stream()
                 .collect(Collectors.partitioningBy(p -> p.age() >= 30));
 
@@ -222,6 +224,27 @@ Count by city: {New York=1, San Antonio=1, Chicago=1, Phoenix=1, Los Angeles=1, 
 === Example 10: Collect to ArrayList (specific type) ===
 ArrayList type: ArrayList
 Names in ArrayList: [Alice, Bob, Charlie, David, Eve, Frank, Grace]
+
+
+#### MyNotes:
+a) Here's an example using `partitioningBy` with a downstream collector:
+
+```java
+// Partition people and count each group
+Map<Boolean, Long> countByAge30OrAbove = people.stream()
+                .collect(Collectors.partitioningBy(p -> p.age() >= 30,
+                        Collectors.counting()));
+
+        System.out.println("Number of adults (30+): " + countByAge30OrAbove.get(true));
+        System.out.println("Number of young (<30): " + countByAge30OrAbove.get(false));
+```
+
+This version partitions people by age and simultaneously counts how many people are in each partition. The downstream collector (`Collectors.counting()`) is applied to each partition's stream, transforming the `List<Person>` into a `Long` count.
+
+Other useful downstream collectors you can use:
+- `Collectors.summingInt(Person::age)` - sum ages in each partition
+- `Collectors.averagingInt(Person::age)` - average age in each partition
+- `Collectors.mapping(Person::name, Collectors.toList())` - extract names in each partition
 
 ______________________________________________________________________________________________________
 

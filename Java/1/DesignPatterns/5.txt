@@ -8,6 +8,7 @@ public class Singleton {
     private Singleton() {}
 
     // Method to get the single instance of the class
+	// the method can also be named as createInstance(), create() etc
     public static Singleton getInstance() {  // no need of synchronized keyword because the Singleton instance is already eagerly initialized.
         return INSTANCE;
     }

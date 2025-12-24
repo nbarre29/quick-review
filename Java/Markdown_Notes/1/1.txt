@@ -133,6 +133,60 @@ Exception caught: Duplicate key 1 (attempted merging values Alice and Bob)
 {1=Alice, Bob, 2=Charlie}
 ```
 
+#### MyNotes:
+a) I'd recommend to use the variable name as `idToNameMap` instead of `mapFail` or `mapKeepFirst` or `mapKeepLatest` used above, since it clearly describes that the map contains IDs as keys and names as values.
+
+
+b) Here's the updated example with a `Supplier` to specify the map implementation:
+
+```
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class ToMapDuplicateKeyDemo {
+
+    public static void main(String[] args) {
+
+        List<Person> people = List.of(
+                new Person(2, "Alice"),
+                new Person(2, "Bob"),
+                new Person(1, "Charlie")
+        );
+
+        System.out.println("\n=== Using Supplier to specify LinkedHashMap (preserves insertion order) ===");
+
+        LinkedHashMap<Integer, String> orderedMap = people.stream()
+                .collect(Collectors.toMap(
+                        Person::id,
+                        Person::name,
+                        (existing, replacement) -> existing,
+                        LinkedHashMap::new
+                ));
+
+        System.out.println(orderedMap);  // {2=Alice, 1=Charlie} - preserves order
+
+        System.out.println("\n=== Using Supplier to specify TreeMap (sorted by key) ===");
+
+        TreeMap<Integer, String> sortedMap = people.stream()
+                .collect(Collectors.toMap(
+                        Person::id,
+                        Person::name,
+                        (existing, replacement) -> existing,
+                        TreeMap::new
+                ));
+
+        System.out.println(sortedMap);  // {1=Charlie, 2=Alice} - sorted by ID
+
+
+    }
+}
+```
+
+The `Supplier` parameter allows you to specify the map implementation. Common options are `LinkedHashMap::new` (preserves insertion order) and `TreeMap::new` (sorts by key).
+
+#### Without the Supplier
+
+If you don't provide the fourth parameter, `toMap()` creates a regular `HashMap` by default:
 _______________________________________________________________________________________
 
 ==> How to convert List → Map using streams + BigDecimal + enums

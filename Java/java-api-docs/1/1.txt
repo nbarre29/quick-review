@@ -63,7 +63,7 @@ ProductPrice{productId='SKU-1003', price=7.25}
 
 
 #### MyNotes:
-a)
+##### a)
 ```
 // DoubleStream -> Stream<ProductPrice> (custom objects)
         List<ProductPrice> products =
@@ -71,6 +71,49 @@ a)
                         .mapToObj(price -> new ProductPrice(UUID.randomUUID().toString(), price))
                         .toList();
 ```
+
+##### b) 
+The `%` is a **format specifier** in `String.format()` that marks where and how values should be inserted into the formatted string.
+
+**Key points:**
+- `%` indicates the start of a format placeholder
+- `.2f` specifies the formatting rules:
+  - `f` - format as floating-point (decimal) number
+  - `.2` - use exactly 2 decimal places
+
+**Examples:**
+- `%.2f` → formats double with 2 decimals: `12.5` → `"12.50"`
+- `%d` → formats integer: `42` → `"42"`
+- `%s` → formats string: `"hello"` → `"hello"`
+- `%n` → platform-specific newline
+
+**In above code:**
+```java
+String.format("$%.2f", price)
+```
+The `%` tells Java "replace this with the `price` value formatted as a decimal with 2 decimal places."
+
+
+##### c) In Java's `String.format()`, there is **no separate specifier for `double`**.
+
+**Key point:**
+- Both `float` and `double` use the **same** `f` specifier
+- `f` stands for floating-point, which covers both types
+
+**Why this works:**
+```java
+double price = 12.5;
+String.format("%.2f", price)  // ✓ Works - double uses 'f'
+
+float value = 12.5f;
+String.format("%.2f", value)  // ✓ Works - float uses 'f'
+```
+
+**Common floating-point specifiers:**
+- `%f` - standard floating-point (works for both `float` and `double`)
+
+Even though `price` is a `double`, you use `f` because Java treats all floating-point numbers (both `float` and `double`) with the same format specifier.
+
 ---
 ---
 ______________________________________________________________________________________________________________
@@ -201,10 +244,7 @@ public class Main {
         // Line 1
         // Line 2
         // Line 3
-
-        // Join numbers (converted to strings)
-        String numbers = String.join(" + ", "1", "2", "3", "4");
-        System.out.println(numbers); // 1 + 2 + 3 + 4
+		
 
         // Join with tab character
         String tabbed = String.join("\t", "Column1", "Column2", "Column3");
@@ -247,6 +287,192 @@ public class Main {
 }
 
 ```
+
+---
+---
+______________________________________________________________________________________________________________
+
+==> `Stream.sorted()` is an **intermediate operation** that returns a new stream whose elements are **sorted**.
+
+There are **two overloads**:
+
+1. `sorted()` → sorts by **natural order** (elements must implement `Comparable`)
+2. `sorted(Comparator)` → sorts using a **custom rule**
+
+---
+
+## 1) `sorted()` – Natural order example
+
+```java
+import java.util.Arrays;
+import java.util.List;
+
+public class SortedDemo1 {
+    public static void main(String[] args) {
+        List<Integer> nums = Arrays.asList(5, 1, 9, 3, 3);
+
+        nums.stream()
+            .sorted()                 // natural ascending order
+            .forEach(System.out::println);
+
+        // nums list is NOT modified (streams are non-mutating)
+        System.out.println("Original: " + nums);
+    }
+}
+```
+
+---
+
+## 2) `sorted(Comparator)` – Custom sorting example (descending)
+
+```java
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
+public class SortedDemo2 {
+    public static void main(String[] args) {
+        List<Integer> nums = Arrays.asList(5, 1, 9, 3, 3);
+
+        nums.stream()
+            .sorted(Comparator.reverseOrder())   // custom: descending
+            .forEach(System.out::println);
+    }
+}
+```
+
+---
+
+## Example with objects (sort by a field)
+
+```
+public record User(String name, int age) {
+}
+
+
+import java.util.Comparator;
+import java.util.List;
+
+public class SortedObjectsDemo {
+
+    public static void main(String[] args) {
+        List<User> users = List.of(
+                new User("Naveen", 35),
+                new User("Alex", 25),
+                new User("Bob", 30)
+        );
+
+        users.stream()
+                .sorted(Comparator.comparingInt(User::age)) // sort by age ascending
+                .forEach(System.out::println);
+    }
+}
+
+
+```
+
+---
+---
+______________________________________________________________________________________________________________
+
+==> Here are clear examples of `sorted()` with **null handling** using `Comparator.nullsFirst()` / `nullsLast()`.
+
+---
+
+## 1) Sorting `String` list with nulls (nulls first / last)
+
+```java
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
+public class NullSortingDemo {
+    public static void main(String[] args) {
+        List<String> names = Arrays.asList("Naveen", null, "Alex", "Bob", null);
+
+        System.out.println("Nulls first:");
+        names.stream()
+                .sorted(Comparator.nullsFirst(Comparator.naturalOrder()))
+                .forEach(System.out::println);
+
+        System.out.println("\nNulls last:");
+        names.stream()
+                .sorted(Comparator.nullsLast(Comparator.naturalOrder()))
+                .forEach(System.out::println);
+    }
+}
+```
+
+#### Output:
+```
+Nulls first:
+null
+null
+Alex
+Bob
+Naveen
+
+Nulls last:
+Alex
+Bob
+Naveen
+null
+null
+```
+
+---
+
+## 2) Sorting objects by a field, while handling null field values
+
+Example: sort users by `email` where email can be null.
+
+```java
+public record User(String name, String email) {
+}
+
+
+import java.util.Comparator;
+import java.util.List;
+
+public class NullFieldSortingDemo {
+
+    public static void main(String[] args) {
+        List<User> users = List.of(
+                new User("Naveen", "naveen@example.com"),
+                new User("Alex", null),
+                new User("Bob", "bob@example.com"),
+                new User("Cara", null)
+        );
+
+        System.out.println("Sort by email (nulls last):");
+        users.stream()
+                .sorted(Comparator.comparing(
+                        User::email,
+                        Comparator.nullsLast(Comparator.naturalOrder())
+                ))
+                .forEach(System.out::println);
+    }
+}
+```
+
+#### Output:
+```
+Sort by email (nulls last):
+User[name=Bob, email=bob@example.com]
+User[name=Naveen, email=naveen@example.com]
+User[name=Alex, email=null]
+User[name=Cara, email=null]
+```
+
+---
+
+### Quick rule
+
+* `sorted()` alone **cannot handle nulls** (it will throw `NullPointerException` if the stream contains nulls).
+* Use:
+
+  * `sorted(Comparator.nullsFirst(...))`
+  * `sorted(Comparator.nullsLast(...))`
 
 ---
 ---

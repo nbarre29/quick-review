@@ -932,6 +932,121 @@ public class Main {
 
 Output:
 End is after start
+
+---
+---
+_________________________________________________________________________________
+
+==> Here's a real-world example of using `Instant.compareTo()` in a task scheduling system:
+
+```
+import java.time.Instant;
+
+public record Task(String name, Instant scheduledTime) {
+}
+
+
+import java.time.Instant;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class TaskScheduler {
+    
+    public static void main(String[] args) {
+        TaskScheduler scheduler = new TaskScheduler();
+        
+        // Add some tasks
+        scheduler.addTask(new Task("Database backup", Instant.now().plus(Duration.ofHours(2))));
+        scheduler.addTask(new Task("Send email report", Instant.now().plus(Duration.ofMinutes(30))));
+        scheduler.addTask(new Task("Clean temp files", Instant.now().plus(Duration.ofHours(1))));
+        scheduler.addTask(new Task("Update cache", Instant.now().minus(Duration.ofMinutes(5))));
+        
+        // Process overdue tasks
+        scheduler.processOverdueTasks();
+        
+        // Get upcoming tasks
+        List<Task> upcoming = scheduler.getUpcomingTasks(Duration.ofHours(3));
+        System.out.println("\nUpcoming tasks in next 3 hours:");
+        upcoming.forEach(task -> System.out.println("- " + task.name()));
+    }
+    
+    private final List<Task> tasks = new ArrayList<>();
+    
+    public void addTask(Task task) {
+        tasks.add(task);
+    }
+    
+    public void processOverdueTasks() {
+        Instant now = Instant.now();
+        List<Task> overdueTasks = tasks.stream()
+            .filter(task -> task.scheduledTime().compareTo(now) < 0)
+            .toList();
+        
+        System.out.println("Processing " + overdueTasks.size() + " overdue tasks:");
+        overdueTasks.forEach(task -> {
+            System.out.println("Executing: " + task.name());
+            tasks.remove(task);
+        });
+    }
+    
+    public List<Task> getUpcomingTasks(Duration timeWindow) {
+        Instant now = Instant.now();
+        Instant futureLimit = now.plus(timeWindow);
+        
+        return tasks.stream()
+            .filter(task -> task.scheduledTime().compareTo(now) > 0 &&
+                           task.scheduledTime().compareTo(futureLimit) <= 0)
+            .sorted((t1, t2) -> t1.scheduledTime().compareTo(t2.scheduledTime()))
+            .collect(Collectors.toList());
+    }
+}
+
+```
+
+
+#### Output:
+```
+Processing 1 overdue tasks:
+Executing: Update cache
+
+Upcoming tasks in next 3 hours:
+- Send email report
+- Clean temp files
+- Database backup
+```
+
+This example demonstrates practical uses of `compareTo()`:
+- Identifying overdue tasks (scheduled time before now)
+- Filtering upcoming tasks within a time window
+- Sorting tasks by scheduled time
+
+
+#### Explanation:
+The "Update cache" task is overdue because it's scheduled for a time in the **past**.
+
+Look at how the task is created:
+
+```java
+scheduler.addTask(new Task("Update cache", Instant.now().minus(Duration.ofMinutes(5))));
+```
+
+The `Instant.now().minus(Duration.ofMinutes(5))` sets the scheduled time to **5 minutes ago** from the current moment.
+
+In the `processOverdueTasks()` method, the logic identifies overdue tasks by comparing their scheduled time against the current time:
+
+```java
+.filter(task -> task.scheduledTime().compareTo(now) < 0)
+```
+
+When `compareTo()` returns a negative value (< 0), it means the task's scheduled time is **before** `now`. Since "Update cache" was scheduled 5 minutes in the past, the comparison returns negative, marking it as overdue.
+
+In contrast, tasks like "Database backup" use `.plus(Duration.ofHours(2))`, scheduling them 2 hours in the **future**, so they won't be overdue.
+
+
+---
+---
 _________________________________________________________________________________
 
 

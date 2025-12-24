@@ -143,6 +143,46 @@ if (str != null && str.equals("test")) { }
 // OR
 if ("test".equals(str)) { }
 ```
+
+#### MyNotes:
+a) if i have to choose only one of the below three approaches. which is the best one to use ?
+ // Approach 1: Check null first
+        if (str != null && str.equals("test")) {
+            System.out.println("String equals 'test'");
+        }
+
+        // Approach 2: Use constant first (avoids NPE)
+        if ("test".equals(str)) {
+            System.out.println("String equals 'test'");
+        }
+
+        // Approach 3: Use Objects.equals (Java 7+)
+        if (java.util.Objects.equals(str, "test")) {
+            System.out.println("String equals 'test'");
+        }
+
+
+**Approach 2** (using the constant first) is generally the best choice:
+
+```java
+if ("test".equals(str)) {
+    System.out.println("String equals 'test'");
+}
+```
+
+**Reasons:**
+
+1. **Concise and readable** - Single condition, no extra null check needed
+2. **NPE-safe** - Cannot throw `NullPointerException` since you're calling `equals()` on a non-null constant
+3. **Most common idiom** - Widely recognized pattern in Java codebases
+4. **No extra imports** - Unlike `Objects.equals()`, no need to import anything
+
+**When to use alternatives:**
+
+- Use **Approach 3** (`Objects.equals()`) when comparing two variables that could both be null
+- Use **Approach 1** when you need to perform multiple operations on `str` after confirming it's not null
+
+For simple string comparisons against constants, Approach 2 is the industry standard and what most Java developers expect to see.
 ______________________________________________________________________________________
 
 ==> Both `String.isBlank()` and `String.isEmpty()` will throw `NullPointerException` if called on a `null` string reference, 

@@ -627,7 +627,99 @@ Output:
 Dog sound: Woof
 Cat sound: Meow
 
-
+---
+---
 _____________________________________________________________________________________________
 
+==> Use private constructor:
 
+Here's the updated code with private constructors and proper factory implementation:## Key Changes Made:
+
+1. **Added private constructors** to `Circle` and `Rectangle`
+   - Prevents `new Circle()` or `new Rectangle()` from compiling
+
+2. **Added static factory methods** (`create()`)
+   - This is the only way to create instances now
+   - Can add validation, caching, or other logic here
+
+3. **Updated method references**
+   - Changed from `Circle::new` to `Circle::create`
+   - Changed from `Rectangle::new` to `Rectangle::create`
+
+```
+public interface Shape {
+    void draw();
+}
+
+
+public class Circle implements Shape {
+    // private constructor to prevent direct instantiation
+    private Circle() {
+    }
+    @Override
+    public void draw() {
+        System.out.println("Drawing circle...");
+    }
+
+    //static factory method to create instances
+	// the method can also be named as createInstance(), getInstance() etc
+    public static Circle create() {
+        return new Circle();
+    }
+}
+
+
+public class Rectangle implements Shape {
+    // private constructor to prevent direct instantiation
+    private Rectangle() {
+    }
+
+    @Override
+    public void draw() {
+        System.out.println("Drawing rectangle....");
+    }
+
+    //static factory method to create instances
+    public static Rectangle create() {
+        return new Rectangle();
+    }
+}
+
+
+@FunctionalInterface
+public interface ShapeFactory {
+    Shape createShape();
+}
+
+
+public class Main {
+    public static void main(String[] args) {
+
+        // Using method references to factory methods (not constructors)
+        ShapeFactory circleFactory = Circle::create;
+        Shape circle = circleFactory.createShape();
+        circle.draw();
+
+        ShapeFactory rectangleFactory = Rectangle::create;
+        Shape rectangle = rectangleFactory.createShape();
+        rectangle.draw();
+
+        System.out.println("\n=== Demonstrating Private Constructor Protection ===");
+
+        // These lines would cause COMPILATION ERRORS:
+        // Circle c = new Circle();        // Error: Circle() has private access
+        // Rectangle r = new Rectangle();  // Error: Rectangle() has private access
+
+    }
+}
+```
+
+## Benefits You Now Have:
+
+1. **Control point** - All object creation goes through `create()` method
+2. **Future flexibility** - Can add validation, caching, or pooling in `create()` method without changing client code
+
+
+---
+---
+_____________________________________________________________________________________________

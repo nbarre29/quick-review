@@ -79,7 +79,7 @@ public class Test {
                 break;
             }
         }
-        System.out.println(hasVowel ? "The string contains a vowel." : "The string does not contain a vowel.");
+        System.out.println(hasVowel ? "String contains at least one vowel." : "String does not contain any vowels.");
     }
 }
 ```
@@ -98,7 +98,7 @@ public class Test {
                 break;
             }
         }
-        System.out.println(hasVowel ? "The string contains a vowel." : "The string does not contain a vowel.");
+        System.out.println(hasVowel ? "String contains at least one vowel." : "String does not contain any vowels.");
     }
 }
 ```
@@ -118,7 +118,7 @@ public class Test {
                 // if lambda expression is used
                 // .anyMatch(ch -> vowels.contains(ch));
         
-        System.out.println(hasVowel ? "The string contains a vowel." : "The string does not contain a vowel.");
+        System.out.println(hasVowel ? "String contains at least one vowel." : "String does not contain any vowels.");
     }
 }
 ```
@@ -129,7 +129,7 @@ public class Test {
     public static void main(String[] args) {
         String str = "Naveen";
         boolean hasVowel = str.matches(".*[aeiouAEIOU].*");
-        System.out.println(hasVowel ? "The string contains a vowel." : "The string does not contain a vowel.");
+        System.out.println(hasVowel ? "String contains at least one vowel." : "String does not contain any vowels.");
     }
 }
 ```
@@ -174,7 +174,7 @@ public class Main {
             }
         }
 
-        System.out.println(hasVowel ? "Contains vowel" : "No vowel");
+        System.out.println(hasVowel ? "String contains at least one vowel." : "String does not contain any vowels.");
     }
 }
 ```
@@ -203,7 +203,7 @@ public class Main {
                 .chars()
                 .anyMatch(ch -> "aeiou".indexOf(ch) != -1);
 
-        System.out.println(hasVowel ? "Contains vowel" : "No vowel");
+        System.out.println(hasVowel ? "String contains at least one vowel." : "String does not contain any vowels.");
     }
 }
 
