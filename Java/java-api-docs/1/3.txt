@@ -1,0 +1,586 @@
+==> * `Collections.sort(List)` → sorts using **natural ordering** (`Comparable`)
+* `Collections.sort(List, Comparator)` → sorts using a **custom rule** (`Comparator`)
+
+https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Collections.html#sort(java.util.List)
+https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Collections.html#sort(java.util.List,java.util.Comparator)
+
+---
+
+## Example 1: Integers (natural vs custom)
+
+```
+import java.util.*;
+
+public class SortDemo1 {
+    public static void main(String[] args) {
+        List<Integer> nums = new ArrayList<>(Arrays.asList(40, 10, 30, 20));
+
+        // 1) sort(List) -> natural order (ascending for Integer)
+        Collections.sort(nums);
+        System.out.println("Natural (ascending): " + nums);  // Natural (ascending): [10, 20, 30, 40]
+
+        // 2) sort(List, Comparator) -> custom order (descending here)
+        Collections.sort(nums, Comparator.reverseOrder());
+        System.out.println("Custom (descending): " + nums);  // Custom (descending): [40, 30, 20, 10]
+    }
+}
+
+
+#### MyNotes
+a) `Collections.sort(nums, Comparator.reverseOrder());`  can be replaced with `nums.sort(Comparator.reverseOrder());`
+
+---
+
+## Example 2: Custom objects (Comparator is required unless you implement Comparable)
+
+```
+public record Student(String name, int marks) {
+
+}
+
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+public class SortDemo2 {
+    public static void main(String[] args) {
+        List<Student> students = new ArrayList<>();
+        students.add(new Student("Zara", 85));
+        students.add(new Student("Amit", 92));
+        students.add(new Student("Bob", 85));
+
+        // Collections.sort(students) // won't work here because Student is not Comparable
+
+        // sort(List, Comparator) -> sort by marks ascending, then name ascending
+        Collections.sort(students,
+                Comparator.comparingInt((Student s) -> s.marks())
+                        .thenComparing(s -> s.name())
+        );
+
+        System.out.println(students);
+    }
+}
+
+```
+
+#### Output:
+```
+[Student[name=Bob, marks=85], Student[name=Zara, marks=85], Student[name=Amit, marks=92]]
+```
+
+#### MyNotes:
+a) The code does sort by marks ascending, then name ascending.
+
+Looking at your data:
+- Zara: 85
+- Amit: 92
+- Bob: 85
+
+After sorting:
+1. Bob: 85 (marks ascending)
+2. Zara: 85 (marks ascending, same as Bob)
+3. Amit: 92
+
+For Bob and Zara (both have 85 marks), it then sorts by name ascending: "Bob" comes before "Zara" alphabetically.
+
+The output shows names in **ascending** order when marks are equal, not descending. If you want descending order by name, you would need:
+
+```
+Collections.sort(students,
+        Comparator.comparingInt((Student s) -> s.marks())
+                .thenComparing(Comparator.comparing(Student::name).reversed())
+);
+```
+
+
+b) 
+```
+Collections.sort(students,
+                Comparator.comparingInt((Student s) -> s.marks())
+                        .thenComparing(s -> s.name())
+        );
+```
+
+Above code can be simplified to below:
+```
+students.sort(Comparator.comparingInt(Student::marks)
+                .thenComparing(Student::name));
+```
+---
+
+### Quick rule
+
+* Use `sort(list)` when elements already have a natural order (`Integer`, `String`, or your class implements `Comparable`)
+* Use `sort(list, comparator)` when you want **a different ordering** (descending, by a field, multiple fields, etc.)
+
+---
+---
+______________________________________________________________________________________________________________
+
+==> getOrDefault:  https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Map.html#getOrDefault(java.lang.Object,V)
+
+```
+public record Person(String name, int age) {
+}
+
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class PeopleByCityExample {
+    public static void main(String[] args) {
+        Map<String, List<Person>> peopleByCity = new HashMap<>();
+
+        // Populate map
+        peopleByCity.put("NYC", Arrays.asList(
+                new Person("Alice", 17),
+                new Person("Bob", 19),
+                new Person("Charlie", 25)
+        ));
+
+        peopleByCity.put("LA", Arrays.asList(
+                new Person("Dave", 18),
+                new Person("Eve", 30)
+        ));
+
+        // safely get list for NYC, filter age > 18, collect to a new list
+        List<Person> adultsInNYC = peopleByCity
+                .getOrDefault("NYC", List.of())
+                .stream()
+                .filter(person -> person.age() > 18)
+                .toList();
+
+        System.out.println("Adults in NYC (>18): " + adultsInNYC);
+
+        // Demonstrate getOrDefault when city doesn't exist (no NPE, returns empty list)
+        List<Person> adultsInChicago = peopleByCity
+                .getOrDefault("Chicago", List.of())
+                .stream()
+                .filter(person -> person.age() > 18)
+                .toList();
+
+        System.out.println("Adults in Chicago (>18): " + adultsInChicago);
+
+
+    }
+}
+```
+
+#### Output:
+```
+Adults in NYC (>18): [Person[name=Bob, age=19], Person[name=Charlie, age=25]]
+Adults in Chicago (>18): []
+```
+
+
+The `getOrDefault` method provides several advantages:
+
+**1. Null Safety**
+- Eliminates `NullPointerException` when a key doesn't exist
+- No need for explicit null checks before processing
+
+**2. Cleaner Code**
+- Avoids verbose `if-else` or ternary operators
+- Reduces boilerplate code
+
+**3. Method Chaining**
+- Allows direct streaming/processing without intermediate checks
+- Maintains fluent API style
+
+**Without getOrDefault:**
+```java
+List<Person> adults = peopleByCity.get("Chicago");
+if (adults != null) {
+    adults = adults.stream()
+        .filter(person -> person.age() > 18)
+        .toList();
+} else {
+    adults = new ArrayList<>();
+}
+```
+
+**With getOrDefault:**
+```java
+List<Person> adults = peopleByCity
+    .getOrDefault("Chicago", List.of())
+    .stream()
+    .filter(person -> person.age() > 18)
+    .toList();
+```
+
+**4. Immutable Defaults**
+- `List.of()` returns an immutable empty list, preventing accidental modifications
+- More memory-efficient than creating new `ArrayList()` instances
+
+**5. Type Safety**
+- Default value matches the expected type, avoiding casting issues
+
+---
+---
+--------------------------------------------------------------------------------------------------------------
+
+==> getOrDefault: Building a result map with defaults
+
+```
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class ResultMapWithDefaultsExample {
+
+    public static void main(String[] args) {
+        // Existing data (some keys may be missing)
+        Map<String, List<String>> categories = new HashMap<>();
+        categories.put("fruits", List.of("apple", "banana"));
+        categories.put("dairy", List.of("milk", "cheese"));
+        // note: "vegetables" is intentionally missing
+
+        // Keys we want in the result map no matter what
+        List<String> keys = List.of("fruits", "vegetables", "dairy");
+
+        // Build result map with defaults (empty list if missing)
+        Map<String, List<String>> result = keys.stream()
+                .collect(Collectors.toMap(
+                        key -> key,
+                        key -> categories.getOrDefault(key, List.of())
+                ));
+
+        System.out.println("categories = " + categories);
+        System.out.println("keys       = " + keys);
+        System.out.println("result     = " + result);
+    }
+}
+```
+
+#### Output:
+```
+categories = {fruits=[apple, banana], dairy=[milk, cheese]}
+keys       = [fruits, vegetables, dairy]
+result     = {fruits=[apple, banana], vegetables=[], dairy=[milk, cheese]}
+```
+
+---
+---
+--------------------------------------------------------------------------------------------------------------
+
+==> getOrDefault:  Score tracking with defaults
+```
+import java.util.HashMap;
+import java.util.Map;
+
+public class ScoreTrackingWithDefaultsExample {
+
+    public static void main(String[] args) {
+        Map<String, Integer> playerScores = new HashMap<>();
+        playerScores.put("Alice", 100);
+        playerScores.put("Bob", 85);
+
+        int aliceScore = playerScores.getOrDefault("Alice", 0);      // 100
+        int charlieScore = playerScores.getOrDefault("Charlie", 0);  // 0 (new player)
+
+        System.out.println("Alice score   : " + aliceScore);
+        System.out.println("Charlie score : " + charlieScore);
+
+        // Optional: show the map (Charlie is NOT added by getOrDefault)
+        System.out.println("playerScores map: " + playerScores);
+    }
+}
+```
+
+#### Output:
+```
+Alice score   : 100
+Charlie score : 0
+playerScores map: {Bob=85, Alice=100}
+```
+
+---
+---
+--------------------------------------------------------------------------------------------------------------
+
+==> getOrDefault:  With computeIfAbsent for mutable lists
+
+```
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class ComputeIfAbsentMutableListExample {
+
+    public static void main(String[] args) {
+        Map<String, List<String>> map = new HashMap<>();
+
+        // Don't do this - List.of() is immutable (would throw UnsupportedOperationException)
+        // map.getOrDefault("key", List.of()).add("value");
+
+        // Do this instead: computeIfAbsent creates a mutable list when the key is missing
+        map.computeIfAbsent("key", k -> new ArrayList<>()).add("value");
+        map.computeIfAbsent("key", k -> new ArrayList<>()).add("value2"); // adds to same list
+
+        // Another key
+        map.computeIfAbsent("city", k -> new ArrayList<>()).add("NYC");
+
+        System.out.println("map = " + map); // {key=[value, value2], city=[NYC]}
+
+        // Show it really is mutable
+        map.get("key").remove("value");
+        System.out.println("after remove = " + map); // {key=[value2], city=[NYC]}
+    }
+}
+```
+
+#### Output:
+```
+map = {city=[NYC], key=[value, value2]}
+after remove = {city=[NYC], key=[value2]}
+```
+
+#### MyNotes:
+
+a) `List.of()` returns an immutable list, so calling `add()` on it would throw an `UnsupportedOperationException`.
+
+**Better explanation:**
+
+"`List.of()` returns an **immutable** list. If you need to add elements to the list, use `new ArrayList<>()` instead."
+
+The key points:
+- `List.of()` creates an immutable list (whether empty or not)
+- Any modification attempt (add, remove, set) throws `UnsupportedOperationException`
+- `new ArrayList<>()` creates a mutable list that supports modifications
+
+Your example code correctly demonstrates this with `computeIfAbsent`, which creates a new mutable `ArrayList` only when the key is absent, allowing safe additions to the list.
+
+
+**Important note:** `List.of()` returns an **immutable** empty list. If you need to add elements to the returned list, use `new ArrayList<>()`
+
+---
+---
+--------------------------------------------------------------------------------------------------------------
+==> getOrDefault: Grouping with default empty lists
+
+```
+public enum Department {
+    ENGINEERING, HR, SALES, FINANCE
+}
+
+
+public record Employee(String name, Department department) {
+}
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class GroupingWithDefaultEmptyListsExample {
+    public static void main(String[] args) {
+        Map<Department, List<Employee>> employeesByDept = new HashMap<>();
+
+        // Add some departments with employees
+        employeesByDept.put(Department.ENGINEERING, List.of(
+                new Employee("Alice", Department.ENGINEERING),
+                new Employee("Bob", Department.ENGINEERING)
+        ));
+
+        employeesByDept.put(Department.HR, List.of(
+                new Employee("Charlie", Department.HR)
+        ));
+
+        // Departments we want to report on (even if missing from map)
+        List<Department> allDepartments = List.of(
+                Department.ENGINEERING,
+                Department.HR,
+                Department.SALES,
+                Department.FINANCE
+        );
+
+        for (Department dept : allDepartments) {
+            List<Employee> employees = employeesByDept.getOrDefault(dept, List.of());
+            System.out.println(dept + " has " + employees.size() + " employees: " + employees);
+        }
+    }
+}
+```
+
+#### Output:
+```
+ENGINEERING has 2 employees: [Employee[name=Alice, department=ENGINEERING], Employee[name=Bob, department=ENGINEERING]]
+HR has 1 employees: [Employee[name=Charlie, department=HR]]
+SALES has 0 employees: []
+FINANCE has 0 employees: []
+```
+
+---
+---
+--------------------------------------------------------------------------------------------------------------
+==> getOrDefault: Safe navigation pattern
+
+```
+public record Employee(String name, int salary) {
+}
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class SafeNavigationPatternExample {
+
+    // Example data source
+    private Map<String, List<Employee>> getEmployeeMap() {
+        Map<String, List<Employee>> empMap = new HashMap<>();
+        empMap.put("Engineering", List.of(
+                new Employee("Alice", 120000),
+                new Employee("Bob", 130000)
+        ));
+        empMap.put("HR", List.of(
+                new Employee("Charlie", 90000)
+        ));
+        // Note: "Sales" intentionally not present to show safe default behavior
+        return empMap;
+    }
+
+    // safe navigation using getOrDefault + stream + sum
+    public int getTotalSalary(String department) {
+        Map<String, List<Employee>> empMap = getEmployeeMap();
+
+        return empMap.getOrDefault(department, List.of())
+                .stream()
+                .mapToInt(Employee::salary)
+                .sum();
+    }
+
+    public static void main(String[] args) {
+
+        SafeNavigationPatternExample example = new SafeNavigationPatternExample();
+
+        System.out.println("Engineering total salary: " + example.getTotalSalary("Engineering"));
+        System.out.println("HR total salary         : " + example.getTotalSalary("HR"));
+        System.out.println("Sales total salary      : " + example.getTotalSalary("Sales")); // 0 (missing dept)
+
+    }
+}
+```
+
+#### Output:
+```
+Engineering total salary: 250000
+HR total salary         : 90000
+Sales total salary      : 0
+```
+
+---
+---
+--------------------------------------------------------------------------------------------------------------
+==> getOrDefault: Role-based permissions with defaults
+
+```
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+public class RoleBasedPermissionsWithDefaultsExample {
+
+    public static void main(String[] args) {
+        Map<String, Set<String>> rolePermissions = new HashMap<>();
+        rolePermissions.put("admin", Set.of("read", "write", "delete"));
+        rolePermissions.put("user", Set.of("read"));
+
+        // If the role exists, you get its permissions
+        Set<String> adminPerms = rolePermissions.getOrDefault("admin", Set.of());
+
+        // If the role does NOT exist, you get the default you provide
+        Set<String> guestPerms = rolePermissions.getOrDefault("guest", Set.of("read"));
+
+        System.out.println("Admin permissions: " + adminPerms);
+        System.out.println("Guest permissions: " + guestPerms);
+
+        // Optional: show that Set.of(...) is immutable (would throw UnsupportedOperationException)
+        // guestPerms.add("write");
+    }
+}
+```
+
+#### Output:
+```
+Admin permissions: [delete, read, write]
+Guest permissions: [read]
+```
+
+---
+---
+--------------------------------------------------------------------------------------------------------------
+==> getOrDefault: demonstrate with EnumMap
+
+```
+public enum Day {
+        MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
+}
+
+import java.util.EnumMap;
+
+public class EnumMapExample {
+
+    public static void main(String[] args) {
+
+        EnumMap<Day, String> timetable = new EnumMap<>(Day.class);
+
+        // Step 3: Put values into the map
+        timetable.put(Day.MONDAY, "Workout");
+        timetable.put(Day.TUESDAY, "Team Meeting");
+        timetable.put(Day.WEDNESDAY, "Project Work");
+        timetable.put(Day.THURSDAY, "Learning Session");
+        timetable.put(Day.FRIDAY, "Code Review");
+
+        // Print the timetable
+        // we can use `getOrDefault` to simplify retrieval with a default value
+        // eliminates the explicit null check by providing a default value when the key is not found in the map.
+        for (Day day : Day.values()) {
+            String activity = timetable.getOrDefault(day, "No activities planned");
+            System.out.println(day + ": " + activity);
+        }
+
+    }
+}
+```
+
+#### Output:
+```
+MONDAY: Workout
+TUESDAY: Team Meeting
+WEDNESDAY: Project Work
+THURSDAY: Learning Session
+FRIDAY: Code Review
+SATURDAY: No activities planned
+SUNDAY: No activities planned
+```
+
+#### MyNotes:
+a) Without getOrDefault:
+```
+for (Day day : Day.values()) {
+            String activity = timetable.get(day);
+            if (activity != null) {
+                System.out.println(day + ": " + activity);
+            } else {
+                System.out.println(day + ": No activities planned");
+            }
+        }
+```
+
+b) This method was introduced in Java 8 to help avoid explicit null checks.
+
+Key Points:
+
+• Null Avoidance: It provides a clean way to handle missing keys without manually checking for null and risking a NullPointerException.
+• No Map Modification: The  method only retrieves a value; it does not add the defaultValue to the map if the key is missing. 
+• Alternative: If you need to compute a value and automatically insert it into the map if the key is absent, you should use computeIfAbsent() instead. 
+• Availability: This method is available in Java 8 and later. 
+
+---
+---
+______________________________________________________________________________________________________________

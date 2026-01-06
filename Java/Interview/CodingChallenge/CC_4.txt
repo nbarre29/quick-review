@@ -388,6 +388,7 @@ public class Test {
 }
 ```
 
+---------------------------------------------------------------------------------------
 
 ```
 import java.util.Arrays;
@@ -408,6 +409,62 @@ public class Test {
     }
 }
 ```
+
+#### MyNotes: 
+a)  `IllegalArgumentException` is appropriate here since you're validating input data (the array's contents). However, consider these alternatives depending on your use case:
+
+**Current choice is good if:**
+- The array size/content is provided by the caller
+- You want to indicate invalid input from the caller
+
+**Alternative: `NoSuchElementException`**
+```java
+.orElseThrow(() -> new NoSuchElementException("Array must contain at least two distinct numbers"));
+```
+- More semantically accurate - indicates no element was found
+- Standard exception for stream operations
+
+**Alternative: `IllegalStateException`**
+```java
+.orElseThrow(() -> new IllegalStateException("Array must contain at least two distinct numbers"));
+```
+- Use if the array state is unexpected within your logic
+
+**Recommendation:** Stick with `IllegalArgumentException` if this is a utility method validating caller input. If this is internal logic where you expect the array to have elements, use `NoSuchElementException`.
+
+
+b) Let me explain `Supplier` in the context of `orElseThrow`:
+
+**What is a Supplier?**
+- A functional interface that takes **no arguments** and **returns a value**
+- Signature: `T get()`
+
+**In your `orElseThrow` example:**
+
+```java
+.orElseThrow(() -> new IllegalArgumentException("..."))
+```
+
+Here's what's happening:
+
+1. **`() ->`** - Empty parentheses mean "no arguments"
+2. **`new IllegalArgumentException("...")`** - The return value (an exception object)
+3. **Lambda creates the Supplier** - Equivalent to:
+
+
+**Why use a Supplier instead of passing the exception directly?**
+
+```java
+// ❌ This would create the exception immediately (wasteful if not needed)
+.orElseThrow(new IllegalArgumentException("..."))  // Won't compile anyway
+
+// ✅ This creates the exception only when needed (lazy evaluation)
+.orElseThrow(() -> new IllegalArgumentException("..."))
+```
+
+The Supplier is only executed if the `Optional` is empty. If your stream finds a value, the exception is never created, saving resources.
+
+---------------------------------------------------------------------------------------
 
 ```
 import java.util.Arrays;
@@ -524,6 +581,22 @@ b) Find the shortest string in the array using min() method
 Arrays.stream(strArray)
                 .min(Comparator.comparingInt(String::length))
                 .ifPresent(System.out::println);
+```
+
+c) 
+```
+String longestString = Arrays.stream(strArray)
+                .max(Comparator.comparingInt(String::length))
+                .orElse(null);
+        System.out.println("The longest string is: " + longestString);                
+```
+
+d)
+```
+String longestString = Arrays.stream(strArray)
+                .max(Comparator.comparingInt(String::length))
+                .orElseThrow(() -> new NoSuchElementException("Array must contain at least one string"));
+        System.out.println("The longest string is: " + longestString);
 ```
 
 ______________________________________________________________________________________

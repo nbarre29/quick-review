@@ -401,6 +401,7 @@ public class Test {
     public static void main(String[] args) {
         String[] nameArray = new String[]{"Bill", "Connor", "Joe", "John", "Mark"};
 
+        // boolean isPresent = Arrays.stream(nameArray).anyMatch(name -> "Joe".equals(name));
         boolean isPresent = Arrays.stream(nameArray).anyMatch("Joe"::equals);
 
         if (isPresent) {
@@ -417,6 +418,11 @@ public class Test {
 - `name.equals("Joe")` - Direct comparison, clearer intent
 - `"Joe"::equals` - Null-safe (won't throw NPE if `name` is null)
 - Both avoid the unnecessary `Objects.equals()` overhead
+
+#### MyNotes:
+a) String[] names = {"Bill", "Connor", "Joe", "John", "Mark"};
+Use the array initializer shorthand when declaring and initializing in the same statement; it's equivalent at runtime and more concise. If you assign to an already-declared variable later, you must use `new String[] { ... }`.
+
 ______________________________________________________________________________________
 
 //Fibonacci

@@ -367,6 +367,9 @@ public class StreamCollectDemo {
         System.out.println("\n=== Example 4: Sum of All Salaries ===");
         int totalSalary = employees.stream()
                 .collect(Collectors.summingInt(Employee::salary));
+
+        // Replace 'collect(Collectors.summingInt())' with 'mapToInt().sum()'
+        // int totalSalary = employees.stream().mapToInt(Employee::salary).sum();
         
         System.out.println("Total salary of all employees: $" + totalSalary);
 
@@ -430,6 +433,7 @@ public class StreamCollectDemo {
         System.out.println("\n=== Example 7: Partition Students (Pass/Fail) ===");
         System.out.println("Pass threshold: " + PASS_THRESHOLD);
         
+        // update the variable name to `studentsByPassStatus` that clearly expresses this is a partition of students by pass/fail status.
         Map<Boolean, List<Student>> passingFailing = students.stream()
                 .collect(Collectors.partitioningBy(s -> s.grade() >= PASS_THRESHOLD));
         

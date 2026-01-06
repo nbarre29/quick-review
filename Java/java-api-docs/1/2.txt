@@ -79,6 +79,471 @@ System.out.printf("Line 1%nLine 2%nLine 3");
 ---
 ______________________________________________________________________________________________________________
 
+==> https://dev.java/learn/api/streams/map-filter-reduce/
 
+```
+import java.time.LocalDate;
+// For clarity, consider renaming amount to quantity,
+// as it represents (number of items) rather than a monetary amount.
+public record Sale(String product, LocalDate date, int amount) {
+}
+
+
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        List<Sale> sales = List.of(
+                new Sale("Orange", LocalDate.of(2022, Month.JANUARY, 2), 4),
+                new Sale("Pumpkin", LocalDate.of(2022, Month.OCTOBER, 18), 12),
+                new Sale("Butternut", LocalDate.of(2022, Month.OCTOBER, 03), 6),
+                new Sale("Apple", LocalDate.of(2022, Month.AUGUST, 28), 3)
+        );
+
+        // Calculate the total amount sold in October
+        int amountSoldInOctober = 0;
+        for (Sale sale : sales) {
+            if (sale.date().getMonth() == Month.OCTOBER) {
+                amountSoldInOctober += sale.amount();
+            }
+        }
+
+        System.out.println("Amount sold in October: " + amountSoldInOctober);  // Amount sold in October: 18
+
+    }
+}
+```
+
+#### MyNotes:
+a) 
+```
+int amountSoldInOctober = 0;
+        for (Sale sale : sales) {
+            if (sale.date().getMonth() == Month.OCTOBER) {
+                amountSoldInOctober += sale.amount();
+            }
+        }
+```   
+
+above code can be rewritten with Stream API:
+```
+int amountSoldInOctober = sales.stream()
+                .filter(sale -> sale.date().getMonth() == Month.OCTOBER)
+                .mapToInt(Sale::amount)
+                .sum();
+```
+
+---
+---
+______________________________________________________________________________________________________________
+
+==> https://dev.java/learn/api/streams/map-filter-reduce/
+
+```
+public record City(int population) {
+}
+
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        List<City> cities =
+                List.of(
+                        new City(100_000),
+                        new City(200_000),
+                        new City(500_000));
+
+        int sum = 0;
+        for (City city: cities) {
+            int population = city.population();
+            if (population > 100_000) {
+                sum += population;
+            }
+        }
+
+        System.out.println("Total population of cities with more than 100,000 inhabitants: " + sum);
+    }
+}
+```
+
+#### Output:
+```
+Total population of cities with more than 100,000 inhabitants: 700000
+```
+
+#### MyNotes:
+a) 
+```
+int sum = 0;
+        for (City city: cities) {
+            int population = city.population();
+            if (population > 100_000) {
+                sum += population;
+```				
+
+above code can be rewritten with Stream API:
+```
+int sum = cities.stream()
+                .mapToInt(City::population)
+                .filter(population -> population > 100_000)
+                .sum();
+```
+
+---
+---
+______________________________________________________________________________________________________________
+
+==> Let us see the `flatMap` operation in an example.
+https://dev.java/learn/api/streams/intermediate-operation/
+
+```
+public record City(String name, int population) {
+}
+
+
+import java.util.List;
+
+public record Country(String name, List<City> cities) {
+}
+
+
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        City newYork= new City("New York", 8_258);
+        City losAngeles = new City("Los Angeles", 3_821);
+        Country usa = new Country("USA", List.of(newYork, losAngeles));
+
+        City london = new City("London", 8_866);
+        City manchester = new City("Manchester", 568);
+        Country uk = new Country("United Kindgom", List.of(london, manchester));
+
+        City paris = new City("Paris", 2_103);
+        City marseille = new City("Marseille", 877);
+        Country france = new Country("France", List.of(paris, marseille));
+
+        List<Country> countries = List.of(usa, uk, france);
+
+        int totalPopulation = 0;
+        for (Country country: countries) {
+            for (City city: country.cities()) {
+                totalPopulation += city.population();
+            }
+        }
+
+        System.out.println("Total population across all countries: " + totalPopulation);
+
+    }
+}
+```
+
+#### Output:
+```
+Total population across all countries: 24493K
+```
+
+#### MyNotes:
+a) 
+```
+int totalPopulation = 0;
+        for (Country country: countries) {
+            for (City city: country.cities()) {
+                totalPopulation += city.population();
+            }
+        }
+```				
+
+above code can be rewritten with Stream API:
+```
+int totalPopulation =
+                countries.stream()
+                        .flatMap(country -> country.cities().stream())
+                        .mapToInt(City::population)
+                        .sum();
+```
+
+
+b) It's perfectly fine to use underscores (`_`) in numeric literals in Java. This feature was introduced in **Java 7** to improve readability of large numbers.
+
+The underscores are ignored by the compiler and serve only as visual separators. You can place them between digits to make numbers easier to read:
+
+```java
+int largeNumber = 1_000_000;  // One million
+int phoneNumber = 555_123_4567;
+double pi = 3.141_592_653_589;
+```
+
+**Rules for using underscores:**
+- Can only be placed between digits
+- Cannot be at the beginning or end of a number
+- Cannot be adjacent to a decimal point
+
+In your code, `8_258` represents 8,258 (eight thousand two hundred fifty-eight), which is a common way to separate thousands for better readability.
+
+
+c)  // Print the names of all cities with a population greater than 8000
+        countries.stream()
+                .flatMap(country -> country.cities().stream())
+                .filter(city -> city.population() > 8_000)
+                .forEach(city -> System.out.println(city.name() + ": " + city.population()));
+
+
+d) // Find and print the city with the highest population
+        countries.stream()
+                .flatMap(country -> country.cities().stream())
+                .max(Comparator.comparingInt(City::population))
+                .ifPresent(city -> System.out.println("City with highest population: " + city.name() + " (" + city.population() + ")"));
+
+
+d.1) 
+```
+// find and print the city with the highest population
+        City mostPopulousCity = countries.stream()
+                .flatMap(country -> country.cities().stream())
+                .max((city1, city2) -> Integer.compare(city1.population(), city2.population()))
+                .orElse(null);
+
+        if (mostPopulousCity != null) {
+            System.out.println("The most populous city is " + mostPopulousCity.name() + " with a population of " + mostPopulousCity.population());
+        } else {
+            System.out.println("No cities found.");
+        }
+```
+
+
+e) // calculate and print the average population of cities in each country
+        countries.forEach(country -> {
+            double averagePopulation = country.cities().stream()
+                    .mapToInt(City::population)
+                    .average()
+                    .orElse(0);
+            System.out.println("Average population in " + country.name() + ": " + averagePopulation);
+        });
+
+
+f) 
+- Combined all country declarations into a single `List.of()` call
+- Inlined all `City` and `Country` object creation
+
+```
+List<Country> countries = List.of(
+    new Country("USA", List.of(
+        new City("New York", 8_258),
+        new City("Los Angeles", 3_821)
+    )),
+    new Country("United Kingdom", List.of(
+        new City("London", 8_866),
+        new City("Manchester", 568)
+    )),
+    new Country("France", List.of(
+        new City("Paris", 2_103),
+        new City("Marseille", 877)
+    ))
+);
+```
+
+---
+---
+______________________________________________________________________________________________________________
+
+==> Example program to calculate age in years, months, days, and total days
+https://dev.java/learn/date-time/period-duration/
+
+```
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.Period;
+import java.time.temporal.ChronoUnit;
+
+public class Main {
+    public static void main(String[] args) {
+        LocalDate today = LocalDate.now();
+        LocalDate birthday = LocalDate.of(1980, Month.DECEMBER, 29);
+
+        Period p = Period.between(birthday, today);
+        long p2 = ChronoUnit.DAYS.between(birthday, today);
+        System.out.println("You are " + p.getYears() + " years, " + p.getMonths() +
+                " months, and " + p.getDays() +
+                " days old. (" + p2 + " days total)");
+
+    }
+
+}
+```
+
+#### Output:
+```
+You are 44 years, 11 months, and 28 days old. (16434 days total)
+```
+
+---
+---
+______________________________________________________________________________________________________________
+
+==> To calculate how long it is until your next birthday
+https://dev.java/learn/date-time/period-duration/
+
+```
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.Period;
+import java.time.temporal.ChronoUnit;
+
+/**
+ * This program calculates the time remaining until the user's next birthday.
+ * It uses the `LocalDate` class to handle dates, the `Period` class to calculate
+ * the difference in months and days, and the `ChronoUnit` class to calculate
+ * the total number of days.
+ */
+public class Main {
+    public static void main(String[] args) {
+
+        // Get the current date
+        LocalDate today = LocalDate.now();
+
+        // Define the user's birthday (year is arbitrary, only month and day are relevant)
+        LocalDate birthday = LocalDate.of(1960, Month.JANUARY, 1);
+
+        // Adjust the birthday to the current year
+        LocalDate nextBDay = birthday.withYear(today.getYear());
+
+        // If the birthday has already occurred this year, move it to the next year
+        if (nextBDay.isBefore(today) || nextBDay.isEqual(today)) {
+            nextBDay = nextBDay.plusYears(1);
+        }
+
+        // Calculate the period (months and days) between today and the next birthday
+        Period p = Period.between(today, nextBDay);
+
+        // Calculate the total number of days between today and the next birthday
+        long p2 = ChronoUnit.DAYS.between(today, nextBDay);
+
+        System.out.println("There are " + p.getMonths() + " months, and " +
+                p.getDays() + " days until your next birthday. (" +
+                p2 + " total)");
+    }
+}
+```
+
+#### Output:
+```
+There are 0 months, and 5 days until your next birthday. (5 total)
+```
+
+---
+---
+______________________________________________________________________________________________________________
+
+==> 
+
+Above program is updated, that accounts for time zone differences using `Period` with `ZonedDateTime`:
+
+```
+import java.time.*;
+import java.time.temporal.ChronoUnit;
+
+/**
+ * This program calculates the time remaining until the user's next birthday.
+ * It uses the `ZonedDateTime` class to handle dates with time zone information,
+ * the `Period` class to calculate the difference in months and days, and the
+ * `ChronoUnit` class to calculate the total number of days.
+ */
+public class Main {
+    public static void main(String[] args) {
+
+        // Get the current date and time in the system's default time zone
+        ZonedDateTime today = ZonedDateTime.now();
+
+        // Define the user's birthday with time zone (year is arbitrary, only month and day are relevant)
+        ZonedDateTime birthday = ZonedDateTime.of(1960, Month.JANUARY.getValue(), 1, 0, 0, 0, 0, ZoneId.systemDefault());
+
+        // Adjust the birthday to the current year
+        ZonedDateTime nextBDay = birthday.withYear(today.getYear());
+
+        // If the birthday has already occurred this year, move it to the next year
+        if (nextBDay.isBefore(today) || nextBDay.isEqual(today)) {
+            nextBDay = nextBDay.plusYears(1);
+        }
+
+        // Calculate the period (months and days) between today and the next birthday
+        Period p = Period.between(today.toLocalDate(), nextBDay.toLocalDate());
+
+        // Calculate the total number of days between today and the next birthday
+        long p2 = ChronoUnit.DAYS.between(today, nextBDay);
+
+        // Print the results with time zone information
+        System.out.println("There are " + p.getMonths() + " months, and " +
+                p.getDays() + " days until your next birthday. (" +
+                p2 + " total)");
+        System.out.println("Time zone: " + today.getZone());
+    }
+}
+
+```
+
+The key changes:
+- Replaced `LocalDate` with `ZonedDateTime` to include time zone information
+- Used `ZoneId.systemDefault()` to get the system's time zone
+- Converted `ZonedDateTime` to `LocalDate` when calculating the `Period`
+- Added output showing the time zone being used
+
+---
+---
+______________________________________________________________________________________________________________
+
+==> Above program is updated with Japan's time zone:
+
+```java
+import java.time.*;
+import java.time.temporal.ChronoUnit;
+
+/**
+ * This program calculates the time remaining until the user's next birthday.
+ * It uses the `ZonedDateTime` class to handle dates with time zone information,
+ * the `Period` class to calculate the difference in months and days, and the
+ * `ChronoUnit` class to calculate the total number of days.
+ */
+public class Main {
+    public static void main(String[] args) {
+
+        // Get the current date and time in Japan's time zone
+        ZonedDateTime today = ZonedDateTime.now(ZoneId.of("Asia/Tokyo"));
+
+        // Define the user's birthday with Japan's time zone (year is arbitrary, only month and day are relevant)
+        ZonedDateTime birthday = ZonedDateTime.of(1960, Month.JANUARY.getValue(), 1, 0, 0, 0, 0, ZoneId.of("Asia/Tokyo"));
+
+        // Adjust the birthday to the current year
+        ZonedDateTime nextBDay = birthday.withYear(today.getYear());
+
+        // If the birthday has already occurred this year, move it to the next year
+        if (nextBDay.isBefore(today) || nextBDay.isEqual(today)) {
+            nextBDay = nextBDay.plusYears(1);
+        }
+
+        // Calculate the period (months and days) between today and the next birthday
+        Period p = Period.between(today.toLocalDate(), nextBDay.toLocalDate());
+
+        // Calculate the total number of days between today and the next birthday
+        long p2 = ChronoUnit.DAYS.between(today, nextBDay);
+
+        // Print the results with time zone information
+        System.out.println("There are " + p.getMonths() + " months, and " +
+                p.getDays() + " days until your next birthday. (" +
+                p2 + " total)");
+        System.out.println("Time zone: " + today.getZone());
+    }
+}
+```
+
+The key changes:
+- Replaced `ZoneId.systemDefault()` with `ZoneId.of("Asia/Tokyo")` for Japan's time zone
+- Applied the change to both the `today` and `birthday` variables
+
+---
+---
+______________________________________________________________________________________________________________
 
 

@@ -457,7 +457,7 @@ public class EnumComparisonDemo {
         USState state = USState.TX;
         
         if(state == USState.TX) {
-            System.out.println("State is Texas(usiing == operator)");
+            System.out.println("State is Texas(using == operator)");
         }
 
         // Although this works, it is not the preferred way to compare enums 

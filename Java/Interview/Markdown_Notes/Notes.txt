@@ -94,7 +94,7 @@ What is ForkJoinPool?
 
 ## 7️⃣ **Immutability & Design Concepts**
 
-⭐ How to create an immutable class?
+⭐ How to create an immutable class?		DONE
 ⭐ Why are wrapper classes immutable?
 ⭐ Why is immutability important in concurrency?
 What is defensive copying?

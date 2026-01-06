@@ -36,10 +36,28 @@ public class EnumMapExample {
         // Step 4: Retrieve values
         System.out.println("Wednesday Plan: " + timetable.get(Day.WEDNESDAY));
 
-        // Step 5: Iterate through entries
+        // Step 5: Print the timetable
         System.out.println("\nFull Timetable:");
         for (Map.Entry<Day, String> entry : timetable.entrySet()) {
             System.out.println(entry.getKey() + " : " + entry.getValue());
+        }
+
+        // Step 5.1: Print the timetable
+        for (Day day : Day.values()) {
+            String activity = timetable.get(day);
+            if (activity != null) {
+                System.out.println(day + ": " + activity);
+            } else {
+                System.out.println(day + ": No activities planned");
+            }
+        }
+
+        // Step 5.1.1: Print the timetable
+        // we can use `getOrDefault` to simplify retrieval with a default value
+        // eliminates the explicit null check by providing a default value when the key is not found in the map.
+        for (Day day : Day.values()) {
+            String activity = timetable.getOrDefault(day, "No activities planned");
+            System.out.println(day + ": " + activity);
         }
 
         // Step 6: Check if a key exists

@@ -25,4 +25,4 @@ LinkedList - for frequent insertions and deletions`
 
 I have the above answer to prefer LinkedList for frequent additions. but you say that LinkedList is rarely used nowadays.  I'm confused now .
 
-#### 10) 
+#### 10) To make a class immutable

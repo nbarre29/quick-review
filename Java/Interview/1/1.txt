@@ -149,6 +149,68 @@ double totalEngineeringSalary = employees.stream()
         System.out.println("Total salary for Engineering department: " + totalEngineeringSalary);
 ```
 
+e) Using `Comparator.comparingDouble` is better than `Comparator.comparing` in this case because:
+
+1. **Avoids boxing overhead**: `Comparator.comparingDouble` works directly with primitive `double` values, while `Comparator.comparing` would box the `double` into a `Double` object for each comparison.
+
+2. **Better performance**: By avoiding autoboxing, you eliminate unnecessary object creation and garbage collection pressure, especially when processing large collections.
+
+3. **Type safety**: It explicitly indicates you're comparing primitive double values, making the intent clearer.
+
+
+f) // Calculate total salary by department
+        Map<String, Double> totalSalaryByDepartment = employees.stream()
+                .collect(Collectors.groupingBy(Employee::department, Collectors.summingDouble(Employee::salary)));
+
+        totalSalaryByDepartment.forEach((department, totalSalary) ->
+                System.out.println("Department: " + department + ", Total Salary: " + totalSalary));
+
+
+g) Here's an example using `Collectors.summarizingDouble()` which provides statistics (count, sum, min, average, max) in a single operation:
+
+```
+// Using summarizingDouble to get comprehensive statistics
+        Map<String, DoubleSummaryStatistics> salaryStatsByDepartment = employees.stream()
+                .collect(Collectors.groupingBy(
+                        Employee::department,
+                        Collectors.summarizingDouble(Employee::salary)
+                ));
+
+        // Print the statistics for each department
+        salaryStatsByDepartment.forEach((department, stats) -> {
+            System.out.println("Department: " + department);
+            System.out.println("Count: " + stats.getCount());
+            System.out.println("Sum: " + stats.getSum());
+            System.out.println("Min: " + stats.getMin());
+            System.out.println("Average: " + stats.getAverage());
+            System.out.println("Max: " + stats.getMax());
+            System.out.println();
+        });
+
+        // You can also use it without grouping for overall statistics
+        DoubleSummaryStatistics overallStats = employees.stream()
+                .collect(Collectors.summarizingDouble(Employee::salary));
+
+        System.out.println("Overall Salary Statistics:");
+        System.out.println("Total Employees: " + overallStats.getCount());
+        System.out.println("Total Salary: " + overallStats.getSum());
+        System.out.println("Average Salary: " + overallStats.getAverage());
+```
+
+The `summarizingDouble()` collector returns a `DoubleSummaryStatistics` object that contains count, sum, min, average, and max values, eliminating the need for multiple collection operations.
+
+h) Compute sum of salaries of employees
+```
+Double totalSalary = employees.stream()
+                .collect(Collectors.summingDouble(Employee::salary));
+```
+
+Replace 'collect(Collectors.summingDouble())' with 'mapToDouble().sum()'
+```
+double totalSalary = employees.stream().mapToDouble(Employee::salary).sum();
+```
+
+
 REFERENCE:
 https://www.youtube.com/watch?v=JVRy0IKLH0A
 

@@ -854,6 +854,7 @@ public class BooleanStreamsDemo {
         System.out.println("Original list: " + flags);
         
         // Count how many are TRUE
+        // `.filter(flag -> flag.equals(Boolean.TRUE))` will result in NullPointerException, so use `.filter(flag -> Boolean.TRUE.equals(flag))`
         long trueCount = flags.stream()
                               .filter(Boolean.TRUE::equals)     // .filter(flag -> Boolean.TRUE.equals(flag))
                               .count();

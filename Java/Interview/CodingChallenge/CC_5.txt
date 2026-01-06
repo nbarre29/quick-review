@@ -351,7 +351,8 @@ public class Test {
     public static void main(String[] args) {
         String str = "Naveen";
 
-        long vowelCount = str.toLowerCase().chars()
+        long vowelCount = str.toLowerCase()
+                .chars()
                 .filter(ch -> "aeiou".indexOf(ch) != -1)
                 .count();
 
@@ -533,13 +534,13 @@ public record Person(String name, int age) implements Comparable<Person> {
     @Override
     public int compareTo(Person other) {
         return Integer.compare(this.age, other.age);
-		// return Integer.compare(this.age(), other.age());  // better to use accessor methods
-		// return Integer.compare(other.age(), this.age()); // sorts in desc order of age
+		// return Integer.compare(this.age(), other.age());  // within in record accessor methods are not required, use accessor methods from outside the record
+		// return Integer.compare(other.age, this.age); // sorts in desc order of age
     }
 
 //    // Sort by name
 //    @Override
-//    public int compareTo(Person other) {
+//    public int compareTo(Person other) {    
 //        return this.name().compareTo(other.name());
 //    }
 }
