@@ -219,6 +219,25 @@ List<Person> adults = peopleByCity
 **5. Type Safety**
 - Default value matches the expected type, avoiding casting issues
 
+
+#### MyNotes:
+a) Suggest some better variable names for `peopleByCity`
+
+Based on the context of your code, here are some better variable names for `peopleByCity`:
+
+- **`personsByCity`** - more grammatically correct (singular noun for the type)
+- **`cityResidents`** - concise and descriptive
+- **`cityPopulation`** - emphasizes the demographic aspect
+- **`residents`** - simpler, if the city context is obvious
+
+I'd recommend **`personsByCity`** since it follows Java naming conventions better (the map contains `Person` objects, so the singular form is preferred):
+
+```java
+Map<String, List<Person>> personsByCity = new HashMap<>();
+```
+
+This aligns with common Java collection naming patterns where you use the singular form of the element type followed by the grouping criterion (e.g., `employeesByDepartment`, `ordersByCustomer`).
+
 ---
 ---
 --------------------------------------------------------------------------------------------------------------
@@ -235,9 +254,9 @@ public class ResultMapWithDefaultsExample {
 
     public static void main(String[] args) {
         // Existing data (some keys may be missing)
-        Map<String, List<String>> categories = new HashMap<>();
-        categories.put("fruits", List.of("apple", "banana"));
-        categories.put("dairy", List.of("milk", "cheese"));
+        Map<String, List<String>> existingCategories = new HashMap<>();
+        existingCategories.put("fruits", List.of("apple", "banana"));
+        existingCategories.put("dairy", List.of("milk", "cheese"));
         // note: "vegetables" is intentionally missing
 
         // Keys we want in the result map no matter what
@@ -247,10 +266,10 @@ public class ResultMapWithDefaultsExample {
         Map<String, List<String>> result = keys.stream()
                 .collect(Collectors.toMap(
                         key -> key,
-                        key -> categories.getOrDefault(key, List.of())
+                        key -> existingCategories.getOrDefault(key, List.of())
                 ));
 
-        System.out.println("categories = " + categories);
+        System.out.println("existingCategories = " + existingCategories);
         System.out.println("keys       = " + keys);
         System.out.println("result     = " + result);
     }
@@ -259,7 +278,7 @@ public class ResultMapWithDefaultsExample {
 
 #### Output:
 ```
-categories = {fruits=[apple, banana], dairy=[milk, cheese]}
+existingCategories = {fruits=[apple, banana], dairy=[milk, cheese]}
 keys       = [fruits, vegetables, dairy]
 result     = {fruits=[apple, banana], vegetables=[], dairy=[milk, cheese]}
 ```
@@ -510,6 +529,24 @@ public class RoleBasedPermissionsWithDefaultsExample {
 Admin permissions: [delete, read, write]
 Guest permissions: [read]
 ```
+
+#### MyNotes:
+a) Suggest a better for `rolePermissions`
+
+Based on the context of your code, here are some better variable names for `rolePermissions`:
+
+- **`permissionsByRole`** - follows the common "by" pattern, emphasizing the grouping
+- **`roleToPermissions`** - explicitly shows the mapping relationship
+- **`permissions`** - simpler, if the role context is clear
+- **`accessRights`** - more domain-specific alternative
+
+I'd recommend **`permissionsByRole`** since it follows Java naming conventions and makes the map's structure clearer:
+
+```java
+Map<String, Set<String>> permissionsByRole = new HashMap<>();
+```
+
+This aligns with the pattern used in your previous examples (`personsByCity`, `sourceCategories`) where the value type comes first, followed by the grouping key.
 
 ---
 ---

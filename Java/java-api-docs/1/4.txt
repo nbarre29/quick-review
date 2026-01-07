@@ -1,0 +1,42 @@
+==> https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Set.html#of(E...)
+why there are so many Set.of overloaded methods?  Using varargs `Set.of(E... elements)` is sufficient right ?
+
+You're absolutely right to question this! Using varargs `Set.of(E... elements)` would be simpler, but Java chose this design for **performance reasons**. Here's why:
+
+## The Problem with Varargs
+
+When you call a varargs method, Java creates an array behind the scenes:
+
+```java
+Set.of(1, 2, 3)  // Creates: new Object[]{1, 2, 3}
+```
+
+This array allocation:
+- Takes time and memory
+- Creates garbage for the GC to clean up
+- Happens on **every single call**
+
+## The Solution: Fixed-Arity Overloads
+
+By providing overloads for 0-10 arguments, Java avoids array creation for the most common cases:
+
+```java
+Set.of(1, 2, 3)  // Calls: Set.of(E, E, E) - no array!
+```
+
+These fixed-arity methods can pass arguments directly without any allocation overhead.
+
+## The Design Choice
+
+- **Set.of(E)** through **Set.of(E, E, E, E, E, E, E, E, E, E)** - cover 0-10 elements efficiently
+- **Set.of(E...)** - handles 11+ elements (rare case where the cost is acceptable)
+
+## Why It Matters
+
+`Set.of()` is used extensively in performance-sensitive code. Since most sets created this way are small (1-5 elements), avoiding array allocation makes a measurable difference in real-world applications.
+
+**Trade-off:** More verbose API for better performance in the common case. Java decided the performance gain was worth the API clutter.
+
+---
+---
+______________________________________________________________________________________________________________
