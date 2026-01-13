@@ -40,3 +40,55 @@ These fixed-arity methods can pass arguments directly without any allocation ove
 ---
 ---
 ______________________________________________________________________________________________________________
+
+==> Stream.peek(...)
+
+**per the Java SE  Stream Javadoc, `Stream.peek(...)` exists mainly to support debugging**. The Javadoc explicitly says:
+
+> “This method exists mainly to support debugging…”
+
+A couple of important implications (also from the docs):
+
+* `peek` is an **intermediate operation** intended for **side-effects**, so it should be used carefully. (https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/stream/package-summary.html#SideEffects)
+* In **parallel streams**, the action can run in **different threads / timing**, so using it for anything other than simple logging can be risky.
+
+https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/stream/Stream.html
+
+
+## **Java Stream `peek()` - Debugging Focus**
+
+```
+import java.util.List;
+
+public class PeekExample {
+
+    public static void main(String[] args) {
+        List<String> list = List.of("Apple", "Banana", "Avocado", "Apricot", "berry");
+
+        List<String> result = list.stream()
+                .filter(s -> s.startsWith("A"))
+                .peek(s -> System.out.println("Filtered: " + s))  // Debug (after filter)
+                .map(String::toUpperCase)
+                .peek(s -> System.out.println("Mapped:   " + s))  // Debug (after map)
+                .toList();
+
+        System.out.println("Final result: " + result);
+    }
+}
+```
+
+#### Output:
+```
+Filtered: Apple
+Mapped:   APPLE
+Filtered: Avocado
+Mapped:   AVOCADO
+Filtered: Apricot
+Mapped:   APRICOT
+Final result: [APPLE, AVOCADO, APRICOT]
+```
+
+---
+---
+______________________________________________________________________________________________________________
+

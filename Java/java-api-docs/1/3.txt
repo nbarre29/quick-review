@@ -548,6 +548,49 @@ Map<String, Set<String>> permissionsByRole = new HashMap<>();
 
 This aligns with the pattern used in your previous examples (`personsByCity`, `sourceCategories`) where the value type comes first, followed by the grouping key.
 
+
+b) Refactoring: Extract string literals and permissions sets into constants, making the code more maintainable and reducing the risk of typos:
+
+In IntelliJ, use the shortcut `Ctrl + Alt + C` or right click -> Refactor -> Introduce Constant
+
+
+```
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+public class RoleBasedPermissionsWithDefaultsExample {
+
+    // ---- Role constants (avoid typos like "admn") ----
+    public static final String ADMIN = "admin";
+    public static final String USER = "user";
+    public static final String GUEST = "guest";
+
+    // ---- Reusable permission sets ----
+    public static final Set<String> ADMIN_PERMISSIONS = Set.of("read", "write", "delete");
+    public static final Set<String> USER_PERMISSIONS = Set.of("read");
+    public static final Set<String> GUEST_DEFAULT_PERMISSIONS = Set.of("read");
+
+    public static void main(String[] args) {
+        Map<String, Set<String>> rolePermissions = new HashMap<>();
+        rolePermissions.put(ADMIN, ADMIN_PERMISSIONS);
+        rolePermissions.put(USER, USER_PERMISSIONS);
+
+        // If the role exists, you get its permissions
+        Set<String> adminPerms = rolePermissions.getOrDefault(ADMIN, Set.of());
+
+        // If the role does NOT exist, you get the default you provide
+        Set<String> guestPerms = rolePermissions.getOrDefault(GUEST, GUEST_DEFAULT_PERMISSIONS);
+
+        System.out.println("Admin permissions: " + adminPerms);
+        System.out.println("Guest permissions: " + guestPerms);
+
+        // Optional: show that Set.of(...) is immutable (would throw UnsupportedOperationException)
+        // guestPerms.add("write");
+    }
+}
+```
+
 ---
 ---
 --------------------------------------------------------------------------------------------------------------
@@ -617,6 +660,180 @@ Key Points:
 • No Map Modification: The  method only retrieves a value; it does not add the defaultValue to the map if the key is missing. 
 • Alternative: If you need to compute a value and automatically insert it into the map if the key is absent, you should use computeIfAbsent() instead. 
 • Availability: This method is available in Java 8 and later. 
+
+---
+---
+--------------------------------------------------------------------------------------------------------------
+
+==> getOrDefault: count word occurrences in a string
+
+```
+import java.util.HashMap;
+import java.util.Map;
+
+public class WordCountDemo {
+    public static void main(String[] args) {
+        Map<String, Integer> wordCounts = new HashMap<>();
+        String text = "apple banana apple orange banana apple";
+        String[] words = text.split(" ");
+
+        for (String word : words) {
+            // Get the current count for the word, or 0 if not present, then increment
+            wordCounts.put(word, wordCounts.getOrDefault(word, 0) + 1);
+        }
+
+        System.out.println("Word counts: " + wordCounts);
+
+    }
+}
+```
+
+#### Output:
+```
+Word counts: {banana=2, orange=1, apple=3}
+```
+
+MyNotes: 
+a)  You can iterate directly over `text.split(" ")` without storing it in a variable.
+
+**Direct iteration:**
+```
+for (String word : text.split(" ")) {
+            // Get the current count for the word, or 0 if not present, then increment
+            wordCounts.put(word, wordCounts.getOrDefault(word, 0) + 1);
+        }
+```
+
+**Performance Impact:**
+- **No significant difference** for single use - the array is created once either way
+- **Better readability** - eliminates an unnecessary variable when used only once
+- **Worse if reused** - if you need to iterate multiple times, storing it in a variable avoids re-splitting
+
+In your case, since the array is only used once, iterating directly is **fine and preferred** for cleaner code. The performance difference is negligible.
+
+However, if you later need to access `words.length` or iterate multiple times, keep the variable to avoid redundant string splitting operations.
+
+
+b) without getOrDefault
+```
+for (String word : text.split(" ")) {
+            if (wordCounts.containsKey(word)) {
+                wordCounts.put(word, wordCounts.get(word) + 1);
+            } else {
+                wordCounts.put(word, 1);
+            }
+        }
+```
+---
+---
+--------------------------------------------------------------------------------------------------------------
+
+==> In the above code for counting word frequencies, `Map` is **not** overkill—it's the right tool. The `getOrDefault()` pattern is clean and efficient the standard, idiomatic approach in Java. However, there are a few alternatives depending on your needs:
+
+## Why Map is Actually Good Here
+
+The `HashMap` approach is:
+- **Simple and readable** - clear what's happening
+- **Efficient** - O(1) average lookups and insertions
+- **Standard practice** - any Java developer will understand it immediately
+
+## Other Alternatives 
+
+**1. Use `merge()` - more concise:**
+```
+import java.util.HashMap;
+import java.util.Map;
+
+public class WordCountDemo {
+    public static void main(String[] args) {
+        Map<String, Integer> wordCounts = new HashMap<>();
+        String text = "apple banana apple orange banana apple";
+
+        // 1. Use merge() - more concise:
+        for (String word : text.split(" ")) {
+            wordCounts.merge(word, 1, Integer::sum);
+        }
+
+        System.out.println("Word counts: " + wordCounts);
+
+    }
+}
+```
+This is cleaner but does the same thing under the hood.
+
+
+**2. Use `compute()` or `computeIfAbsent()`:**
+```
+import java.util.HashMap;
+import java.util.Map;
+
+public class WordCountDemo {
+    public static void main(String[] args) {
+        Map<String, Integer> wordCounts = new HashMap<>();
+        String text = "apple banana apple orange banana apple";
+
+        for (String word : text.split(" ")) {
+            wordCounts.compute(word, (k, v) -> v == null ? 1 : v + 1);
+        }
+
+        System.out.println("Word counts: " + wordCounts);
+
+    }
+}
+```
+
+
+```
+import java.util.HashMap;
+import java.util.Map;
+
+public class WordCountDemo {
+    public static void main(String[] args) {
+        Map<String, Integer> wordCounts = new HashMap<>();
+        String text = "apple banana apple orange banana apple";
+
+        for (String word : text.split(" ")) {
+            wordCounts.computeIfAbsent(word, k -> 0);
+            wordCounts.put(word, wordCounts.get(word) + 1);
+        }
+
+
+        System.out.println("Word counts: " + wordCounts);
+
+    }
+}
+```
+
+**3. Use streams (if you want functional style):**
+```java
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class WordCountDemo {
+    public static void main(String[] args) {
+
+        String text = "apple banana apple orange banana apple";
+
+        Map<String, Long> wordCounts = Arrays.stream(text.split(" "))
+                .collect(Collectors.groupingBy(w -> w, Collectors.counting()));
+
+
+        System.out.println("Word counts: " + wordCounts);
+
+    }
+}
+```
+This approach is more functional and concise. Note that the count type is now `Long` instead of `Integer` because `Collectors.counting()` returns `Long` values.
+
+
+**4. For very simple cases, use an array (if words are limited):**
+Only works if you know all possible words in advance—not practical for general text.
+
+## The Verdict
+
+For counting word frequencies, `Map` is **not** overkill—it's the right tool. The `getOrDefault()` pattern is clean and efficient. If anything, consider using `merge()` for slightly more elegance, but what you have is perfectly fine and actually the recommended approach!
+
 
 ---
 ---
