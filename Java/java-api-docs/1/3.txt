@@ -838,3 +838,289 @@ For counting word frequencies, `Map` is **not** overkill—it's the right tool. 
 ---
 ---
 ______________________________________________________________________________________________________________
+
+==> `Map.getOrDefault(key, defaultValue)`  Vs  `Map.merge(key, value, remappingFunction)`
+
+`Map.merge()` and `Map.getOrDefault()` serve different purposes in Java’s `Map` interface. The key difference is that `getOrDefault()` only retrieves a value, whereas `merge()` can update the map’s content. 
+
+---
+
+### `Map.getOrDefault(key, defaultValue)`
+
+* **Purpose:** Returns the value for `key` if it exists; otherwise returns the provided `defaultValue`. 
+* **Action:** Read-only with respect to the map (does **not** add/remove/modify entries). 
+* **Use case:** When you want a safe default for *temporary use* without changing map state (e.g., display). 
+
+**Example (count lookup without modifying map):** 
+
+```
+import java.util.HashMap;
+import java.util.Map;
+
+public class FruitCountDemo {
+    public static void main(String[] args) {
+
+        Map<String, Integer> fruitCounts = new HashMap<>();
+        fruitCounts.put("apple", 3);
+        fruitCounts.put("cherry", 2);
+
+        // Get the count for "apple", return 0 if not present, but don't add to map
+        int appleCount = fruitCounts.getOrDefault("apple", 0);
+        System.out.println("Apple count (may not be in map): " + appleCount);
+
+        // Get the count for "banana", return 0 if not present
+        int bananaCount = fruitCounts.getOrDefault("banana", 0);
+        System.out.println("Banana count (may not be in map): " + bananaCount);
+
+    }
+}
+```
+
+#### Output:
+```
+Apple count (may not be in map): 3
+Banana count (may not be in map): 0
+```
+
+---
+
+### `Map.merge(key, value, remappingFunction)`
+
+**Behavior:**
+* If `key` is **not present**, it inserts the given `value` directly (no remapping function is called).
+* If `key` is **present**, it applies the `remappingFunction` to `(oldValue, newValue)` and:
+  * If the result is **non-null**, replaces the old value with the computed result.
+  * If the result is **null**, removes the key from the map.
+
+* **Use case:** Great for accumulation patterns (like word-frequency counting) in a single concise operation. 
+
+**Example (counting occurrences):** 
+
+```
+import java.util.HashMap;
+import java.util.Map;
+
+public class FruitCountDemo {
+    public static void main(String[] args) {
+
+        Map<String, Integer> fruitCounts = new HashMap<>();
+        fruitCounts.put("apple", 3);
+        fruitCounts.put("cherry", 2);
+
+        String fruit = "apple";
+        Integer count = fruitCounts.merge(fruit, 1, Integer::sum);
+        System.out.println("Count for " + fruit + ": " + count);
+
+        fruitCounts.merge("banana", 1, Integer::sum);
+        System.out.println("Count for banana: " + fruitCounts.get("banana"));
+
+    }
+}
+```
+
+#### Output:
+```
+Count for apple: 4
+Count for banana: 1
+```
+
+---
+
+### Summary of differences 
+
+| Feature                            | `getOrDefault()`              | `merge()`                                                |
+| ---------------------------------- | ----------------------------- | -------------------------------------------------------- |
+| Modifies map                       | No                            | Yes                                                      |
+| Return value                       | Value for key, or default     | New value for key (or `null` if removed by the function) |
+| Function use                       | None                          | Uses a remapping function                                |
+| Synchronization / concurrency note | Depends on map implementation | Can be safer with concurrent map implementations         |
+
+
+---
+---
+______________________________________________________________________________________________________________
+
+==>  `Map.merge(key, value, remappingFunction)`:  Here's a complete example demonstrating the null-result behavior:
+```
+import java.util.HashMap;
+import java.util.Map;
+
+public class MapMergeExample {
+    public static void main(String[] args) {
+        Map<String, Integer> inventory = new HashMap<>();
+        inventory.put("apples", 10);
+        inventory.put("bananas", 5);
+        inventory.put("oranges", 3);
+
+        System.out.println("Initial inventory: " + inventory);
+        // Output: {apples=10, bananas=5, oranges=3}
+
+        // Example: Remove item if stock falls to zero or below
+        // Key "apples" is PRESENT (value = 10)
+        // We try to remove 10 items
+        inventory.merge("apples", -10, (oldStock, change) -> {
+            int newStock = oldStock + change;
+            System.out.println("Old stock: " + oldStock + ", Change: " + change + ", New stock: " + newStock);
+            // If stock reaches 0 or below, return null to remove the entry
+            return newStock <= 0 ? null : newStock;
+        });
+
+        System.out.println("After removing 10 apples: " + inventory);
+        // Output: {bananas=5, oranges=3}
+        // "apples" key was REMOVED because the function returned null
+
+        System.out.println("\n--- Another Example ---");
+
+        // Remove bananas by intentionally returning null
+        inventory.merge("bananas", 100, (oldVal, newVal) -> {
+            System.out.println("Intentionally returning null to remove 'bananas'");
+            return null;  // This removes the key
+        });
+
+        System.out.println("After merge with null result: " + inventory);
+        // Output: {oranges=3}
+        // "bananas" was removed
+    }
+}
+```
+
+#### Output:
+```
+Initial inventory: {oranges=3, bananas=5, apples=10}
+Old stock: 10, Change: -10, New stock: 0
+After removing 10 apples: {oranges=3, bananas=5}
+
+--- Another Example ---
+Intentionally returning null to remove 'bananas'
+After merge with null result: {oranges=3}
+```
+
+**Key Points:**
+- The key **must be present** for the remapping function to be called
+- When the function returns `null`, the entry is **removed** from the map
+- This is useful for conditional removal based on computed values
+
+---
+---
+______________________________________________________________________________________________________________
+
+==> Here are some practical real-world examples using `Map.merge()`:
+
+## 1. **Inventory Management - Combining Stock from Multiple Warehouses**
+
+```
+import java.util.HashMap;
+import java.util.Map;
+
+public class InventoryManagementExample {
+    public static void main(String[] args) {
+
+        Map<String, Integer> warehouseA = new HashMap<>();
+        warehouseA.put("Laptop", 50);
+        warehouseA.put("Mouse", 200);
+
+        Map<String, Integer> warehouseB = new HashMap<>();
+        warehouseB.put("Laptop", 30);
+        warehouseB.put("Keyboard", 150);
+
+        // Merge inventory from warehouse B into A
+        warehouseB.forEach((product, quantity) ->
+                warehouseA.merge(product, quantity, Integer::sum)
+        );
+
+        System.out.println(warehouseA);  // {Laptop=80, Mouse=200, Keyboard=150}
+    }
+}
+```
+
+## 2. **Shopping Cart - Adding Items**
+
+```
+import java.util.HashMap;
+import java.util.Map;
+
+public class ShoppingCartMergeExample {
+    public static void main(String[] args) {
+
+        Map<String, Integer> cart = new HashMap<>();
+
+        // Customer adds items multiple times
+        cart.merge("iPhone", 1, Integer::sum);   // First iPhone
+        cart.merge("AirPods", 2, Integer::sum);  // 2 AirPods
+        cart.merge("iPhone", 1, Integer::sum);   // Another iPhone
+
+        System.out.println(cart);
+        // Expected: {iPhone=2, AirPods=2}
+    }
+}
+
+```
+
+## 3. **Sales Analytics - Aggregating Revenue by Region**
+
+```
+public record Sale(String region, double amount) {
+}
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class SalesAnalyticsMergeExample {
+    public static void main(String[] args) {
+        List<Sale> sales = Arrays.asList(
+                new Sale("North", 1000.0),
+                new Sale("South", 1500.0),
+                new Sale("North", 2000.0),
+                new Sale("East", 800.0)
+        );
+
+        Map<String, Double> revenueByRegion = new HashMap<>();
+        for (Sale sale : sales) {
+            revenueByRegion.merge(sale.region(), sale.amount(), Double::sum);
+        }
+
+        System.out.println(revenueByRegion);  //  {South=1500.0, North=3000.0, East=800.0}
+    }
+}
+```
+
+
+## 4. **Scoring System - Combining Scores**
+
+```
+import java.util.HashMap;
+import java.util.Map;
+
+public class ScoringSystemMergeExample {
+    public static void main(String[] args) {
+
+        Map<String, Integer> playerScores = new HashMap<>();
+
+        // Game events
+        playerScores.merge("Alice", 10, Integer::sum); // Alice scores 10
+        playerScores.merge("Bob", 15, Integer::sum);   // Bob scores 15
+        playerScores.merge("Alice", 25, Integer::sum); // Alice scores 25 more
+        playerScores.merge("Alice", 5, Integer::sum);  // Alice scores 5 more
+
+        System.out.println(playerScores);  // Output: {Bob=15, Alice=40}
+
+    }
+}
+
+```
+
+## Key Takeaway
+
+The `merge()` method shines when you need to:
+- **Combine values** from multiple sources
+- **Accumulate** counts, sums, or aggregations
+- **Update** existing entries or insert new ones in one operation
+
+The remapping function (`Integer::sum`, `Double::sum`, etc.) determines **how** to combine the old and new values when a key already exists.
+
+---
+---
+______________________________________________________________________________________________________________
+
