@@ -139,6 +139,86 @@ int amountSoldInOctober = sales.stream()
 ---
 ______________________________________________________________________________________________________________
 
+==> 
+https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/time/LocalDate.html#of(int,java.time.Month,int)
+https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/time/LocalDate.html#of(int,int,int)
+
+Here’s a simple Java demo showing **both** overloads:
+
+* `LocalDate.of(int year, int month, int dayOfMonth)`
+* `LocalDate.of(int year, Month month, int dayOfMonth)`
+
+```
+import java.time.LocalDate;
+import java.time.Month;
+
+public class LocalDateOfDemo {
+
+    public static void main(String[] args) {
+        // 1) LocalDate.of(int year, int month, int dayOfMonth)
+        LocalDate d1 = LocalDate.of(2026, 1, 22); // month=1 means January
+        System.out.println("Using (int, int, int):      " + d1);
+
+        // 2) LocalDate.of(int year, Month month, int dayOfMonth)
+        LocalDate d2 = LocalDate.of(2026, Month.JANUARY, 22);
+        System.out.println("Using (int, Month, int):    " + d2);
+
+        // show the components are the same
+        System.out.println("Same date? " + d1.equals(d2));
+
+        // demonstrate invalid values -> DateTimeException
+        try {
+            LocalDate bad = LocalDate.of(2026, 13, 1); // invalid month
+            System.out.println(bad);
+        } catch (DateTimeException e) {
+            System.out.println("Invalid (int month) example: " + e.getClass().getSimpleName()
+                    + " - " + e.getMessage());
+        }
+    }
+}
+```
+
+#### Output:
+```
+Using (int, int, int):      2026-01-22
+Using (int, Month, int):    2026-01-22
+Same date? true
+Invalid (int month) example: DateTimeException - Invalid value for MonthOfYear (valid values 1 - 12): 13
+
+
+#### MyNotes:
+a) why should we use `.equals` and not `==`
+
+When comparing `LocalDate` objects (or any objects in Java), you should use `.equals()` instead of `==` because:
+
+- **`==` compares object references** (memory addresses). It checks if both variables point to the exact same object instance in memory.
+- **`.equals()` compares object content** (values). For `LocalDate`, it checks if both dates represent the same year, month, and day.
+
+In your code, `d1` and `d2` are two **separate objects** created by different `LocalDate.of()` calls, even though they represent the same date (2026-01-22). Using `==` would return `false` because they're different instances in memory, while `.equals()` correctly returns `true` because they have the same date values.
+
+**Example:**
+```
+import java.time.LocalDate;
+
+public class Main {
+    public static void main(String[] args) {
+        LocalDate d1 = LocalDate.of(2026, 1, 22);
+        LocalDate d2 = LocalDate.of(2026, 1, 22);
+
+        System.out.println(d1 == d2);        // false - different objects
+        System.out.println(d1.equals(d2));   // true - same date values
+    }
+}
+
+```
+
+**Rule of thumb:** Always use `.equals()` for object comparisons in Java, and use `==` only for primitive types (int, boolean, etc.) or when you specifically need to check if two references point to the same object.
+
+---
+---
+______________________________________________________________________________________________________________
+
+
 ==> https://dev.java/learn/api/streams/map-filter-reduce/
 
 ```
