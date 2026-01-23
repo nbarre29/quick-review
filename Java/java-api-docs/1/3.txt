@@ -724,6 +724,71 @@ for (String word : text.split(" ")) {
             }
         }
 ```
+
+c) Here's a better regex-based solution:
+
+```java
+for(String word : text.toLowerCase().split("\\s+")) {
+```
+
+**Key improvements:**
+
+1. **`\\s+`** - Matches one or more whitespace characters (spaces, tabs, newlines), not just single spaces
+2. **`toLowerCase()`** - Ensures case-insensitive counting (e.g., "Apple" and "apple" are counted together)
+
+**For production code with punctuation handling:**
+
+```java
+String[] words = text.toLowerCase().split("[\\s\\p{Punct}]+");
+for(String word : words) {
+    if (!word.isEmpty()) {
+        wordCounts.compute(word, (k,v) -> v == null ? 1 : v + 1);
+    }
+}
+```
+This removes punctuation and handles edge cases like empty strings from consecutive delimiters.
+
+The regex `[\\s\\p{Punct}]+` breaks down as follows:
+
+**Pattern Components:**
+
+1. **`[...]`** - Character class that matches any single character inside the brackets
+
+2. **`\\s`** - Matches any whitespace character:
+   - Space ` `
+   - Tab `\t`
+   - Newline `\n`
+   - Carriage return `\r`
+   - Form feed `\f`
+
+3. **`\\p{Punct}`** - Unicode property that matches any punctuation character:
+   - Period `.`
+   - Comma `,`
+   - Exclamation mark `!`
+   - Question mark `?`
+   - Semicolon `;`
+   - Colon `:`
+   - Apostrophe `'`
+   - Quotation marks `"`
+   - Hyphens `-`
+   - Parentheses `()`, brackets `[]`, braces `{}`
+   - And all other Unicode punctuation
+
+4. **`+`** - Quantifier meaning "one or more" of the preceding pattern
+
+**Combined Meaning:**
+
+The regex matches **one or more consecutive whitespace or punctuation characters**.
+
+**Examples:**
+
+- `"apple, banana"` → splits on `", "` → `["apple", "banana"]`
+- `"hello...world"` → splits on `"..."` → `["hello", "world"]`
+- `"it's working!"` → splits on `"'", space, and `"!"` → `["it", "s", "working"]`
+
+The `+` ensures multiple delimiters in a row are treated as one split point, preventing empty strings in the result array.
+
+
 ---
 ---
 --------------------------------------------------------------------------------------------------------------
@@ -804,6 +869,29 @@ public class WordCountDemo {
 }
 ```
 
+#### MyNotes:
+a) 
+```
+wordCounts.computeIfAbsent(word, k -> 0);
+wordCounts.put(word, wordCounts.get(word) + 1);
+```
+We can combine above two statements using `merge()` or `compute()`:
+
+**Option 1: Using `merge()` (recommended)**
+
+```java
+wordCounts.merge(word, 1, Integer::sum);
+```
+
+**Option 2: Using `compute()`**
+
+```java
+wordCounts.compute(word, (k, v) -> v == null ? 1 : v + 1);
+```
+
+The `merge()` method is cleaner: it inserts the value `1` if the key doesn't exist, otherwise it applies the sum function to the existing value and the new value.
+
+
 **3. Use streams (if you want functional style):**
 ```java
 import java.util.Arrays;
@@ -834,6 +922,17 @@ Only works if you know all possible words in advance—not practical for general
 
 For counting word frequencies, `Map` is **not** overkill—it's the right tool. The `getOrDefault()` pattern is clean and efficient. If anything, consider using `merge()` for slightly more elegance, but what you have is perfectly fine and actually the recommended approach!
 
+
+---
+---
+______________________________________________________________________________________________________________
+
+==> The key differences between `compute()` and `computeIfAbsent()`:
+
+| Method | Behavior | Use Case |
+|--------|----------|----------|
+| **`compute()`** | Always executes the remapping function, regardless of whether the key exists | Use when you need to update values for both existing and new keys |
+| **`computeIfAbsent()`** | Only executes the function if the key is **absent** (or mapped to `null`) | Use when you only want to initialize missing keys |
 
 ---
 ---
@@ -1056,6 +1155,7 @@ public class ShoppingCartMergeExample {
 
 ```
 
+
 ## 3. **Sales Analytics - Aggregating Revenue by Region**
 
 ```
@@ -1085,6 +1185,66 @@ public class SalesAnalyticsMergeExample {
     }
 }
 ```
+
+#### MyNotes:
+a) Sale.java: should we have this double here?
+
+Looking at the context, using `double` for the `amount` field is **not ideal** for financial data like sales amounts.
+
+**Issues with `double`:**
+- Floating-point precision errors can occur with monetary calculations
+- Rounding errors accumulate, especially when summing multiple values
+- Not suitable for financial applications requiring exact precision
+
+**Recommendation:**
+
+Use `BigDecimal` instead:
+
+```
+import java.math.BigDecimal;
+
+public record Sale(String region, BigDecimal amount) {
+}
+```
+
+You'll also need to update `SalesAnalyticsExample.java`:
+
+```
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class SalesAnalyticsExample {
+    public static void main(String[] args) {
+        List<Sale> sales = Arrays.asList(
+                new Sale("North", new BigDecimal("1000.0")),
+                new Sale("South", new BigDecimal("1500.0")),
+                new Sale("North", new BigDecimal("2000.0")),
+                new Sale("East", new BigDecimal("800.0"))
+        );
+
+        Map<String, BigDecimal> revenueByRegion = new HashMap<>();
+
+        for (Sale sale : sales) {
+            revenueByRegion.merge(sale.region(), sale.amount(), BigDecimal::add);
+
+        }
+
+        System.out.println(revenueByRegion);
+    }
+}
+```
+`BigDecimal` provides exact decimal representation and is the standard for financial calculations in Java.
+
+b) `BigDecimal::add` is functionally equivalent to `Double::sum` in this context.
+
+**Comparison:**
+
+- `Double::sum` - static method that adds two `Double` values
+- `BigDecimal::add` - instance method that adds another `BigDecimal` to the current instance
+
 
 
 ## 4. **Scoring System - Combining Scores**

@@ -1756,6 +1756,9 @@ Output:
 3
 5
 4
+
+---
+---
 -----------------------------------------------------------------------------------------------------
 
 5) Implementing Functional Interfaces
@@ -1767,6 +1770,23 @@ public class LambdaExample5 {
         new Thread(runnable).start();
     }
 }
+
+#### MyNotes:
+a) For a `Runnable` that prints a greeting, consider:
+
+```java
+Runnable greetingTask = () -> System.out.println("Hello from a lambda!");
+```
+
+The name `greetingTask` is more descriptive because:
+- It clearly indicates what the runnable does (greeting)
+- It follows the convention of naming tasks/runnables by their purpose
+- It's more meaningful than the generic `runnable`
+
+Other alternatives: `helloTask`, `printGreeting`, or `greetingAction`.
+
+---
+---
 -----------------------------------------------------------------------------------------------------
 6) Custom Functional Interfaces
 Using lambda expressions to implement custom functional interfaces.

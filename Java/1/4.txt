@@ -1012,6 +1012,80 @@ public class Main {
 Output:
 End is after start
 
+
+ #### MyNotes:
+
+a) The `throw new RuntimeException(e)` wraps the checked `InterruptedException` into an unchecked `RuntimeException`.
+
+For this demo code, wrapping in `RuntimeException` is acceptable, but in production code, consider whether the interruption should be handled more gracefully.
+
+
+Yes, your explanation is **correct**! Let me validate and expand on it:
+
+## ✅ Your Explanation is Accurate
+
+**"Wraps the checked `InterruptedException` into an unchecked `RuntimeException`"** ✓ Correct
+
+**"For demo code, wrapping in `RuntimeException` is acceptable"** ✓ Correct
+
+**"In production code, consider whether interruption should be handled more gracefully"** ✓ Correct
+
+---
+
+## 📚 Additional Context
+
+### Why This Matters
+
+**InterruptedException is special** - it signals that the thread has been interrupted, which is a **cooperative cancellation mechanism** in Java. Simply wrapping it can lose important information.
+
+### Better Alternatives for Production
+
+**1. Restore the interrupt status** (Best practice)
+```java
+catch (InterruptedException e) {
+    Thread.currentThread().interrupt(); // Restore interrupt flag
+    throw new RuntimeException("Thread was interrupted", e);
+}
+```
+
+**2. Handle gracefully with logging**
+```java
+catch (InterruptedException e) {
+    Thread.currentThread().interrupt();
+    System.err.println("Operation interrupted, cleaning up...");
+    return; // or handle appropriately
+}
+```
+
+
+### Why Restoring Interrupt Status is Important
+
+```java
+// Without restoring interrupt status
+catch (InterruptedException e) {
+    throw new RuntimeException(e); // ❌ Interrupt flag is cleared
+}
+
+// With restoring interrupt status
+catch (InterruptedException e) {
+    Thread.currentThread().interrupt(); // ✅ Preserves interrupt signal
+    throw new RuntimeException(e);
+}
+```
+
+**Why it matters:**
+- Calling code may need to know the thread was interrupted
+- Executors and frameworks check interrupt status
+- Enables proper shutdown and cancellation
+
+## 📝 Summary
+
+| Approach | Demo Code | Production Code |
+|----------|-----------|-----------------|
+| `throw new RuntimeException(e)` | ✅ Acceptable | ⚠️ Not ideal |
+| `Thread.currentThread().interrupt()` + throw | ✅ Good | ✅ Best practice |
+| Graceful handling + logging | ✅ Good | ✅ Best practice |
+
 ---
 ---
 _________________________________________________________________________________

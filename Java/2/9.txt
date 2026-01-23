@@ -86,7 +86,19 @@ After removing Friday: {MONDAY=Workout, TUESDAY=Team Meeting, WEDNESDAY=Project 
 
 
 #### MyNotes:
-You cannot call new EnumMap<>() without the enum class because EnumMap has no no-argument constructor — it needs the enum Class at runtime to build its internal array and validate keys (type erasure removes generic information at runtime). HashMap doesn't need that, so it provides a no-arg constructor.
+a) You cannot call new EnumMap<>() without the enum class because EnumMap has no no-argument constructor — it needs the enum Class at runtime to build its internal array and validate keys (type erasure removes generic information at runtime). HashMap doesn't need that, so it provides a no-arg constructor.
+
+b) We can initialize the `EnumMap` with values in a more concise way using Java 9+ `Map.of()` with `EnumMap` constructor:
+
+```
+EnumMap<Day, String> timetable = new EnumMap<>(Map.of(
+    Day.MONDAY, "Workout",
+    Day.TUESDAY, "Team Meeting",
+    Day.WEDNESDAY, "Project Work",
+    Day.THURSDAY, "Learning Session",
+    Day.FRIDAY, "Code Review"
+));
+```
 
 
 # 🔍 Key Points About EnumMap

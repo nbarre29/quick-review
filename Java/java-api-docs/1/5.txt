@@ -1,0 +1,583 @@
+==>  https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/locks/LockSupport.html#parkNanos(long)
+
+LockSupport.parkNanos: Simple timeout example
+
+```
+import java.time.Instant;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
+
+public class LockSupportParkNanosDemo {
+
+    public static void main(String[] args) {
+        runSimpleTimeoutExample();
+    }
+
+    private static void runSimpleTimeoutExample() {
+        System.out.println("Example 1: Simple timeout");
+
+        Instant start = Instant.now();
+
+        // Park for 2 seconds (2,000,000,000 nanoseconds)
+        LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(2));
+
+        Instant end = Instant.now();
+
+        System.out.println("Elapsed time in seconds: " + java.time.Duration.between(start, end).toSeconds());
+        System.out.println("(Approximately 2 seconds elapsed)");
+    }
+}
+```
+
+This program demonstrates **`LockSupport.parkNanos()`**, a low-level thread parking mechanism in Java's concurrency utilities.
+
+**Key concepts:**
+
+1. **Thread Parking** - `LockSupport.parkNanos()` pauses the current thread for a specified duration in nanoseconds
+2. **Timed Blocking** - Unlike `Thread.sleep()`, parking is interruptible via `LockSupport.unpark()`
+3. **Precision Timing** - Uses nanosecond precision (though actual precision depends on OS scheduling)
+
+**What the code does:**
+- Records start time
+- Parks (pauses) the main thread for 2 seconds (2,000,000,000 nanoseconds)
+- Records end time
+- Prints elapsed time to verify ~2 seconds passed
+
+**Key differences from `Thread.sleep()`:**
+- `parkNanos()` doesn't throw `InterruptedException`
+- Can be unparked early by another thread calling `LockSupport.unpark(thread)`
+- More flexible for building custom synchronization primitives
+- Used internally by higher-level concurrency classes like `ReentrantLock`
+
+This is a foundational building block for implementing custom locks, barriers, and other concurrent data structures.
+
+---
+---
+--------------------------------------------------------------------------------------------------------------
+
+==>  LockSupport.parkNanos: Early wakeup via unpark
+```
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
+
+public class LockSupportParkNanosDemo {
+
+    public static void main(String[] args) throws InterruptedException {
+        System.out.println("Example 2: Early wakeup via unpark");
+
+        Thread worker = new Thread(() -> {
+            System.out.println("Worker: Parking for 5 seconds...");
+            long start = System.nanoTime();
+
+            LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(5));
+
+            long elapsed = System.nanoTime() - start;
+            System.out.println("Worker: Woke up after " +
+                    TimeUnit.NANOSECONDS.toMillis(elapsed) + " ms");
+        });
+
+        worker.start();
+
+        // Wait 1 second, then unpark the worker
+        Thread.sleep(1000);
+        System.out.println("Main: Unparking worker thread...");
+        LockSupport.unpark(worker);
+
+        worker.join();
+        System.out.println();
+    }
+}
+```
+
+#### Output:
+```
+Example 2: Early wakeup via unpark
+Worker: Parking for 5 seconds...
+Main: Unparking worker thread...
+Worker: Woke up after 1000 ms
+```
+
+---
+---
+--------------------------------------------------------------------------------------------------------------
+
+==> LockSupport.parkNanos: demonstrates the correct pattern of using LockSupport.park() within a loop to wait for a condition to become true.
+```
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
+
+public class WaitLoopExample {
+
+    private static volatile boolean condition = false;
+
+    public static void main(String[] args) throws InterruptedException {
+        Thread waiter = new Thread(() -> {
+            System.out.println("Waiter: Waiting for condition...");
+
+            // Proper pattern: loop that rechecks condition
+            while (!condition) {
+                System.out.println("Waiter: Condition not met, parking for 500ms...");
+                LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(500));
+            }
+
+            System.out.println("Waiter: Condition met! Proceeding.");
+        });
+
+        waiter.start();
+
+        // Set condition after 2 seconds
+        Thread.sleep(2000);
+        System.out.println("Main: Setting condition to true");
+        condition = true;
+        LockSupport.unpark(waiter);
+
+        waiter.join();
+    }
+}
+```
+
+#### Output:
+```
+Waiter: Waiting for condition...
+Waiter: Condition not met, parking for 500ms...
+Waiter: Condition not met, parking for 500ms...
+Waiter: Condition not met, parking for 500ms...
+Waiter: Condition not met, parking for 500ms...
+Main: Setting condition to true
+Waiter: Condition met! Proceeding.
+```
+
+---
+---
+--------------------------------------------------------------------------------------------------------------
+
+==> LockSupport.parkNanos: Example demonstrating rate limiting using LockSupport.parkNanos
+
+```
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
+
+public class RateLimiterExample {
+
+    private static final long RATE_LIMIT_NANOS = TimeUnit.MILLISECONDS.toNanos(200);
+
+    public static void main(String[] args) throws InterruptedException {
+        String[] items = {"Item1", "Item2", "Item3", "Item4", "Item5"};
+
+        System.out.println("Example 4: Rate limiting (200ms between items)");
+        long start = System.currentTimeMillis();
+
+        for (String item : items) {
+            System.out.println("Processing: " + item +
+                    " at +" + (System.currentTimeMillis() - start) + "ms");
+
+            // Enforce minimum delay between items
+            LockSupport.parkNanos(RATE_LIMIT_NANOS);
+        }
+        System.out.println();
+    }
+}
+```
+
+#### Outpt:
+```
+Example 4: Rate limiting (200ms between items)
+Processing: Item1 at +0ms
+Processing: Item2 at +213ms
+Processing: Item3 at +413ms
+Processing: Item4 at +614ms
+Processing: Item5 at +814ms
+```
+
+---
+---
+--------------------------------------------------------------------------------------------------------------
+
+==> Example demonstrating timed wait using LockSupport with a blocker object for better thread diagnostics.
+
+```
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
+
+public class RateLimiterExample {
+
+    private static final Object blocker = new Object();
+
+    public static void main(String[] args) {
+        System.out.println("Example 5: Timed wait with blocker object");
+        System.out.println("Blocker: " + blocker);
+
+        timedWait(TimeUnit.SECONDS.toNanos(2));
+    }
+
+    private static void timedWait(long timeoutNanos) {
+        long deadline = System.nanoTime() + timeoutNanos;
+        long remaining;
+
+        while ((remaining = deadline - System.nanoTime()) > 0) {
+            // Using parkNanos with blocker for better diagnostics
+            LockSupport.parkNanos(blocker, remaining);
+
+            // Check if we should continue waiting
+            // (In real code, you'd check some condition here)
+        }
+
+        System.out.println("Timed wait completed\n");
+    }
+}
+```
+#### Output:
+```
+Example 5: Timed wait with blocker object
+Blocker: java.lang.Object@1d81eb93
+Timed wait completed
+```
+
+---
+---
+______________________________________________________________________________________________________________
+
+==> https://docs.oracle.com/javase/tutorial/essential/concurrency/executors.html
+
+Conceptually both “launch a task,” but they’re **not the same** in how they run it.
+
+### `new Thread(runnable).start()`
+
+* Creates a **brand-new OS/JVM thread** every time.
+* The task runs on that new thread.
+* You manage thread lifecycle yourself (naming, uncaught exceptions, shutdown, etc.).
+
+### `Executor` (e.g., `ExecutorService`)
+
+* You submit tasks to an **execution strategy**.
+* Commonly it uses a **thread pool** (reuses threads instead of creating new ones).
+* Gives you better control: queuing, limits, scheduling, shutdown, futures/results, etc.
+
+So your statement is right: **starting a new Thread is one way to launch a task**, and **Executor is a more flexible/managed way** to launch tasks (often without creating a new thread per task).
+
+---
+---
+--------------------------------------------------------------------------------------------------------------
+
+==> Yes, your notes above are **correct**! Here's a validation of each point:
+
+## ✅ `new Thread(runnable).start()`
+
+- **Creates a brand-new OS/JVM thread every time** ✓ Correct
+- **The task runs on that new thread** ✓ Correct  
+- **You manage thread lifecycle yourself** ✓ Correct (naming, uncaught exceptions, shutdown, etc.)
+
+## ✅ `Executor` (e.g., ExecutorService)
+
+- **You submit tasks to an execution strategy** ✓ Correct
+- **Commonly uses a thread pool** ✓ Correct (reuses threads instead of creating new ones)
+- **Better control: queuing, limits, scheduling, shutdown, futures/results** ✓ Correct
+
+## ✅ Summary Statement
+
+> "starting a new Thread is one way to launch a task, and Executor is a more flexible/managed way to launch tasks (often without creating a new thread per task)"
+
+---
+
+## Additional Notes (if helpful):
+
+**Why Executor is preferred:**
+- **Resource efficiency**: Thread creation is expensive (OS overhead). Thread pools reuse threads.
+- **Bounded resources**: You can limit max threads to prevent resource exhaustion.
+- **Task management**: Built-in queuing, rejection policies, and graceful shutdown.
+- **Future/CompletableFuture**: Easy result retrieval and composition.
+
+**When raw Threads might still be used:**
+- Simple one-off tasks in small programs
+- When you need very specific thread configuration (priority, daemon status, custom UncaughtExceptionHandler)
+- Legacy code
+
+**Example comparison:**
+
+```java
+// Manual thread management
+Thread t = new Thread(() -> System.out.println("Task"));
+t.start();
+// You're responsible for t's lifecycle
+
+// Executor
+ExecutorService executor = Executors.newFixedThreadPool(10);
+executor.submit(() -> System.out.println("Task"));
+// Pool manages thread lifecycle, reuse, etc.
+executor.shutdown();
+```
+
+Your understanding is spot-on! 🎯
+
+---
+---
+--------------------------------------------------------------------------------------------------------------
+==> Example demonstrating the use of ExecutorService to manage a pool of threads
+
+```
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+public class ExecutorExample {
+
+    public static void main(String[] args) {
+        ExecutorService executor = Executors.newFixedThreadPool(10);
+
+        // Submit a few tasks
+        for (int i = 1; i <= 5; i++) {
+            final int taskNo = i;
+            executor.submit(() -> {
+                System.out.println("Task " + taskNo + " running on " + Thread.currentThread().getName());
+            });
+        }
+
+        // Always shut down the pool
+        executor.shutdown();
+
+        // Optional: wait for tasks to finish (so JVM doesn't exit too early in some setups)
+        try {
+            if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                executor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+
+        System.out.println("Main finished.");
+    }
+}
+```
+
+#### Output:
+```
+Task 2 running on pool-1-thread-2
+Task 1 running on pool-1-thread-1
+Task 4 running on pool-1-thread-4
+Task 3 running on pool-1-thread-3
+Task 5 running on pool-1-thread-5
+Main finished.
+```
+
+#### MyNotes:
+a) final int taskNo = i;  // should we have final here ?
+
+ **Yes, it's perfectly fine and actually necessary** to make it `final` here.
+
+**Why it works despite the value changing:**
+
+1. **Each iteration creates a new variable** - `taskNo` is a *separate* final variable in each loop iteration
+2. **Lambda capture requirement** - Lambdas can only capture effectively final variables from the enclosing scope
+3. **Different instances** - Each of the 5 tasks gets its own `taskNo` with a different value (1, 2, 3, 4, 5)
+
+**What's actually happening:**
+
+```java
+// Iteration 1: taskNo = 1 (final, captured by lambda 1)
+// Iteration 2: taskNo = 2 (final, captured by lambda 2)
+// Iteration 3: taskNo = 3 (final, captured by lambda 3)
+// etc.
+```
+
+**Why you need `final` here:**
+
+- Without `final`, you'd get a compilation error: *"Variable used in lambda should be final or effectively final"*
+- The lambda needs to capture the value safely for use when it executes later
+
+**Common misconception:**
+
+You might think `taskNo` is being reassigned, but it's not. Each loop iteration has its own separate `taskNo` variable that never changes after initialization.
+
+**Alternative (effectively final):**
+
+```java
+for (int i = 1; i <= 5; i++) {
+    int taskNo = i; // Effectively final (no explicit 'final' keyword needed)
+    executor.submit(() -> {
+        System.out.println("Task " + taskNo + " running...");
+    });
+}
+```
+
+Both approaches work identically. The `final` keyword just makes the immutability explicit.
+
+b)  The below try--catch block is not needed if we embed ExecutorService in try-with-resources right ?
+```
+ // Optional: wait for tasks to finish (so JVM doesn't exit too early in some setups)
+        try {
+            if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                executor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+```
+
+
+**Correct!** With try-with-resources (Java 19+), you don't need this try-catch block anymore.
+
+**Why it's not needed:**
+
+The `close()` method of `ExecutorService` (added in Java 19) already:
+1. Calls `shutdown()`
+2. Waits for tasks to complete (with a 1-day timeout by default)
+3. Calls `shutdownNow()` if tasks don't finish
+4. Handles `InterruptedException` internally
+
+**Simplified version with try-with-resources:**
+
+```java
+public static void main(String[] args) {
+    try (ExecutorService executor = Executors.newFixedThreadPool(10)) {
+        // Submit tasks
+        for (int i = 1; i <= 5; i++) {
+            int taskNo = i;
+            executor.submit(() -> {
+                System.out.println("Task " + taskNo + " running on " + Thread.currentThread().getName());
+            });
+        }
+    } // close() handles shutdown, await, and shutdownNow automatically
+
+    System.out.println("Main finished.");
+}
+```
+
+**What you lose:**
+- Custom timeout (5 seconds in your case vs. 1 day default)
+- Explicit interrupt handling
+
+**If you need custom timeout:**
+
+```java
+try (ExecutorService executor = Executors.newFixedThreadPool(10)) {
+    // Submit tasks...
+    
+    executor.shutdown(); // Initiate shutdown
+    if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+        executor.shutdownNow();
+    }
+} catch (InterruptedException e) {
+    Thread.currentThread().interrupt();
+}
+```
+
+For most cases, the simple try-with-resources approach is sufficient and cleaner.
+
+---
+---
+--------------------------------------------------------------------------------------------------------------
+
+==> ## 🔄 Refactoring Summary
+
+### ✨ Key Improvements Implemented
+
+**1. Try-with-resources (Java 19+)**
+   - Automatic `shutdown()` and cleanup
+   - Cleaner code with no manual shutdown boilerplate   
+
+**2. Exception Handling**
+   - Tasks now catch and log their own exceptions
+   - `Future.get()` used to detect task failures
+   - Separate exception handler method for cleaner code
+
+**3. Thread Reuse Observation**
+   - Added `Thread.sleep(100)` to simulate work
+   - Makes it easier to see threads being reused in output
+   - Helps demonstrate pool behavior
+
+**4. Logging Improvements**
+   - "Shutting down executor..." message added
+   - Error messages for interrupted/failed tasks
+   - Timeout warnings in manual shutdown version
+
+**5. Future Tracking**
+   - Stores `Future<?>` objects in a list
+   - Allows checking task completion status
+   - Can retrieve task results or exceptions
+
+
+```
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+public class ExecutorExample {
+
+    public static void main(String[] args) {
+        // Try-with-resources for automatic cleanup (Java 19+)
+        // Falls back to manual shutdown for earlier versions
+        try (ExecutorService executor = Executors.newFixedThreadPool(10)) {
+
+            List<Future<?>> futures = new ArrayList<>();
+
+            // Submit tasks
+            for (int i = 1; i <= 5; i++) {
+                final int taskNo = i;
+
+                // Capture Future to handle exceptions later
+                Future<?> future = executor.submit(() -> {
+                    try {
+                        System.out.println("Task " + taskNo + " running on " +
+                                Thread.currentThread().getName());
+
+                        // Simulate work to observe thread reuse
+                        Thread.sleep(100);
+
+                        // Uncomment to test exception handling:
+                        // if (taskNo == 3) throw new RuntimeException("Task 3 failed!");
+
+                    } catch (InterruptedException e) {
+                        System.err.println("Task " + taskNo + " was interrupted");
+                        Thread.currentThread().interrupt();
+                    } catch (Exception e) {
+                        System.err.println("Task " + taskNo + " failed: " + e.getMessage());
+                        throw e; // Re-throw to be caught by Future.get()
+                    }
+                });
+
+                futures.add(future);
+            }
+
+            // Optional: Check for task exceptions
+            checkTaskResults(futures);
+
+            System.out.println("Shutting down executor...");
+
+        } // Auto-shutdown happens here (calls shutdown() + awaitTermination)
+
+        System.out.println("Main finished.");
+    }
+
+    /**
+     * Checks if any tasks threw exceptions
+     */
+    private static void checkTaskResults(List<Future<?>> futures) {
+        for (int i = 0; i < futures.size(); i++) {
+            try {
+                futures.get(i).get(); // Blocks until task completes, throws if task threw
+            } catch (Exception e) {
+                System.err.println("Task " + (i + 1) + " threw exception: " + e.getCause());
+            }
+        }
+    }
+}
+```
+
+#### Output:
+```
+Task 3 running on pool-1-thread-3
+Task 5 running on pool-1-thread-5
+Task 4 running on pool-1-thread-4
+Task 1 running on pool-1-thread-1
+Task 2 running on pool-1-thread-2
+Shutting down executor...
+Main finished.
+```
+
+---
+---
+______________________________________________________________________________________________________________

@@ -314,4 +314,115 @@ public class CopyFile {
     }
 }
 
-_________________________________________________________________________________
+---
+---
+___________________________________________________________________________________________________________
+
+==> A simple Java program to list all files in a specified directory
+
+```
+public class DirectoryLister {
+    public static void main(String[] args) {
+
+        java.io.File directory = new java.io.File("C:\\Cleanup");
+        String[] files = directory.list();
+        if (files != null) {
+            for (String file : files) {
+                System.out.println(file);
+            }
+        } else {
+            System.out.println("The specified path is not a directory or an I/O error occurred.");
+        }
+
+    }
+}
+```
+
+`java.io.File` is simple for basic tasks like listing files. However, `java.nio.file` (introduced in Java 7) is the **modern, recommended API** because it:
+
+1. **Better error handling** — `Files.list()` throws specific `IOException` vs. `File.list()` returning `null`
+2. **More features** — symbolic links, file attributes, recursive walking, etc.
+3. **Better performance** — especially for large directories
+4. **Works with `Path`** — more flexible than `File`
+
+**Your current code is perfectly fine** for simple directory listing. Stick with `java.io.File` if:
+- You only need basic operations
+- You prefer the simplicity
+- You're working on a small/educational project
+
+Use `java.nio.file` when:
+- You need robust error handling
+- You want modern stream-based APIs
+- You're building production code
+
+---
+---
+-----------------------------------------------------------------------------------------------------------
+
+==> 
+```
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
+
+public class DirectoryLister {
+    public static void main(String[] args) {
+        Path directory = Paths.get("C:\\Cleanup");
+
+        if (!Files.isDirectory(directory)) {
+            System.out.println("The specified path is not a directory or does not exist.");
+            return;
+        }
+
+        try (Stream<Path> paths = Files.list(directory)) {
+            paths.map(Path::getFileName)
+                    .map(Path::toString)
+                    .forEach(System.out::println);
+        } catch (IOException e) {
+            System.out.println("An I/O error occurred: " + e.getMessage());
+        }
+    }
+}
+```
+
+---
+---
+-----------------------------------------------------------------------------------------------------------
+
+==> This program lists all files in the specified directory and its subdirectories.
+ It uses Java NIO's Files.walk method to traverse the directory tree.
+
+ import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
+
+public class DirectoryLister {
+    public static void main(String[] args) {
+        Path directory = Paths.get("C:\\Cleanup");
+
+        if (!Files.isDirectory(directory)) {
+            System.out.println("The specified path is not a directory or does not exist.");
+            return;
+        }
+
+        try (Stream<Path> paths = Files.walk(directory)) {
+            paths.filter(Files::isRegularFile)
+                    .forEach(System.out::println);
+        } catch (IOException e) {
+            System.out.println("An I/O error occurred: " + e.getMessage());
+        }
+    }
+}
+
+* Recursively traverses all subdirectories
+* Filters for regular files only (excluding directories themselves)
+* Uses try-with-resources to properly close the stream
+* Prints full paths (not just filenames)
+
+---
+---
+___________________________________________________________________________________________________________
