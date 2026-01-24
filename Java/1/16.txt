@@ -222,11 +222,17 @@ public class TimeZoneConversionExample {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
         System.out.println("NewYork Time: " + newYorkDateTime.format(formatter));
 
+         // Alternative way to format
+        System.out.println("NewYork Time: " + formatter.format(newYorkDateTime));
+
     }
 }
 
 Output:
-NewYork Time: 2025-11-04 20:05:33 EST
+```
+NewYork Time: 2026-01-24 17:38:16 EST
+NewYork Time: 2026-01-24 17:38:16 EST
+```
 
 
 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss a");		2025-11-04 20:06:23 PM
@@ -528,6 +534,17 @@ public class Main {
         }
     }
 }
+
+#### MyNotes:
+a) Simplification: replaced the for-loop and if check with a single stream pipeline
+```
+// Example: Filter only "America/" zones
+        System.out.println("Zones in America:");
+        allZoneIds.stream()
+                .filter(zoneId -> zoneId.startsWith("America/"))
+                .forEach(System.out::println);
+```
+
 _____________________________________________________________________________________
 
 -> automatically group all Zone IDs by continent, without manually specifying "America", "Asia", "Europe", etc.

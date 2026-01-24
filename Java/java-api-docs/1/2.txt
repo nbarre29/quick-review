@@ -140,6 +140,117 @@ int amountSoldInOctober = sales.stream()
 ______________________________________________________________________________________________________________
 
 ==> 
+
+```
+public record Sale(String region, double amount) {
+}
+
+
+import java.util.Arrays;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+
+        List<Sale> sales = Arrays.asList(
+                new Sale("North", 1500.0),
+                new Sale("South", 2000.0),
+                new Sale("East", 1750.0),
+                new Sale("West", 2250.0),
+                new Sale("North", 3000.0)
+        );
+
+        double totalNorthSales = sales.stream()
+                .filter(sale -> "North".equals(sale.region()))
+                .mapToDouble(Sale::amount)
+                .sum();
+
+        System.out.println("Total sales in North region: " + totalNorthSales);  // Total sales in North region: 4500.0
+
+    }
+}
+```
+
+---
+---
+-------------------------------------------------------------------------------------------------------------
+
+==> Use BigDecimal in above program
+
+```
+import java.math.BigDecimal;
+
+public record Sale(String region, BigDecimal amount) {
+}
+
+
+import java.util.Arrays;
+import java.util.List;
+import java.math.BigDecimal;
+
+public class Main {
+    public static void main(String[] args) {
+
+        List<Sale> sales = Arrays.asList(
+                new Sale("North", BigDecimal.valueOf(1500.0)),
+                new Sale("South", BigDecimal.valueOf(2000.0)),
+                new Sale("East", BigDecimal.valueOf(1750.0)),
+                new Sale("West", BigDecimal.valueOf(2250.0)),
+                new Sale("North", BigDecimal.valueOf(3000.0))
+        );
+
+        BigDecimal totalNorthSales = sales.stream()
+                .filter(sale -> "North".equals(sale.region()))
+                .map(Sale::amount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        System.out.println("Total sales in North region: " + totalNorthSales);
+
+    }
+}
+```
+
+#### MyNotes:
+a) 
+```
+Optional<BigDecimal> totalNorthSalesOpt = sales.stream()
+                .filter(sale -> "North".equals(sale.region()))
+                .map(Sale::amount)
+                .reduce(BigDecimal::add);
+
+        if (totalNorthSalesOpt.isPresent()) {
+            BigDecimal totalNorthSales = totalNorthSalesOpt.get();
+            System.out.println("Total sales in North region: " + totalNorthSales);
+        } else {
+            System.out.println("No sales in North region.");
+        }
+```
+
+a.1) Use `Optional.ifPresentOrElse` (Java 9+) or `map(...).orElse(...)` (Java 8) to avoid `isPresent`/`get` boilerplate.
+
+// Java 9+
+```
+totalNorthSalesOpt.ifPresentOrElse(
+                total -> System.out.println("Total sales in North region: " + total),
+                () -> System.out.println("No sales in North region.")
+        );
+```
+
+// Java 8 alternative
+```
+System.out.println(
+    totalNorthSalesOpt
+        .map(total -> "Total sales in North region: " + total)
+        .orElse("No sales in North region.")
+);
+```
+
+---
+---
+______________________________________________________________________________________________________________
+
+
+==> 
 https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/time/LocalDate.html#of(int,java.time.Month,int)
 https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/time/LocalDate.html#of(int,int,int)
 
@@ -625,5 +736,391 @@ The key changes:
 ---
 ---
 ______________________________________________________________________________________________________________
+
+==> few examples to demonstrate https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/math/BigDecimal.html#add(java.math.BigDecimal)
+
+Here are a few quick examples that specifically use `BigDecimal#add(BigDecimal)`.
+
+```
+import java.math.BigDecimal;
+
+public class BigDecimalAddExamples {
+    public static void main(String[] args) {
+
+        // 1) Basic money-style addition (use String constructors for exact decimals)
+        BigDecimal price = new BigDecimal("10.25");
+        BigDecimal tax = new BigDecimal("3.40");
+        BigDecimal total = price.add(tax);
+        System.out.println("1) total = " + total);          // 13.65
+
+        // 2) Scale behavior: result scale is the max(scale(left), scale(right))
+        BigDecimal a = new BigDecimal("1.20"); // scale 2
+        BigDecimal b = new BigDecimal("3");    // scale 0
+        BigDecimal s = a.add(b);
+        System.out.println("\n2) 1.20 + 3 = " + s);         // 4.20
+        System.out.println("   scale = " + s.scale());      // 2
+
+        // 3) Why NOT to use new BigDecimal(double): binary floating point surprises
+        BigDecimal bad = new BigDecimal(0.1).add(new BigDecimal(0.2));
+        BigDecimal good = BigDecimal.valueOf(0.1).add(BigDecimal.valueOf(0.2));
+        BigDecimal best = new BigDecimal("0.1").add(new BigDecimal("0.2"));
+        System.out.println("\n3) new BigDecimal(0.1)+new BigDecimal(0.2) = " + bad);
+        System.out.println("   BigDecimal.valueOf(0.1)+valueOf(0.2)       = " + good);
+        System.out.println("   new BigDecimal(\"0.1\")+\"0.2\"             = " + best);
+
+        // 4) Simple accumulator (BigDecimal is immutable, so re-assign).
+        // It means BigDecimal instances cannot be changed after they're created.
+        // Operations like `add()` return a new `BigDecimal` rather than modifying the original,
+        // so you must store the returned value (re-assign) if you want to keep the result.
+        BigDecimal sum = BigDecimal.ZERO;
+        BigDecimal[] amounts = {
+                new BigDecimal("19.99"),
+                new BigDecimal("5.00"),
+                new BigDecimal("-2.50")
+        };
+        for (BigDecimal amt : amounts) {
+            sum = sum.add(amt);
+        }
+        System.out.println("\n4) accumulated sum = " + sum); // 22.49
+    }
+}
+```
+
+#### Output:
+```
+1) total = 13.65
+
+2) 1.20 + 3 = 4.20
+   scale = 2
+
+3) new BigDecimal(0.1)+new BigDecimal(0.2) = 0.3000000000000000166533453693773481063544750213623046875
+   BigDecimal.valueOf(0.1)+valueOf(0.2)       = 0.3
+   new BigDecimal("0.1")+"0.2"             = 0.3
+
+4) accumulated sum = 22.49
+```
+
+Key takeaways:
+
+* `add()` **doesn’t modify** either operand (immutable) → always use the returned value.
+* Prefer `new BigDecimal("...")` (or `BigDecimal.valueOf(double)`) for decimal literals, especially money.
+
+
+---
+---
+______________________________________________________________________________________________________________
+
+==> BigDecimal instances cannot be changed after they're created. Operations like `add()` return a new `BigDecimal` rather than modifying the original, so you must store the returned value (re-assign) if you want to keep the result.
+
+Example showing incorrect vs correct usage:
+
+```
+import java.math.BigDecimal;
+
+public class Main {
+    public static void main(String[] args) {
+        BigDecimal sum = BigDecimal.ZERO;
+        BigDecimal amt = new BigDecimal("5.00");
+
+        // Incorrect: result is ignored, sum remains ZERO
+        sum.add(amt);
+        System.out.println(sum); // prints 0
+
+        // Correct: re-assign the returned BigDecimal
+        sum = sum.add(amt);
+        System.out.println(sum); // prints 5.00
+    }
+}
+```
+
+---
+---
+--------------------------------------------------------------------------------------------------------------
+
+==> Here's a list of few **immutable classes in Java** where you need to **re-assign** the result of operations:
+
+## Common Immutable Classes:
+
+**1. `java.math.BigDecimal`** (as you mentioned)
+```java
+BigDecimal price = new BigDecimal("100.50");
+price = price.add(new BigDecimal("10.00")); // Must re-assign
+```
+
+**2. `java.math.BigInteger`**
+```java
+BigInteger num = new BigInteger("1000");
+num = num.add(new BigInteger("500")); // Must re-assign
+num = num.multiply(new BigInteger("2")); // Must re-assign
+```
+
+**3. `java.lang.String`**
+```java
+String name = "John";
+name = name.concat(" Doe"); // Must re-assign
+name = name.toUpperCase(); // Must re-assign
+name = name.replace("JOHN", "Jane"); // Must re-assign
+```
+
+**4. `java.time` package classes (Java 8+)**
+```java
+// LocalDate
+LocalDate date = LocalDate.now();
+date = date.plusDays(5); // Must re-assign
+date = date.minusMonths(2); // Must re-assign
+
+// LocalTime
+LocalTime time = LocalTime.now();
+time = time.plusHours(3); // Must re-assign
+
+// LocalDateTime
+LocalDateTime dateTime = LocalDateTime.now();
+dateTime = dateTime.plusWeeks(1); // Must re-assign
+
+// ZonedDateTime, Instant, Duration, Period - all immutable
+```
+
+**5. Wrapper Classes** (when using certain methods)
+```java
+Integer num = 10;
+// Note: Autoboxing creates new objects, but arithmetic operators handle it
+// Methods like Integer.sum() return new values
+```
+
+**6. `java.util.regex.Pattern` and `Matcher`**
+```java
+Pattern pattern = Pattern.compile("[a-z]+");
+// Pattern is immutable, but Matcher is stateful
+```
+
+**7. `java.util.Optional` (Java 8+)**
+```java
+Optional<String> opt = Optional.of("value");
+opt = opt.map(String::toUpperCase); // Must re-assign for transformations
+```
+
+**8. Records (Java 14+)**
+```java
+record Point(int x, int y) {
+    Point moveRight() {
+        return new Point(x + 1, y); // Returns new instance
+    }
+}
+
+Point p = new Point(0, 0);
+p = p.moveRight(); // Must re-assign
+```
+
+## Key Pattern:
+All these classes follow the **immutability principle**: operations return **new instances** rather than modifying the original object. This is why you must re-assign the returned value if you want to use the updated result.
+
+---
+---
+--------------------------------------------------------------------------------------------------------------
+
+==> Demonstrates LocalDateTime.plusWeeks() and immutability
+
+```
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+public class LocalDateTimePlusWeeksDemo {
+
+    public static void main(String[] args) {
+        // LocalDateTime (immutable)
+        LocalDateTime dateTime = LocalDateTime.now();
+        System.out.println("Now           : " + format(dateTime));
+
+        // plusWeeks() returns a NEW LocalDateTime, so you must re-assign (or use a new variable)
+        dateTime = dateTime.plusWeeks(1);
+        System.out.println("After +1 week  : " + format(dateTime));
+
+        // Proof: original value doesn't change unless you store the returned value
+        LocalDateTime original = LocalDateTime.now();
+        original.plusWeeks(1); // ignored result
+        System.out.println("Original (unchanged) : " + format(original));
+
+        LocalDateTime updated = original.plusWeeks(1); // stored result
+        System.out.println("Updated (new object) : " + format(updated));
+    }
+
+    // Helper to format LocalDateTime for display
+    private static String format(LocalDateTime dt) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return dt.format(formatter);
+    }
+}
+```
+
+#### Output:
+```
+Now           : 2026-01-24 16:38:06
+After +1 week  : 2026-01-31 16:38:06
+Original (unchanged) : 2026-01-24 16:38:06
+Updated (new object) : 2026-01-31 16:38:06
+```
+
+---
+---
+______________________________________________________________________________________________________________
+
+
+==> Below are **quick Java examples** for few `reduce(...)` overloads  (Stream + primitive streams). 
+
+https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/stream/Stream.html#reduce(java.util.function.BinaryOperator)
+https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/stream/Stream.html#reduce(T,java.util.function.BinaryOperator)
+https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/stream/IntStream.html#reduce(java.util.function.IntBinaryOperator)
+https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/stream/IntStream.html#reduce(int,java.util.function.IntBinaryOperator)
+
+
+```
+import java.util.*;
+import java.util.stream.*;
+
+public class ReduceOverloadsDemo {
+
+    public static void main(String[] args) {
+
+        // ----------------------------
+        // 1) Stream.reduce(BinaryOperator<T>) -> Optional<T>
+        // ----------------------------
+        Optional<Integer> sumOpt =
+                Stream.of(1, 2, 3, 4).reduce(Integer::sum);
+        System.out.println("1) Optional sum = " + sumOpt.orElse(null)); // 10
+
+        Optional<Integer> emptyOpt =
+                Stream.<Integer>empty().reduce(Integer::sum);
+        System.out.println("1) Empty stream -> " + emptyOpt); // Optional.empty
+
+
+        // ----------------------------
+        // 2) Stream.reduce(T identity, BinaryOperator<T>) -> T
+        //    (No Optional; identity returned for empty stream)
+        // ----------------------------
+        int sumWithIdentity =
+                Stream.of(1, 2, 3, 4).reduce(0, Integer::sum);
+        System.out.println("2) Sum with identity = " + sumWithIdentity); // 10
+
+        int emptyWithIdentity =
+                Stream.<Integer>empty().reduce(0, Integer::sum);
+        System.out.println("2) Empty stream -> " + emptyWithIdentity); // 0
+
+
+        // ============================
+        // Primitive streams overloads
+        // ============================
+
+        // ----------------------------
+        // 4) IntStream.reduce(IntBinaryOperator) -> OptionalInt
+        // ----------------------------
+        OptionalInt maxInt = IntStream.of(5, 2, 9, 1).reduce(Integer::max);
+        System.out.println("4) OptionalInt max = " + (maxInt.isPresent() ? maxInt.getAsInt() : null)); // 9
+
+        // 5) IntStream.reduce(int identity, IntBinaryOperator) -> int
+        int product = IntStream.of(2, 3, 4).reduce(1, (a, b) -> a * b);
+        System.out.println("5) int product = " + product); // 24
+
+
+        // ----------------------------
+        // 6) DoubleStream.reduce(DoubleBinaryOperator) -> OptionalDouble
+        // ----------------------------
+        OptionalDouble minD = DoubleStream.of(2.5, 1.2, 9.0).reduce(Double::min);
+        System.out.println("6) OptionalDouble min = " + (minD.isPresent() ? minD.getAsDouble() : null)); // 1.2
+
+        // 7) DoubleStream.reduce(double identity, DoubleBinaryOperator) -> double
+        double sumD = DoubleStream.of(1.1, 2.2, 3.3).reduce(0.0, Double::sum);
+        System.out.println("7) double sum = " + sumD); // 6.6
+
+
+        // 9) LongStream.reduce(long identity, LongBinaryOperator) -> long
+        long maxL = LongStream.of(10L, 5L, 99L).reduce(Long.MIN_VALUE, Math::max);
+        System.out.println("9) long max = " + maxL); // 99
+    }
+
+}
+```
+
+#### Output:
+```
+1) Optional sum = 10
+1) Empty stream -> Optional.empty
+2) Sum with identity = 10
+2) Empty stream -> 0
+4) OptionalInt max = 9
+5) int product = 24
+6) OptionalDouble min = 1.2
+7) double sum = 6.6
+9) long max = 99
+```
+
+### Tiny mental model
+
+* **No identity** (`reduce(op)`): returns **Optional** because stream might be empty.
+* **With identity** (`reduce(identity, op)`): returns **a value always** (identity for empty).
+
+
+---
+---
+--------------------------------------------------------------------------------------------------------------
+
+==> do we really give the identity as 1 or 2 ? as in below program:
+
+No — the identity must be the neutral element for the accumulator. For integer addition the identity is 0. Supplying 1 or 2 is allowed syntactically but they are not identities: they just shift the result (and can break correctness for parallel reductions).
+
+```
+import java.util.stream.Stream;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        System.out.println(Stream.of(1, 2, 3, 4).reduce(Integer::sum));     // Optional[10]
+        System.out.println(Stream.of(1, 2, 3, 4).reduce(0, Integer::sum));      // 10
+        System.out.println(Stream.of(1, 2, 3, 4).reduce(1, Integer::sum));      // 11
+        System.out.println(Stream.of(1, 2, 3, 4).reduce(2, Integer::sum));      // 12
+
+    }
+
+}
+```
+
+---
+---
+--------------------------------------------------------------------------------------------------------------
+
+==> "they just shift the result (and can break correctness for parallel reductions)."  what do you mean by this statement in your above explanation ?
+
+It means two things:
+
+- "Shift the result": using a non-neutral identity (e.g., 1 for addition) adds that value once to the final sum, so result = sum(elements) + identity.
+- "Can break correctness for parallel reductions": in a parallel stream the reduction runs on multiple sub-partitions. The identity is applied in each partition, so a wrong identity gets added once per partition — producing a different result depending on how the stream is split.
+
+Brief example showing sequential vs parallel behavior:
+
+Explanation: sequential reduce with identity 1 yields sum + 1; parallel reduce may add the identity multiple times (once per partition), producing a larger offset.
+
+```
+import java.util.stream.Stream;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        // sequential: identity 1 shifts result by +1
+        System.out.println(Stream.of(1, 2, 3, 4).reduce(1, Integer::sum)); // 11
+
+        // parallel: identity 1 can be applied per partition => extra shifts
+        System.out.println(Stream.of(1, 2, 3, 4).parallel().reduce(1, Integer::sum)); // often 12 or a different value (depends on splitting)
+
+    }
+
+}
+
+```
+
+---
+---
+______________________________________________________________________________________________________________
+
 
 

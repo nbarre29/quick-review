@@ -149,6 +149,15 @@ double totalEngineeringSalary = employees.stream()
         System.out.println("Total salary for Engineering department: " + totalEngineeringSalary);
 ```
 
+d.1) use "Engineering".equals to avoid NPE
+```
+double totalEngineeringSalary = employees.stream()
+                .filter(emp -> "Engineering".equals(emp.department()))
+                .mapToDouble(Employee::salary)
+                .sum();
+        System.out.println("Total salary for Engineering department: " + totalEngineeringSalary);
+```
+
 e) Using `Comparator.comparingDouble` is better than `Comparator.comparing` in this case because:
 
 1. **Avoids boxing overhead**: `Comparator.comparingDouble` works directly with primitive `double` values, while `Comparator.comparing` would box the `double` into a `Double` object for each comparison.
@@ -214,7 +223,75 @@ double totalSalary = employees.stream().mapToDouble(Employee::salary).sum();
 REFERENCE:
 https://www.youtube.com/watch?v=JVRy0IKLH0A
 
-________________________________________________________________________________________
+---
+---
+-------------------------------------------------------------------------------------------------------
+
+==> Both `orElseThrow()` and `ifPresentOrElse()` have their place and are absolutely used in production code**
+
+## When to use `orElseThrow()`:
+
+**1. When you NEED the value for further processing:**
+```java
+// You need the employee object to do more work with it
+Employee highestPaid = employees.stream()
+    .max(Comparator.comparingDouble(Employee::salary))
+    .orElseThrow(() -> new EmployeeNotFoundException("No employees found"));
+
+// Now you can use highestPaid for business logic
+processBonus(highestPaid);
+updatePayroll(highestPaid);
+sendNotification(highestPaid);
+```
+
+**2. When absence is truly exceptional (error condition):**
+```java
+// In a payroll system where employees MUST exist
+Employee ceo = employees.stream()
+    .filter(e -> e.role().equals("CEO"))
+    .findFirst()
+    .orElseThrow(() -> new IllegalStateException("CEO must exist in system"));
+```
+
+**3. When you need to return the value from a method:**
+```java
+public Employee getHighestPaidEmployee() {
+    return employees.stream()
+        .max(Comparator.comparingDouble(Employee::salary))
+        .orElseThrow(() -> new NoSuchElementException("No employees"));
+}
+```
+
+## When to use `ifPresentOrElse()`:
+
+**When you're doing terminal operations** (like printing, logging, sending notifications) and don't need the value afterwards.
+
+```java
+// Just reporting, no further processing needed
+employees.stream()
+    .max(Comparator.comparingDouble(Employee::salary))
+    .ifPresentOrElse(
+        e -> emailService.sendReport(e),
+        () -> logger.warn("No employees to report")
+    );
+```
+
+## Real Production Example:
+
+```java
+// Getting a required configuration value
+String apiKey = configRepository.findByKey("payment.api.key")
+    .orElseThrow(() -> new ConfigurationException("Payment API key not configured"));
+
+// Use apiKey to make API call
+paymentService.processPayment(apiKey, amount);
+```
+
+**Bottom line:** Use `orElseThrow()` when you need the value or when absence is an error. Use `ifPresentOrElse()` when you're just performing side effects. Both are common in production!
+
+---
+---
+_______________________________________________________________________________________________________
 
 ==> // Calculate average salary of all employees
         double overallAvgSalary = employees.stream()
@@ -398,6 +475,10 @@ a) List<String> uniqueSkills = employees.stream()
                 .flatMap(emp -> emp.skills().stream())
                 .distinct()
                 .toList();
-________________________________________________________________________________________
+
+---
+---
+_______________________________________________________________________________________________________
+
 
 
