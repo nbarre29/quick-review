@@ -1060,7 +1060,54 @@ Boolean.TRUE.equals(false) → returns false
 Boolean.TRUE.equals(true) → returns true
 
 
+b) 
+```
+public class Main {
+    public static void main(String[] args) {
 
+        System.out.println(getApprovalMessage(true, null));
+        System.out.println(getApprovalMessage(false, true));
+        System.out.println(getApprovalMessage(null, null));
+    }
+
+    private static String getApprovalMessage(Boolean supervisorApproved, Boolean managerApproved) {
+        if(Boolean.TRUE.equals(supervisorApproved) && Boolean.TRUE.equals(managerApproved)) {
+            return "Approved by both supervisor and manager.";
+        } else if (Boolean.TRUE.equals(supervisorApproved)) {
+            return "Approved by supervisor only.";
+        } else if (Boolean.TRUE.equals(managerApproved)) {
+            return "Approved by manager only.";
+        } else {
+            return "Not approved.";
+        }
+    }
+}
+```
+
+c) Checks for null explicitly before evaluating the Boolean values to avoid using `Boolean.TRUE.equals()`.
+```
+public class Main {
+    public static void main(String[] args) {
+
+        System.out.println(getApprovalMessage(true, null));
+        System.out.println(getApprovalMessage(false, true));
+        System.out.println(getApprovalMessage(null, null));
+    }
+
+    // Checks for null explicitly before evaluating the Boolean values to avoid using `Boolean.TRUE.equals()`.
+    private static String getApprovalMessage(Boolean supervisorApproved, Boolean managerApproved) {
+        if (supervisorApproved != null && supervisorApproved && managerApproved != null && managerApproved) {
+            return "Approved by both supervisor and manager.";
+        } else if (supervisorApproved != null && supervisorApproved) {
+            return "Approved by supervisor only.";
+        } else if (managerApproved != null && managerApproved) {
+            return "Approved by manager only.";
+        } else {
+            return "Not approved.";
+        }
+    }
+}
+```
 
 _____________________________________________________________________________________
 -> java.util.function.Supplier<T> at a glance
