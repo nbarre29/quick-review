@@ -1,0 +1,121 @@
+==> Here are practical examples demonstrating `Objects::nonNull`:
+
+```
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+
+public class ObjectsNonNullDemo {
+    public static void main(String[] args) {
+
+        // Example 1: Filter out null values from a stream
+        List<String> names = Arrays.asList("Alice", null, "Bob", null, "Charlie", "");
+
+        List<String> nonNullNames = names.stream()
+                .filter(Objects::nonNull)  // Remove nulls
+                .toList();
+
+        System.out.println("Original: " + names);
+        System.out.println("Non-null: " + nonNullNames);
+        // Output: [Alice, Bob, Charlie, ]
+
+
+        // Example 2: Count non-null elements
+        long nonNullCount = names.stream()
+                .filter(Objects::nonNull)
+                .count();
+
+        System.out.println("\nNon-null count: " + nonNullCount); // 4
+
+
+        // Example 3: Process only non-null values
+        System.out.println("\nProcessing non-null names:");
+        names.stream()
+                .filter(Objects::nonNull)
+                .map(String::toUpperCase)
+                .forEach(System.out::println);
+
+
+        // Example 4: Clean up a list of optional data
+        List<Integer> numbers = Arrays.asList(1, null, 2, null, 3, 4, null, 5);
+
+        int sum = numbers.stream()
+                .filter(Objects::nonNull)
+                .mapToInt(Integer::intValue)
+                .sum();
+
+        System.out.println("\nNumbers: " + numbers);
+        System.out.println("Sum of non-null: " + sum); // 15
+
+
+        // Example 5: Combine with other predicates
+        List<String> filtered = names.stream()
+                .filter(Objects::nonNull)           // First remove nulls
+                .filter(s -> !s.isEmpty())          // Then remove empty strings
+                .filter(s -> s.startsWith("A") || s.startsWith("B"))
+                .toList();
+
+        System.out.println("\nFiltered (A or B): " + filtered); // [Alice, Bob]
+
+
+        // Example 6: Real-world use case - processing user input
+        List<String> userInputs = Arrays.asList(
+                "john@example.com",
+                null,  // User skipped
+                "invalid-email",
+                null,
+                "jane@example.com"
+        );
+
+        List<String> validEmails = userInputs.stream()
+                .filter(Objects::nonNull)
+                .filter(email -> email.contains("@"))
+                .toList();
+
+        System.out.println("\nValid emails: " + validEmails);
+    }
+}
+```
+
+#### Output:
+```
+Original: [Alice, null, Bob, null, Charlie, ]
+Non-null: [Alice, Bob, Charlie, ]
+
+Non-null count: 4
+
+Processing non-null names:
+ALICE
+BOB
+CHARLIE
+
+
+Numbers: [1, null, 2, null, 3, 4, null, 5]
+Sum of non-null: 15
+
+Filtered (A or B): [Alice, Bob]
+
+Valid emails: [john@example.com, jane@example.com]
+```
+
+**Why use `Objects::nonNull` instead of a lambda?**
+
+```java
+// These are equivalent, but the method reference is cleaner:
+.filter(Objects::nonNull)
+.filter(x -> x != null)
+
+// The method reference is:
+// - More concise and readable
+// - Shows intent clearly
+// - Follows functional programming style
+```
+
+`Objects::nonNull` is particularly useful in stream pipelines where you want to defensively remove null values before further processing!
+
+---
+---
+______________________________________________________________________________________________________________
+
+
+

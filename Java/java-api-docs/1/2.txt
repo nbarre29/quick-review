@@ -1122,5 +1122,87 @@ public class Main {
 ---
 ______________________________________________________________________________________________________________
 
+==> explain why BigDecimal.TWO was added in java 19 compared to ONE, TWO, TEN added in 1.5 ?
+ https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/math/BigDecimal.html#ZERO
+https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/math/BigDecimal.html#ONE
+https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/math/BigDecimal.html#TWO
+https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/math/BigDecimal.html#TEN
+
+Based on the documentation you've shared, `BigDecimal.TWO` was added in Java 19, while `ZERO`, `ONE`, and `TEN` were all added much earlier in version 1.5.
+
+The most likely reason for this late addition is that **it wasn't previously needed enough to justify inclusion**, but eventually became useful for common operations. Here are some probable factors:
+
+**Why it was finally added:**
+- **Consistency and completeness** - Having constants for 0, 1, and 10 but not 2 created an asymmetry in the API
+- **Common use cases** - The value 2 appears frequently in calculations (division by 2, doubling, etc.)
+- **Performance optimization** - Creating `new BigDecimal(2)` repeatedly is wasteful when a reusable constant could serve the same purpose
+- **Developer convenience** - Reduces boilerplate code for a commonly used value
+
+**Why it took until Java 19:**
+- The Java team is generally conservative about API additions to maintain backward compatibility and avoid bloat
+- Since developers could easily create `new BigDecimal(2)` or `BigDecimal.ONE.add(BigDecimal.ONE)`, it wasn't urgent
+- The cost/benefit ratio probably didn't justify it until there was enough developer demand or internal use cases
+
+It's worth noting that `TEN` was likely included early on because it's particularly useful for scaling operations (moving decimal points), which is a fundamental BigDecimal use case. The value 2, while common, didn't have such a unique role.
+
+---
+---
+--------------------------------------------------------------------------------------------------------------
+
+==> a small example to demonstrate scaling operations (moving decimal points) with BigDecimal.TEN
+```
+import java.math.BigDecimal;
+
+public class Main {
+    public static void main(String[] args) {
+        BigDecimal price = new BigDecimal("123.456");
+
+        System.out.println("Original: " + price);
+
+        // Move decimal point 1 place right (multiply by 10)
+        BigDecimal timesOne = price.multiply(BigDecimal.TEN);
+        System.out.println("× 10¹:    " + timesOne);  // 1234.56
+
+        // Move decimal point 2 places right (multiply by 100)
+        BigDecimal timesTwo = price.multiply(BigDecimal.TEN).multiply(BigDecimal.TEN);
+        System.out.println("× 10²:    " + timesTwo);  // 12345.6
+
+        // Move decimal point 1 place left (divide by 10)
+        BigDecimal divideOne = price.divide(BigDecimal.TEN);
+        System.out.println("÷ 10¹:    " + divideOne); // 12.3456
+
+        // Converting cents to dollars
+        BigDecimal cents = new BigDecimal("12599"); // $125.99 in cents
+        BigDecimal dollars = cents.divide(new BigDecimal("100"));
+        System.out.println("\nCents to dollars: " + cents + " → $" + dollars);
+
+        // Using TEN.pow(n) for larger scale changes
+        BigDecimal kilometers = new BigDecimal("5.2");
+        BigDecimal millimeters = kilometers.multiply(BigDecimal.TEN.pow(6));
+        System.out.println("\n5.2 km = " + millimeters + " mm");
+    }
+}
+```
+
+#### Output:
+```
+Original: 123.456
+× 10¹:    1234.560
+× 10²:    12345.600
+÷ 10¹:    12.3456
+
+Cents to dollars: 12599 → $125.99
+
+5.2 km = 5200000.0 mm
+```
+
+---
+---
+______________________________________________________________________________________________________________
+
+
+
+
+
 
 

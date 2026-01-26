@@ -477,6 +477,71 @@ public class Main {
 ---
 ______________________________________________________________________________________________________
 
+==> A program to demonstrate the use of Stream.empty()
+
+```
+public record Employee(int id, String name) {
+}
+
+
+import java.util.stream.Stream;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        Stream<Employee> noEmployees = Stream.<Employee>empty();
+
+        System.out.println("Empty count: " + noEmployees.count()); // 0
+
+        // Example: method that returns Stream<Employee>
+        employeesForDepartment("HR")
+                .forEach(e -> System.out.println("HR -> " + e));
+
+        employeesForDepartment("UNKNOWN")
+                .forEach(e -> System.out.println("UNKNOWN -> " + e)); // prints nothing
+
+        // Sometimes you’ll see the explicit type witness used in a ternary:
+        boolean hasData = false;
+        Stream<Employee> employees =
+                hasData
+                        ? Stream.of(new Employee(1, "Ava"))
+                        : Stream.<Employee>empty();   // explicit type makes intent crystal clear
+
+        System.out.println("Ternary count: " + employees.count()); // 0
+    }
+    
+    private static Stream<Employee> employeesForDepartment(String dept) {
+        if (dept == null || dept.isBlank()) {
+            return Stream.<Employee>empty();
+        }
+
+        return switch (dept) {
+            case "HR" -> Stream.of(
+                    new Employee(10, "Nina"),
+                    new Employee(11, "Omar")
+            );
+            case "ENG" -> Stream.of(
+                    new Employee(20, "Peter")
+            );
+            default -> Stream.<Employee>empty(); // no matching department => empty stream
+        };
+    }
+}
+```
+
+#### Output:
+```
+Empty count: 0
+HR -> Employee[id=10, name=Nina]
+HR -> Employee[id=11, name=Omar]
+Ternary count: 0
+```
+
+---
+---
+______________________________________________________________________________________________________
+
 ==> Given a list of fruit names , capitalize the first letter of each fruit.
 
 import java.util.List;
