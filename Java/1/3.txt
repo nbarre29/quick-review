@@ -413,6 +413,68 @@ b) To declare an **empty `Stream<String>`** in Java, use the built-in `Stream.em
 ```java
 Stream<String> emptyStream = Stream.empty();
 ```
+
+c) 
+```
+import java.util.NoSuchElementException;
+import java.util.stream.Stream;
+
+public class Main {
+    public static void main(String[] args) {
+
+        // Case 2: Empty stream - orElseThrow() throws NoSuchElementException
+        try {
+            int emptyMax = Stream.<String>empty()
+                    .map(user -> user.substring(4))
+                    .mapToInt(Integer::parseInt)
+                    .max()
+                    .orElseThrow();
+
+            System.out.println("This won't print: " + emptyMax);
+        } catch (NoSuchElementException e) {
+            // the message from NoSuchElementException when thrown by orElseThrow() is "No value present"
+            // throw new NoSuchElementException("No value present"); is available in the source code of OptionalInt.java
+            System.out.println(e.getMessage());  //No value present
+
+        }
+
+    }
+}
+```
+
+When using logging framework like SLF4J
+```
+log.error("Error occurred: {}", e.getMessage(), e);
+```
+
+Or more simply:
+
+```
+log.error("Error occurred", e);
+```
+
+The second option is **better** because it automatically includes the full exception message and stack trace.
+
+
+d) 
+```
+import java.util.stream.Stream;
+
+public class Main {
+    public static void main(String[] args) {
+
+        Stream.of("user1", "user2", "user3", "user4")
+                .map(user -> user.substring(4)) // Extract the number part
+                .mapToInt(Integer::parseInt)
+                .max()
+                .ifPresentOrElse(id -> System.out.println("Max user ID: user" + id),
+                        () -> System.out.println("No user IDs found"));
+    }
+}
+```
+
+---
+---
 ______________________________________________________________________________________________________
 
 ==> Given a list of fruit names , capitalize the first letter of each fruit.

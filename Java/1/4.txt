@@ -130,7 +130,20 @@ public class Main {
 
     }
 }
-_________________________________________________________________________________
+
+#### MyNotes:
+a) Map.of creates an immutable map with given key-value pairs
+```
+Map<String, Integer> studentScores = Map.of(
+                "Alice", 85,
+                "Bob", 92,
+                "Charlie", 78
+        );
+```
+
+---
+---
+________________________________________________________________________________________________
 
 -> 
 import java.util.Map;

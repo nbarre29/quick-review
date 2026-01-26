@@ -362,6 +362,16 @@ public class Test {
 }
 ```
 
+### Option 6: Print distinct vowels in the string
+```
+str.toLowerCase()
+                .chars()
+                .filter(ch -> "aeiou".indexOf(ch) >= 0)
+                .distinct()
+                .forEach(ch -> System.out.print((char) ch + " "));
+```
+
+
 ## Recommendation
 
 - **For learning/interviews**: **Option 2** (Set with loop) - clear and efficient
