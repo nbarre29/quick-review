@@ -850,6 +850,9 @@ public class BooleanStreamsDemo {
         
         // Example 1: List of Boolean values (works!)
         List<Boolean> flags = Arrays.asList(true, false, true, true, false, null, true);
+
+        // List.of does not allow null elements. So this will throw NullPointerException at runtime.
+        // List<Boolean> flags = List.of(true, false, true, true, false, null, true);
         
         System.out.println("Original list: " + flags);
         
@@ -874,6 +877,16 @@ public class BooleanStreamsDemo {
                               .count();
         
         System.out.println("Count of NULL values: " + nullCount);
+
+        // Count null values, Option 1: direct null check
+        long nullCount1 = flags.stream()
+                .filter(x -> x == null)
+                .count();
+
+        // Count null values, Option 2: call Objects.isNull via lambda
+        long nullCount2 = flags.stream()
+                .filter(x -> Objects.isNull(x))
+                .count();
         
         System.out.println("\n=== Complex Stream Operations ===\n");
         
@@ -904,6 +917,7 @@ public class BooleanStreamsDemo {
         
         // Filter users who haven't decided yet (null)
         List<String> undecidedUsers = preferences.stream()
+            // we use == null to check for null values and can't use .equals because it would throw a NullPointerException
             .filter(pref -> pref.newsletterSubscribed() == null)
             .map(UserPreference::name)
             .collect(Collectors.toList());
@@ -953,6 +967,7 @@ public class BooleanStreamsDemo {
         
         // Get features that need configuration
         List<String> unconfiguredFeatures = featureFlags.entrySet().stream()
+            //here i check for == null and not .equals because equals would throw NullPointerException
             .filter(entry -> entry.getValue() == null)
             .map(Map.Entry::getKey)
             .collect(Collectors.toList());
@@ -1104,6 +1119,37 @@ public class Main {
             return "Approved by manager only.";
         } else {
             return "Not approved.";
+        }
+    }
+}
+```
+
+c.1) extracted constants to avoid any typo in string literals
+```
+public class Main {
+
+    public static final String APPROVED_BY_BOTH_SUPERVISOR_AND_MANAGER = "Approved by both supervisor and manager.";
+    public static final String APPROVED_BY_SUPERVISOR_ONLY = "Approved by supervisor only.";
+    public static final String APPROVED_BY_MANAGER_ONLY = "Approved by manager only.";
+    public static final String NOT_APPROVED = "Not approved.";
+
+    public static void main(String[] args) {
+
+        System.out.println(getApprovalMessage(true, null));
+        System.out.println(getApprovalMessage(false, true));
+        System.out.println(getApprovalMessage(null, null));
+    }
+
+    // Checks for null explicitly before evaluating the Boolean values to avoid using `Boolean.TRUE.equals()`.
+    private static String getApprovalMessage(Boolean supervisorApproved, Boolean managerApproved) {
+        if (supervisorApproved != null && supervisorApproved && managerApproved != null && managerApproved) {
+            return APPROVED_BY_BOTH_SUPERVISOR_AND_MANAGER;
+        } else if (supervisorApproved != null && supervisorApproved) {
+            return APPROVED_BY_SUPERVISOR_ONLY;
+        } else if (managerApproved != null && managerApproved) {
+            return APPROVED_BY_MANAGER_ONLY;
+        } else {
+            return NOT_APPROVED;
         }
     }
 }

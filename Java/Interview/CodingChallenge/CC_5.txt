@@ -346,7 +346,7 @@ str.replaceAll("[^aeiouAEIOU]", "")
 
 ### Option 5: My Option is to use streams for better readability:
 
-```java
+```
 public class Test {
     public static void main(String[] args) {
         String str = "Naveen";
@@ -361,6 +361,59 @@ public class Test {
     }
 }
 ```
+
+MyNotes:
+a) 
+```
+public class Main {
+
+    public static void main(String[] args) {
+    String str = "Naveen";
+    str.toLowerCase()
+            .chars()
+            .forEach(ch -> System.out.print((char) ch + " "));  // n a v e e n
+    }
+
+}
+```
+
+b) 
+```
+public class Main {
+
+    public static void main(String[] args) {
+        String str = "Naveen";
+        str.toLowerCase()
+                .chars()
+                .forEach(ch -> System.out.print(ch + " "));  // 110 97 118 101 101 110 
+    }
+
+}
+```
+
+c) 
+```
+public class Main {
+
+    public static void main(String[] args) {
+
+        System.out.println("aeiou".indexOf(110)); // -1
+        System.out.println("aeiou".indexOf(97));  // 0
+        System.out.println("aeiou".indexOf(118)); // -1
+        System.out.println("aeiou".indexOf(101)); // 1
+        System.out.println("aeiou".indexOf(101)); // 1
+        System.out.println("aeiou".indexOf(110)); // -1
+
+    }
+
+}
+```
+`String#indexOf(int)` treats the argument as a Unicode code point (an `int` representing a character). It searches the string for that character and returns the zero-based index of the first occurrence, or `-1` if the character is not found.
+
+So in `System.out.println("aeiou".indexOf(110));` the `110` is the code point for `'n'`. `'n'` is not in `"aeiou"`, so `indexOf` returns `-1`. Likewise `97` → `'a'` (index `0`), `118` → `'v'` (not found → `-1`), `101` → `'e'` (index `1`).
+
+If you want to be clearer, call `indexOf('a')` or `indexOf("a")` instead of using numeric code points.
+
 
 ### Option 6: Print distinct vowels in the string
 ```
@@ -398,7 +451,8 @@ public class Main {
 }
 ```
 
-#### MyNotes: The below program is just to show that `.mapToObj(ch -> (char) ch)` can be placed above also
+#### MyNotes: 
+a) The below program is just to show that `.mapToObj(ch -> (char) ch)` can be placed above also
 ```
 public class Main {
     public static void main(String[] args) {
@@ -409,6 +463,20 @@ public class Main {
                 .mapToObj(ch -> (char) ch)
                 .filter(ch -> "aeiou".indexOf(ch) != -1)
                 .forEach(System.out::println);
+    }
+}
+```
+
+b) just to show that we can achieve the same output without using `.mapToObj`
+```
+public class Main {
+    public static void main(String[] args) {
+        String str = "Naveen";
+
+        str.toLowerCase()
+                .chars()
+                .filter(ch -> "aeiou".indexOf(ch) != -1)
+                .forEach(ch -> System.out.println((char) ch + " "));
     }
 }
 ```
