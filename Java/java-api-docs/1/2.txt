@@ -245,6 +245,18 @@ System.out.println(
 );
 ```
 
+b) 
+```
+sales.stream()
+                .filter(sale -> "North".equals(sale.region()))
+                .map(Sale::amount)
+                .reduce(BigDecimal::add)
+                .ifPresentOrElse(
+                        totalNorthSales -> System.out.println("Total sales in North region: " + totalNorthSales),
+                        () -> System.out.println("No sales in North region")
+                );
+```
+
 ---
 ---
 ______________________________________________________________________________________________________________

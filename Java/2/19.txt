@@ -1,0 +1,819 @@
+==> # Java Switch Statement: Complete Evolution Guide
+
+## 📋 Table of Contents
+1. [Switch Parameters - What Can Be Used](#switch-parameters)
+2. [Java 1-6: Traditional Switch](#java-1-6-traditional-switch)
+3. [Java 7: String Support](#java-7-string-support)
+4. [Java 12-13: Switch Expressions (Preview)](#java-12-13-switch-expressions)
+5. [Java 14: Switch Expressions (Standard)](#java-14-switch-expressions-standard)
+6. [Java 17+: Pattern Matching](#java-17-pattern-matching)
+7. [Java 21: Pattern Matching Finalized](#java-21-pattern-matching-finalized)
+8. [Complete Comparison Table](#complete-comparison-table)
+
+---
+
+## 1. Switch Parameters - What Can Be Used?
+
+### ✅ Allowed Types in Switch
+
+| Type | Since | Example |
+|------|-------|---------|
+| `byte`, `short`, `int` | Java 1 | `switch(intValue)` |
+| `char` | Java 1 | `switch(charValue)` |
+| `Byte`, `Short`, `Integer`, `Character` | Java 5 | `switch(integerObject)` |
+| `enum` | Java 5 | `switch(dayEnum)` |
+| `String` | Java 7 | `switch(stringValue)` |
+| Pattern matching (`instanceof`) | Java 17+ | `switch(object)` |
+| `null` handling | Java 21+ | `case null ->` |
+| Record patterns | Java 21+ | `case Point(int x, int y) ->` |
+
+### ❌ NOT Allowed
+
+- `long`, `Long`
+- `float`, `Float`
+- `double`, `Double`
+- `boolean`, `Boolean`
+- Custom objects (before Java 17)
+
+---
+
+## 2. Java 1-6: Traditional Switch
+
+### Features
+- ❌ Fall-through by default (requires `break`)
+- ❌ Statement-based only
+- ❌ Limited types
+
+### Example
+
+```
+public class TraditionalSwitch {
+    public static void main(String[] args) {
+        traditionalIntSwitch();
+        traditionalCharSwitch();
+        traditionalEnumSwitch();
+    }
+
+    // Java 1: int switch
+    private static void traditionalIntSwitch() {
+        int day = 3;
+        String dayName;
+
+        switch (day) {
+            case 1:
+                dayName = "Monday";
+                break;
+            case 2:
+                dayName = "Tuesday";
+                break;
+            case 3:
+                dayName = "Wednesday";
+                break;
+            case 4:
+                dayName = "Thursday";
+                break;
+            case 5:
+                dayName = "Friday";
+                break;
+            case 6:
+            case 7:
+                dayName = "Weekend";
+                break;
+            default:
+                dayName = "Invalid";
+                break;
+        }
+
+        System.out.println("Traditional int: " + dayName);
+    }
+
+    // Java 1: char switch
+    private static void traditionalCharSwitch() {
+        char grade = 'B';
+        String description;
+
+        switch (grade) {
+            case 'A':
+                description = "Excellent";
+                break;
+            case 'B':
+                description = "Good";
+                break;
+            case 'C':
+                description = "Average";
+                break;
+            case 'D':
+            case 'F':
+                description = "Poor";
+                break;
+            default:
+                description = "Invalid grade";
+                break;
+        }
+
+        System.out.println("Grade: " + description);
+    }
+
+    // Java 5: enum switch
+    enum Day {
+        MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
+    }
+
+    private static void traditionalEnumSwitch() {
+        Day day = Day.FRIDAY;
+
+        switch (day) {
+            case MONDAY:
+            case TUESDAY:
+            case WEDNESDAY:
+            case THURSDAY:
+                System.out.println("Weekday");
+                break;
+            case FRIDAY:                System.out.println("TGIF!");
+                break;
+            case SATURDAY:
+            case SUNDAY:
+                System.out.println("Weekend");
+                break;
+        }
+    }
+}
+```
+
+**Problems:**
+- 🔴 Easy to forget `break` → bugs
+- 🔴 Verbose
+- 🔴 Can't return values directly
+- 🔴 Fall-through is error-prone
+
+---
+
+## 3. Java 7: String Support
+
+### New Feature
+- ✅ Switch on `String` values
+
+### Example
+
+```
+public class Java7StringSwitch {
+    public static void main(String[] args) {
+        stringSwitch("json");
+        stringSwitch("xml");
+        stringSwitch("yaml");
+    }
+
+    private static void stringSwitch(String format) {
+        String result;
+
+        switch (format.toLowerCase()) {
+            case "json":
+                result = "JavaScript Object Notation";
+                break;
+            case "xml":
+                result = "eXtensible Markup Language";
+                break;
+            case "yaml":
+                result = "YAML Ain't Markup Language";
+                break;
+            default:
+                result = "Unknown format";
+                break;
+        }
+
+        System.out.println(format + " = " + result);
+    }
+
+    // Real-world example: HTTP method handling
+    private static void handleHttpMethod(String method) {
+        switch (method.toUpperCase()) {
+            case "GET":
+                System.out.println("Fetching resource");
+                break;
+            case "POST":
+                System.out.println("Creating resource");
+                break;
+            case "PUT":
+                System.out.println("Updating resource");
+                break;
+            case "DELETE":
+                System.out.println("Deleting resource");
+                break;
+            default:
+                System.out.println("Unsupported method");
+                break;
+        }
+    }
+}
+```
+
+**Note:** String switch uses `String.equals()` internally, so it's case-sensitive unless you normalize.
+
+---
+
+## 4. Java 12-13: Switch Expressions (Preview)
+
+### New Features
+- ✅ Arrow syntax `case x -> y`
+- ✅ No fall-through
+- ✅ Returns value
+- ✅ Multiple labels `case 1, 2, 3 ->`
+
+### Example
+
+```
+public class Java12SwitchExpressions {
+    public static void main(String[] args) {
+        System.out.println("=== Java 12 Switch Expressions ===\n");
+
+        arrowSyntax();
+        multipleLabels();
+        switchAsExpression();
+        yieldKeyword();
+    }
+
+    // Arrow syntax (no fall-through)
+    private static void arrowSyntax() {
+        int day = 3;
+
+        String dayType = switch (day) {
+            case 1, 2, 3, 4, 5 -> "Weekday";
+            case 6, 7 -> "Weekend";
+            default -> "Invalid";
+        };
+
+        System.out.println("Day " + day + " is: " + dayType);
+    }
+
+    // Multiple labels in one case
+    private static void multipleLabels() {
+        String month = "December";
+
+        int days = switch (month) {
+            case "January", "March", "May", "July", "August", "October", "December" -> 31;
+            case "April", "June", "September", "November" -> 30;
+            case "February" -> 28;
+            default -> throw new IllegalArgumentException("Invalid month");
+        };
+
+        System.out.println(month + " has " + days + " days");
+    }
+
+    // Switch as expression (returns value)
+    private static void switchAsExpression() {
+        enum Size {SMALL, MEDIUM, LARGE, EXTRA_LARGE}
+        Size size = Size.MEDIUM;
+
+        // Old way
+        String price1;
+        switch (size) {
+            case SMALL:
+                price1 = "$5";
+                break;
+            case MEDIUM:
+                price1 = "$7";
+                break;
+            case LARGE:
+                price1 = "$9";
+                break;
+            case EXTRA_LARGE:
+                price1 = "$11";
+                break;
+            default:
+                price1 = "N/A";
+                break;
+        }
+
+        // New way (expression)
+        String price2 = switch (size) {
+            case SMALL -> "$5";
+            case MEDIUM -> "$7";
+            case LARGE -> "$9";
+            case EXTRA_LARGE -> "$11";
+        };
+
+        System.out.println("Old: " + price1 + ", New: " + price2);
+    }
+
+    // yield keyword for multi-line blocks
+    private static void yieldKeyword() {
+        int score = 85;
+
+        String grade = switch (score / 10) {
+            case 10, 9 -> "A";
+            case 8 -> "B";
+            case 7 -> "C";
+            case 6 -> {
+                System.out.println("Needs improvement");
+                yield "D";
+            }
+            default -> {
+                System.out.println("Failed");
+                yield "F";
+            }
+        };
+
+        System.out.println("Score " + score + " = Grade " + grade);
+    }
+}
+```
+
+**Key Improvements:**
+- ✅ Cleaner syntax
+- ✅ No forgotten `break` statements
+- ✅ Can use as expression
+- ✅ `yield` for complex blocks
+
+---
+
+## 5. Java 14: Switch Expressions (Standard)
+
+Same as Java 12-13 but now **standard** (no longer preview).
+
+### Example: Real-World Calculator
+
+```
+public class Java14Calculator {
+
+    public static void main(String[] args) {
+        System.out.println("10 + 5 = " + calculate(10, 5, "+"));
+        System.out.println("10 - 5 = " + calculate(10, 5, "-"));
+        System.out.println("10 * 5 = " + calculate(10, 5, "*"));
+        System.out.println("10 / 5 = " + calculate(10, 5, "/"));
+    }
+
+    private static double calculate(double a, double b, String operator) {
+        return switch (operator) {
+            case "+" -> a + b;
+            case "-" -> a - b;
+            case "*" -> a * b;
+            case "/" -> {
+                if (b == 0) {
+                    throw new ArithmeticException("Division by zero");
+                }
+                yield a / b;
+            }
+            default -> throw new IllegalArgumentException("Unknown operator: " + operator);
+        };
+    }
+}
+```
+
+---
+
+## 6. Java 17+: Pattern Matching (Preview)
+
+### New Features
+- ✅ `instanceof` patterns in switch
+- ✅ Type patterns
+- ✅ Guard conditions
+
+### Example
+
+```
+public class Java17PatternMatching {
+
+    public static void main(String[] args) {
+        System.out.println("=== Java 17 Pattern Matching ===\n");
+
+        // Type pattern matching
+        System.out.println(formatValue("Hello"));
+        System.out.println(formatValue(42));
+        System.out.println(formatValue(3.14));
+        System.out.println(formatValue(true));
+
+        // Guarded patterns
+        System.out.println(categorizeNumber(150));
+        System.out.println(categorizeNumber(50));
+        System.out.println(categorizeNumber(-10));
+    }
+
+    // Type pattern matching in switch
+    private static String formatValue(Object obj) {
+        return switch (obj) {
+            case Integer i -> String.format("int: %d", i);
+            case Long l -> String.format("long: %d", l);
+            case Double d -> String.format("double: %.2f", d);
+            case String s -> String.format("String: \"%s\"", s);
+            case Boolean b -> String.format("boolean: %b", b);
+            default -> "Unknown type";
+        };
+    }
+
+    // Guarded patterns (with conditions)
+    private static String categorizeNumber(Integer num) {
+        return switch (num) {
+            case Integer i when i > 100 -> "Large number: " + i;
+            case Integer i when i > 0 -> "Positive number: " + i;
+            case Integer i when i < 0 -> "Negative number: " + i;
+            case 0 -> "Zero";
+            default -> "Not a number";
+        };
+    }
+
+    // Real-world example: Processing different shapes
+    sealed interface Shape permits Circle, Rectangle, Triangle {
+    }
+
+    record Circle(double radius) implements Shape {
+    }
+
+    record Rectangle(double width, double height) implements Shape {
+    }
+
+    record Triangle(double base, double height) implements Shape {
+    }
+
+    private static double calculateArea(Shape shape) {
+        return switch (shape) {
+            case Circle c -> Math.PI * c.radius() * c.radius();
+            case Rectangle r -> r.width() * r.height();
+            case Triangle t -> 0.5 * t.base() * t.height();
+        };
+    }
+}
+```
+
+---
+
+## 7. Java 21: Pattern Matching Finalized + Enhancements
+
+### New Features
+- ✅ Pattern matching (standard, not preview)
+- ✅ `null` case handling
+- ✅ Record patterns
+- ✅ Enhanced type patterns
+
+### Example
+
+```
+public class Java21SwitchEnhancements {
+
+    public static void main(String[] args) {
+        System.out.println("=== Java 21 Switch Enhancements ===\n");
+
+        nullHandling();
+        recordPatterns();
+        enhancedTypePatterns();
+    }
+
+    // 1. Null handling in switch
+    private static void nullHandling() {
+        String value = null;
+
+        String result = switch (value) {
+            case null -> "Value is null";
+            case "hello" -> "Hello!";
+            case String s when s.length() > 5 -> "Long string: " + s;
+            case String s -> "Short string: " + s;
+        };
+
+        System.out.println(result);
+    }
+
+    // 2. Record patterns
+    record Point(int x, int y) {
+    }
+
+    record Circle(Point center, int radius) {
+    }
+
+    private static void recordPatterns() {
+        Object shape = new Circle(new Point(0, 0), 5);
+
+        String description = switch (shape) {
+            case Circle(Point(int x, int y), int r) -> String.format("Circle at (%d, %d) with radius %d", x, y, r);
+            case Point(int x, int y) -> String.format("Point at (%d, %d)", x, y);
+            case null -> "No shape";
+            default -> "Unknown shape";
+        };
+
+        System.out.println(description);
+    }
+
+    // 3. Enhanced type patterns with when
+    private static void enhancedTypePatterns() {
+        Object obj = "Java 21";
+
+        String result = switch (obj) {
+            case null -> "null value";
+            case String s when s.isEmpty() -> "Empty string";
+            case String s when s.length() < 5 -> "Short: " + s;
+            case String s -> "String: " + s;
+            case Integer i when i > 0 -> "Positive: " + i;
+            case Integer i when i < 0 -> "Negative: " + i;
+            case Integer i -> "Zero";
+            default -> "Other type";
+        };
+
+        System.out.println(result);
+    }
+
+    // Real-world: JSON parsing with pattern matching
+    sealed interface JsonValue {
+    }
+
+    record JsonString(String value) implements JsonValue {
+    }
+
+    record JsonNumber(double value) implements JsonValue {
+    }
+
+    record JsonBoolean(boolean value) implements JsonValue {
+    }
+
+    record JsonNull() implements JsonValue {
+    }
+
+    record JsonArray(java.util.List<JsonValue> values) implements JsonValue {
+    }
+
+    private static String formatJson(JsonValue json) {
+        return switch (json) {
+            case null -> "null";
+            case JsonString(String s) -> "\"" + s + "\"";
+            case JsonNumber(double d) -> String.valueOf(d);
+            case JsonBoolean(boolean b) -> String.valueOf(b);
+            case JsonNull() -> "null";
+            case JsonArray(var values) when values.isEmpty() -> "[]";
+            case JsonArray(var values) -> "[...]";
+        };
+    }
+}
+```
+
+---
+
+## 8. Complete Comparison Table
+
+### Feature Comparison by Version
+
+| Feature | Java 1-6 | Java 7 | Java 12-13 | Java 14 | Java 17 | Java 21 |
+|---------|----------|--------|------------|---------|---------|---------|
+| **int, byte, short, char** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Wrapper classes** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **enum** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **String** | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Arrow syntax** | ❌ | ❌ | ✅ (preview) | ✅ | ✅ | ✅ |
+| **Switch expression** | ❌ | ❌ | ✅ (preview) | ✅ | ✅ | ✅ |
+| **Multiple labels** | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| **yield keyword** | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| **Pattern matching** | ❌ | ❌ | ❌ | ❌ | ✅ (preview) | ✅ |
+| **Type patterns** | ❌ | ❌ | ❌ | ❌ | ✅ (preview) | ✅ |
+| **Guarded patterns (when)** | ❌ | ❌ | ❌ | ❌ | ✅ (preview) | ✅ |
+| **null case** | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| **Record patterns** | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+
+### Syntax Evolution
+
+```
+// Java 1-6: Traditional
+switch (day) {
+    case 1:
+        result = "Monday";
+        break;
+    case 2:
+        result = "Tuesday";
+        break;
+    default:
+        result = "Invalid";
+        break;
+}
+
+// Java 7: String support
+switch (dayName) {
+    case "Monday":
+        result = 1;
+        break;
+    default:
+        result = -1;
+        break;
+}
+
+// Java 14: Expression + Arrow
+String result = switch (day) {
+    case 1 -> "Monday";
+    case 2 -> "Tuesday";
+    default -> "Invalid";
+};
+
+// Java 14: yield for complex blocks
+String result = switch (day) {
+    case 1 -> {
+        System.out.println("Start of week");
+        yield "Monday";
+    }
+    default -> "Other";
+};
+
+// Java 17: Pattern matching
+String result = switch (obj) {
+    case Integer i -> "Integer: " + i;
+    case String s -> "String: " + s;
+    default -> "Unknown";
+};
+
+// Java 21: Enhanced patterns + null
+String result = switch (obj) {
+    case null -> "null";
+    case Integer i when i > 0 -> "Positive";
+    case String s when s.isEmpty() -> "Empty";
+    case Point(int x, int y) -> "Point at " + x + ", " + y;
+    default -> "Other";
+};
+```
+
+---
+
+## 🎯 Best Practices
+
+### ✅ DO:
+- Use arrow syntax for simple cases
+- Use `yield` for complex multi-line blocks
+- Use pattern matching for polymorphic behavior (Java 17+)
+- Handle `null` explicitly (Java 21+)
+- Make switches exhaustive (cover all cases)
+
+### ❌ DON'T:
+- Mix arrow and colon syntax in same switch
+- Forget `default` case (unless exhaustive with sealed types)
+- Use fall-through with arrow syntax (not allowed)
+- Compare `long`, `float`, `double`, `boolean` in switch
+
+---
+
+## 📊 Summary
+
+| Version | Key Addition |
+|---------|-------------|
+| **Java 1** | Basic switch (int, char, byte, short) |
+| **Java 5** | Enums + wrapper classes |
+| **Java 7** | String support |
+| **Java 12-13** | Switch expressions (preview) |
+| **Java 14** | Switch expressions (standard) |
+| **Java 17** | Pattern matching (preview) |
+| **Java 21** | Pattern matching finalized + null handling + record patterns |
+
+**Modern Java switch is now a powerful, type-safe, expression-oriented construct! 🚀**
+
+---
+---
+---------------------------------------------------------------------------------------------------------
+
+==> 
+```
+public class Main {
+    public static void main(String[] args) {
+        multipleLabels();
+    }
+
+    private static void multipleLabels() {
+        String month = "December";
+
+        int days = switch (month) {
+            case "January", "March", "May", "July", "August", "October", "December" -> 31;
+            case "April", "June", "September", "November" -> 30;
+            case "February" -> 28;
+            default -> throw new IllegalArgumentException("Invalid month");
+        };
+
+        System.out.println(month + " has " + days + " days");
+    }
+}
+```
+
+MyNotes: 
+a) Include the invalid value in the exception message (and optionally validate null). This makes debugging easier.
+
+```
+public class Main {
+    public static void main(String[] args) {
+        multipleLabels();
+    }
+
+    private static void multipleLabels() {
+        String month = "December";
+        java.util.Objects.requireNonNull(month, "month must not be null");
+
+        int days = switch (month) {
+            case "January", "March", "May", "July", "August", "October", "December" -> 31;
+            case "April", "June", "September", "November" -> 30;
+            case "February" -> 28;
+            default -> throw new IllegalArgumentException("Invalid month " + month);
+        };
+
+        System.out.println(month + " has " + days + " days");
+    }
+}
+```
+
+---
+---
+__________________________________________________________________________________________________________
+
+
+==> Here are **two practical Java demos** of **pattern matching for `switch`** (works on **Java 21+**).
+
+---
+
+## Demo 1: `switch` on `Object` with type patterns + `null` + guards (`when`)
+
+```
+public class SwitchPatternMatchingDemo1 {
+
+    public static void main(String[] args) {
+        Object[] values = {
+                null,
+                "",
+                "hello",
+                12,
+                -3,
+                2.5,
+                new StringBuilder("sb"),
+                true
+        };
+
+        for (Object v : values) {
+            System.out.printf("%-18s -> %s%n", String.valueOf(v), describe(v));
+        }
+    }
+
+    private static String describe(Object o) {
+        return switch (o) {
+            case null -> "is null";
+
+            case String s when s.isBlank() -> "is a blank String";
+            case String s -> "is a String of length " + s.length();
+
+            case Integer i when i > 0 -> "is a positive Integer, square=" + (i * i);
+            case Integer i -> "is an Integer (non-positive): " + i;
+
+            case Number n -> "is some other Number: " + n + " (double=" + n.doubleValue() + ")";
+
+            default -> "something else: " + o.getClass().getSimpleName();
+        };
+    }
+}
+```
+
+What this shows:
+
+* `case String s` **binds** the value to `s`
+* `when` is a **guard** (extra condition)
+* `case null` is explicit (otherwise switching on `null` throws)
+
+Switch pattern matching extends the traditional `switch` so cases can match not just constants but patterns (type patterns, deconstruction, and guarded conditions). It makes branching on object shape and type safer and more concise, and lets the compiler bind pattern variables directly inside the matched case.
+
+Key points:
+1. Type patterns: `case String s -> ...` matches and binds a `String`.
+2. Guarded patterns: `case Integer i when i > 0 -> ...` adds a condition.
+3. Constant patterns: `case 0 -> ...` still supported for primitives/constants.
+4. Exhaustiveness: a `switch` over a sealed type can be exhaustive (no `default` needed). Otherwise include `default`.
+5. Variable scope: pattern variables are only in scope inside the matching arm.
+6. Compiler rules: you cannot mix an unconditional type pattern that always matches with a `default` (the compiler will complain).
+
+---
+
+## Demo 2: Sealed types + exhaustive `switch` (no `default` needed)
+
+```
+public class SwitchPatternMatchingDemo2 {
+
+    public static void main(String[] args) {
+        Expr e = new Add(new Const(10), new Neg(new Const(3)));
+        System.out.println("expr = " + e);
+        System.out.println("eval = " + eval(e)); // 10 + (-3) = 7
+    }
+
+    sealed interface Expr permits Const, Add, Neg {
+    }
+
+    record Const(int value) implements Expr {
+    }
+
+    record Add(Expr left, Expr right) implements Expr {
+    }
+
+    record Neg(Expr inner) implements Expr {
+    }
+
+    private static int eval(Expr expr) {
+        // Because Expr is sealed and all subtypes are covered, this is exhaustive.
+        return switch (expr) {
+            case Const c -> c.value();
+            case Add a -> eval(a.left()) + eval(a.right());
+            case Neg n -> -eval(n.inner());
+        };
+    }
+}
+```
+
+What this shows:
+
+* `sealed` + `permits` lets the compiler verify you handled **all** cases
+* No `default` required when the switch is **exhaustive**
+
+
+---
+---
+__________________________________________________________________________________________________________

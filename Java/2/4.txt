@@ -19,6 +19,8 @@ import java.util.Map;
 
 public class Main {
     public static void main(String[] args) {
+        
+        // The variable courseStudents could be renamed to studentsByCourse for better clarity
         Map<String, List<String>> courseStudents = new HashMap<>();
 
         // Adding students to courses
@@ -77,6 +79,8 @@ import java.util.Map;
 
 public class Main {
     public static void main(String[] args) {
+        
+        // The variable courseStudents could be renamed to studentsByCourse for better clarity        
         Map<String, List<String>> courseStudents = new HashMap<>();
 
         // Adding students to courses (without using a separate method)

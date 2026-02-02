@@ -133,6 +133,7 @@ import java.util.Map;
 
 public class PeopleByCityExample {
     public static void main(String[] args) {
+        // personsByCity is a better variable name
         Map<String, List<Person>> peopleByCity = new HashMap<>();
 
         // Populate map
@@ -1159,6 +1160,8 @@ public class ShoppingCartMergeExample {
 ## 3. **Sales Analytics - Aggregating Revenue by Region**
 
 ```
+// Prefer the primitive `double` for better performance, no boxing.
+// Use `Double` when you need nullability (nullable DB columns, JSON payloads that omit the field)the field)
 public record Sale(String region, double amount) {
 }
 

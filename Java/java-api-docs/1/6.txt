@@ -117,5 +117,187 @@ Valid emails: [john@example.com, jane@example.com]
 ---
 ______________________________________________________________________________________________________________
 
+==> demonstrate replacing traditional null-checks with `Objects::nonNull` and `Objects::isNull` methods from Java's `java.util.Objects` class.
+
+## Traditional Null-Checks vs Objects Methods
+
+### Example 1: Filtering with `Objects::nonNull`
+
+**Before (traditional null-check):**
+```
+import java.util.Arrays;
+import java.util.List;
+
+public class NullCheckExample {
+    public static void main(String[] args) {
+        List<String> names = Arrays.asList("Alice", null, "Bob", null, "Charlie");
+
+        // Traditional approach
+        List<String> nonNullNames = names.stream()
+                .filter(name -> name != null)
+                .toList();
+
+        System.out.println(nonNullNames); // [Alice, Bob, Charlie]
+    }
+}
+```
+
+**After (using Objects::nonNull):**
+```
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+
+public class NullCheckExample {
+    public static void main(String[] args) {
+        List<String> names = Arrays.asList("Alice", null, "Bob", null, "Charlie");
+        
+        // Using Objects::nonNull method reference
+        List<String> nonNullNames = names.stream()
+            .filter(Objects::nonNull)
+            .toList();
+        
+        System.out.println(nonNullNames); // [Alice, Bob, Charlie]
+    }
+}
+```
+
+### Example 2: Finding null values with `Objects::isNull`
+
+**Before (traditional null-check):**
+```
+import java.util.Arrays;
+import java.util.List;
+
+public class FindNullExample {
+    public static void main(String[] args) {
+        List<String> items = Arrays.asList("Apple", null, "Banana", null, "Cherry");
+        
+        // Traditional approach
+        long nullCount = items.stream()
+            .filter(item -> item == null)
+            .count();
+        
+        System.out.println("Null count: " + nullCount); // Null count: 2
+    }
+}
+```
+
+**After (using Objects::isNull):**
+```
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+
+public class FindNullExample {
+    public static void main(String[] args) {
+        List<String> items = Arrays.asList("Apple", null, "Banana", null, "Cherry");
+        
+        // Using Objects::isNull method reference
+        long nullCount = items.stream()
+            .filter(Objects::isNull)
+            .count();
+        
+        System.out.println("Null count: " + nullCount); // Null count: 2
+    }
+}
+```
+
+### Example 3: Comprehensive Example
+
+```
+public record Person(String name, Integer age) {
+
+    @Override
+    public String toString() {
+        return "Person{name='" + name + "', age=" + age + "}";
+    }
+}
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+
+public class ComprehensiveExample {
+
+    public static void main(String[] args) {
+        List<Person> people = Arrays.asList(
+                new Person("Alice", 30),
+                null,
+                new Person("Bob", null),
+                new Person("Charlie", 25),
+                null,
+                new Person("Diana", 28)
+        );
+
+        System.out.println("=== Filter out null Person objects ===");
+        List<Person> validPeople = people.stream()
+                .filter(Objects::nonNull)  // Instead of: .filter(p -> p != null)
+                .toList();
+        validPeople.forEach(System.out::println);
+
+        System.out.println("\n=== Count null Person objects ===");
+        long nullPersonCount = people.stream()
+                .filter(Objects::isNull)  // Instead of: .filter(p -> p == null)
+                .count();
+        System.out.println("Null persons: " + nullPersonCount);
+
+        System.out.println("\n=== Filter people with non-null ages ===");
+        List<Person> peopleWithAge = people.stream()
+                .filter(Objects::nonNull)
+                .filter(p -> Objects.nonNull(p.age()))
+                .toList();
+        peopleWithAge.forEach(System.out::println);
+
+        System.out.println("\n=== Find people with null ages ===");
+        List<Person> peopleWithoutAge = people.stream()
+                .filter(Objects::nonNull)
+                .filter(p -> Objects.isNull(p.age()))
+                .toList();
+        peopleWithoutAge.forEach(System.out::println);
+    }
+}
+```
+
+**Output:**
+```
+=== Filter out null Person objects ===
+Person{name='Alice', age=30}
+Person{name='Bob', age=null}
+Person{name='Charlie', age=25}
+Person{name='Diana', age=28}
+
+=== Count null Person objects ===
+Null persons: 2
+
+=== Filter people with non-null ages ===
+Person{name='Alice', age=30}
+Person{name='Charlie', age=25}
+Person{name='Diana', age=28}
+
+=== Find people with null ages ===
+Person{name='Bob', age=null}
+```
+
+## Benefits
+
+1. **More concise**: Method references are shorter than lambda expressions
+2. **More readable**: Intent is clearer with `Objects::nonNull` vs `x -> x != null`
+3. **Type-safe**: Works with any reference type
+4. **Consistent**: Part of the standard library, familiar to Java developers
+5. **Better for streams**: Perfect for functional-style programming with streams
+
+## When to Use
+
+- ✅ Use in **stream operations** (filter, map, etc.)
+- ✅ Use when passing **predicates as arguments**
+- ✅ Use in **functional interfaces** and lambda contexts
+- ⚠️ For simple if-statements, traditional null-checks (`if (x == null)`) are often more readable
+
+---
+---
+______________________________________________________________________________________________________________
+
+
 
 

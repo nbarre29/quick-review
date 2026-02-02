@@ -1034,7 +1034,7 @@ public class GroupingByVariationsDemo {
         // Example 1.2: Group employees by department
         System.out.println("\n--- Example 1.2: Group Employees by Department ---");
         Map<String, List<Employee>> employeesByDept = employees.stream()
-                .collect(groupingBy(Employee::department));
+                .collect(Collectors.groupingBy(Employee::department));
         
         employeesByDept.forEach((dept, empList) -> {
             System.out.println(dept + ":");

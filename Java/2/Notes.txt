@@ -32,3 +32,7 @@ Objects.requireNonNullElse
 16) instanceof
 
 17) Exception handling
+
+18) Few **real-world Java examples** that show why **`null`** and **empty string `""`** are different
+
+19) Java Switch Statement: Complete Evolution Guide
