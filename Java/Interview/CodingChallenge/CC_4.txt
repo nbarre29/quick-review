@@ -15,7 +15,8 @@ public class Test {
         /* Map<String, Long> collect = Arrays.stream(input.split("")).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
         System.out.println(collect);*/
 
-        List<String> duplicateElements = Arrays.stream(input.split("")).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+        List<String> duplicateElements = Arrays.stream(input.split(""))
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                 .entrySet()
                 .stream()
                 .filter(entry -> entry.getValue() > 1)     // entry.getValue() == 1  for uniqueElements

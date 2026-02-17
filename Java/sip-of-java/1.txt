@@ -40,6 +40,7 @@ public class Main {
         };
         System.out.println("Day " + day + " is a " + dayType);
 		// System.out.println(String.format("Day %d is a %s", day, dayType));  //String.format is redundant here but just see how it can be used 
+        // System.out.printf("Day %d is a %s", day, dayType);
     }
 }
 

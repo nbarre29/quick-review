@@ -1,0 +1,192 @@
+==> If a producer sends 10 messages to topic `orders` (which has 3 partitions), then will each of the 3 partitions get 10 messages each ?
+
+**No.** The total will be **10 messages spread across the 3 partitions**, not 10 messages per partition.
+
+---
+
+### How distribution works
+
+The producer sends 10 messages and Kafka distributes them across the 3 partitions. The total stays at 10. How they're split depends on the **partitioning strategy**:
+
+**If no key is provided (default/round-robin or sticky):**
+Kafka spreads messages roughly evenly. With 10 messages and 3 partitions you might get something like:
+```
+Partition 0 → 4 messages
+Partition 1 → 3 messages
+Partition 2 → 3 messages
+```
+The exact split depends on the partitioner and batching behavior (sticky partitioner tends to fill one partition before moving on).
+
+**If a key is provided:**
+All messages with the **same key** always go to the **same partition** (via `hash(key) % numPartitions`). So if all 10 messages have the same key, all 10 land on one partition and the other two get nothing.
+```
+Partition 0 → 10 messages   ← all same key
+Partition 1 → 0 messages
+Partition 2 → 0 messages
+```
+
+**If a partition is specified explicitly:**
+The producer can hardcode a target partition, so all 10 go exactly where you point them.
+
+---
+
+### The mental model to remember
+
+Think of it like **dealing 10 cards across 3 piles** — you still only have 10 cards total, just distributed. The partitions are lanes for parallelism, not multipliers of your data.
+
+The only way each partition would get 10 messages is if you sent **30 messages total** with perfectly even distribution — or if you sent to each partition explicitly.
+
+---
+--- 
+_____________________________________________________________________________________________
+
+==> A topic is created with `replication-factor=3` and you have 5 brokers. It means that each partition has 3 copies across different brokers right? so two brokers doesn't have any copy right ?
+
+**Yes, exactly right!** 🎯
+
+## Replication Factor = 3 with 5 Brokers
+
+Each partition will have **3 copies** spread across **3 different brokers**, leaving **2 brokers without a copy** of that partition.
+
+**Visual Example** (Topic with 1 partition):
+
+```
+Broker 1 ✅ → has a copy (Leader)
+Broker 2 ✅ → has a copy (Follower)
+Broker 3 ✅ → has a copy (Follower)
+Broker 4 ❌ → no copy
+Broker 5 ❌ → no copy
+```
+
+## Important Details:
+
+**Leader vs Follower:**
+- One of the 3 copies is the **Leader** (handles all reads/writes)
+- The other 2 are **Followers** (just replicate data from leader)
+- If the leader broker dies, one follower is **automatically promoted** to leader
+
+**If you have multiple partitions**, Kafka tries to **spread leaders evenly** across brokers. For example with 3 partitions:
+```
+Partition 0 → Leader on Broker 1, Followers on Broker 2, 3
+Partition 1 → Leader on Broker 2, Followers on Broker 3, 4
+Partition 2 → Leader on Broker 3, Followers on Broker 4, 5
+```
+This way **all 5 brokers** can be utilized!
+
+## Key Rule:
+- `replication-factor` **cannot exceed** the number of brokers
+- So with 5 brokers, max replication factor = **5**
+
+---
+--- 
+_____________________________________________________________________________________________
+
+==> In real world scenario, can we have a Topic with only 1 partition? I know we need multiple partitions in a Topic for Parallelism
+
+**Yes, absolutely!** A topic with only **1 partition** is valid and does happen in real-world scenarios.
+
+## When 1 Partition Makes Sense:
+
+**1. Strict Ordering is Required**
+- Kafka only guarantees message order **within a partition**
+- If you need **global ordering** of all messages in a topic, you need exactly 1 partition
+- Example: **Database change logs** where order of operations matters critically
+
+**2. Low Throughput Topics**
+- If the topic doesn't receive much data, 1 partition is perfectly fine
+- Example: **Config updates, admin notifications, system alerts**
+
+**3. Small Scale Applications**
+- Early stage startups or internal tools where scale isn't a concern yet
+
+---
+
+## The Trade-offs with 1 Partition:
+
+| | 1 Partition | Multiple Partitions |
+|---|---|---|
+| **Ordering** | ✅ Global order guaranteed | ❌ Only per-partition order |
+| **Parallelism** | ❌ Only 1 consumer works | ✅ Multiple consumers work |
+| **Throughput** | ❌ Limited | ✅ High |
+| **Scalability** | ❌ Cannot scale out | ✅ Easily scalable |
+
+---
+
+## Real World Rule of Thumb:
+- **1 partition** → when **ordering matters more than speed**
+- **Multiple partitions** → when **throughput matters more than global ordering**
+
+So it's always a **trade-off between ordering and parallelism!**
+
+---
+--- 
+_____________________________________________________________________________________________
+
+==> what does throughput and scalability mean in software terms ?
+
+**Throughput** and **scalability** are both about how much work a system can handle, but they’re different.
+
+### Throughput
+
+**Meaning:** *How much work the system completes per unit time.*
+
+Examples:
+
+* Web API: **requests per second (RPS)**
+* Kafka: **messages per second** or **MB/sec**
+* Database: **transactions per second (TPS)**
+
+High throughput = the system can process a lot of volume per second.
+
+---
+
+### Scalability
+
+**Meaning:** *How well the system can increase capacity when you add resources.*
+
+Two common ways:
+
+* **Vertical scaling (scale up):** bigger machine (more CPU/RAM)
+* **Horizontal scaling (scale out):** more machines/instances/partitions/consumers
+
+Good scalability = when you add resources, throughput increases predictably (ideally close to linearly), without the system falling apart.
+
+---
+
+### Quick example (Kafka)
+
+* **Throughput:** “We process **50k orders/sec**.”
+* **Scalability:** “If we increase partitions and consumers from 3 to 6, we can process **~100k orders/sec** (close to double).”
+
+---
+--- 
+_____________________________________________________________________________________________
+
+==> what does resilience mean in software terms ?
+
+**Resilience** in software means the system can **keep working (or quickly recover)** when something goes wrong—like failures, spikes, or partial outages—without causing a full breakdown.
+
+What that looks like in practice:
+
+* **Fault tolerance:** one server/consumer/broker dies, the system still runs (maybe slower).
+* **Graceful degradation:** it may reduce features or serve cached results instead of crashing.
+* **Fast recovery:** it restores service quickly (auto-restart, failover, replay from logs).
+* **Data safety:** avoids losing data or keeps it consistent (retries, idempotency, transactions).
+
+Common resilience techniques:
+
+* **Redundancy/replication** (multiple instances, Kafka replicas)
+* **Retries with backoff** (don’t hammer a failing dependency)
+* **Circuit breakers** (stop calling a broken service temporarily)
+* **Time-outs** (don’t hang forever)
+* **Load shedding / rate limiting** (protect the system under spikes)
+* **Queueing & buffering** (Kafka, SQS to absorb bursts)
+* **Idempotency** (safe retries without duplicate side effects)
+* **Health checks + autoscaling + failover**
+
+Quick example (Kafka):
+If a consumer crashes, the consumer group **rebalances**, another consumer takes over the partitions, and processing continues from the **last committed offset**—that’s resilience.
+
+---
+--- 
+_____________________________________________________________________________________________

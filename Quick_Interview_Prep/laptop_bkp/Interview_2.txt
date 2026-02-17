@@ -1,0 +1,519 @@
+public class Test {
+
+    private static void fibonacci(int n) {
+        int num1 = 0, num2 = 1;
+        int counter = 0;
+
+        while (counter < n) {
+
+            System.out.println(num1 + " ");
+
+            //swap
+            int num3 = num2 + num1;
+            num1 = num2;
+            num2 = num3;
+            counter = counter + 1;
+        }
+
+    }
+
+    public static void main(String[] args) {
+        fibonacci(10);
+
+    }
+}
+__________________________________________________________________________
+
+//Print even and odd numbers in increasing order using two threads
+public class GFG {
+	// Starting counter
+	int counter = 1;
+	static int N;
+	// Function to print odd numbers
+	public void printOddNumber()
+	{
+		synchronized (this)
+		{
+			// Print number till the N
+			while (counter < N) {
+				// If count is even then print
+				while (counter % 2 == 0) {
+					// Exception handle
+					try {
+						wait();
+					}
+					catch (
+						InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+
+				// Print the number
+				System.out.print(counter + " ");
+				// Increment counter
+				counter++;
+				// Notify to second thread
+				notify();
+			}
+		}
+	}
+
+	// Function to print even numbers
+	public void printEvenNumber()
+	{
+		synchronized (this)
+		{
+			// Print number till the N
+			while (counter < N) {
+
+				// If count is odd then print
+				while (counter % 2 == 1) {
+
+					// Exception handle
+					try {
+						wait();
+					}
+					catch (
+						InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+
+				// Print the number
+				System.out.print(counter + " ");
+				// Increment counter
+				counter++;
+				// Notify to 2nd thread
+				notify();
+			}
+		}
+	}
+	
+	public static void main(String[] args)
+	{
+		// Given Number N
+		N = 10;
+		// Create an object of class
+		GFG mt = new GFG();
+		// Create thread t1
+		Thread t1 = new Thread(new Runnable() {
+			public void run()
+			{
+				mt.printEvenNumber();
+			}
+		});
+
+		// Create thread t2
+		Thread t2 = new Thread(new Runnable() {
+			public void run()
+			{
+				mt.printOddNumber();
+			}
+		});
+
+		// Start both threads
+		t1.start();
+		t2.start();
+	}
+}
+____________________________________________________
+
+https://www.youtube.com/watch?v=WH5UvQJizH0 (Using volatile vs AtomicInteger in Java concurrency)
+https://www.youtube.com/watch?v=3vptroRUvn8 (Difference Between Volatile, Atomic And Synchronized in Java | Race Condition In Multi-Threading)
+
+public class RaceCondition implements Runnable{
+
+    private int count;
+
+    @Override
+    public synchronized void run() {
+        for (int i=0;i<5;i++){
+            try {
+                Thread.sleep(i *100);
+                count ++;
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
+    }
+
+    public int getCount(){
+        return count;
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        RaceCondition r = new RaceCondition();
+
+        Thread t1 = new Thread(r);
+        t1.start();
+
+        Thread t2 = new Thread(r);
+        t2.start();
+
+        t1.join();
+        t2.join();
+
+        System.out.println("Count: "+ r.count);
+
+
+    }
+}
+-----------------------------------------------------
+public class Test {
+
+    public static void main(String[] args) throws InterruptedException {
+        Runnable runnableThread = () -> {
+            int count = 0;
+            for (int i = 0; i < 5; i++) {
+                try {
+                    Thread.sleep(1000);
+                    count++;
+                    System.out.println(Thread.currentThread().getName() + "-" + count);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+        };
+
+        Thread thread1 = new Thread(runnableThread);
+        Thread thread2 = new Thread(runnableThread);
+        Thread thread3 = new Thread(runnableThread);
+
+        thread1.start();
+        thread1.join();
+        thread2.start();
+        thread2.join();
+        thread3.start();
+
+    }
+}
+-----------------------------------------------------
+public class VolatileExample {
+    private static volatile boolean flag = false;
+
+    public static void main(String[] args) {
+        Thread writerThread = new Thread(() -> {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            flag = true;
+            System.out.println("Flag has been set to true");
+        });
+
+        Thread readerThread = new Thread(() -> {
+            while (!flag) {
+                // Do nothing until flag becomes true
+            }
+            System.out.println("Flag has been changed to true");
+        });
+
+        writerThread.start();
+        readerThread.start();
+    }
+}
+
+Output:
+Flag has been set to true
+Flag has been changed to true
+
+In this example, we have a flag variable declared as volatile. The program consists of two threads: a writer thread and a reader thread.
+
+The writer thread sets the flag variable to true after a delay of 2 seconds. Once the flag is set, it prints a message indicating the change. On the other hand, the reader thread continuously checks the value of the flag variable in a loop. It keeps looping until the flag becomes true, at which point it prints a message indicating the change.
+
+The volatile keyword ensures that changes made to the flag variable in one thread are immediately visible to other threads. Without the volatile keyword, the reader thread might cache the value of the flag variable, causing it to loop infinitely. However, with volatile, the change made by the writer thread is immediately reflected in the reader thread, allowing it to exit the loop.
+
+
+
+-----------------------------------------------------
+public class VolatileExample implements  Runnable {
+
+    private static volatile boolean stopRequested;
+
+    @Override
+    public void run() {
+        int i = 0;
+        while (!stopRequested){
+            i++;
+        }
+        System.out.println("backendThread completed");
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        VolatileExample v = new VolatileExample();
+        Thread backendThread = new Thread(v);
+        backendThread.start();
+        Thread.sleep(1000);
+        stopRequested = true;
+        System.out.println("Main Completed: ");
+    }
+}
+-----------------------------------------------------
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class AtomicExample implements Runnable{
+
+    private AtomicInteger count = new AtomicInteger();
+
+    @Override
+    public synchronized void run() {
+        for (int i=0;i<5;i++){
+            try {
+                Thread.sleep(i *100);
+                count.getAndIncrement();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
+    }
+
+    public int getCount(){
+        return count.get();
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        AtomicExample r = new AtomicExample();
+
+        Thread t1 = new Thread(r);
+        t1.start();
+
+        Thread t2 = new Thread(r);
+        t2.start();
+
+        t1.join();
+        t2.join();
+
+        System.out.println("Count: "+ r.count);
+    }
+}
+____________________________________________________
+https://www.geeksforgeeks.org/how-to-create-thread-using-lambda-expressions-in-java/
+https://docs.oracle.com/javase/8/docs/api/java/lang/Runnable.html
+
+public class Test {
+
+    public static void main(String[] args) {
+
+        //Creating Lambda expression for run() method in functional interface "Runnable"
+        Runnable myThread = () -> {
+            //set a custom name to the current thread
+            Thread.currentThread().setName("myThread");
+            System.out.println(Thread.currentThread().getName() + " is running");
+        };
+        // Instantiating Thread class by passing Runnable
+        // reference to Thread constructor
+        Thread thread1 = new Thread(myThread);
+        thread1.start();
+
+    }
+}
+-----------------------------------------------------
+//Multithreading using lambda expressions
+public class Test {
+
+    public static void main(String[] args) {
+
+        Runnable basic = () -> {
+            String threadName =Thread.currentThread().getName();
+            System.out.println("Running common task by " + threadName);
+        };
+
+        // Instantiating two thread classes
+        Thread thread1 = new Thread(basic);
+        Thread thread2 = new Thread(basic);
+
+        // Running two threads for the same task
+        thread1.start();
+        thread2.start();
+
+    }
+}
+-----------------------------------------------------
+import java.util.Random;
+
+// Multithreading using lambda expressions
+// This is a random player class with two functionalities playGames and playMusic
+class RandomPlayer {
+
+	public void playGame(String gameName) throws InterruptedException {
+
+		System.out.println(gameName + " game started");
+
+		// Assuming game is being played for 5000 milliseconds
+		Thread.sleep(5000);
+
+		System.out.println(gameName + " game ended");
+	}
+
+	public void playMusic(String trackName) throws InterruptedException {
+
+		System.out.println(trackName + " track started");
+
+		// Assuming music is being played for 5000 milliseconds
+		Thread.sleep(5000);
+
+		System.out.println(trackName + " track ended");
+	}
+}
+
+public class Test {
+
+	// games and tracks arrays which are being used for picking random items
+	private static String[] games = { "COD", "Prince Of Persia", "GTA-V5", "Valorant", "FIFA 22", "Fortnite" };
+	private static String[] tracks = { "Believer", "Cradles", "Taki Taki", "Sorry", "Let Me Love You" };
+
+	public static void main(String[] args) {
+
+		RandomPlayer player = new RandomPlayer(); 
+
+		// Random class for choosing random items from above arrays
+		Random random = new Random();
+
+		// Creating two lambda expressions for runnable interfaces
+		Runnable gameRunner = () -> {
+
+			try {
+
+				player.playGame(games[random.nextInt(games.length)]); 
+																		
+			} catch (InterruptedException e) {
+
+				e.getMessage();
+			}
+		};
+
+		Runnable musicPlayer = () -> {
+
+			try {
+
+				player.playMusic(tracks[random.nextInt(tracks.length)]); 																			
+																			
+			} catch (InterruptedException e) {
+
+				e.getMessage();
+			}
+		};
+
+		// Instantiating two thread classes with runnable references
+		Thread game = new Thread(gameRunner);
+		Thread music = new Thread(musicPlayer);
+
+		// Starting two different threads
+		game.start();
+		music.start();
+		
+	}
+}
+____________________________________________________
+
+http://www.digitizedpost.com/how-to-create-thread-in-java-using-lambda-expressions/
+
+/**
+ * 
+ * In this class, we write two threads namely Thread-0 (aka child thread) and
+ * the main thread. Thread-0 is written using Lambda Expressions. Thread-0
+ * prints odd numbers and the main thread prints even numbers.
+ * 
+ * Instead of the run() method, it is represented using a lambda expression ()
+ * ->
+ *
+ */
+public class LambdaThreadExample {
+
+	public static void main(String args[]) {
+
+		int oddNums[] = { 1, 3, 5, 7 };
+		int evenNums[] = { 2, 4, 6 };
+
+		new Thread(() -> {
+			for (int odd : oddNums) {
+				System.out.println(Thread.currentThread().getName() + " prints: " + odd);
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
+
+		for (int even : evenNums) {
+			System.out.println(Thread.currentThread().getName() + " thread prints: " + even);
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+}
+____________________________________________________
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class Mistakes {
+
+    public static void main(String[] args) {
+        concurrentModificationException();
+    }
+
+    //this will fail as we are not allowed to delete while looping a list
+    private static void concurrentModificationException() {
+        List<String> words = new ArrayList<>(Arrays.asList("a", "b", "c", "d"));
+        words.forEach(word -> {
+            if(word.equals("a")) {
+                words.remove(word);
+            }
+        });
+        System.out.println(words);
+    }
+}
+-----------------------------------------------------
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+public class Mistakes {
+
+    public static void main(String[] args) {
+        concurrentModificationException();
+    }
+
+    //this will fail as we are not allowed to delete while looping a list
+    private static void concurrentModificationException() {
+        List<String> words = new CopyOnWriteArrayList<>(Arrays.asList("a", "b", "c", "d"));
+        words.forEach(word -> {
+            if(word.equals("a")) {
+                words.remove(word);
+            }
+        });
+        System.out.println(words);
+    }
+}
+-----------------------------------------------------
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class Mistakes {
+
+    public static void main(String[] args) {
+        concurrentModificationException();
+    }
+    private static void concurrentModificationException() {
+        List<String> words = new ArrayList<>(Arrays.asList("a", "b", "c", "d"));
+
+        words.removeIf(word -> word.equals("a"));
+        System.out.println(words);
+    }
+
+}
+____________________________________________________

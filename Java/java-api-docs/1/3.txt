@@ -915,6 +915,19 @@ public class WordCountDemo {
 ```
 This approach is more functional and concise. Note that the count type is now `Long` instead of `Integer` because `Collectors.counting()` returns `Long` values.
 
+#### MyNotes:
+1) `w -> w` can be replaced with `Function.identity()`
+
+`Function.identity()` is a static method that returns a function which always returns its input argument. It's functionally equivalent to the lambda `w -> w`.
+
+`Function.identity()` is generally preferred because:
+
+- It's more explicit and readable
+- It avoids creating a new lambda instance (though modern JVMs optimize this)
+- It's a well-known idiom in Stream API code
+
+Both will produce the same result when used as a key mapper in `groupingBy()`.
+
 
 **4. For very simple cases, use an array (if words are limited):**
 Only works if you know all possible words in advance—not practical for general text.

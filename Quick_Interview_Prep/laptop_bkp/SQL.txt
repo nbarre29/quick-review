@@ -1,0 +1,173 @@
+===>>
+https://www.youtube.com/watch?v=Z34X1a-zOyg (SQL Query | How to find employees with highest salary in a department)
+
+GO
+DROP TABLE if exists #data 
+GO
+CREATE TABLE #data(EmployeeKey  int   NOT NULL,
+					FirstName  varchar(15)   NOT NULL,
+					LastName  varchar(15)   NOT NULL,
+					DepartmentName  varchar(20)   NOT NULL,
+                    Salary      decimal(12,2) NOT NULL,
+                    PRIMARY KEY (EmployeeKey)
+ )
+
+GO
+INSERT #data (EmployeeKey, FirstName, LastName,DepartmentName,Salary)
+   VALUES(1, 'Elliott', 'Johnson', 'Production', 80000),
+         (2, 'Kevin', 'Sweeney', 'Marketing', 66000),
+		 (3, 'Robert', 'Carlos', 'Engineering', 120000),
+		 (4, 'Senthil', 'Hewitt', 'DevOps', 150000),
+		 (5, 'Tony', 'Walsh', 'Marketing', 85000),
+		 (6, 'Jennifer', 'Curry', 'Engineering', 90000),
+		 (7, 'Rick', 'Verhage', 'DevOps', 130000),
+		 (8, 'Michael', 'Campese', 'Production', 90000)
+GO
+select * from #data
+
+
+
+-- using self join to find employees with highest salary in a department
+select EmployeeKey,FirstName,LastName,Emp.DepartmentName,Salary from #data Emp
+inner join
+(select DepartmentName,max(salary) as MaxSalary  from #data
+group by DepartmentName ) MaxSalEmp ON Emp.DepartmentName = MaxSalEmp.DepartmentName
+AND Emp.Salary = MaxSalEmp.MaxSalary
+
+
+-- using rank() to find employees with highest salary in a department
+select * from (
+select EmployeeKey, FirstName, LastName,DepartmentName,Salary,rank() over (Partition by DepartmentName order by Salary desc) as SalRank from #data ) as Emp 
+where Emp.SalRank = 1
+
+
+
+-- using dense_rank() to find 1st highest salary in a department
+select * from (
+select EmployeeKey, FirstName, LastName,DepartmentName,Salary,dense_rank() over (order by Salary desc) as SalRank from #data ) as Emp 
+where Emp.SalRank = 1
+
+
+-- using dense_rank() to find 2nd highest salary in a department
+select * from (
+select EmployeeKey, FirstName, LastName,DepartmentName,Salary,dense_rank() over (order by Salary desc) as SalRank from #data ) as Emp 
+where Emp.SalRank = 2
+
+
+--Find the 2nd highest salary
+with Employee_CTE as
+(
+select *,dense_rank() over (order by Salary desc) SalaryRank from #data )
+
+select * from Employee_CTE where SalaryRank=2
+
+
+===>>
+https://www.youtube.com/watch?v=mYMzO-LDwYA&list=PL2-GO-f-XvjBl5fpzdfYaPW28PwsLzLc4&index=2 (SQL Interview Question - How to find nth highest salary?)
+
+With Rate_CTE as
+( select *, DENSE_RANK() over (order by Rate desc) as rate_Order  
+from [AdventureWorks2019].[HumanResources].[EmployeePayHistory] )
+
+select * from Rate_CTE where rate_Order = 1
+
+Specifies a temporary named result set, known as a common table expression (CTE). This is derived from a simple query and defined within the execution scope of a single SELECT, INSERT, UPDATE, DELETE or MERGE statement.
+https://docs.microsoft.com/en-us/sql/t-sql/queries/with-common-table-expression-transact-sql?view=sql-server-ver15
+
+https://docs.microsoft.com/en-us/answers/questions/211223/what-is-the-difference-among-row-number-rank-and-d.html
+
+
+
+===>>
+https://docs.microsoft.com/en-us/sql/t-sql/functions/dense-rank-transact-sql?view=sql-server-ver15
+Top ten employees ranked by their salary
+
+USE AdventureWorks2019;  
+GO  
+SELECT TOP(10) BusinessEntityID, Rate,   
+       DENSE_RANK() OVER (ORDER BY Rate DESC) AS RankBySalary  
+FROM HumanResources.EmployeePayHistory;
+
+
+
+===>> 
+https://www.youtube.com/watch?v=glEpavFojSM (Delete Duplicates)
+
+GO
+DROP TABLE if exists #email_list
+GO
+CREATE TABLE #email_list
+(name varchar(100),
+email varchar(300)
+ )
+
+GO
+insert into #email_list values ('Jan','Jan@email.com');
+insert into #email_list values ('Bob','Bob@email.com');
+insert into #email_list values ('Jill','Jill@email.com');
+insert into #email_list values ('Bob','Bob@email.com');
+insert into #email_list values ('Jill','Jill@email.com');
+insert into #email_list values ('Bob','Bob@email.com');
+insert into #email_list values ('Jill','Jill@email.com');
+GO
+select * from #email_list
+
+
+select * from #email_list order by 1
+
+-- one approach
+WITH list_rownumbers AS
+( select name,email, ROW_NUMBER() over (order by name,email) as RowNumber
+from #email_list )
+delete list_rownumbers where RowNumber not in
+(select min(RowNumber) from list_rownumbers group by name,email)
+
+-- another better approach using partition by
+WITH list_duplicates (name,email,duplicate_count) AS
+( select name,email,ROW_NUMBER() over (partition by name,email order by name,email ) as duplicate_count from #email_list )
+delete from list_duplicates where duplicate_count >1
+
+
+
+
+
+https://www.w3resource.com/sql-exercises/sql-subqueries-exercise-1.php
+https://www.w3resource.com/sql-exercises/sql-subqueries-exercise-22.php
+https://www.w3resource.com/sql-exercises/sql-subqueries-exercise-23.php
+https://www.youtube.com/watch?v=ORxMMo7it_Y (The battle of relational and non-relational databases | SQL vs NoSQL Explained)
+
+__________________________________________________________________________
+
+-> The following SQL statement selects all orders with customer and shipper information:
+
+select * from Customers;
+CustomerID	CustomerName	ContactName	Address	City	PostalCode	Country
+
+select * from Orders;
+OrderID	CustomerID	EmployeeID	OrderDate	ShipperID
+
+select * from Shippers;
+ShipperID	ShipperName	Phone
+
+https://www.w3schools.com/sql/sql_join_inner.asp
+
+1) Using join
+SELECT Orders.OrderID, Customers.CustomerName, Shippers.ShipperName
+FROM ((Orders
+INNER JOIN Customers ON Orders.CustomerID = Customers.CustomerID)
+INNER JOIN Shippers ON Orders.ShipperID = Shippers.ShipperID);
+
+
+2) Using parent-child relationship
+
+SELECT o.OrderID, c.CustomerName, s.ShipperName from Customers c, Orders o, Shippers s where c.CustomerID=o.CustomerID and o.ShipperID=s.ShipperID
+
+https://www.youtube.com/watch?v=wdz4MRlzOyE
+
+__________________________________________________________________________
+
+AdventureWorks2019:
+
+SELECT *  FROM [AdventureWorks2019].[Production].[Product]
+exec [dbo].[uspGetBillOfMaterials] @StartProductID = 316, @CheckDate = '09/29/2023'
+

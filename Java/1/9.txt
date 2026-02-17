@@ -141,4 +141,212 @@ Real-World Scenarios
 
 These questions cover the fundamental and advanced concepts of threads and concurrency, helping you prepare for interviews comprehensively.
 
-______________________________________________________________________________________________________
+---
+---
+______________________________________________________________________________________________________________
+
+
+==> Concurrency (Executor Framework)
+
+The Executor Framework simplifies multithreaded programming by managing thread pools.
+```
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class ExecutorExample {
+    public static void main(String[] args) {
+        ExecutorService executor = Executors.newFixedThreadPool(3);
+
+        // Submit tasks to the executor
+        for (int i = 1; i <= 10; i++) {
+            int taskId = i;
+            executor.submit(() -> {
+                System.out.println("Task " + taskId + " is running on thread " + Thread.currentThread().getName());
+            });
+        }
+
+        executor.shutdown();
+    }
+}
+```
+
+#### Output:
+```
+Task 2 is running on thread pool-1-thread-2
+Task 3 is running on thread pool-1-thread-3
+Task 1 is running on thread pool-1-thread-1
+Task 5 is running on thread pool-1-thread-3
+Task 4 is running on thread pool-1-thread-1
+```
+
+---
+---
+--------------------------------------------------------------------------------------------------------------
+
+==> Use try-with-resources for proper resource management. The key changes:
+
+1. **Wrapped ExecutorService in try-with-resources** - This ensures the executor is properly closed even if an exception occurs
+2. **Automatic cleanup** - The `close()` method (which internally calls `shutdown()`) is automatically invoked when exiting the try block
+
+This is the recommended approach since Java 19, when ExecutorService became AutoCloseable. The try-with-resources pattern guarantees proper resource cleanup and is safer than manual `shutdown()` calls.
+
+```
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class ExecutorExample {
+    public static void main(String[] args) {
+        // Using try-with-resources to ensure proper shutdown
+        try (ExecutorService executor = Executors.newFixedThreadPool(3)) {
+            // Submit tasks to the executor
+            for (int i = 1; i <= 10; i++) {
+                int taskId = i;
+                executor.submit(() -> {
+                    System.out.println("Task " + taskId + " is running on thread " + Thread.currentThread().getName());
+                });
+            }
+        } // executor.close() is automatically called here
+    }
+}
+```
+
+---
+---
+______________________________________________________________________________________________________________
+
+==> A real-world example using ExecutorService - let's build an email notification system that processes multiple email sends concurrently.
+
+**Email Notification System** - Shows how an e-commerce platform can send 100 order confirmation emails concurrently instead of sequentially, reducing processing time from ~10 seconds to ~1 second.
+
+uses try-with-resources for proper cleanup and demonstrate real performance benefits you'd see in production applications.
+
+```
+public record Order(int orderId, String customerEmail, double amount) {
+}
+
+
+import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Real-world example: Bulk Email Notification System
+ * Scenario: An e-commerce platform needs to send order confirmation emails to 100 customers
+ * Using ExecutorService to send emails concurrently instead of sequentially
+ */
+public class EmailNotificationSystem {
+    
+    public static void main(String[] args) {
+        System.out.println("Starting Email Notification System...\n");
+        
+        // Simulate 100 customer orders
+        List<Order> orders = generateOrders(100);
+        
+        // Process emails sequentially (slow way)
+        processEmailsSequentially(orders);
+        
+        System.out.println("\n" + "=".repeat(60) + "\n");
+        
+        // Process emails concurrently using ExecutorService (fast way)
+        processEmailsConcurrently(orders);
+    }
+    
+    /**
+     * Old approach: Sequential processing - SLOW
+     */
+    private static void processEmailsSequentially(List<Order> orders) {
+        System.out.println("📧 Sequential Processing (one at a time):");
+        long startTime = System.currentTimeMillis();
+        
+        for (Order order : orders) {
+            sendEmail(order);
+        }
+        
+        long endTime = System.currentTimeMillis();
+        System.out.println("✅ Completed in: " + (endTime - startTime) + "ms");
+    }
+    
+    /**
+     * Modern approach: Concurrent processing using ExecutorService - FAST
+     */
+    private static void processEmailsConcurrently(List<Order> orders) {
+        System.out.println("🚀 Concurrent Processing (using ExecutorService):");
+        long startTime = System.currentTimeMillis();
+        
+        // Create thread pool with 10 worker threads
+        try (ExecutorService executor = Executors.newFixedThreadPool(10)) {
+            
+            // Submit all email tasks to the executor
+            List<Future<?>> futures = new ArrayList<>();
+            
+            for (Order order : orders) {
+                Future<?> future = executor.submit(() -> sendEmail(order));
+                futures.add(future);
+            }
+            
+            // Wait for all emails to complete
+            for (Future<?> future : futures) {
+                try {
+                    future.get(); // Block until this task completes
+                } catch (InterruptedException | ExecutionException e) {
+                    System.err.println("Error sending email: " + e.getMessage());
+                }
+            }
+            
+        } // executor.close() called automatically
+        
+        long endTime = System.currentTimeMillis();
+        System.out.println("✅ Completed in: " + (endTime - startTime) + "ms");
+        System.out.println("⚡ Speedup: ~" + (100 * 100 / (endTime - startTime)) + "x faster!");
+    }
+    
+    /**
+     * Simulates sending an email (takes ~100ms per email)
+     */
+    private static void sendEmail(Order order) {
+        try {
+            // Simulate email sending delay (API call, SMTP connection, etc.)
+            Thread.sleep(100);
+            
+            // Uncomment to see which thread handles which order
+            // System.out.println("Sent email for Order #" + order.orderId() +
+            //                   " by " + Thread.currentThread().getName());
+            
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.err.println("Email sending interrupted for order: " + order.orderId());
+        }
+    }
+    
+    /**
+     * Generate sample orders
+     */
+    private static List<Order> generateOrders(int count) {
+        List<Order> orders = new ArrayList<>();
+        for (int i = 1; i <= count; i++) {
+            orders.add(new Order(i, "customer" + i + "@email.com", 99.99 * i));
+        }
+        return orders;
+    }    
+    
+}
+```
+
+#### Output:
+```
+Starting Email Notification System...
+
+📧 Sequential Processing (one at a time):
+✅ Completed in: 10051ms
+
+============================================================
+
+🚀 Concurrent Processing (using ExecutorService):
+✅ Completed in: 1013ms
+⚡ Speedup: ~9x faster!
+```
+
+---
+---
+______________________________________________________________________________________________________________
+

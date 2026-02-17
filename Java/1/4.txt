@@ -926,6 +926,72 @@ b) Arrays.sort(products, Comparator.comparing(Product::price).reversed());
 inverts the comparator, resulting in descending order by price (highest to lowest)
 
 
+c) Product.java:    is it okay to use `$%.2f`  format specifier for BigDecimal ?
+
+Yes, it's okay to use `%.2f` with `BigDecimal`, but there are important considerations:
+
+**What happens:**
+- `String.format()` converts the `BigDecimal` to a `double` before formatting
+- This works fine for display purposes in most cases
+
+**Potential issues:**
+- Precision loss: `BigDecimal` can hold arbitrary precision, but `double` cannot
+- Rounding differences: Conversion to `double` may introduce floating-point inaccuracies
+- Large numbers: Very large or very small values may not format correctly
+
+**Better alternatives:**
+
+// Option 1: Use DecimalFormat (recommended for BigDecimal)
+return name + ": $" + new java.text.DecimalFormat("#,##0.00").format(price);
+
+// Option 2: Use BigDecimal's own formatting
+return name + ": $" + price.setScale(2, java.math.RoundingMode.HALF_UP).toPlainString();
+
+
+For your use case (product prices), `%.2f` is **acceptable** since prices typically don't exceed `double` precision limits. However, if you're dealing with financial calculations or need guaranteed precision, use `DecimalFormat` or `BigDecimal`'s formatting methods instead.
+
+REFERENCES: https://docs.oracle.com/javase/tutorial/java/data/numberformat.html
+
+d) To sort in descending order, use `reversed()`, to the comparator, which inverts the natural ordering from ascending to descending.
+
+```
+Arrays.sort(products, Comparator.comparing(Product::price).reversed());
+```
+
+e) So while %f works with BigDecimal, it's generally not recommended if you need the precision that BigDecimal provides.
+```
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+
+public class Main {
+    public static void main(String[] args) {
+
+        //Using "f" with BigDecimal:
+        //You can use the %f format specifier with BigDecimal in methods like String.format() or printf(), and it will work:
+        // However, this converts the BigDecimal to a double internally for formatting,
+        // which can introduce floating-point precision issues and defeats the purpose of using BigDecimal in the first place.
+        BigDecimal bd = new BigDecimal("123.456789");
+        System.out.printf("%.2f%n", bd);  // 123.46
+
+
+        //  Better Approaches:
+        //  For precise control over BigDecimal formatting, use:
+        BigDecimal amount = new BigDecimal("123.456789");
+
+        // Using setScale() for rounding
+        String formatted = amount.setScale(2, RoundingMode.HALF_UP).toString();
+        System.out.println(formatted);    // 123.46
+
+        // Using DecimalFormat for complex formatting
+        DecimalFormat df = new DecimalFormat("#,##0.00");
+        String formatted2 = df.format(amount);
+        System.out.println(formatted2);    // 123.46
+
+    }
+}
+```
+
 ---
 ---
 _________________________________________________________________________________

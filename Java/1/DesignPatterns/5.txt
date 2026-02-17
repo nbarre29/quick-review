@@ -36,7 +36,7 @@ private static final Singleton INSTANCE = new Singleton();  // The Singleton ins
 
 
 
-Lazy Initialization can be more effecient in scenarios where the Singleton is not always required, as it avoids unnecessary instantiation. However, it introduces the need for synchronization in  a multithreaded environment to ensure thread safety during instance creation.
+Lazy Initialization can be more effecient in scenarios where the Singleton is not always required, as it avoids unnecessary instantiation. However, it introduces the need for synchronization in a multithreaded environment to ensure thread safety during instance creation.
 
 Which approach is better ?
 a) Eager initialization is simpler and avoids synchronization overhead, but it may waste resources if the Singleton is never used.

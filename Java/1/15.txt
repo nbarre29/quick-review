@@ -509,7 +509,7 @@ public class CommonJavaMistakes {
     }
 
     // MISTAKE 1: Using == to compare Strings
-    static void mistake1_StringComparison() {
+    private static void mistake1_StringComparison() {
         String s1 = "hello";
         String s2 = "hello";
         String s3 = new String("hello");
@@ -523,7 +523,7 @@ public class CommonJavaMistakes {
 
 
     // MISTAKE 2: Using double/float for money
-    static void mistake2_MoneyCalculation() {
+    private static void mistake2_MoneyCalculation() {
         // WRONG WAY
         double price = 0.1;
         double total = price + price + price;
@@ -539,7 +539,7 @@ public class CommonJavaMistakes {
 
 
     // MISTAKE 3: Forgetting Strings are immutable
-    static void mistake3_StringImmutability() {
+    private static void mistake3_StringImmutability() {
         String text = "hello";
 
         System.out.println("❌ WRONG: Ignoring return value");
@@ -581,6 +581,361 @@ text = HELLO
 
 Remember: String methods return NEW strings!
 ```
+_____________________________________________________________________________________
+
+==> claude: More common java mistakes
+```
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+public class MoreCommonJavaMistakes {
+
+    public static void main(String[] args) {
+
+        // MISTAKE 4: Modifying collection while iterating
+        System.out.println("=== 4. Concurrent Modification ===");
+        mistake4_ConcurrentModification();
+
+        // MISTAKE 5: Not closing resources
+        System.out.println("\n=== 5. Resource Management ===");
+        mistake5_ResourceManagement();
+
+        // MISTAKE 6: Using ArrayList when you need uniqueness
+        System.out.println("\n=== 6. Wrong Collection Type ===");
+        mistake6_WrongCollectionType();
+
+        // MISTAKE 7: NullPointerException from autoboxing
+        System.out.println("\n=== 7. Null Autoboxing ===");
+        mistake7_NullAutoboxing();
+
+        // MISTAKE 8: Comparing objects with ==
+        System.out.println("\n=== 8. Object Comparison ===");
+        mistake8_ObjectComparison();
+
+        // MISTAKE 9: Integer cache trap
+        System.out.println("\n=== 9. Integer Cache ===");
+        mistake9_IntegerCache();
+
+        // MISTAKE 10: Thread-unsafe collections
+        System.out.println("\n=== 10. Thread Safety ===");
+        mistake10_ThreadSafety();
+    }
+
+    // MISTAKE 4: Modifying collection while iterating
+    private static void mistake4_ConcurrentModification() {
+        List<String> list = new ArrayList<>(Arrays.asList("a", "b", "c", "d"));
+
+        System.out.println("❌ WRONG: Modifying during for-each");
+        try {
+            for (String item : list) {
+                if (item.equals("b")) {
+                    list.remove(item); // ConcurrentModificationException!
+                }
+            }
+        } catch (ConcurrentModificationException e) {
+            System.out.println("Exception thrown: " + e.getClass().getSimpleName());
+        }
+
+        System.out.println("\n✓ CORRECT: Use Iterator.remove()");
+        list = new ArrayList<>(Arrays.asList("a", "b", "c", "d"));
+        Iterator<String> iterator = list.iterator();
+        while (iterator.hasNext()) {
+            String item = iterator.next();
+            if (item.equals("b")) {
+                iterator.remove(); // Safe removal
+            }
+        }
+        System.out.println("Result: " + list); // [a, c, d]
+
+        System.out.println("\n✓ ALTERNATIVE: Use removeIf() (Java 8+)");
+        list = new ArrayList<>(Arrays.asList("a", "b", "c", "d"));
+        list.removeIf(item -> item.equals("b"));
+        System.out.println("Result: " + list); // [a, c, d]
+    }
+
+    // MISTAKE 5: Not closing resources
+    private static void mistake5_ResourceManagement() {
+        System.out.println("❌ WRONG: Manually closing (risky)");
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader("test.txt"));
+            // If exception occurs here, reader won't be closed!
+        } catch (IOException e) {
+            System.out.println("File not found (expected)");
+        } finally {
+            try {
+                if (reader != null) reader.close(); // Verbose and error-prone
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        System.out.println("\n✓ CORRECT: Use try-with-resources");
+        try (BufferedReader autoReader = new BufferedReader(new FileReader("test.txt"))) {
+            // Resource automatically closed, even if exception occurs
+        } catch (IOException e) {
+            System.out.println("File not found (expected) - but resource handled properly");
+        }
+
+        System.out.println("\nAlways use try-with-resources for AutoCloseable objects!");
+    }
+
+    // MISTAKE 6: Using wrong collection type
+    private static void mistake6_WrongCollectionType() {
+        System.out.println("❌ WRONG: Using ArrayList for unique elements");
+        List<String> list = new ArrayList<>();
+        list.add("apple");
+        list.add("banana");
+        list.add("apple"); // Duplicate allowed!
+        System.out.println("ArrayList allows duplicates: " + list); // [apple, banana, apple]
+
+        System.out.println("\n✓ CORRECT: Use Set for uniqueness");
+        Set<String> set = new HashSet<>();
+        set.add("apple");
+        set.add("banana");
+        set.add("apple"); // Duplicate ignored
+        System.out.println("HashSet ensures uniqueness: " + set); // [apple, banana]
+
+        System.out.println("\nChoose the right collection for your needs!");
+    }
+
+    // MISTAKE 7: NullPointerException from autoboxing
+    private static void mistake7_NullAutoboxing() {
+        System.out.println("❌ WRONG: Null wrapper unboxing");
+        Integer value = null;
+        try {
+            int result = value + 5; // NullPointerException!
+        } catch (NullPointerException e) {
+            System.out.println("Exception: Trying to unbox null Integer");
+        }
+
+        System.out.println("\n✓ CORRECT: Check for null before unboxing");
+        Integer safeValue = null;
+        int result = (safeValue != null ? safeValue : 0) + 5;
+        System.out.println("Safe result: " + result); // 5
+
+        System.out.println("\n✓ ALTERNATIVE: Use primitives when possible");
+        int primitiveValue = 0;
+        result = primitiveValue + 5; // No null risk
+        System.out.println("Primitive result: " + result); // 5
+
+        System.out.println("\nBeware of autoboxing with null wrapper objects!");
+    }
+
+    // MISTAKE 8: Comparing objects with ==
+    private static void mistake8_ObjectComparison() {
+        Integer a = 1000;
+        Integer b = 1000;
+
+        System.out.println("❌ WRONG: Using == for Integer comparison");
+        System.out.println("a == b: " + (a == b)); // false (different objects)
+
+        System.out.println("\n✓ CORRECT: Use .equals()");
+        System.out.println("a.equals(b): " + a.equals(b)); // true
+
+        System.out.println("\nNote: For primitives, == is fine:");
+        int x = 1000;
+        int y = 1000;
+        System.out.println("x == y: " + (x == y)); // true
+    }
+
+    // MISTAKE 9: Integer cache behavior (-128 to 127)
+    private static void mistake9_IntegerCache() {
+        System.out.println("⚠️ SURPRISING: Integer cache behavior");
+        
+        Integer a = 127;
+        Integer b = 127;
+        System.out.println("127 == 127: " + (a == b)); // true (cached!)
+
+        Integer c = 128;
+        Integer d = 128;
+        System.out.println("128 == 128: " + (c == d)); // false (not cached)
+
+        System.out.println("\nWhy? Java caches Integer values from -128 to 127");
+        System.out.println("Always use .equals() for Integer comparison!");
+    }
+
+    // MISTAKE 10: Using non-thread-safe collections in multithreaded code
+    private static void mistake10_ThreadSafety() {
+        System.out.println("❌ WRONG: Shared ArrayList in multiple threads");
+        List<Integer> unsafeList = new ArrayList<>();
+        // In real multithreaded code, this can cause data corruption
+
+        System.out.println("\n✓ CORRECT: Use thread-safe collections");
+        List<Integer> safeList = Collections.synchronizedList(new ArrayList<>());
+        System.out.println("synchronizedList for thread safety");
+
+        System.out.println("\n✓ BETTER: Use concurrent collections");
+        List<Integer> concurrentList = new CopyOnWriteArrayList<>();
+        System.out.println("CopyOnWriteArrayList for better concurrent performance");
+
+        System.out.println("\nFor maps, use ConcurrentHashMap instead of HashMap");
+    }
+}
+```
+_____________________________________________________________________________________
+
+==> chatgpt: common java mistakes
+
+```
+import java.math.BigDecimal;
+import java.util.*;
+
+public class CommonJavaMistakes {
+
+    public static void main(String[] args) {
+
+        System.out.println("\n=== 4. Integer Comparison + Caching (==) ===");
+        mistake4_IntegerComparisonCaching();
+
+        System.out.println("\n=== 5. BigDecimal from double constructor ===");
+        mistake5_BigDecimalFromDoubleConstructor();
+
+        System.out.println("\n=== 6. BigDecimal equals() vs compareTo() ===");
+        mistake6_BigDecimalEqualsVsCompareTo();
+
+        System.out.println("\n=== 7. Removing from List in for-each ===");
+        mistake7_RemoveWhileIterating();
+
+        System.out.println("\n=== 8. Autounboxing Null Pointer ===");
+        mistake8_AutounboxingNull();
+
+        System.out.println("\n=== 9. Arrays.asList() is fixed-size ===");
+        mistake9_ArraysAsListFixedSize();
+
+        System.out.println("\n=== 10. String concatenation in loop ===");
+        mistake10_StringConcatInLoop();
+
+        System.out.println("\n=== 11. Mutable key in HashMap ===");
+        mistake11_MutableKeyInHashMap();
+    }
+
+
+    // MISTAKE 4: Using == with Integer (caching makes it tricky)
+    private static void mistake4_IntegerComparisonCaching() {
+        Integer a = 127;
+        Integer b = 127;
+        Integer c = 128;
+        Integer d = 128;
+
+        System.out.println("127: a==b -> " + (a == b) + "  (often true due to Integer cache)");
+        System.out.println("128: c==d -> " + (c == d) + "  (often false, different objects)");
+        System.out.println("✓ CORRECT: c.equals(d) -> " + c.equals(d));
+        System.out.println("Rule: use .equals() for wrapper value comparison.");
+    }
+
+    // MISTAKE 5: new BigDecimal(0.1) gives surprising value
+    private static void mistake5_BigDecimalFromDoubleConstructor() {
+        BigDecimal wrong = new BigDecimal(0.1);
+        BigDecimal better1 = new BigDecimal("0.1");
+        BigDecimal better2 = BigDecimal.valueOf(0.1);
+
+        System.out.println("❌ WRONG: new BigDecimal(0.1) = " + wrong);
+        System.out.println("✓ CORRECT: new BigDecimal(\"0.1\") = " + better1);
+        System.out.println("✓ CORRECT: BigDecimal.valueOf(0.1) = " + better2);
+    }
+
+    // MISTAKE 6: BigDecimal equals checks scale too
+    private static void mistake6_BigDecimalEqualsVsCompareTo() {
+        BigDecimal x = new BigDecimal("1.0");
+        BigDecimal y = new BigDecimal("1.00");
+
+        System.out.println("x = " + x + ", y = " + y);
+        System.out.println("❌ equals(): " + x.equals(y) + "  (scale differs)");
+        System.out.println("✓ compareTo()==0: " + (x.compareTo(y) == 0) + "  (numeric equality)");
+        System.out.println("Tip: for numeric compare, prefer compareTo().");
+    }
+
+    // MISTAKE 7: Removing while iterating with for-each causes ConcurrentModificationException
+    private static void mistake7_RemoveWhileIterating() {
+        List<String> names = new ArrayList<>(Arrays.asList("a", "remove", "b"));
+
+        try {
+            for (String n : names) {
+                if ("remove".equals(n)) {
+                    names.remove(n); // ❌ will throw
+                }
+            }
+            System.out.println("❌ WRONG: didn’t throw (unexpected)");
+        } catch (ConcurrentModificationException e) {
+            System.out.println("❌ WRONG: ConcurrentModificationException happened");
+        }
+
+        // ✓ Correct way: iterator.remove()
+        names = new ArrayList<>(Arrays.asList("a", "remove", "b"));
+        for (Iterator<String> it = names.iterator(); it.hasNext(); ) {
+            if ("remove".equals(it.next())) it.remove();
+        }
+        System.out.println("✓ CORRECT: after iterator.remove(): " + names);
+    }
+
+    // MISTAKE 8: Autounboxing null -> NullPointerException
+    private static void mistake8_AutounboxingNull() {
+        Integer maybeNull = null;
+        try {
+            int x = maybeNull; // ❌ NPE
+            System.out.println("x=" + x);
+        } catch (NullPointerException e) {
+            System.out.println("❌ WRONG: NPE due to autounboxing null Integer");
+        }
+
+        int safe = (maybeNull == null) ? 0 : maybeNull;
+        System.out.println("✓ CORRECT: null-safe unboxing -> " + safe);
+    }
+
+    // MISTAKE 9: Arrays.asList returns fixed-size list
+    private static void mistake9_ArraysAsListFixedSize() {
+        List<String> list = Arrays.asList("a", "b");
+
+        try {
+            list.add("c"); // ❌ UnsupportedOperationException
+            System.out.println("❌ WRONG: add worked (unexpected)");
+        } catch (UnsupportedOperationException e) {
+            System.out.println("❌ WRONG: UnsupportedOperationException (fixed-size list)");
+        }
+
+        List<String> mutable = new ArrayList<>(Arrays.asList("a", "b"));
+        mutable.add("c");
+        System.out.println("✓ CORRECT: mutable list -> " + mutable);
+    }
+
+    // MISTAKE 10: Using + in loops creates lots of Strings
+    private static void mistake10_StringConcatInLoop() {
+        int n = 5;
+
+        String s = "";
+        for (int i = 0; i < n; i++) {
+            s += i; // ❌ creates new String each time
+        }
+        System.out.println("❌ WRONG-ish: s = " + s + " (inefficient)");
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < n; i++) {
+            sb.append(i);
+        }
+        System.out.println("✓ CORRECT: sb = " + sb);
+    }
+
+    // MISTAKE 11: Mutable objects as HashMap keys (hashCode changes => lookup fails)
+    private static void mistake11_MutableKeyInHashMap() {
+        Map<List<String>, String> map = new HashMap<>();
+        List<String> key = new ArrayList<>();
+        key.add("A");
+
+        map.put(key, "value");
+        System.out.println("Before change, get(key) = " + map.get(key));
+
+        key.add("B"); // ❌ mutate key AFTER put
+        System.out.println("❌ After change, get(key) = " + map.get(key) + " (often null!)");
+
+        System.out.println("Rule: keys should be immutable (or at least not mutated after put).");
+    }
+}
+```
+
 _____________________________________________________________________________________
 
 ==> Demonstrate the below two mistakes:

@@ -1,0 +1,102 @@
+https://www.youtube.com/@java/shorts
+
+-> Java is a statically typed language meaning that the type of any variable we create or receive is known and compiled even if we define the type with var the compiler will guess the type of this variable for us.
+
+-> methods of the Object class: 
+toString(), equals() and hashCode() are the commonly used ones.
+Stay away from finalize() and clone() as they are deprecated.
+
+-> Summing an array of ints
+
+Old way:
+public class Test {
+
+    public static void main(String[] args) {
+
+        int[] ints = {0, 1, 2, 3, 4};
+        int sum = 0;
+        for (int element : ints) {
+            sum += element;
+        }
+        System.out.println("sum = " + sum);
+
+    }
+}
+
+New way:
+import java.util.Arrays;
+
+//Multithreading using lambda expressions
+public class Test {
+
+    public static void main(String[] args) {
+
+        int[] ints = {0, 1, 2, 3, 4};
+        int sum = Arrays.stream(ints).sum();
+        System.out.println("sum = " + sum);
+
+        double average = Arrays.stream(ints).average().orElseThrow();
+        System.out.println("average = " + average);
+
+        int min = Arrays.stream(ints).min().orElseThrow();
+        System.out.println("min = " + min);
+
+    }
+}
+
+https://docs.oracle.com/javase/10/docs/api/java/util/OptionalInt.html#orElseThrow() 
+Since:
+10
+
+-> What is the JVM?
+a piece of software that can run our java code.
+JIT = Just In-Time Compiler, optimizes the code that we're running with another element called the JIT compiler,
+handles the security of our application maing sure that no undesired code can sneak in and executed on our behalf,
+HotSpot is the JVM from Open JDK
+
+->  How can you sort an array?
+Call Arrays.sort(tab)
+
+Don't write your own algorithm! as Arrays.sort does the best and uses Dual pivot QuickSort
+
+QuickSort, HeapSort, TimSort are good sorting algorithms.
+
+Why is bubble sort not a very good algorithm to use to sort data?
+Because it has to repeatedly cycle through the entire set of elements, comparing only two adjacent items at a time, bubble sort is not optimal for more massive datasets. But it can work well when sorting only a small number of elements.
+
+-> what is the main characteristic of String class?
+String is non-modifiable 
+Use StringBuilder for modifiable strings, StringBuilder actually wraps an array of chars or bytes, we can modify the content of this array and we can create a string from it by calling toString on it. 
+Use + to concatenate strings, forget using the old StringBuilder pattern it is useless well most of the time.
+
+
+->
+// convert a String into an Integer
+public class ParseIntDemo {
+    public static void main(String[] args) {
+        String s = "123";
+        int total = Integer.parseInt(s) + 100;
+        System.out.println(total);
+    }
+}
+
+
+-> Dynamic method dispatch is the process by which the call to an overridden method is resolved at runtime. 
+
+
+-> 47) How can you count how many times a letter appears in a String?
+
+public class Test {
+    public static void main(String[] args) {
+        String str = "naveen";
+        final var count = str.chars()
+                .filter(c -> c == 'e')
+                .count();
+        System.out.println(count);
+
+    }
+}
+
+
+
+

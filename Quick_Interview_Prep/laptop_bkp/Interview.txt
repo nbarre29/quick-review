@@ -1,0 +1,581 @@
+A lambda expression can implement a functional interface by defining an anonymous function that can be passed as an argument to some method. Lambda expressions enable us to write functional code.
+
+Here is an example demonstrating the use of a lambda expression in Java to define an anonymous function that can be passed as an argument to a method:
+
+import java.util.Arrays;
+import java.util.List;
+
+public class LambdaExample {
+
+    public static void main(String[] args) {
+        List<String> names = Arrays.asList("Alice", "Bob", "Charlie");
+
+        // Using a lambda expression to define an anonymous function
+        names.forEach(name -> System.out.println(name));
+    }
+}
+
+In this example, the lambda expression name -> System.out.println(name) is an anonymous function that is passed as an argument to the forEach method. This lambda expression takes a single parameter name and prints it to the console.
+
+-----------------------------------------------------------------------------------------------------
+Method References: We use lambda expressions to create anonymous methods. Sometimes, however, a lambda expression does nothing but call an existing method. In those cases, it's often clearer to refer to the existing method by name. Method references enable us to do this; they are compact, easy-to-read lambda expressions for methods that already have a name.
+https://docs.oracle.com/javase/tutorial/java/javaOO/methodreferences.html
+
+-----------------------------------------------------------------------------------------------------
+Functional interfaces provide target types for lambda expressions and method references.
+https://docs.oracle.com/javase/8/docs/api/java/util/function/package-summary.html
+Conceptually, a functional interface has exactly one abstract method. Since default methods have an implementation, they are not abstract.
+https://docs.oracle.com/javase/8/docs/api/java/lang/FunctionalInterface.html
+
+-> Functional interfaces in Java are interfaces with a single abstract method, which makes them suitable for lambda expressions and method references. Here is an example demonstrating the use of a functional interface with both a lambda expression and a method reference:
+
+@FunctionalInterface
+interface GreetingService {
+    void sayMessage(String message);
+}
+
+public class FunctionalInterfaceExample {
+    public static void main(String[] args) {
+        // Using a lambda expression
+        GreetingService greetLambda = message -> System.out.println("Hello, " + message);
+        greetLambda.sayMessage("Lambda");
+
+        // Using a method reference
+        GreetingService greetMethodRef = System.out::println;
+        greetMethodRef.sayMessage("Method Reference");
+    }
+}
+
+Output:
+Hello, Lambda
+Method Reference
+
+Explanation:
+GreetingService is a functional interface with a single abstract method sayMessage.
+A lambda expression is used to implement the sayMessage method.
+A method reference (System.out::println) is used to implement the sayMessage method.
+
+
+-> In the above example, to print "Hello" in front of the message using the method reference, you can create a static method that takes a String parameter and prints "Hello" followed by the message. Then, use a method reference to refer to this static method.
+
+@FunctionalInterface
+interface GreetingService {
+    void sayMessage(String message);
+}
+
+public class FunctionalInterfaceExample {
+    public static void main(String[] args) {
+        // Using a lambda expression
+        GreetingService greetLambda = message -> System.out.println("Hello, " + message);
+        greetLambda.sayMessage("Lambda");
+
+        // Using a method reference
+        GreetingService greetMethodRef = FunctionalInterfaceExample::printHelloMessage;
+        greetMethodRef.sayMessage("Method Reference");
+    }
+
+    public static void printHelloMessage(String message) {
+        System.out.println("Hello, " + message);
+    }
+}
+
+Output:
+Hello, Lambda
+Hello, Method Reference
+-----------------------------------------------------------------------------------------------------
+Default Methods and Static Methods:
+prior to java8 all the methods in an interface are public and abstract. But with Java8 we started having methods in interface with implementation.
+Default methods enable you to add new functionality to the interfaces of your libraries and ensure binary compatibility with code written for older versions of those interfaces.
+https://docs.oracle.com/javase/tutorial/java/IandI/defaultmethods.html
+
+They are added to provide the backward compatibility. Take examples of List and Collection interfaces from Collection framework that have the default methods. Without these default methods the classes that  implemented these interfaces have to rewrite their implementations.
+
+Java 8 introduced static interface methods, as well as override-able instance methods with a default implementation. These features are part of the lambda expression support
+https://stackoverflow.com/questions/512877/why-cant-i-define-a-static-method-in-a-java-interface
+
+https://www.educative.io/blog/what-is-functional-programming-python-js-java#what
+
+https://stackoverflow.com/questions/2182597/time-complexity-for-java-arraylist
+Time Complexity:
+O(1) — Constant Time: it only takes a single step for the algorithm to accomplish the task.
+O(log n) — Logarithmic Time: The number of steps it takes to accomplish a task are decreased by some factor with each step.
+O(n) — Linear Time: The number of of steps required are directly related (1 to 1).
+O(n²) — Quadratic Time: The number of steps it takes to accomplish a task is square of n.
+O(C^n) — Exponential: The number of steps it takes to accomplish a task is a constant to the n power (pretty large number)
+An algorithm is said to take linear time, or O(n) time, if its time complexity is O(n). Informally, this means that the running time increases at most linearly with the size of the input.
+Constant time is when the algorithm does not depend on the size of the input. Linear time is when the algorithm is proportional to the size of the input. Time complexity is a way to express the relationship between the number of operations an algorithm will perform and the size of the input to the algorithm.
+What is constant time in complexity?
+An algorithm has constant time complexity if it takes the same time regardless of the number of inputs. If an algorithm's time complexity is constant, it means that it will always run in the same amount of time, no matter the input size.
+
+
+
+An inteface should be used to model the behavior of a class and not a placeholder of constants.
+
+
+SOAP:
+SOAP is a protocol which was designed before REST and came into the picture. The main idea behind designing SOAP was to ensure that programs built on different platforms and programming languages could exchange data in an easy manner. SOAP stands for Simple Object Access Protocol.
+
+REST:
+REST stands for Representational State Transfer.
+A Restful service would use the normal HTTP verbs of GET, POST, PUT and DELETE for working with the required components
+
+KEY DIFFERENCE:
+SOAP is a protocol whereas REST is an architectural pattern.
+SOAP uses service interfaces to expose its functionality to client applications while REST uses Uniform Service locators to access to the components on the hardware device.
+SOAP needs more bandwidth for its usage whereas REST doesn’t need much bandwidth.
+Comparing SOAP vs REST API, SOAP only works with XML formats whereas REST work with plain text, XML, HTML and JSON.
+
+https://stackoverflow.com/questions/20088759/how-rest-is-lightweight
+Generally REST reduces the size and scope of request payloads by mapping request semantics to the underlying HTTP protocol. For example, SOAP will usually add an envelope (of varying complexity) which utilizes a WSDL (a contract) for both request and response types and service mappings. REST will just use POST, GET, etc to a URL with some HTTP encoded parameters and thus lacks an enforced contract.
+
+There are several aspects of lightweight. SOAP is XML only, while REST allows you to send any payload, such as JSON which is less verbose and simpler than XML. Generally speaking, it takes less memory and less bandwidth to deal with JSON than XML.
+
+On another level, using SOAP you typically describe everything as services. So, you need to define a message schema/structure for each verb and noun i.e. "CreateOrder". In REST, you use the predefined HTTP methods such as POST and put the noun/"resource" in the URI which uses already existing constructs on the HTTP level - not reinventing them in XML.
+
+Then there is the effort it takes to adapt to change. A small change in SOAP requires us to redefine the schema, redefine the wsdl and handle versions. In rest, in the best of worlds, there is a degree of dynamic coded into the API (links to referenced resources, among other things), so that some changes can be implemented and takes effect directly.
+
+All the heavy weight strictness of SOAP of course has a valid reason for existence. It's less likely two implementations have different interpretations of the API, than in a loosely defined REST API. SOAP also allows you to implement skeleton code in various languages based on a WSDL. In some complex scenarios, this is actually almost the only productive way to work with SOAP. Marshalling and unmarshalling between objects and serialized XML is rather heavy and adds to the heavyness of SOAP.
+
+
+Securing RESTful Web Services:
+https://docs.oracle.com/cd/E24329_01/web.1211/e24983/secure.htm#RESTF256
+
+
+
+Stream vs parallelStream:
+Suppose we want to calculate the average age of members of an organization.
+If the organization is small then sequential stream is fine but for a larger organization where the data set is large then parallel stream 
+can be preferred over sequential stream.
+With parallel stream sometimes there is an overhead of managing threads, resources and results is a more expensive operation than doing the actual work.
+
+
+
+https://www.theserverside.com/answer/Synchronous-vs-asynchronous-microservices-communication-patterns
+
+
+https://stackoverflow.com/questions/6828703/what-is-the-difference-between-sax-and-dom
+
+
+https://www.baeldung.com/java-when-to-use-parallel-stream
+
+
+HashMap:
+https://www.nagarro.com/en/blog/post/24/performance-improvement-for-hashmap-in-java-8
+https://www.baeldung.com/java-hashmap
+https://www.baeldung.com/java-hashmap-advanced
+https://stackoverflow.com/questions/35888183/why-hash-maps-in-java-8-use-binary-tree-instead-of-linked-list
+https://stackoverflow.com/questions/26302169/what-happens-if-we-override-only-hashcode-in-a-class-and-use-it-in-a-set/26302673#:~:text=Only%20Override%20HashCode%2C%20Use%20the,by%20calling%20the%20equals%20method
+https://stackoverflow.com/questions/6493605/how-does-a-java-hashmap-handle-different-objects-with-the-same-hash-code
+https://www.youtube.com/watch?v=shs0KM3wKv8&list=PLI1t_8YX-Apv-UiRlnZwqqrRT8D1RhriX&index=14 (Data Structures: Hash Tables)
+
+
+https://www.benchresources.net/java-8-how-to-sort-linkedlist-elements/
+
+
+
+
+
+
+https://www.baeldung.com/java-stack-heap
+
+
+-> volatile: prevent shared-data from being cached locally
+https://software.rajivprab.com/2018/04/29/myths-programmers-believe-about-cpu-caches/
+Volatile keyword is used to modify the value of a variable by different threads. The volatile keyword does not cache the value of the variable and always read the variable from the main memory. ... The volatile keyword cannot be used with classes or methods.
+
+In Java, the volatile keyword is used to declare a variable whose value may be modified by multiple threads. It ensures that the variable's value is always read from and written to the main memory and not from a thread's local cache, thus maintaining visibility across multiple threads.
+
+When a variable is declared as volatile, it guarantees the following:
+
+a) Visibility: Changes made to a volatile variable by one thread are immediately visible to other threads. This means that if one thread modifies the value of a volatile variable, other threads will see the updated value when they access it.
+
+b) Atomicity: Simple read and write operations on a volatile variable are atomic. That means the value read or written is always the complete value, even if multiple threads are accessing it simultaneously. However, compound actions, such as incrementing a volatile variable, are not atomic and require additional synchronization mechanisms like synchronized or java.util.concurrent.atomic classes.
+The volatile keyword does not provide atomicity. It only guarantees visibility and ordering. If multiple threads are performing compound actions on a volatile variable, you may still need to use additional synchronization mechanisms like locks or atomic classes.
+
+
+->how to print even and odd numbers using threads in java
+https://java2blog.com/print-even-odd-numbers-threads-java/
+
+
+
+https://www.edureka.co/blog/interview-questions/java-collections-interview-questions/
+__________________________________________________________________________
+
+//Composition example
+// Parent class
+class Engine {
+    public void start() {
+        System.out.println("Engine started");
+    }
+
+    public void stop() {
+        System.out.println("Engine stopped");
+    }
+}
+
+// Child class
+class Car {
+    private Engine engine; // Composition: Car has an Engine
+
+    public Car() {
+        this.engine = new Engine();
+    }
+
+    public void startCar() {
+        engine.start();
+        System.out.println("Car started");
+    }
+
+    public void stopCar() {
+        engine.stop();
+        System.out.println("Car stopped");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Car car = new Car();
+        car.startCar();
+        car.stopCar();
+    }
+}
+
+Output:
+Engine started
+Car started
+Engine stopped
+Car stopped
+
+
+In the example above, we have a Car class that has a composition relationship with the Engine class. The Car class contains an instance of the Engine class as a private member variable.
+
+When a Car object is created, it automatically creates an Engine object within it using composition. The startCar() and stopCar() methods of the Car class utilize the start() and stop() methods of the Engine class respectively, showcasing the interaction between the Car and Engine objects.
+__________________________________________________________________________
+Composition:
+https://www.youtube.com/watch?v=VfTiLE3RZds
+
+1. has-a relationship between objects
+2. Implemented using instance variables
+3. Code reuse
+4. Hide visibility to client classes
+
+public class Car {
+	
+	private String color;
+	private int noOfTyres; 
+	
+	private Engine engine;
+	
+	public Car(String color,int noOfTyres,String engineType,String engineName,String enginePower ) {
+		this.engine = new Engine();
+		engine.setEngineName(engineName);
+		engine.setEnginePower(enginePower);
+		engine.setEngineType(engineType);
+	}
+	
+	public String getColor() {
+		return color;
+	}
+	public void setColor(String color) {
+		this.color = color;
+	}
+	public int getNoOfTyres() {
+		return noOfTyres;
+	}
+	public void setNoOfTyres(int noOfTyres) {
+		this.noOfTyres = noOfTyres;
+	}
+		
+	
+	public String getEngineType() {
+		return engine.getEngineType();
+	}
+	public String getEngineName() {
+		return engine.getEngineName();
+	}
+	public String getEnginePower() {
+		return engine.getEnginePower();
+	}
+	
+	
+	public static void main(String[] args) {
+		Car c = new Car("Red", 4, "V8", "Chevvy", "320 BHP");
+		System.out.println(c.getEngineName());
+
+	}		
+
+}
+
+
+
+public class Engine {
+	
+	private String engineType;
+	private String engineName;
+	private String enginePower;
+	
+	
+	public void setEngineType(String engineType) {
+		this.engineType = engineType;
+	}
+	public void setEngineName(String engineName) {
+		this.engineName = engineName;
+	}
+	public void setEnginePower(String enginePower) {
+		this.enginePower = enginePower;
+	}
+	
+	
+	public String getEngineType() {
+		return engineType;
+	}
+	public String getEngineName() {
+		return engineName;
+	}
+	public String getEnginePower() {
+		return enginePower;
+	}
+	
+
+}
+
+You should only call private methods in the constructor, not public setters. You should be validating and initializing the fields directly in the constructor. Attempt to make it immutable and you can remove all your setters anyway. By design, it would be great to call setters as you will only ever need to validate in those setters, but unfortunately, it can lead to bugs. Lastly, this would help people understand better when having the engine object parameter directly in the constructor, when calling the constructor for car, at that parameter, call the engine constructor. Otherwise, great explanation
+
+https://www.c-sharpcorner.com/UploadFile/ff2f08/association-aggregation-and-composition/#:~:text=Aggregation%20means%20one%20object%20is,object%20contains%20the%20other%20one
+
+https://www.loekvandenouweland.com/content/difference-between-aggregation-and-composition.html
+
+__________________________________________________________________________
+
+https://medium.com/kayvan-kaseb/aggregation-in-java-830be20eb195
+
+public class Address {
+	
+	String city,state,country;
+	
+	public Address(String city,String state,String country) {
+		this.city = city;
+		this.state = state;
+		this.country = country;
+	}
+
+}
+
+public class Employee {
+	
+	int id;
+	String name;
+	Address address; 
+	
+	public Employee(int id,String name,Address address) {
+		this.id = id;
+		this.name = name;
+		this.address = address;
+	}
+	
+	void display() {
+		System.out.println(id + " " + name);
+		System.out.println(address.city + " " + address.state + " " + address.country);
+		
+	}
+
+	public static void main(String[] args) {
+		
+		Address address = new Address("Hyd", "Hyd", "India"); // Creating the object of Address
+		Employee employee = new Employee(76241, "Naveen", address);
+		employee.display();				
+
+	}
+
+}
+__________________________________________________________________________
+
+dynamic method resolution means Single method which can be applied to solve multiple problems. Ex: Consider Shape is an interface and has method name draw. you have Rectangle and Circle classes implements Shape Interface. So when you create instance of Rectangle object and call the draw method will draw the Rectangle shape.. In other case you can instantiate Circle instance and call draw method to draw Circle...
+
+In interface you may assign child object in the parent container. Ex: Shape p = new Rectangle();
+
+in this case it will create the instance of Rectangle and assign it into Shape p..
+
+but from the Shape p object you can call only the draw method... you can not call other methods in the Rectangle Object since its assigned to parent interface and parent has only draw method.
+
+
+public interface Animal {
+    public String sound();
+}
+
+public class Cat implements Animal {
+    public String sound() { return "meow"; }
+    public String walk() { return "King";}
+}
+
+public class Dog implements Animal {
+    public String sound() { return "woof"; }
+}
+
+public class Test {
+    public static void main(String[] args) {  
+
+        Animal a = new Cat();
+    	System.out.println(a.sound());
+    	System.out.println(a.walk());  // we cannot access the walk() method here
+  	
+    	Cat c = new Cat();
+    	System.out.println(c.sound());
+    	System.out.println(c.walk());
+    }
+}
+
+__________________________________________________________________________
+Interface & Abstract class
+
+https://docs.oracle.com/javase/tutorial/java/IandI/abstract.html
+https://docs.oracle.com/javase/tutorial/java/concepts/interface.html
+
+Which should you use, abstract classes or interfaces?
+
+Consider using abstract classes if any of these statements apply to your situation:
+You want to share code among several closely related classes.
+You expect that classes that extend your abstract class have many common methods or fields, or require access modifiers other than public (such as protected and private).
+You want to declare non-static or non-final fields. This enables you to define methods that can access and modify the state of the object to which they belong.
+
+Consider using interfaces if any of these statements apply to your situation:
+You expect that unrelated classes would implement your interface. For example, the interfaces Comparable and Cloneable are implemented by many unrelated classes.
+You want to specify the behavior of a particular data type, but not concerned about who implements its behavior.
+You want to take advantage of multiple inheritance of type.
+
+
+https://www.guru99.com/interface-vs-abstract-class-java.html
+
+An abstract class allows you to create functionality that subclasses can implement or override. An interface only allows you to define functionality, not implement it.
+
+Important Reasons For Using Interfaces
+
+Interfaces are used to achieve abstraction.
+Designed to support dynamic method resolution at run time
+It helps you to achieve loose coupling.
+
+Important Reasons For Using Abstract Class
+
+Abstract classes offer default functionality for the subclasses.
+Provides a template for future specific classes
+Helps you to define a common contract for its subclasses
+Abstract class allows code reusability.
+
+__________________________________________________________________________
+https://stackoverflow.com/questions/260666/can-an-abstract-class-have-a-constructor
+We can have a constructor in abstract class. The purpose of the constructor in a class is used to initialize fields but not to "build objects".
+
+public abstract class Figure { 
+
+    double dim1;        
+    double dim2; 
+
+    Figure(double a, double b) {         
+        dim1 = a;         
+        dim2 = b;         
+    }
+
+    // area is now an abstract method 
+
+   abstract double area(); 
+
+}
+
+
+public class Rectangle extends Figure { 
+    Rectangle(double a, double b) { 
+        super(a, b); 
+    } 
+    // override area for rectangle 
+    double area() { 
+        System.out.println("Inside Area for Rectangle."); 
+        return dim1 * dim2; 
+    } 
+}
+
+public class Triangle extends Figure { 
+    Triangle(double a, double b) { 
+        super(a, b); 
+    } 
+    // override area for right triangle 
+    double area() { 
+        System.out.println("Inside Area for Triangle."); 
+        return dim1 * dim2 / 2; 
+    } 
+}
+
+public class AbstractAreas { 
+    public static void main(String args[]) { 
+        // Figure f = new Figure(10, 10); // illegal now 
+        Rectangle r = new Rectangle(9, 5); 
+        Triangle t = new Triangle(10, 8); 
+        Figure figref; // this is OK, no object is created 
+        figref = r; 
+        System.out.println("Area is " + figref.area()); 
+        figref = t; 
+        System.out.println("Area is " + figref.area()); 
+    } 
+}
+__________________________________________________________________________
+
+https://www.lucidchart.com/pages/examples/flowchart_software
+https://lucidchart.zendesk.com/hc/en-us/community/posts/360002354346-How-do-I-download-Lucidchart-to-my-computer-
+https://lucid.app/users/login#/login
+
+
+https://dzone.com/articles/prevent-breaking-a-singleton-class-pattern
+Using the "clone" method, we can create a copy of the original object; it's the same thing if we applied clone in the singleton pattern. It will create two instances: one original and another one cloned object. In this case, we will break the Singleton principle, as shown in the below code.
+
+Implement the " Cloneable" interface and override the clone method in the above Singleton class.
+
+___________________________________________________________________________
+
+-> Yodlee MoneyCenter is a personal finance management platform designed to help individuals track, manage, and plan their finances. It provides users with a centralized view of their financial accounts, including bank accounts, credit cards, investments, and loans. Through its data aggregation technology, Yodlee MoneyCenter pulls in financial information from various sources, allowing users to see all their accounts in one place.
+
+Key features of Yodlee MoneyCenter include:
+
+1) Account Aggregation: Integrates data from multiple financial institutions, so users can view balances, transactions, and other financial information across accounts in a single dashboard.
+2) Budgeting and Spending Tracking: Allows users to categorize expenses, set budgeting goals, and track spending patterns to make more informed financial decisions.
+3) Investment Tracking: Monitors investment portfolios, showing performance and allocations.
+4) Bill Reminders: Provides reminders for upcoming bills and expenses to help users avoid late payments.
+5) Financial Insights and Planning Tools: Offers personalized insights and analytics to help users improve financial health.
+
+___________________________________________________________________________
+
+
+
+https://www.youtube.com/watch?v=J3DY3Te3A_A (System Design: Uber Lyft ride sharing services - Interview question)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+__________________________________________________________________________
+stackoverflow.com (people with more badges)
+https://stackoverflow.com/users/276052/aioobe
+https://stackoverflow.com/users/3474/erickson
+https://stackoverflow.com/users/68587/john-kugelman?tab=badges
+https://stackoverflow.com/users/303810/lexicore?tab=badges
+https://stackoverflow.com/users/596781/kerrek-sb
+https://stackoverflow.com/users/2711488/holger
+
+
+
+
+
+https://money.yodlee.com/pfm3/home
+https://www.youtube.com/watch?v=DY2AR8Wzg3Y (How does Uber scale to millions of concurrent requests?)
