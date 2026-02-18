@@ -1,0 +1,133 @@
+Volatile --> Guarantees visibility and NOT atomicity. Synchronization (Locking) --> Guarantees visibility and atomicity
+_____________________________________________________
+
+https://www.youtube.com/watch?v=KT8ybowdyr0
+OAuth was originally created for thrid party apps to access APIs in a way that didn't need the user to give their passwords to these applications. Organizations realized that there was a lot of benefit to this pattern even for first party aplications and started using OAuth in their own applications, and even internally within an organization. We can get a lot of security benefits by using OAuth across all our applications and avoid relying on passwords everywhere.
+_____________________________________________________
+
+https://en.wikipedia.org/wiki/OAuth
+OAuth (short for "Open Authorization"[1][2]) is an open standard for access delegation, commonly used as a way for internet users to grant websites or applications access to their information on other websites but without giving them the passwords.
+_____________________________________________________
+
+https://auth0.com/intro-to-iam/what-is-oauth-2
+OAuth 2.0 is an authorization protocol and NOT an authentication protocol. As such, it is designed primarily as a means of granting access to a set of resources, for example, remote APIs or user data.
+
+OAuth 2.0 uses Access Tokens. An Access Token is a piece of data that represents the authorization to access resources on behalf of the end-user. OAuth 2.0 doesn’t define a specific format for Access Tokens. However, in some contexts, the JSON Web Token (JWT) format is often used. This enables token issuers to include data in the token itself. Also, for security reasons, Access Tokens may have an expiration date.
+
+https://oauth.net/2/access-tokens/
+https://oauth.net/id-tokens-vs-access-tokens/
+
+https://auth0.com/docs/authenticate/protocols/openid-connect-protocol
+What is OpenID Connect (OIDC)?
+OpenID Connect (OIDC) is an identity layer built on top of the OAuth 2.0 framework. It allows third-party applications to verify the identity of the end-user and to obtain basic user profile information.
+_____________________________________________________
+
+https://auth0.com/intro-to-iam/saml-vs-oauth
+https://auth0.com/resources/ebooks/saml-authentication-explained
+_____________________________________________________
+
+
+https://developer.okta.com/blog/2017/06/21/what-the-heck-is-oauth
+Resource Server: manage and host the resource.
+Authorization server: The server issuing access tokens to the client.
+
+https://learn.microsoft.com/en-us/answers/questions/311300/oauth2-authorization-code-was-already-redeemed
+Authorization codes can only be used once, but refresh tokens can be used multiple times across multiple resources. Any new app that attempts to reuse an authentication code during the OAuth code flow will get an invalid_grant error AADSTS54005: OAuth2 Authorization code was already redeemed.
+
+
+https://www.oauth.com/oauth2-servers/server-side-apps/authorization-code/#:~:text=The%20authorization%20code%20is%20a,approve%20or%20deny%20the%20request.
+What is the difference between authorization code and access token?
+The authorization code is a temporary code that the client will exchange for an access token. The code itself is obtained from the authorization server where the user gets a chance to see what the information the client is requesting, and approve or deny the request.
+
+
+
+https://www.youtube.com/watch?v=bktTomENEX8 ( What is AWS SNS (Simple Notification Service)? (1/13) )
+
+
+https://help.boomi.com/bundle/integration/page/r-atm-Queue_Components.html
+
+
+https://www.vogella.com/tutorials/JavaPersistenceAPI/article.html
+
+https://docs.microsoft.com/en-us/troubleshoot/windows-server/identity/export-root-certification-authority-certificate
+https://www.securew2.com/blog/what-is-an-x-509-certificate
+https://docs.oracle.com/javase/8/docs/technotes/tools/windows/keytool.html
+https://docs.oracle.com/cd/E19830-01/819-4712/ablqw/index.html
+https://docs.oracle.com/javase/7/docs/technotes/tools/windows/keytool.html
+https://stackoverflow.com/questions/17935619/what-is-difference-between-cacerts-and-keystore
+https://www.youtube.com/watch?v=yZSju2EOPNY (02. Installing an Enterprise Root Certificate Authority | Windows Server 2019)
+
+What is a cacerts file?
+The cacerts file is a collection of trusted certificate authority (CA) certificates. Oracle includes a cacerts file with its SSL support in the Java™ Secure Socket Extension (JSSE) tool kit and JDK. It contains certificate references for well-known Certificate authorities, such as VeriSign™.
+
+cacerts is where Java stores public certificates of root CAs. Java uses cacerts to authenticate the servers.
+Keystore is where Java stores the private keys of the clients so that it can share it to the server when the server requests client authentication.
+https://www.verisign.com/en_US/website-presence/online/ssl-certificates/index.xhtml
+https://www.saashub.com/compare-verisign-vs-digicert
+https://www.digicert.com/kb/advisories/pki-certificate-profile-digicert-domains.htm
+
+https://projectlombok.org/
+https://projectlombok.org/features/Cleanup
+
+
+https://www.diffen.com/difference/GET-vs-POST-HTTP-Requests
+
+
+-> difference between POST and PUT in REST
+both the POST and PUT methods are used for creating or updating resources on a server. 
+1) POST (Create):
+The POST method is used to create a new resource on the server. When you send a POST request, the server generates a new resource and assigns it a unique identifier.
+
+Key characteristics of POST:
+Used for creating new resources.
+No requirement for the client to specify the resource identifier.
+Multiple consecutive POST requests with the same data might create multiple identical resources.
+
+Example POST request:
+POST /api/users
+Content-Type: application/json
+
+{
+  "name": "John",
+  "age": 30,
+  "city": "New York"
+}
+
+2) PUT (Update/Replace):
+The PUT method is used to update or replace an existing resource on the server. When you send a PUT request, you provide the complete representation of the resource in the request payload. If the resource exists, it will be updated with the new data provided. If the resource doesn't exist, the server may create a new resource using the specified identifier. 
+
+Key characteristics of PUT:
+Used for updating or replacing existing resources.
+Requires the client to specify the resource identifier.
+Sending the same request multiple times will always result in the same resource state (replace).
+
+Example PUT request:
+PUT /api/users/123
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "age": 35,
+  "city": "London"
+}
+
+
+-> can we use PUT to create a REST resource ?
+According to the principles of REST, the PUT method is primarily used for updating or replacing existing resources, rather than creating new ones. While it is technically possible to use the PUT method to create a resource, it is not recommended or considered a best practice.
+
+The main reason for this recommendation is that the PUT method is designed to perform a full replacement of the resource representation. In other words, when you send a PUT request, you should provide the complete representation of the resource, including all its properties. If a resource with the specified identifier already exists, it will be replaced with the new representation. If the resource doesn't exist, some server implementations may create a new resource with the specified identifier, but this behavior can vary.
+
+Using PUT for resource creation can lead to confusion and inconsistent behavior. It violates the principle of idempotence, which states that multiple identical requests should have the same effect as a single request. With PUT, sending the same request multiple times would create multiple resources with the same identifier, which is generally not desired.
+
+To create a new resource in REST, the recommended method is POST. POST is specifically designed for resource creation and allows the server to assign a unique identifier to the newly created resource. It is more flexible and aligns with the principles of idempotence.
+
+In summary, while using PUT for resource creation is technically possible, it is not recommended. It is considered a best practice to use POST for creating new resources in REST.
+
+
+
+
+
+
+
+
+

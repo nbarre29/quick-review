@@ -1,0 +1,664 @@
+//Fibonacci
+public class Test {
+
+    private static void fibonacci(int n) {
+        int num1 = 0, num2 = 1;
+        int counter = 0;
+
+        while (counter < n) {
+
+            System.out.print(num1 + " ");
+
+            //swap
+            int num3 = num1 + num2;
+            num1 = num2;
+            num2 = num3;
+            counter = counter + 1;
+        }
+
+    }
+
+    public static void main(String[] args) {
+        fibonacci(10);
+
+    }
+}
+____________________________________________________
+
+//check if a number is a Palindrome
+public class PalindromeNumber {
+
+    public static void main(String[] args) {
+        int num = 3553, reversedNum = 0, remainder;
+        int originalNum = num;
+        while (num != 0) {
+            remainder = num % 10;
+            reversedNum = reversedNum * 10 + remainder;
+            num /= 10;
+        }
+
+        if (originalNum == reversedNum) {
+            System.out.println(originalNum + " is Palindrome");
+        } else {
+            System.out.println(originalNum + " is not a Palindrome");
+        }
+    }
+}
+----------------------------------------------------
+//check if a string is a Palindrome
+public class Palindrome {
+
+	public static void main(String[] args) {
+		String str = "racecar";
+		if (isPalindrome(str)) {
+			System.out.println(str + " is a palindrome");
+		} else {
+			System.out.println(str + " is not a palindrome");
+
+		}
+
+	}
+	
+	private static boolean isPalindrome(String str) {
+		// Pointers pointing to the beginning and end of the string
+		int i=0,j=str.length()-1;
+		//while there are characters to compare
+		while (i < j) {
+			// if there is a mismatch
+			if (str.charAt(i) != str.charAt(j)) {
+				return false;
+			}
+			i++;
+			j--;
+			
+		}
+		//given string is a palindrome
+		return true;
+	}
+}
+----------------------------------------------------
+public class Palindrome {
+
+    public static void main(String[] args) {
+        String str = "racecar";
+
+        String reversedString = new StringBuilder(str).reverse().toString();
+
+        if (str.equals(reversedString)) {
+            System.out.println(str + " is a palindrome");
+        } else {
+            System.out.println(str + " is not a palindrome");
+        }
+    }
+
+}
+____________________________________________________
+
+public class SwapTwoStrings {
+    public static void main(String[] args) {
+        String s1 = "Naveen";
+
+        String s2 = "Barre";
+
+        display("Before Swapping :", s1, s2);
+
+        s1 = s1 + s2;
+        // Swap
+        s2 = s1.substring(0, s1.length() - s2.length());
+
+        s1 = s1.substring(s2.length());
+
+        System.out.println("After Swapping :");
+        display("After Swapping :", s1, s2);
+    }
+
+    private static final void display(String str, String s1, String s2) {
+        System.out.println(str);
+        System.out.println("s1 : " + s1);
+        System.out.println("s2 : " + s2);
+    }
+}
+____________________________________________________
+
+https://stackoverflow.com/questions/48592738/java8-check-if-a-given-integer-is-present-in-integer-array
+
+import java.util.Arrays;
+import java.util.Objects;
+
+public class Test {
+    public static void main(String[] args) {
+        int[] arrayOfInts = {32, 87, 3, 589, 12, 1076, 2000, 8, 622, 127};
+
+        boolean isPresent = Arrays.stream(arrayOfInts).anyMatch(num -> Objects.equals(num, 12));
+
+        if (isPresent) {
+            System.out.println("Found");
+        } else {
+            System.out.println("Not found");
+        }
+
+    }
+}
+----------------------------------------------------
+import java.util.Arrays;
+public class Test {
+    public static void main(String[] args) {
+        Integer[] arrayOfInts = {32, 87, 3, 589, 12, 1076, 2000, 8, 622, 127};
+
+        boolean isPresent = Arrays.asList(arrayOfInts).contains(12);
+
+        if (isPresent) {
+            System.out.println("Found");
+        } else {
+            System.out.println("Not found");
+        }
+
+    }
+}
+----------------------------------------------------
+import java.util.Arrays;
+public class Test {
+    public static void main(String[] args) {
+        String[] nameArray = new String[]{"Bill", "Connor", "Joe", "John", "Mark"};
+
+        boolean isPresent = Arrays.asList(nameArray).contains("Joe");
+
+        if (isPresent) {
+            System.out.println("Found");
+        } else {
+            System.out.println("Not found");
+        }
+
+    }
+}
+----------------------------------------------------
+import java.util.Arrays;
+import java.util.Objects;
+
+public class Test {
+    public static void main(String[] args) {
+        String[] nameArray = new String[]{"Bill", "Connor", "Joe", "John", "Mark"};
+
+        boolean isPresent = Arrays.stream(nameArray).anyMatch(name -> Objects.equals(name, "Joe"));
+
+        if (isPresent) {
+            System.out.println("Found");
+        } else {
+            System.out.println("Not found");
+        }
+
+    }
+}
+____________________________________________________
+
+Two strings are said to be anagram if we can form one string by arranging the characters of another string. For example, Race and Care. Here, we can form Race by arranging the characters of Care.
+
+
+import java.util.Arrays;
+//program to check if two strings are anagrams
+public class Test {
+
+    public static void main(String[] args) {
+        String str1 = "Race";
+        String str2 = "Care";
+
+        str1 = str1.toLowerCase();
+        str2 = str2.toLowerCase();
+
+        // check if length is same
+        if (str1.length() == str2.length()) {
+
+            // convert strings to char array
+            char[] charArray1 = str1.toCharArray();
+            char[] charArray2 = str2.toCharArray();
+
+            // sort the char array
+            Arrays.sort(charArray1);
+            Arrays.sort(charArray2);
+
+            // if sorted char arrays are same
+            // then the string is anagram
+            boolean result = Arrays.equals(charArray1, charArray2);
+
+            if (result) {
+                System.out.println(str1 + " and " + str2 + " are anagram.");
+            } else {
+                System.out.println(str1 + " and " + str2 + " are not anagram.");
+            }
+        } else {
+            System.out.println(str1 + " and " + str2 + " are not anagram.");
+        }
+    }
+}
+----------------------------------------------------
+
+import java.util.Arrays;
+
+public class Test {
+
+    private static void sameChars(String firstStr, String secondStr) {
+
+        if (firstStr.length() == secondStr.length()) {
+
+            char[] first = firstStr.toLowerCase().toCharArray();
+            char[] second = secondStr.toLowerCase().toCharArray();
+
+            Arrays.sort(first);
+            Arrays.sort(second);
+
+            final boolean isEqual = Arrays.equals(first, second);
+            if (isEqual) {
+                System.out.println(firstStr + " and " + secondStr + " are anagram");
+
+            } else {
+                System.out.println(firstStr + " and " + secondStr + " are not anagram");
+            }
+        } else {
+            System.out.println(firstStr + " and " + secondStr + " are not anagram");
+        }
+    }
+
+    public static void main(String[] args) {
+        sameChars("Race", "Care");
+
+    }
+}
+----------------------------------------------------
+https://github.com/net-vinothkumar/ILoveJavaProgramming/blob/master/src/main/java/com/interviewdot/ILoveJavaProgramming/Anagram.java
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class Anagram {
+    public static void main(String[] args) {
+        String source = "triangle";
+        String target = "integral";
+
+        isAnagramUsingSort(source, target);
+        isAnagramUsingStreams(source, target);
+    }
+
+    private static void isAnagramUsingSort(String source, String target) {
+        char[] sourceChars = source.toLowerCase().toCharArray();
+        char[] targetChars = target.toLowerCase().toCharArray();
+        Arrays.sort(sourceChars);
+        Arrays.sort(targetChars);
+        boolean isAnagram = Arrays.equals(sourceChars,targetChars);
+
+        System.out.println("find anagram using Arrays.sort = " + isAnagram);
+    }
+
+    private static void isAnagramUsingStreams(String source, String target) {
+
+        boolean isAnagram = Stream.of(source.toLowerCase().split(""))
+                .sorted()
+                .collect(Collectors.joining()) // a e g i l n r t
+                .equals(
+                        Stream.of(target.toLowerCase()
+                                .split(""))
+                                .sorted() // a e g i l n r t
+                                .collect(Collectors.joining()));
+
+        System.out.println("find anagram using Stream API = " + isAnagram);
+    }
+}
+____________________________________________________
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Predicate;
+
+public class DisplayEvenOdd {
+    public static void main(String[] args) {
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8);
+        displayEvenNumbers(numbers);
+        displayOddNumbers(numbers);
+    }
+
+    private static void displayEvenNumbers(List<Integer> numbers) {
+        Predicate<Integer> isEven = (number) -> number % 2 == 0;
+
+        System.out.println("Even Numbers");
+
+        numbers.stream()
+                .filter(isEven)
+                .forEach(System.out::println);
+    }
+
+    private static void displayOddNumbers(List<Integer> numbers) {
+        Predicate<Integer> isOdd = (number) -> number % 2 != 0;
+        System.out.println("Odd Numbers");
+        numbers.stream()
+                .filter(isOdd)
+                .forEach(System.out::println);
+    }
+}
+____________________________________________________
+public class CheckTheSubstring {
+    public static void main(String[] args) {
+        String sentence = "I Love Java Programming";
+        String word = "IPhone";
+
+        checkStringUsingContains(sentence, word);
+        checkStringUsingIndexOf(sentence, word);
+    }
+
+    private static void checkStringUsingContains(String sentence, String word) {
+        if (sentence.contains(word)) {
+            System.out.println(word + " exist in '" + sentence + "'");
+        } else {
+            System.out.println(word + " does not exist in '" + sentence + "'");
+        }
+    }
+   
+    private static void checkStringUsingIndexOf(String sentence, String word) {
+        if (sentence.indexOf(word) == -1) {
+            System.out.println(word + " does not exist in '" + sentence + "'");
+        } else {
+            System.out.println(word + " exist in '" + sentence + "'");
+        }
+    }
+}
+____________________________________________________
+
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
+
+public class FirstNonConsecutive {
+    public static void main(String[] args) {
+        int[] numbers = new int[]{1, 2, 3, 4, 6, 7, 9, 11};
+        findNonConsecutive(numbers);
+        findNonConsecutiveUsingStream(numbers);
+        findNonConsecutiveUsingAtomicInteger(numbers);
+    }
+
+    private static void findNonConsecutive(int[] numbers) {
+        for (int i = 0; i < numbers.length - 1; i++) { // 1, 2, 3, 4, 6, 7, 9, 11
+            int difference = numbers[i + 1] - numbers[i]; // 1
+            if (difference != 1) {
+                System.out.println("first non consecutive number : " + numbers[i + 1]);
+                break;
+            }
+        }
+    }
+
+    private static void findNonConsecutiveUsingStream(int[] numbers) {
+        Integer result = IntStream.range(1, numbers.length-1)
+                .filter(x -> numbers[x - 1] + 1 != numbers[x]) // 1, 2, 3, 4, 6, 7, 9, 11
+                .mapToObj(x -> numbers[x])
+                .findFirst()
+                .orElse(null);
+
+        System.out.println("first non consecutive number : " + result);
+    }
+
+    private static void findNonConsecutiveUsingAtomicInteger(int[] numbers) {
+        AtomicInteger a = new AtomicInteger(numbers[0]); // 1
+
+        Integer result = Arrays.stream(numbers) // 1, 2, 3, 4, 6, 7, 9, 11
+                .filter(x -> x != a.getAndIncrement())// 1, 2, 3, 4, 5
+                .findFirst()
+                .getAsInt();
+
+        System.out.println("first non consecutive number : " + result);
+    }
+
+}
+____________________________________________________
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+public class CreditCardMask {
+    public static void main(String[] args) {
+        String creditCard = "4556364607935616";
+
+        maskifyUsingIntStream(creditCard);
+        maskifyUsingStreamGenerate(creditCard);
+    }
+
+    private static void maskifyUsingIntStream(String creditCard) {
+        String lastCharacters = creditCard.substring(creditCard.length() - 4);//5616
+
+        StringBuilder sb = new StringBuilder();
+        IntStream   // 0 1 2 3 4 5 6 7 8 9 10 11
+                .rangeClosed(0, creditCard.length() - lastCharacters.length() - 1)
+                .forEach(num -> sb.append('#'));//############
+        sb.append(lastCharacters);
+
+        System.out.println(sb.toString());
+    }
+
+    private static void maskifyUsingStreamGenerate(String creditCard) {
+        final int firstNonMaskedIndex = Math.max(0, creditCard.length() - 4); //12
+
+        String maskedCard = Stream.generate(() -> "#")
+                .limit(firstNonMaskedIndex)//############
+                .collect(
+                        Collectors.joining()
+                ).concat(                   // 12 - 16 => "5616"
+                        creditCard.substring(firstNonMaskedIndex, creditCard.length())
+                );
+
+        System.out.println(maskedCard);
+    }
+}
+____________________________________________________
+// get unique elements
+
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class Test {
+    public static void main(String[] args) {
+
+        Stream<String> numbers = Stream.of("1","2","1","2","3","4");
+        Set<String> uniqueNumbers = numbers.collect(Collectors.toSet());
+        System.out.println(uniqueNumbers);
+
+    }
+}
+----------------------------------------------------
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class Test {
+    public static void main(String[] args) {
+        Stream<Integer> numbers = Stream.of(1, 2, 1, 2, 3, 4);
+        Set<Integer> uniqueNumbers = numbers.collect(Collectors.toSet());
+        System.out.println(uniqueNumbers);
+    }
+}
+----------------------------------------------------
+
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class Test {
+    public static void main(String[] args) {
+
+        Stream<String> strings = Stream.of("Interview", "DOT", "Java", "DOT", "Share", "DOT");
+        Set<String> uniqueItems = strings.collect(Collectors.toSet());
+        System.out.println(uniqueItems);
+
+    }
+}
+----------------------------------------------------
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+public class Test {
+    public static void main(String[] args) {
+        String[] strArray = {"Interview", "DOT", "Java", "DOT", "Share", "DOT"};
+        Set<String> uniqueElements = Arrays.stream(strArray).collect(Collectors.toSet());
+        System.out.println(uniqueElements);
+    }
+}
+____________________________________________________
+
+//find duplicate integers
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+public class Test {
+    public static void main(String[] args) {
+
+        List<Integer> myList = Arrays.asList(10, 16, 8, 49, 25, 97, 97, 32, 16);
+        Set<Integer> set = new HashSet<>();
+        myList.stream().filter(n -> !set.add(n)).forEach(System.out::println);
+
+    }
+}
+----------------------------------------------------
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+public class Test {
+    public static void main(String[] args) {
+
+        int[] intArray = {10, 16, 8, 49, 25, 97, 97, 32, 16};
+        Set<Integer> set = new HashSet<>();
+        Arrays.stream(intArray).boxed().filter(n -> !set.add(n)).forEach(System.out::println);
+    }
+}
+____________________________________________________
+
+// find average from list of numbers
+
+import java.util.stream.IntStream;
+
+public class Test {
+    public static void main(String[] args) {
+
+        IntStream.builder().add(1).add(3).add(5).add(7).add(11).build().average().ifPresent(System.out::println);
+
+    }
+}
+----------------------------------------------------
+import java.util.List;
+
+public class Test {
+    public static void main(String[] args) {
+
+        List.of(1, 3, 5, 7, 11).stream().mapToInt(i -> i).average().ifPresent(System.out::println);
+
+    }
+}
+____________________________________________________
+//find duplicate elements
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class Test {
+    public static void main(String[] args) {
+
+        List<Integer> numbers = Arrays.asList(1,3,5,7,11,7);
+        final Set<Integer> duplicateNumbers = numbers.stream().filter(i -> Collections.frequency(numbers, i) > 1).collect(Collectors.toSet());
+        System.out.println(duplicateNumbers);
+
+        List<String> names = Arrays.asList("Java","DOT","Python","DOT","Java");
+        Set<String> duplicateNames = names.stream().filter(name -> Collections.frequency(names, name) > 1).collect(Collectors.toSet());
+        System.out.println(duplicateNames);
+        
+        Set<String> uniqueNames = new HashSet<>();
+        final Set<String> duplicates = names.stream().filter(name -> !uniqueNames.add(name)).collect(Collectors.toSet());
+        System.out.println(duplicates);
+
+    }
+}
+____________________________________________________
+
+If the interview do not want to use Streams API, then below 3 approaches can be taken.
+
+https://www.youtube.com/watch?v=VUXvBxtuTT8 (Program to Find Duplicate character in a String Coding Interview Question and Answer | Code Decode)
+
+
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
+public class Test {
+
+    //worst time complexity: O(n2)
+    private static Set<Character> findDuplicateUsingFor(String name) {
+        Set<Character> duplicates = new LinkedHashSet<>();
+        for (int i = 0; i < name.length(); i++) {
+            for (int j = i + 1; j < name.length(); j++) {
+                if (name.charAt(i) == name.charAt(j)) {
+                    duplicates.add(name.charAt(j));  // adding i or j is the same here
+                }
+            }
+
+        }
+        return duplicates;
+    }
+
+    //worst space complexity
+    // time complexity  O(2N) ~~ O(N)
+    private static Set<Character> findDuplicatesUsingArrays(String name) {
+        Set<Character> duplicates = new LinkedHashSet<>();
+        int[] arrayForChar = new int[256];
+
+        for (int i = 0; i < name.length(); i++) {        //O(n)
+            arrayForChar[name.charAt(i)] = arrayForChar[name.charAt(i)] + 1;
+        }
+
+        for (int i = 0; i < 256; i++) {          //O(n)
+            if (arrayForChar[i] > 1) {
+                duplicates.add((char) i);
+            }
+        }
+        return duplicates;
+    }
+
+    // Time complexity: O(Nlogn), where N is the length of the string passed and it generally takes logN time for an element insertion in a map
+    // Space Complexity: O(K) , where K = size of the map (0 <= K <= input_string_length).
+    private static Set<Character> findDuplicatesUsingMap(String name) {
+        Set<Character> duplicates = new LinkedHashSet<>();
+        HashMap<Character, Integer> countMap = new HashMap<>();
+        for (int i = 0; i < name.length(); i++) {      //O(n)
+            if (countMap.containsKey(name.charAt(i))) {
+                countMap.put(name.charAt(i), countMap.get(name.charAt(i)) + 1);    //O(logn)
+            } else {
+                countMap.put(name.charAt(i), 1);
+            }
+        }
+
+        for (Map.Entry<Character, Integer> entry : countMap.entrySet()) {
+            if (entry.getValue() > 1) {
+                duplicates.add(entry.getKey());
+            }
+        }
+        return duplicates;
+    }
+
+
+    public static void main(String[] args) {
+
+        System.out.println(findDuplicateUsingFor("code decode"));
+        System.out.println(findDuplicatesUsingArrays("code decode"));
+        System.out.println(findDuplicatesUsingMap("code decode"));
+
+    }
+}
+____________________________________________________
+
+
+
+
+
+____________________________________________________
+____________________________________________________
+____________________________________________________
+
+----------------------------------------------------

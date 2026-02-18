@@ -1,0 +1,397 @@
+==> Find duplicate characters in a string using Java Streams
+
+https://www.youtube.com/watch?v=1Ps5F1PU72M
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+public class Test {
+    public static void main(String[] args) {
+        String input = "axccbdd";
+
+        /*final Map<String, Long> collect = Arrays.stream(input.split("")).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        System.out.println(collect);*/
+
+        final List<String> duplicateElements = Arrays.stream(input.split("")).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                .entrySet()
+                .stream()
+                .filter(x -> x.getValue() > 1)     // x.getValue() == 1  for uniqueElements
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        System.out.println(duplicateElements);
+    }
+}
+----------------------------------------------------
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+public class Test {
+    public static void main(String[] args) {
+        String input = "Fear leads to anger anger leads to hatred hatred leads to conflict conflict leads to suffering";
+
+        /*final Map<String, Long> collect = Arrays.stream(input.split("")).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        System.out.println(collect);*/
+
+        final List<String> duplicateWords = Arrays.stream(input.split("\\s")).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                .entrySet()
+                .stream()
+                .filter(x -> x.getValue() > 1)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        System.out.println(duplicateWords);
+    }
+}
+----------------------------------------------------
+final List<String> duplicateWords = Arrays.stream(input.split("\\s+")).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                .entrySet()
+                .stream()
+                .filter(x -> x.getValue() > 1)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+____________________________________________________
+// find first non-repeat element from a given string
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+public class Test {
+    public static void main(String[] args) {
+        String input = "ilovejavatechie";
+
+        final String firstNonRepeatElement = Arrays.stream(input.split("")).collect(Collectors.groupingBy(Function.identity(), LinkedHashMap::new, Collectors.counting()))
+                .entrySet()
+                .stream()
+                .filter(x -> x.getValue() == 1)      // x.getValue() > 1 to get the first repeat element
+                .findFirst().get().getKey();
+        System.out.println("1st non repeat element " + firstNonRepeatElement);
+
+
+    }
+}
+
+______________________________________________________________________________________
+==> 
+import java.util.Arrays;
+import java.util.Comparator;
+
+public class Test {
+    public static void main(String[] args) {
+        int[] numbers = {5, 9, 11, 2, 8, 21, 1};
+
+        Integer secondHighestNumber = Arrays.stream(numbers).boxed()
+                .sorted(Comparator.reverseOrder())
+                .skip(1)
+                .findFirst().get();
+        System.out.println(secondHighestNumber);  //11
+
+    }
+}
+---------------------------------------------------------------------------------------
+==> Above code calls .get on an Optional without checking if a valueis present first. This can throw NoSuchElementException if the array has fewer than 2 elements.
+
+Replace the unsafe .get() call with .orElse(null), which is a safer way to handle Optional values. This prevents potential NoSuchElementException errors and returns null if the array doesn't have a second highest number (e.g., if the array has fewer than 2 elements).
+
+```
+import java.util.Arrays;
+import java.util.Comparator;
+
+public class Test {
+    public static void main(String[] args) {
+        int[] numbers = {5, 9, 11, 2, 8, 21, 1};
+
+        Integer secondHighestNumber = Arrays.stream(numbers).boxed()
+                .sorted(Comparator.reverseOrder())
+                .skip(1)
+                .findFirst()
+                .orElse(null);
+        System.out.println(secondHighestNumber);
+
+    }
+}
+```
+______________________________________________________________________________________
+
+//Find the longest string from given array
+import java.util.Arrays;
+
+public class Test {
+    public static void main(String[] args) {
+        String[] strArray = {"java", "techie", "springboot", "microservices"};
+
+        String longestString = Arrays.stream(strArray).reduce((word1, word2) -> word1.length() > word2.length() ? word1 : word2).get();
+        System.out.println(longestString);
+
+    }
+}
+____________________________________________________
+//print all the shortest strings in an array of strings
+import java.util.Arrays;
+
+public class Test {
+    public static void main(String[] args) {
+        String[] strArray = {"apple", "banana", "cat", "dog", "elephant"};
+
+// Find the length of the shortest string
+        int shortestLength = Arrays.stream(strArray)
+                .mapToInt(String::length)
+                .min()
+                .orElse(0);
+
+// Print all the shortest strings
+        Arrays.stream(strArray)
+                .filter(word -> word.length() == shortestLength)
+                .forEach(System.out::println);
+
+
+    }
+}
+____________________________________________________
+//print all the longest strings in an array of strings
+import java.util.Arrays;
+
+public class Test {
+    public static void main(String[] args) {
+        String[] strArray = {"apple", "banana", "antelope", "cat", "dog", "elephant", "flounder"};
+
+// Find the length of the longest string
+        int longestLength = Arrays.stream(strArray)
+                .mapToInt(String::length)
+                .max()
+                .orElse(0);
+
+// Print all the longest strings
+        Arrays.stream(strArray)
+                .filter(word -> word.length() == longestLength)
+                .forEach(System.out::println);
+
+    }
+}
+____________________________________________________
+//find all elements from array which starts with 1
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class Test {
+    public static void main(String[] args) {
+        int[] numbers = {5, 9, 11, 2, 8, 21, 1};
+        List<String> stringList = Arrays.stream(numbers)
+                .boxed()
+                .map(s -> s + "")
+                .filter(s -> s.startsWith("1"))
+                .collect(Collectors.toList());
+        System.out.println(stringList);
+
+    }
+}
+----------------------------------------------------
+import java.util.Arrays;
+
+public class FindNumbersStartingWith1 {
+
+    public static void main(String[] args) {
+        int[] arrayOfInts = {1234, 1235, 1236, 43232, 12443, 5646334, 1231412, 6798796, 8987};
+
+        // Find all the numbers which start with 1.
+        int[] numbersStartingWith1 = Arrays.stream(arrayOfInts)
+                .filter(number -> String.valueOf(number).startsWith("1"))
+                .toArray();
+
+        // Print the numbers which start with 1.
+        System.out.println("The numbers which start with 1 are:");
+        for (int number : numbersStartingWith1) {
+            System.out.println(number);
+        }
+    }
+}
+----------------------------------------------------
+import java.util.Arrays;
+
+public class FindNumbersStartingWith1 {
+
+    public static void main(String[] args) {
+        int[] arrayOfInts = {1234, 1235, 1236, 43232, 12443, 5646334, 1231412, 6798796, 8987};
+
+        // Find all the numbers which start with 1.
+        Arrays.stream(arrayOfInts)
+                .filter(number -> String.valueOf(number).startsWith("1"))
+                .forEach(System.out::println);
+
+    }
+}
+____________________________________________________
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+//find all elements from String array which starts with 'N'
+public class Test {
+    public static void main(String[] args) {
+
+        String[] strArray = {"Naveen", "kumar", "nancy", "reddy", "Narayana"};
+        List<String> strList = Arrays.stream(strArray)
+                .map(s -> s.toLowerCase())
+                .filter(s -> s.startsWith("n"))
+                .collect(Collectors.toList());
+
+        System.out.println(strList);
+
+    }
+}
+----------------------------------------------------
+//String.join
+import java.util.Arrays;
+import java.util.List;
+
+public class Test {
+    public static void main(String[] args) {
+        List<String> numbers = Arrays.asList("1", "2", "3", "4");
+        String result = String.join("-", numbers);
+        System.out.println(result);
+    }
+}
+
+----------------------------------------------------
+//Skip & limit method usecase based example
+import java.util.stream.IntStream;
+
+public class Test {
+    public static void main(String[] args) {
+        IntStream.rangeClosed(1, 10)
+                .skip(1)
+                .limit(8)
+                .forEach(System.out::println);
+    }
+}
+____________________________________________________
+
+https://docs.oracle.com/javase/8/docs/api/java/util/stream/Stream.html
+The flatMap() operation has the effect of applying a one-to-many transformation to the elements of the stream, and then flattening the resulting elements into a new stream.
+
+https://www.youtube.com/watch?v=CwvlS3ViGFQ  (Java 8 Streams | map () & flatMap())
+https://github.com/Java-Techie-jt/java8/tree/master/mapVsflatMap
+
+//map vs flatmap
+
+import java.util.List;
+
+public class Customer {
+
+    private int id;
+    private String name;
+    private String email;
+    private List<String> phoneNumbers;
+
+    public Customer() {
+    }
+
+    public Customer(int id, String name, String email, List<String> phoneNumbers) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.phoneNumbers = phoneNumbers;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public List<String> getPhoneNumbers() {
+        return phoneNumbers;
+    }
+
+    public void setPhoneNumbers(List<String> phoneNumbers) {
+        this.phoneNumbers = phoneNumbers;
+    }
+}
+----------------------------------------------------
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class EkartDataBase {
+    public static List<Customer> getAll() {
+        return Stream.of(
+                new Customer(101, "john", "john@gmail.com", Arrays.asList("397937955", "21654725")),
+                new Customer(102, "smith", "smith@gmail.com", Arrays.asList("89563865", "2487238947")),
+                new Customer(103, "peter", "peter@gmail.com", Arrays.asList("38946328654", "3286487236")),
+                new Customer(104, "kely", "kely@gmail.com", Arrays.asList("389246829364", "948609467"))
+        ).collect(Collectors.toList());
+    }
+
+
+}
+
+----------------------------------------------------
+package demo;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class MapVsFlatMap {
+    public static void main(String[] args) {
+
+        List<Customer> customers = EkartDataBase.getAll();
+
+        //List<Customer>  convert List<String> -> Data Transformation
+        //mapping : customer -> customer.getEmail()
+        //customer -> customer.getEmail()  one to one mapping
+        List<String> emails = customers.stream()
+                .map(customer -> customer.getEmail())
+                .collect(Collectors.toList());
+        System.out.println(emails);
+
+//customer -> customer.getPhoneNumbers()  ->> one to many mapping
+        //customer -> customer.getPhoneNumbers()  ->> one to many mapping
+        List<List<String>> phoneNumbers = customers.
+                stream().map(customer -> customer.getPhoneNumbers())
+                .collect(Collectors.toList());
+        System.out.println(phoneNumbers);
+
+        //List<Customer>  convert List<String> -> Data Transformation
+        //mapping : customer -> phone Numbers
+        //customer -> customer.getPhoneNumbers()  ->> one to many mapping
+        List<String> phones = customers.stream()
+                .flatMap(customer -> customer.getPhoneNumbers().stream())
+                .collect(Collectors.toList());
+        System.out.println(phones);
+    }
+}
+____________________________________________________
+
+
+
+----------------------------------------------------
+____________________________________________________
+

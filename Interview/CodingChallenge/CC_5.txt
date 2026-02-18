@@ -1,0 +1,277 @@
+-> Check if a vowel is present in a string
+public class Test {
+    public static void main(String[] args) {
+
+        String str = "naveen";
+        boolean hasVowel = false;
+
+        for (char ch : str.toCharArray()) {
+            if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') {
+                hasVowel = true;
+                break;
+            }
+        }
+        System.out.println(hasVowel ? "The string contains a vowel." : "The string does not contain a vowel.");
+    }
+}
+----------------------------------------------------
+
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class Test {
+    public static void main(String[] args) {
+        String str = "naveen";
+        Set<Character> vowels = Stream.of('a', 'e', 'i', 'o', 'u').collect(Collectors.toSet());
+
+        boolean hasVowel = str.chars()
+                .mapToObj(c -> (char) c)
+                .anyMatch(vowels::contains);
+
+        System.out.println(hasVowel ? "The string contains a vowel." : "The string does not contain a vowel.");
+    }
+}
+
+Explanation:
+Used Stream.of to create a set of vowels.
+Replaced the for loop with a stream operation using chars(), mapToObj, and anyMatch to check for the presence of a vowel.
+
+----------------------------------------------------
+-> Replaced Stream.of(...).collect(Collectors.toSet()) with Set.of(...) for simplicity and readability.
+
+import java.util.Set;
+
+public class Test {
+    public static void main(String[] args) {
+        String str = "naveen";
+        Set<Character> vowels = Set.of('a', 'e', 'i', 'o', 'u');
+
+        boolean hasVowel = str.chars()
+                .mapToObj(c -> (char) c)
+                .anyMatch(vowels::contains);
+
+        System.out.println(hasVowel ? "The string contains a vowel." : "The string does not contain a vowel.");
+    }
+}
+
+____________________________________________________
+
+//Count the number of vowels in a given string
+public class Test {
+    public static void main(String[] args) {
+        String str = "naveen";
+        int vowelCount = 0;
+
+        for (char ch : str.toCharArray()) {
+            if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') {
+                vowelCount++;
+            }
+        }
+        System.out.println("The string contains " + vowelCount + " vowels.");
+    }
+}
+----------------------------------------------------
+
+//Count the number of vowels in a given string using Stream API
+public class Test {
+    public static void main(String[] args) {
+
+        String str = "naveen";
+        final var vowelCount = str.chars()
+                .filter(ch -> ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u')
+                .count();
+
+        System.out.println("The string contains " + vowelCount + " vowels.");
+    }
+}
+----------------------------------------------------
+// enhance the above code further
+// Replaced the multiple ch == 'a' || ch == 'e' || ... checks with a single String.indexOf method call to check for vowels. This makes the code more concise and easier to read.
+public class Test {
+    public static void main(String[] args) {
+        String str = "naveen";
+        long vowelCount = str.chars()
+                .filter(ch -> "aeiou".indexOf(ch) >= 0)       // .filter(ch -> "aeiou".indexOf(ch) != -1)
+                .count();
+
+        System.out.println("The string contains " + vowelCount + " vowels.");
+    }
+}
+____________________________________________________
+-> How to remove spaces from a string in Java
+public class Test {
+    public static void main(String[] args) {
+
+        String str = " Naveen Kumar";
+        String newStr = str.replaceAll("\\s", "");
+        System.out.println("The new string is: " + newStr);
+    }
+}
+----------------------------------------------------
+-> Another approach than above
+public class Test {
+    public static void main(String[] args) {
+        String str = "Naveen Kumar";
+        String newStr = str.replace(" ", "");
+        System.out.println("The new string is: " + newStr);
+    }
+}
+____________________________________________________
+
+public class Employee {
+    private String name;
+    private int age;
+
+    public Employee(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+}
+----------------------------------------------------
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+public class EmployeeSortExample {
+    public static void main(String[] args) {
+        // Create a list of Employee objects
+        List<Employee> employees = new ArrayList<>();
+        employees.add(new Employee("John", 30));
+        employees.add(new Employee("Alice", 25));
+        employees.add(new Employee("Bob", 35));
+
+        // Sort the employees by age using a Comparator and the Stream API
+        List<Employee> sortedEmployees = employees.stream()
+                .sorted(Comparator.comparingInt(Employee::getAge))
+                .toList();
+
+        /*// Sort the employees by name using a Comparator and the Stream API
+        List<Employee> sortedEmployees = employees.stream()
+                .sorted(Comparator.comparing(Employee::getName))
+                .toList();*/
+
+        // Print the sorted employees
+        for (Employee employee : sortedEmployees) {
+            System.out.println("Name: " + employee.getName() + ", Age: " + employee.getAge());
+        }
+    }
+}
+----------------------------------------------------
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.stream.Collectors;
+
+public class EmployeeSortExample {
+
+    public static void main(String[] args) {
+
+        final var employeeList = Arrays.asList(new Employee("Albert", 20),
+                new Employee("Charlie", 40),
+                new Employee("Bob", 32));
+
+        final var sortedEmployeeList = employeeList.stream()
+                .sorted(Comparator.comparingInt(Employee::getAge)
+                        .reversed())
+                .collect(Collectors.toList());
+
+        for (Employee emp : sortedEmployeeList) {
+            System.out.println(emp);
+        }
+
+    }
+}
+____________________________________________________
+
+public class Person implements  Comparable<Person>{
+    private String name;
+    private int age;
+
+    public Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    /*@Override
+    public int compareTo(Person other) {
+        return this.getName().compareTo(other.getName());
+    }*/
+
+    @Override
+    public int compareTo(Person other) {
+        return Integer.compare(this.age, other.age);
+    }
+
+}
+----------------------------------------------------
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class SortPersons {
+    public static void main(String[] args) {
+        List<Person> persons = new ArrayList<>();
+        persons.add(new Person("John", 25));
+        persons.add(new Person("Alice", 32));
+        persons.add(new Person("Bob", 20));
+
+        // Sort using Comparable interface and natural order
+        List<Person> sortedPersons = persons.stream()
+                .sorted()
+                .collect(Collectors.toList());
+
+        // Print sorted list
+        System.out.println("Sorted Persons:");
+        sortedPersons.forEach(person -> System.out.println(person.getName() + " - " + person.getAge()));
+    }
+}
+____________________________________________________
+
+public record Person(String name, int age) implements Comparable<Person> {
+    @Override
+    public int compareTo(Person other) {
+        return Integer.compare(this.age, other.age);
+    }
+
+    /*@Override
+    public int compareTo(Person other) {
+        return this.name.compareTo(other.name);
+    }*/
+}
+
+import java.util.Arrays;
+
+public class SortPersons {
+    public static void main(String[] args) {
+        Person[] persons = {
+                new Person("John", 25),
+                new Person("Alice", 32),
+                new Person("Bob", 20)
+        };
+
+        Arrays.sort(persons);
+
+        System.out.println("Sorted Persons:");
+        for (Person person : persons) {
+            System.out.println(person.name() + " - " + person.age());
+
+        }
+    }
+}
+____________________________________________________

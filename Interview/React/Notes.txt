@@ -1,0 +1,27 @@
+-> PS C:\Users\shrav\Desktop\VSCode_Workspace\react-series> npx create-react-app 01tut
+npx : File C:\Program Files\nodejs\npx.ps1 cannot be loaded because running scripts is disabled on this system. For more information, see about_Execution_Policies at 
+https:/go.microsoft.com/fwlink/?LinkID=135170.
+At line:1 char:1
++ npx create-react-app 01tut
++ ~~~
+    + CategoryInfo          : SecurityError: (:) [], PSSecurityException
+    + FullyQualifiedErrorId : UnauthorizedAccess
+	
+	
+-> The error you're encountering is due to PowerShell's execution policy, which restricts the running of scripts. To resolve this, you can change the execution policy to allow running scripts. Here are the steps:
+
+Open PowerShell as Administrator:
+
+Right-click on the Start menu and select "Windows PowerShell (Admin)".
+Set the execution policy:
+
+Run the following command to allow running scripts
+
+
+PS C:\WINDOWS\system32> Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+Execution Policy Change
+The execution policy helps protect you from scripts that you do not trust. Changing the execution policy might expose
+you to the security risks described in the about_Execution_Policies help topic at
+https:/go.microsoft.com/fwlink/?LinkID=135170. Do you want to change the execution policy?
+[Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "N"): Y

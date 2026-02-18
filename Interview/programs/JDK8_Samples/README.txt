@@ -1,0 +1,1 @@
+https://wiki.eclipse.org/JDT/Eclipse_Java_8_Support_For_Kepler ( JDT/Eclipse Java 8 Support For Kepler )

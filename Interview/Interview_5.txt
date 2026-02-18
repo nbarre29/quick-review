@@ -1,0 +1,203 @@
+-> ConcurrentHashMap:
+https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ConcurrentHashMap.html
+https://www.geeksforgeeks.org/concurrenthashmap-in-java/
+The ConcurrentHashMap class is introduced in JDK 1.5 belongs to java.util.concurrent package, which implements ConcurrentMap as well as to Serializable interface also. ConcurrentHashMap is an enhancement of HashMap as we know that while dealing with Threads in our application HashMap is not a good choice because performance-wise HashMap is not up to the mark.
+
+ConcurrentHashMap is a thread-safe implementation of the Map interface in Java, which means multiple threads can access it simultaneously without any synchronization issues. It’s part of the java.util.concurrent package and was introduced in Java 5 as a scalable alternative to the traditional HashMap class.
+
+One of the key features of the ConcurrentHashMap is that it provides fine-grained locking, meaning that it locks only the portion of the map being modified, rather than the entire map. This makes it highly scalable and efficient for concurrent operations. Additionally, the ConcurrentHashMap provides various methods for atomic operations such as putIfAbsent(), replace(), and remove().
+
+
+-> HashMap
+https://docs.oracle.com/javase/8/docs/api/java/util/HashMap.html
+https://javarevisited.blogspot.com/2016/01/how-does-java-hashmap-or-linkedhahsmap-handles.html
+1) HashMap handles collision by using a linked list to store map entries ended up in same array location or bucket location.
+
+2) From Java 8 onwards, HashMap, ConcurrentHashMap, and LinkedHashMap will use the balanced tree in place of linked list to handle frequently hash collisions. The idea is to switch to the balanced tree once the number of items in a hash bucket grows beyond a certain threshold. This will improve the worst-case get() method performance from O(n) to O(log n).
+
+-> LinkedHashMap
+
+https://docs.oracle.com/javase/8/docs/api/java/util/LinkedHashMap.html
+https://www.geeksforgeeks.org/linkedhashmap-class-in-java/
+The LinkedHashMap Class is just like HashMap with an additional feature of maintaining an order of elements inserted into it. HashMap provided the advantage of quick insertion, search, and deletion but it never maintained the track and order of insertion, which the LinkedHashMap provides where the elements can be accessed in their insertion order. 
+
+It is the same as HashMap with an additional feature that it maintains insertion order. For example, when we run the code with a HashMap, we get a different order of elements.
+
+-> JDK, JRE and JVM
+JRE: JVM + Class libraries
+JDK; JVM + Class libraries + Compiler + Debugger + Javadoc + keytool
+
+https://docs.oracle.com/cd/E19455-01/806-3461/6jck06gqd/index.html
+____________________________________________________
+-> Comparable vs Comparator
+
+Use Comparable when defining the natural ordering of objects or when the class itself should determine the default sort order. Use Comparator when you want to define custom sorting criteria or when the class does not implement Comparable and you want to sort objects based on multiple attributes of the class.
+
+
+https://docs.oracle.com/javase/8/docs/api/java/lang/Comparable.html
+https://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html
+
+https://mkyong.com/java/java-object-sorting-example-comparable-and-comparator/
+https://www.youtube.com/watch?v=X-LynP9sVSM
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class Student implements Comparable<Student> {
+
+	private int id;
+	private String name;
+
+	public Student(int id, String name) {
+		this.id = id;
+		this.name = name;
+
+	}
+
+	@Override
+	public String toString() {
+		return "Student [id=" + id + ", name=" + name + "]";
+	}
+	
+	@Override
+	public int compareTo(Student s) {
+		return Integer.compare(this.id,s.id);    // return Integer.compare(id, s.id);
+	}
+
+	/*@Override
+	public int compareTo(Student s) {
+		if (id == s.id) {
+			return 0;
+		} else if (id > s.id) {
+			return 1;
+		} else {
+			return -1;
+		}
+	}*/
+
+	public static void main(String[] args) {
+		List<Student> students = new ArrayList<>();
+		Student s1 = new Student(101, "Naveen");
+		Student s2 = new Student(109, "Kumar");
+		Student s3 = new Student(105, "Meghana");
+
+		students.add(s1);
+		students.add(s2);
+		students.add(s3);
+
+		Collections.sort(students);
+
+		System.out.println(students);
+
+	}
+
+}
+----------------------------------------------------
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class Student {
+
+	private int id;
+	private String name;
+
+	public Student(int id, String name) {
+		this.id = id;
+		this.name = name;
+
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public String toString() {
+		return "Student [id=" + id + ", name=" + name + "]";
+	}
+
+	public static void main(String[] args) {
+		List<Student> students = new ArrayList<>();
+		Student s1 = new Student(101, "Naveen");
+		Student s2 = new Student(109, "Kumar");
+		Student s3 = new Student(105, "Meghana");
+
+		students.add(s1);
+		students.add(s2);
+		students.add(s3);
+
+		// Collections.sort(students, new NameComparator());
+		Collections.sort(students, new IdComparator());
+
+		System.out.println(students);
+
+	}
+
+}
+
+import java.util.Comparator;
+
+public class IdComparator implements Comparator<Student> {
+
+	@Override
+	public int compare(Student s1, Student s2) {
+		if (s1.getId() == s2.getId()) {
+			return 0;
+		} else if (s1.getId() > s2.getId()) {
+			return 1;
+		} else {
+			return -1;
+		}
+	}
+
+}
+
+import java.util.Comparator;
+
+public class NameComparator implements Comparator<Student> {
+
+	@Override
+	public int compare(Student s1, Student s2) {
+		return s1.getName().compareTo(s2.getName());
+	}
+
+}
+____________________________________________________
+
+-> ArrayList vs LinkedList
+
+1) ArrayList internally uses a dynamic array to store elements.
+2) Manipulation with ArrayList is slow as it internally uses an array. If any element is removed from the array, all the bits are shifted in memory.
+3) Consumes less memory than LinkedList.
+4) An ArrayList can "act as a list" only because it implements List only.
+5) better for storing and accessing data.
+
+
+
+1) LinkedList internally uses a doubly linked list to store the elements.
+2) Manipulation with LinkedList is faster than ArrayList as it uses a doubly linked list, so no bit shifting is required in memory.
+3) Consumes more memory than an ArrayList as it also stores the next and previous references along with the data.
+4) LinkedList class can "act as a list and queue" both because it implements List and Deque interfaces.
+5) better for manipulating data.
+
+
+-> HashMap vs Hashtable
+
+HashMap is non-synchronized whereas Hashtable is synchronized, which means Hashtable is thread-safe and can be shared between multiple threads but HashMap can not be shared between multiple threads without proper synchronization.
+
+Hashtable: 
+synchronized
+thread safe
+cannot have null key/values
+
+HashMap:
+non-synchronized 
+can have one null key and multiple null values
+____________________________________________________
+

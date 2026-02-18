@@ -1,0 +1,1 @@
+1: Modified UserFilterTest.java a little by keeping User.java as a seperate class.

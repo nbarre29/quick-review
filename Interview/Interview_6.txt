@@ -1,0 +1,337 @@
+-> Here's an example of how we can create a custom functional interface 
+
+@FunctionalInterface
+interface MyFunction {
+    int performOperation(int a, int b);
+}
+
+public class CustomFunctionalInterfaceExample {
+    public static void main(String[] args) {
+        // Using lambda expression to implement the custom functional interface
+        MyFunction addition = (a, b) -> a + b;
+		// MyFunction addition = Integer::sum;  // Lambda can be replaced with method reference 
+        System.out.println("Addition: " + addition.performOperation(5, 3));
+
+        MyFunction subtraction = (a, b) -> a - b;
+        System.out.println("Subtraction: " + subtraction.performOperation(5, 3));
+
+        MyFunction multiplication = (a, b) -> a * b;
+        System.out.println("Multiplication: " + multiplication.performOperation(5, 3));
+    }
+}
+
+In this example, we create a custom functional interface called MyFunction. The @FunctionalInterface annotation is optional, but it helps ensure that the interface has only one abstract method.
+
+The MyFunction interface has a single method called performOperation that takes two integers as input parameters and returns an integer result.
+
+---
+---
+____________________________________________________________________________________________
+
+
+-> What is Optional and what is the advantage of using it
+
+A container object which may or may not contain a non-null value. If a value is present, isPresent() will return true and get() will return the value.
+https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html
+
+The advantage of using Optional is that it allows us to handle values that may be null in a safe and concise way. Without Optional, we would have to check for null values explicitly, which can be error-prone and make your code less readable.
+
+
+import java.util.Optional;
+
+public class Test {
+
+    public static void main(String[] args) {
+
+        Optional<String> name = Optional.of("John Doe");
+
+        if (name.isPresent()) {
+            System.out.println(name.get()); // John Doe
+        } else {
+            System.out.println("No name found");
+        }
+
+    }
+}
+
+#### MyNotes
+a) The key difference is that without `Optional`, you must explicitly check `if (nameWithoutOptional != null)` to avoid `NullPointerException`, whereas `Optional` provides a more expressive API with `isPresent()` to handle potential absence of values.
+```
+public class Test {
+
+    public static void main(String[] args) {
+
+        // Without Optional - explicit null checking
+        String nameWithoutOptional = "John Doe"; // or could be null
+        if (nameWithoutOptional != null) {
+            System.out.println(nameWithoutOptional); // John Doe
+        } else {
+            System.out.println("No name found");
+        }
+
+    }
+}
+```
+
+---
+---
+____________________________________________________________________________________________
+
+-> Do we have PermGen in java8 ?
+
+No, Java 8 does not have PermGen (Permanent Generation) as a memory space. The concept of PermGen was present in earlier versions of Java, up to Java 7.
+
+In Java 8 and later versions, PermGen was removed and replaced with a new memory space called Metaspace. Metaspace serves a similar purpose to PermGen, which is to store metadata about classes and methods in the Java application.
+
+The removal of PermGen and the introduction of Metaspace in Java 8 was aimed at addressing some limitations and issues associated with PermGen, such as frequent OutOfMemoryErrors and the need for manual tuning.
+
+Metaspace in Java 8 and later versions is implemented differently from PermGen. Instead of having a fixed size, Metaspace dynamically adjusts its size based on the application's memory requirements.
+
+
+-> Stack and heap in java
+Stack:
+
+The stack is a region of memory that stores method invocations and local variables.
+Each thread in a Java application has its own stack.
+The stack is organized as a stack data structure, where method calls and local variables are pushed and popped in a last-in-first-out (LIFO) order.
+The stack is limited in size and typically smaller than the heap.
+The stack memory is managed automatically by the Java Virtual Machine (JVM).
+Stack memory is fast and efficient for allocating and releasing memory.
+Variables stored on the stack have a limited lifetime and are deallocated automatically when they go out of scope or when the method invocation is complete.
+Heap:
+
+The heap is a region of memory that stores objects and dynamically allocated data.
+All objects in Java are allocated on the heap.
+The heap is shared among all threads in a Java application.
+The heap memory is managed by the JVM's garbage collector, which automatically allocates and deallocates memory for objects.
+The size of the heap can be adjusted using JVM parameters.
+Objects stored on the heap have a longer lifetime and exist until they are no longer referenced.
+The heap allows for dynamic memory allocation and deallocation, and it supports objects of varying sizes.
+
+In summary, the stack is used for managing method invocations and local variables with a limited size and automatic memory management. The heap, on the other hand, is used for storing objects and dynamically allocated data, with a larger size and automatic memory management by the garbage collector. Understanding the differences between the stack and heap is essential for efficient memory management and understanding the behavior of Java applications.
+
+
+-> Explain intermediate and terminal operations in Stream
+
+Intermediate Operations:
+
+Intermediate operations are operations that transform a stream into another stream.
+They are typically chained together to form a pipeline of operations on the stream.
+Intermediate operations are lazy, meaning they are not executed until a terminal operation is invoked.
+Some common intermediate operations include filter, map, flatMap, distinct, sorted, limit, and skip.
+Intermediate operations allow for efficient stream processing by enabling various transformations and filtering on the stream elements.
+Terminal Operations:
+
+Terminal operations are operations that produce a result or a side-effect and terminate the stream.
+They trigger the processing of the stream and produce a final result or perform an action.
+Once a terminal operation is invoked, the stream cannot be used again.
+Examples of terminal operations are forEach, collect, reduce, min, max, count, and anyMatch.
+Terminal operations may return a value, modify a collection, or perform some other action based on the stream elements.
+
+The combination of intermediate and terminal operations forms a pipeline for processing streams. Intermediate operations allow you to transform and filter the stream elements, while terminal operations trigger the actual execution and produce the desired result.
+
+import java.util.Arrays;
+import java.util.List;
+
+public class Test {
+
+    public static void main(String[] args) {
+
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+
+        int sum = numbers.stream()
+                .filter(n -> n % 2 == 0)       // Intermediate operation: filter even numbers
+                .map(n -> n * n)              // Intermediate operation: square the numbers
+                .reduce(0, Integer::sum);      // Terminal operation: calculate the sum
+
+        System.out.println("Sum of squared even numbers: " + sum);
+
+    }
+}
+
+---
+---
+____________________________________________________________________________________________
+
+==> What is Docker image and Docker container ?
+
+What is a container?
+Simply put, a container is a sandboxed process on your machine that is isolated from all other processes on the host machine. That isolation leverages kernel namespaces and cgroups, features that have been in Linux for a long time. Docker has worked to make these capabilities approachable and easy to use. To summarize, a container:
+
+Is a runnable instance of an image. We can create, start, stop, move, or delete a container using the DockerAPI or CLI.
+Can be run on local machines, virtual machines or deployed to the cloud.
+Is portable (can be run on any OS).
+Is isolated from other containers and runs its own software, binaries, and configurations.
+
+## Claude Validation:
+Yes, your understanding is completely correct. You've captured the key points well.
+
+To reinforce it simply: a container is essentially a **running image**. The relationship flows like this:
+
+**Dockerfile → builds → Image → runs as → Container**
+
+A few things worth internalizing from your summary:
+
+**"Sandboxed process"** is the key mental model. It's not a virtual machine — there's no separate OS. It's just a regular process on your host, but Linux kernel features (namespaces and cgroups) make it *feel* isolated. Namespaces handle what the container can *see* (its own filesystem, network, processes), and cgroups handle what it can *use* (CPU, memory limits).
+
+**"Runnable instance of an image"** ties back to what we discussed — the image is immutable, but when you run it as a container, Docker adds that writable layer on top, so the container can do things (write files, run processes) without touching the underlying image. You can also run **multiple containers from the same image** simultaneously, each isolated from the others.
+
+**"Portable"** is one of Docker's biggest selling points — since the container bundles its own software, binaries, and config, it behaves the same whether it's on your laptop, a colleague's machine, or a cloud server. The classic "works on my machine" problem largely goes away.
+
+So in short — yes, you've got it right.
+
+---
+---
+____________________________________________________________________________________________
+
+==> What is a container image?
+When running a container, it uses an isolated filesystem. This custom filesystem is provided by a container image. Since the image contains the container’s filesystem, it must contain everything needed to run an application - all dependencies, configurations, scripts, binaries, etc. The image also contains other configuration for the container, such as environment variables, a default command to run, and other metadata.
+https://docs.docker.com/get-started/
+
+
+A Docker image is a read-only template that contains everything needed to run an application: code, runtime, system tools, system libraries and settings. 
+An image is a lightweight, standalone, executable package of software that includes everything needed to run an application: code, runtime, system tools, system libraries and settings.
+
+A Docker container is a runnable instance of an image. Docker containers are isolated from each other and from the host machine. They share the kernel of the host machine, but they have their own filesystem and network stack. This makes them lightweight and efficient.
+
+Docker images are built using a Dockerfile, which is a text file that contains instructions on how to build the image. Dockerfiles are written in a simple language that is easy to learn.
+
+Docker containers are created from images using the docker run command. The docker run command takes an image name and a set of options as its arguments. The options specify the environment for the container, such as the amount of memory and CPU that the container should be allocated.
+
+Docker images and containers are a powerful way to package and deploy applications. They make it easy to create, deploy, and manage applications in a consistent and reliable way.
+
+Here are some of the advantages of using Docker images and containers:
+
+They are lightweight and efficient.
+They are isolated from each other and from the host machine.
+They are easy to build and deploy.
+They are portable and can be run on any machine that has Docker installed.
+
+
+## Claude Validation:
+Yes, your understanding is correct and very thorough. You've covered all the key concepts well.
+
+To consolidate everything into one clean mental model, here's how it all ties together:
+
+**The full picture:**
+
+Dockerfile (instructions) → builds → Image (read-only template) → runs as → Container (live, isolated process)
+
+**Key things your summary nails:**
+
+The "isolated filesystem" point is important — the image *is* essentially a filesystem snapshot, plus metadata. When a container runs, it gets that filesystem to work with, plus its own network stack, but shares the host's kernel. That's what makes it lightweight compared to a VM — no guest OS overhead.
+
+The "everything needed to run" point is the core value proposition. You're not just shipping code — you're shipping the entire environment. That's why containers solve the "works on my machine" problem.
+
+**One nuance worth adding:**
+
+You mention images are read-only, which is correct. When you run a container, Docker adds a thin **writable layer** on top of the read-only image layers. Any changes the container makes (writing files, logs, etc.) go into that writable layer. When the container is deleted, that writable layer is gone — the image underneath remains untouched. If you want to persist data, you use **volumes**.
+
+**Summary of the hierarchy:**
+- Dockerfile = instructions
+- Image = immutable, packaged template
+- Container = running instance of that image
+- Volume = persistent storage outside the container's writable layer
+
+You're building a solid understanding — the concepts are all clicking together correctly.
+
+
+---
+---
+____________________________________________________________________________________________
+
+
+-> What is Build Cache in Docker?
+
+Docker build cache is a feature that allows you to reuse previously built layers when building a new image. This can significantly speed up the build process, especially for images that are built frequently.
+
+When you build an image, Docker creates a series of layers. Each layer contains the changes that are made to the previous layer. For example, if you add a file to an image, Docker will create a new layer that contains the file. If you then change the file, Docker will create a new layer that contains the changed file.
+
+By default, Docker will cache each layer that is built. This means that if you build an image and then make a change to the image, Docker will not need to rebuild all of the layers. Instead, it will only need to rebuild the layers that have changed.
+
+The build cache can be disabled by using the --no-cache option when building an image. This can be useful if you are making changes to the image that you do not want to be cached.
+
+Here are some tips for using the Docker build cache effectively:
+
+Structure your Dockerfile so that frequently changing steps are located near the end of the file. This will ensure that the steps concerned with performing the same action are not unnecessarily rebuilt.
+Use the --cache-from option when building an image from a base image that has already been built. This will allow you to reuse the layers from the base image, which can significantly speed up the build process.
+Clear the build cache regularly to free up disk space. You can do this by running the docker system prune command.
+
+The Docker build cache is a powerful feature that can help you to speed up your image builds. By following these tips, you can make the most of the build cache and improve the efficiency of your development workflow.
+
+
+-> What is a Root SSL Certificate?
+https://docs.oracle.com/cd/E19146-01/821-1828/ginal/index.html
+https://aboutssl.org/java-keytool-commands/
+https://support.dnsimple.com/articles/what-is-ssl-root-certificate
+
+
+-> What type of applications stateless or stateful are more suitable for docker container ?
+
+Stateless applications are more suitable for Docker containers than stateful applications. Stateless applications do not store any data that needs to be preserved between container runs. This makes them easy to deploy and scale, as they can be easily replaced with new containers. Stateful applications, on the other hand, store data that needs to be preserved between container runs. This makes them more difficult to deploy and scale, as they require a way to persist the data between container runs.
+
+Here are some additional considerations when choosing between stateless and stateful applications for Docker containers:
+
+a) Complexity: Stateless applications are typically simpler to deploy and manage than stateful applications. This is because stateless applications do not require any special configuration or setup. Stateful applications, on the other hand, may require additional configuration and setup to ensure that the data is persisted correctly.
+b) Cost: Stateless applications are typically less expensive to deploy and manage than stateful applications. This is because stateless applications do not require any special hardware or software. Stateful applications, on the other hand, may require additional hardware or software to store and manage the data.
+c) Scalability: Stateless applications are typically more scalable than stateful applications. This is because stateless applications can be easily replaced with new containers. Stateful applications, on the other hand, may be more difficult to scale, as they may require a way to distribute the data between multiple containers.
+d) We can create a container out of our application and take out state parametes from application. Now we can run same container in production as well as QA environments with different parameters. This helps in reusing the same image in different scenarios. 
+
+---
+---
+____________________________________________________________________________________________
+
+
+==> Checked exceptions are checked by the compiler to see if they are properly caught or not. If not the code will fail to compile.
+
+The class Exception and any subclasses that are not also subclasses of RuntimeException are checked exceptions.
+https://docs.oracle.com/javase/8/docs/api/java/lang/Exception.html
+RuntimeException and its subclasses are unchecked exceptions. Error and its subclasses are unchecked exceptions
+https://docs.oracle.com/javase/8/docs/api/java/lang/RuntimeException.html
+
+---
+---
+____________________________________________________________________________________________
+
+==> Docker concepts - What is an image?  , https://www.youtube.com/watch?v=NyvT9REqLe4
+
+For those who might be confused by the "images are immutable" phrase: images are indeed immutable after they are built, but the Dockerfile itself (of course) is not. These are different notions  - a Dockerfile and a Docker image : a Dockerfile (which you can change / update as much as you want) is used to build a Docker image (which is immutable), and if you need changes for you Docker image -                                                                                                                                            
+Is my understanding above correct ?
+
+
+## RESPONSE: claude
+Yes, your understanding is correct. To put it simply:
+
+**Dockerfile** = the recipe (editable, just a text file, change it anytime)
+
+**Docker Image** = the baked cake (immutable, built from the Dockerfile at a point in time)
+
+If you need to change the image, you update the Dockerfile and **rebuild** — which produces a new image. You can't modify the existing image itself.
+
+A good analogy: the Dockerfile is like source code, and the Docker image is like a compiled binary. You edit the source, recompile, and get a new binary — you don't edit the binary directly.
+
+One small thing worth adding to your understanding: images are built in **layers**, and each instruction in the Dockerfile creates a new layer. Those layers are also immutable and are cached, which is why rebuilds are faster when only the bottom of the Dockerfile changes. When you run an image as a **container**, Docker adds a thin writable layer on top — so the container can write files, but the underlying image remains untouched.
+
+So the full picture is: **Dockerfile (mutable) → builds → Image (immutable layers) → runs as → Container (image + writable layer)**.
+
+---
+---
+____________________________________________________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

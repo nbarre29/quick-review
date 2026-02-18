@@ -1,0 +1,222 @@
+https://leetcode.com/problems/two-sum/
+
+____________________________________________________
+
+https://leetcode.com/problems/reverse-words-in-a-string/
+
+151. Reverse Words in a String
+
+Input: s = "the sky is blue"
+Output: "blue is sky the"
+
+Input: s = "  hello world  "
+Output: "world hello"
+Explanation: Your reversed string should not contain leading or trailing spaces.
+
+Input: s = "a good   example"
+Output: "example good a"
+Explanation: You need to reduce multiple spaces between two words to a single space in the reversed string.
+
+
+public class Test {
+
+	public static void main(String[] args) {
+		System.out.println(reverseWords("the sky is blue"));
+		
+	}
+	
+	private static String reverseWords (String s) {
+		String[] str = s.split("\\s+");
+        StringBuilder sb = new StringBuilder();
+
+        for(int i = str.length - 1; i >= 0; i--){
+            sb.append(str[i].trim() + " ");
+        }
+
+        return sb.toString().trim();
+	}
+
+}
+
+----------------------------------------------------
+
+____________________________________________________
+
+https://leetcode.com/problems/longest-substring-without-repeating-characters/
+
+Given a string s, find the length of the longest substring without repeating characters.
+
+
+Example 1:
+
+Input: s = "abcabcbb"
+Output: 3
+Explanation: The answer is "abc", with the length of 3.
+Example 2:
+
+Input: s = "bbbbb"
+Output: 1
+Explanation: The answer is "b", with the length of 1.
+Example 3:
+
+Input: s = "pwwkew"
+Output: 3
+Explanation: The answer is "wke", with the length of 3.
+Notice that the answer must be a substring, "pwke" is a subsequence and not a substring.
+ 
+
+
+https://leetcode.com/problems/longest-substring-without-repeating-characters/solutions/2133524/java-c-a-reall-detailed-explanation/
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class Test {
+
+	public static void main(String[] args) {
+		System.out.println(lengthOfLongestSubstring("abcabcbb"));
+
+	}
+
+	private static int lengthOfLongestSubstring(String s) {
+		Map<Character, Integer> map = new HashMap<>();
+		int i = 0;
+		int j = 0;
+		int max = 0;
+		while (j < s.length()) {
+			map.put(s.charAt(j), map.getOrDefault(s.charAt(j), 0) + 1);
+			if (map.size() == j - i + 1) {
+				max = Math.max(max, j - i + 1);
+				j++;
+			} else if (map.size() < j - i + 1) {
+				while (map.size() < j - i + 1) {
+					map.put(s.charAt(i), map.get(s.charAt(i)) - 1);
+					if (map.get(s.charAt(i)) == 0)
+						map.remove(s.charAt(i));
+					i++;
+				}
+				j++;
+			}
+		}
+		return max;
+	}
+
+}
+
+____________________________________________________
+https://leetcode.com/problems/valid-parentheses/
+20. Valid Parentheses
+
+Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.
+
+An input string is valid if:
+
+Open brackets must be closed by the same type of brackets.
+Open brackets must be closed in the correct order.
+Every close bracket has a corresponding open bracket of the same type.
+ 
+
+Example 1:
+
+Input: s = "()"
+Output: true
+Example 2:
+
+Input: s = "()[]{}"
+Output: true
+Example 3:
+
+Input: s = "(]"
+Output: false
+
+
+import java.util.Stack;
+
+public class ValidParentheses {
+    public static boolean isValidParentheses(String str) {
+        Stack<Character> stack = new Stack<>();
+
+        for (int i = 0; i < str.length(); i++) {
+            char ch = str.charAt(i);
+
+            if (ch == '(' || ch == '{' || ch == '[') {
+                stack.push(ch); // Push opening parentheses onto the stack
+            } else {
+                // Check if the stack is empty or the closing parenthesis doesn't match the top of the stack
+                if (stack.isEmpty() || !isMatchingPair(stack.pop(), ch)) {
+                    return false; // Invalid parentheses
+                }
+            }
+        }
+
+        // If the stack is empty, all parentheses have been matched
+        return stack.isEmpty();
+    }
+
+    public static boolean isMatchingPair(char opening, char closing) {
+        return (opening == '(' && closing == ')') ||
+               (opening == '{' && closing == '}') ||
+               (opening == '[' && closing == ']');
+    }
+
+    public static void main(String[] args) {
+        String str1 = "(){}[]";
+        System.out.println(isValidParentheses(str1)); // Output: true
+
+        String str2 = "({[}])";
+        System.out.println(isValidParentheses(str2)); // Output: false
+    }
+}
+
+We use a Stack<Character> to represent the stack. We iterate through the string, push opening parentheses onto the stack, and check if closing parentheses match the top of the stack. The isMatchingPair method is used to determine if the opening and closing parentheses form a valid pair.
+----------------------------------------------------
+
+we can rewrite the code without using the Stack class by utilizing a simple integer variable to keep track of the count of opening parentheses. We use the count variable to keep track of the number of opening parentheses encountered. Whenever we encounter an opening parenthesis, we increment the count. When we encounter a closing parenthesis, we decrement the count and check if it matches the corresponding opening parenthesis. If the count becomes negative at any point or the closing parenthesis doesn't match the opening parenthesis, we return false indicating invalid parentheses. At the end, if the count is zero, it means all parentheses have been matched, and we return true.
+
+public class ValidParentheses {
+    public static boolean isValidParentheses(String str) {
+        int count = 0;
+
+        for (int i = 0; i < str.length(); i++) {
+            char ch = str.charAt(i);
+
+            if (ch == '(' || ch == '{' || ch == '[') {
+                count++; // Increment count for opening parentheses
+            } else if (ch == ')' || ch == '}' || ch == ']') {
+                count--; // Decrement count for closing parentheses
+
+                // If count becomes negative or the closing parenthesis doesn't match the corresponding opening parenthesis
+                if (count < 0 || !isMatchingPair(str.charAt(i - 1), ch)) {
+                    return false; // Invalid parentheses
+                }
+            }
+        }
+
+        // If the count is zero, all parentheses have been matched
+        return count == 0;
+    }
+
+    public static boolean isMatchingPair(char opening, char closing) {
+        return (opening == '(' && closing == ')') ||
+               (opening == '{' && closing == '}') ||
+               (opening == '[' && closing == ']');
+    }
+
+    public static void main(String[] args) {
+        String str1 = "(){}[]";
+        System.out.println(isValidParentheses(str1)); // Output: true
+
+        String str2 = "({[}])";
+        System.out.println(isValidParentheses(str2)); // Output: false
+    }
+}
+____________________________________________________
+
+
+
+
+ 
+
+
+
+
