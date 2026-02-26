@@ -1,0 +1,118 @@
+
+==> 
+
+Here's the complete program with detailed documentation:
+
+```java
+import java.util.List;
+import java.util.concurrent.*;
+
+/**
+ * Demonstrates the use of {@link ExecutorService#invokeAll(java.util.Collection, long, TimeUnit)}
+ * with a timeout.
+ *
+ * <h3>Key Concepts:</h3>
+ * <ul>
+ *   <li><b>Callable</b> – A task that returns a result and may throw an exception.</li>
+ *   <li><b>Future</b> – A handle to a pending result; allows checking completion/cancellation.</li>
+ *   <li><b>invokeAll with timeout</b> – Submits all tasks and waits <em>at most</em> the given
+ *       duration. Tasks that have not completed by the deadline are <b>cancelled</b>
+ *       (their {@code Future.isCancelled()} returns {@code true}).</li>
+ * </ul>
+ *
+ * <h3>Expected Output:</h3>
+ * <pre>
+ *   A            ← Task 1 finishes well within 200 ms
+ *   timed out    ← Task 2 needs 300 ms but the timeout is 200 ms, so it is cancelled
+ * </pre>
+ */
+public class InvokeAllTimeoutDemo {
+
+    public static void main(String[] args) {
+
+        // ------------------------------------------------------------------
+        // 1. Define two Callable tasks:
+        //    • Task "A" – returns immediately.
+        //    • Task "B" – sleeps for 300 ms, exceeding the 200 ms timeout.
+        // ------------------------------------------------------------------
+        List<Callable<String>> tasks = List.of(
+                () -> "A",
+                () -> {
+                    Thread.sleep(300);
+                    return "B";
+                }
+        );
+
+        // ------------------------------------------------------------------
+        // 2. Create a fixed thread pool with 2 threads so both tasks can
+        //    run concurrently.
+        // ------------------------------------------------------------------
+        ExecutorService pool = Executors.newFixedThreadPool(2);
+
+        try {
+            // --------------------------------------------------------------
+            // 3. invokeAll(tasks, timeout, unit)
+            //    - Submits every task in the collection.
+            //    - Blocks the calling thread until ALL tasks finish
+            //      OR the timeout (200 ms) elapses — whichever comes first.
+            //    - Any task still running after the timeout is CANCELLED.
+            //    - Returns a list of Futures in the SAME order as the input.
+            // --------------------------------------------------------------
+            List<Future<String>> futures = pool.invokeAll(
+                    tasks,
+                    200,
+                    TimeUnit.MILLISECONDS
+            );
+
+            // --------------------------------------------------------------
+            // 4. Iterate over the futures and print results.
+            //    - If a future was cancelled (task didn't finish in time),
+            //      print "timed out".
+            //    - Otherwise, retrieve and print the result with get().
+            //      get() will not block here because invokeAll guarantees
+            //      all returned futures are already done or cancelled.
+            // --------------------------------------------------------------
+            for (Future<String> fu : futures) {
+                if (fu.isCancelled()) {
+                    System.out.println("timed out");
+                } else {
+                    System.out.println(fu.get());
+                }
+            }
+
+        } catch (InterruptedException e) {
+            // invokeAll itself can be interrupted while waiting
+            System.err.println("Main thread was interrupted: " + e.getMessage());
+            Thread.currentThread().interrupt(); // restore interrupt flag
+        } catch (ExecutionException e) {
+            // Thrown by Future.get() if the task threw an exception
+            System.err.println("Task threw an exception: " + e.getCause());
+        } finally {
+            // --------------------------------------------------------------
+            // 5. Gracefully shut down the pool.
+            //    - shutdown()  → no new tasks accepted; running tasks finish.
+            //    - Always call in a finally block to avoid thread leaks.
+            // --------------------------------------------------------------
+            pool.shutdown();}
+    }
+}
+```
+
+
+#### Output:
+```
+A
+timed out
+```
+
+**How it works:**
+
+1. Two `Callable<String>` tasks are created — one instant, one with a 300 ms delay.
+2. `invokeAll` submits both tasks and waits **at most 200 ms**.
+3. Task "A" completes within the deadline, so its `Future` holds the result `"A"`.
+4. Task "B" needs 300 ms, which exceeds the 200 ms timeout — `invokeAll` **cancels** it, so `isCancelled()` returns `true` and we print `"timed out"`.
+5. The pool is shut down in the `finally` block to prevent thread leaks.
+
+---
+---
+___________________________________________________________________________________________________

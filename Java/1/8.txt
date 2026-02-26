@@ -849,6 +849,70 @@ Summary of Use Cases
     CyclicBarrier: Synchronize threads at a common barrier point (phased execution).
     Semaphore: Limit concurrent access to a shared resource.
     Future: Perform asynchronous computations and retrieve results.
+
+#### MyNotes
+a) Yes! The lambda `() -> { ... }` **is** the implementation of the `call()` method of `Callable<Integer>`.
+
+Since `Callable<Integer>` is a **functional interface** (only one abstract method: `call()`), Java allows a lambda to implement it directly.
+
+```
+Callable<Integer> task = () -> {
+            System.out.println("Task is running...");
+            Thread.sleep(2000); // Simulate work
+            return 42; // Return a result
+        };
+```
+
+Above lambda is equivalent to this explicit version:
+
+```
+Callable<Integer> task = new Callable<Integer>() {
+    @Override
+    public Integer call() throws Exception {
+        System.out.println("Task is running...");
+        Thread.sleep(2000);
+        return 42; // return value of call()
+    }
+};
+```
+
+### Key points:
+- The lambda body **is** the body of `call()`
+- `return 42` is the return value of `call()`, which is why `future.get()` returns `42`
+- `call()` declares `throws Exception`, which is why `Thread.sleep(2000)` (which throws `InterruptedException`) is allowed inside without a try\-catch
+
+b) A Future represents the result of an asynchronous computation right?  what is the asynchronous computation in above program ?
+
+Yes! `Future<Integer>` represents the result of an asynchronous computation.
+
+In this program, the **asynchronous computation** is the `Callable<Integer> task` — specifically everything inside the `call()` method:
+
+```java
+public Integer call() throws Exception {
+    System.out.println("Task is running...");  // step 1
+    Thread.sleep(2000);                         // step 2 - simulates long work
+    return 42;                                  // step 3 - the result
+}
+```
+
+### Why is it "asynchronous"?
+
+When you call `executor.submit(task)`:
+- The task is handed off to a **separate thread** (managed by `ExecutorService`)
+- The **main thread does NOT wait** — it immediately continues to the next line
+- The task runs **concurrently** in the background
+
+### Timeline visualization:
+
+```
+Main Thread:        submit(task) --> "Main thread doing other work..." --> future.get() --> prints result
+                         |                                                      ^
+                         v                                                      |
+Worker Thread:      call() starts --> sleep(2000) --> return 42 ---------------+
+```
+
+- `future.get()` is where the **main thread blocks** and waits if the computation isn't done yet
+- The `Future` object is the **bridge** between the main thread and the worker thread — it holds the result (`42`) once the async computation finishes
 	
 ______________________________________________________________________________________________________
 

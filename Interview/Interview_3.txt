@@ -1,6 +1,20 @@
 https://www.youtube.com/@java/shorts
 
--> Java is a statically typed language meaning that the type of any variable we create or receive is known and compiled even if we define the type with var the compiler will guess the type of this variable for us.
+-> *"Java is a statically typed language, meaning the type of every variable is known and verified at compile time. Even when using `var`, the compiler performs **type inference** — it determines the exact type from the assigned value, so static typing is still fully enforced."*
+
+**"Java is a statically typed language"** — Correct. In Java, every variable's type is known and checked at **compile time**, not at runtime.
+
+**"type of any variable we create or receive is known at compile time"** — Correct.
+
+**"even if we define the type with `var`, the compiler performs **type inference** 
+
+
+
+```java
+var name = "John";   // compiler INFERS type as String (not guessing!)
+var age  = 25;       // compiler INFERS type as int
+var list = new ArrayList<String>(); // compiler INFERS as ArrayList<String>
+```
 
 -> methods of the Object class: 
 toString(), equals() and hashCode() are the commonly used ones.

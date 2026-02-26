@@ -38,6 +38,8 @@ Thread Synchronization and Locks
         Deadlock occurs when two or more threads are waiting for each other's resources indefinitely.
         Avoid using nested locks and maintain consistent lock ordering.
 
+        https://docs.oracle.com/javase/tutorial/essential/concurrency/deadlock.html
+
     What is the difference between synchronized methods and synchronized blocks?
         Methods: Locks the entire object.
         Blocks: Locks only the code inside the block, allowing finer-grained control.
@@ -58,7 +60,7 @@ Concurrency and Advanced Threading
         A thread pool designed for divide-and-conquer tasks, such as splitting a large task into smaller ones and joining their results.
 
     What is Callable and Future in Java?
-        Callable: A task that returns a result and can throw exceptions.
+        Callable: Computes a result, or throws an exception if unable to do so.
         Future: Represents the result of an asynchronous computation.
 
     What is a thread pool?
@@ -345,6 +347,568 @@ Starting Email Notification System...
 ✅ Completed in: 1013ms
 ⚡ Speedup: ~9x faster!
 ```
+
+---
+---
+______________________________________________________________________________________________________________
+
+==> ## Thread vs ExecutorService
+
+### Thread (Low-level)
+You manually create and manage each thread.
+
+```java
+public class ThreadExample {
+    public static void main(String[] args) {
+        // Must create and manage each thread manually
+        Thread t1 = new Thread(() -> System.out.println("Task 1 - " + Thread.currentThread().getName()));
+        Thread t2 = new Thread(() -> System.out.println("Task 2 - " + Thread.currentThread().getName()));
+
+        t1.start();
+        t2.start();
+
+        // Must manually wait for completion
+        try {
+            t1.join();
+            t2.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // Thread is destroyed after run() completes — cannot be reused
+    }
+}
+```
+
+### ExecutorService (High-level)
+A thread pool that manages, reuses, and schedules threads for you.
+
+```java
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+public class ExecutorServiceExample {
+    public static void main(String[] args) throws Exception {
+        // Pool of 2 reusable threads
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+
+        // Submit tasks — threads are reused from the pool
+        Future<String> future1 = executor.submit(() -> "Result from " + Thread.currentThread().getName());
+        executor.execute(() -> System.out.println("Task 2 - " + Thread.currentThread().getName()));
+
+        // Get result from a Callable task
+        System.out.println(future1.get());
+
+        // Graceful shutdown — no manual join needed
+        executor.shutdown();
+    }
+}
+```
+#### MyNotes
+a) `ExecutorService` is `AutoCloseable` and should be used with a try-with-resources statement to ensure proper cleanup.
+
+**Fix:** Wrap the `ExecutorService` in a try-with-resources block (available since Java 19+ where `ExecutorService` implements `AutoCloseable`):
+
+```java
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+public class ExecutorServiceExample {
+    public static void main(String[] args) throws Exception {
+        // Pool of 2 reusable threads — auto-closed after try block
+        try (ExecutorService executor = Executors.newFixedThreadPool(2)) {
+
+            // Submit tasks — threads are reused from the pool
+            Future<String> future1 = executor.submit(() -> "Result from " + Thread.currentThread().getName());
+            executor.execute(() -> System.out.println("Task 2 - " + Thread.currentThread().getName()));
+
+            // Get result from a Callable task
+            System.out.println(future1.get());
+
+        } // executor.shutdown() is called automatically here
+    }
+}
+```
+
+**What changed:**
+- Replaced manual `executor.shutdown()` with `try (ExecutorService executor = ...)` 
+- The try-with-resources block automatically calls `close()` (which internally calls `shutdown()`) when the block exits, even if an exception occurs
+- This ensures the pool is always properly shut down, preventing resource leaks
+
+
+
+### Key Differences
+
+| Aspect | Thread | ExecutorService |
+|---|---|---|
+| **Level** | Low-level | High-level abstraction |
+| **Thread creation** | New thread per task | Reuses threads from a pool |
+| **Thread reuse** | ❌ Not possible | ✅ Built-in |
+| **Task queue** | ❌ None | ✅ Internal queue for pending tasks |
+| **Thread count control** | Manual | Configurable pool size |
+| **Scalability** | Poor — creating 1000 threads is expensive | Good — pool limits concurrent threads |
+
+### Why ExecutorService Is Preferred
+
+```java
+// BAD: Creating 1000 threads — huge overhead, possible OOM
+for (int i = 0; i < 1000; i++) {
+    new Thread(() -> doWork()).start();
+}
+
+// GOOD: 1000 tasks, but only 10 threads running at a time
+ExecutorService pool = Executors.newFixedThreadPool(10);
+for (int i = 0; i < 1000; i++) {
+    pool.submit(() -> doWork());
+}
+pool.shutdown();
+```
+
+**Rule of thumb:** Use `Thread` only when you need a single, simple background thread. Use `ExecutorService` for everything else — it handles thread lifecycle, reuse, and scheduling for you.
+
+
+---
+---
+______________________________________________________________________________________________________________
+
+==> demonstrate stopping a Thread using Thread.interrupt()
+
+```
+/**
+ * Demo: Stopping a Thread in Java using Thread.interrupt()
+ *
+ * Thread.interrupt() is the recommended way to signal a thread to stop.
+ * It works by:
+ *   1. Setting the thread's interrupt flag (checked via Thread.isInterrupted())
+ *   2. Throwing InterruptedException if the thread is blocked in sleep(), wait(), or join()
+ */
+public class ThreadInterruptDemo {
+
+    public static void main(String[] args) throws InterruptedException {
+        runInterruptFlagExample();
+        runInterruptDuringSleepExample();
+        runRobustPatternExample();
+
+        System.out.println("\n=== All threads stopped. Demo complete. ===");
+    }
+
+    // --- Example 1: Interrupting a thread that checks isInterrupted() ---
+    private static void runInterruptFlagExample() throws InterruptedException {
+        System.out.println("=== Example 1: Interrupt flag check ===");
+
+        Thread worker1 = new Thread(() -> {
+            int count = 0;
+            while (!Thread.currentThread().isInterrupted()) {
+                count++;
+                System.out.println("[Worker-1] Working... iteration " + count);
+                // Simulate some CPU-bound work
+                double x = 0;
+                for (int i = 0; i < 50_000_000; i++) {
+                    x += Math.sqrt(i);
+                }
+            }
+            System.out.println("[Worker-1] Detected interrupt flag. Stopping gracefully.");
+        }, "Worker-1");
+
+        worker1.start();
+        Thread.sleep(2000); // Let it run for 2 seconds
+        System.out.println("[Main] Interrupting Worker-1...");
+        worker1.interrupt();
+        worker1.join();
+        System.out.println("[Main] Worker-1 has stopped.\n");
+    }
+
+    // --- Example 2: Interrupting a thread that is sleeping ---
+    private static void runInterruptDuringSleepExample() throws InterruptedException {
+        System.out.println("=== Example 2: Interrupt during sleep (InterruptedException) ===");
+
+        Thread worker2 = new Thread(() -> {
+            try {
+                int count = 0;
+                while (true) {
+                    count++;
+                    System.out.println("[Worker-2] Working... iteration " + count);
+                    Thread.sleep(500); // Blocking call — will throw InterruptedException
+                }
+            } catch (InterruptedException e) {
+                System.out.println("[Worker-2] Caught InterruptedException! Stopping gracefully.");
+                // Good practice: restore the interrupt flag if needed upstream
+                Thread.currentThread().interrupt();
+            }
+        }, "Worker-2");
+
+        worker2.start();
+        Thread.sleep(2000); // Let it run for 2 seconds
+        System.out.println("[Main] Interrupting Worker-2...");
+        worker2.interrupt();
+        worker2.join();
+        System.out.println("[Main] Worker-2 has stopped.\n");
+    }
+
+    // --- Example 3: Combining both approaches (robust pattern) ---
+    private static void runRobustPatternExample() throws InterruptedException {
+        System.out.println("=== Example 3: Robust pattern (flag check + InterruptedException) ===");
+
+        Thread worker3 = new Thread(() -> {
+            int count = 0;
+            try {
+                while (!Thread.currentThread().isInterrupted()) {
+                    count++;
+                    System.out.println("[Worker-3] Working... iteration " + count);
+                    Thread.sleep(300); // May throw InterruptedException
+                }
+            } catch (InterruptedException e) {
+                System.out.println("[Worker-3] Interrupted during sleep.");
+            }
+            System.out.println("[Worker-3] Stopped gracefully after " + count + " iterations.");
+        }, "Worker-3");
+
+        worker3.start();
+        Thread.sleep(2000);
+        System.out.println("[Main] Interrupting Worker-3...");
+        worker3.interrupt();
+        worker3.join();
+        System.out.println("[Main] Worker-3 has stopped.");
+    }
+}
+```
+
+Example 1 — Interrupt flag check: The thread does CPU-bound work and checks Thread.currentThread().isInterrupted() in its loop condition. When interrupt() is called, the flag becomes true and the loop exits.
+Example 2 — Interrupt during sleep: The thread calls Thread.sleep() in each iteration. When interrupt() is called while sleeping, an InterruptedException is thrown, which the thread catches to stop gracefully.
+Example 3 — Robust pattern (recommended): Combines both approaches — checks isInterrupted() in the loop condition and handles InterruptedException from blocking calls. This is the most reliable pattern for real-world code.
+
+
+---
+---
+______________________________________________________________________________________________________________
+
+==> demonstrate sleep() and wait()
+
+Here's a Java program demonstrating the difference between `sleep()` and `wait()`:
+
+- **`sleep()`** – pauses the current thread for a specified time without releasing the lock.
+- **`wait()`** – releases the lock and waits until another thread calls `notify()`/`notifyAll()`.
+
+```
+public class SleepWaitDemo {
+
+    private static final Object lock = new Object();
+
+    public static void main(String[] args) {
+        // Demonstrate sleep()
+        Thread sleepThread = new Thread(() -> {
+            synchronized (lock) {
+                System.out.println("[SleepThread] Acquired lock");
+                System.out.println("[SleepThread] Going to sleep for 2 seconds (lock is NOT released)...");
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                System.out.println("[SleepThread] Woke up from sleep, still holds the lock");
+            }
+        }, "SleepThread");
+
+        Thread sleepWaiter = new Thread(() -> {
+            System.out.println("[SleepWaiter] Trying to acquire lock...");
+            synchronized (lock) {
+                System.out.println("[SleepWaiter] Acquired lock (only after SleepThread released it)");
+            }
+        }, "SleepWaiter");
+
+        System.out.println("=== Demonstrating sleep() ===");
+        sleepThread.start();
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException ignored) {
+        } // ensure sleepThread starts first
+        sleepWaiter.start();
+
+        try {
+            sleepThread.join();
+            sleepWaiter.join();
+        } catch (InterruptedException ignored) {
+        }
+
+        System.out.println();
+
+        // Demonstrate wait() and notify()
+        Object waitLock = new Object();
+
+        Thread waitThread = new Thread(() -> {
+            synchronized (waitLock) {
+                System.out.println("[WaitThread] Acquired lock");
+                System.out.println("[WaitThread] Calling wait() (lock IS released)...");
+                try {
+                    waitLock.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                System.out.println("[WaitThread] Resumed after notify(), re-acquired the lock");
+            }
+        }, "WaitThread");
+
+        Thread notifier = new Thread(() -> {
+            System.out.println("[Notifier] Trying to acquire lock...");
+            synchronized (waitLock) {
+                System.out.println("[Notifier] Acquired lock (possible because wait() released it)");
+                System.out.println("[Notifier] Calling notify()...");
+                waitLock.notify();
+            }
+        }, "Notifier");
+
+        System.out.println("=== Demonstrating wait() and notify() ===");
+        waitThread.start();
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException ignored) {
+        } // ensure waitThread starts first
+        notifier.start();
+
+        try {
+            waitThread.join();
+            notifier.join();
+        } catch (InterruptedException ignored) {
+        }
+
+        System.out.println();
+        System.out.println("=== Summary ===");
+        System.out.println("sleep(): Pauses thread, does NOT release the lock.");
+        System.out.println("wait() : Pauses thread and RELEASES the lock; resumes on notify()/notifyAll().");
+    }
+}
+```
+
+#### Output
+```
+=== Demonstrating sleep() ===
+[SleepThread] Acquired lock
+[SleepThread] Going to sleep for 2 seconds (lock is NOT released)...
+[SleepWaiter] Trying to acquire lock...
+[SleepThread] Woke up from sleep, still holds the lock
+[SleepWaiter] Acquired lock (only after SleepThread released it)
+
+=== Demonstrating wait() and notify() ===
+[WaitThread] Acquired lock
+[WaitThread] Calling wait() (lock IS released)...
+[Notifier] Trying to acquire lock...
+[Notifier] Acquired lock (possible because wait() released it)
+[Notifier] Calling notify()...
+[WaitThread] Resumed after notify(), re-acquired the lock
+
+=== Summary ===
+sleep(): Pauses thread, does NOT release the lock.
+wait() : Pauses thread and RELEASES the lock; resumes on notify()/notifyAll().
+```
+
+**Key differences illustrated:**
+
+| Feature | `sleep()` | `wait()` |
+|---|---|---|
+| Defined in | `Thread` class | `Object` class |
+| Lock release | **No** | **Yes** |
+| Wake condition | Timer expires | `notify()` / `notifyAll()` or timeout |
+| Requires `synchronized` | No | Yes (must hold the object's monitor) |
+
+Run the program and observe that `SleepWaiter` is blocked during `sleep()`, while `Notifier` can acquire the lock immediately after `wait()` is called.
+
+---
+---
+______________________________________________________________________________________________________________
+
+==> Callable: Computes a result, or throws an exception if unable to do so.
+```
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+public class CallableDemo {
+
+    public static void main(String[] args) throws Exception {
+
+        // Create a thread pool
+        try (ExecutorService executor = Executors.newFixedThreadPool(2)) {
+
+            // ✅ Callable that RETURNS a result
+            Callable<Integer> task = () -> {
+                System.out.println("Task is running...");
+                Thread.sleep(1000);
+                return 42; // returns a result
+            };
+
+            // ✅ Callable that THROWS an exception
+            Callable<Integer> failingTask = () -> {
+                System.out.println("Failing task is running...");
+                if (true) throw new Exception("Something went wrong!");
+                return -1;
+            };
+
+            // Submit tasks — returns a Future
+            Future<Integer> future1 = executor.submit(task);
+            Future<Integer> future2 = executor.submit(failingTask);
+
+            // Get result from task 1
+            try {
+                Integer result = future1.get(); // blocks until result is ready
+                System.out.println("Result from task 1: " + result);
+            } catch (Exception e) {
+                System.out.println("Task 1 failed: " + e.getMessage());
+            }
+
+            // Get result from task 2 (will throw exception)
+            try {
+                Integer result = future2.get();
+                System.out.println("Result from task 2: " + result);
+            } catch (Exception e) {
+                System.out.println("Task 2 failed: " + e.getMessage());
+            }
+
+        }
+    }
+}
+```
+
+#### Output:
+```
+Task is running...
+Failing task is running...
+Result from task 1: 42
+Task 2 failed: java.lang.Exception: Something went wrong!
+```
+
+
+#### MyNotes:
+a) is -1 an Integer ?
+
+**Yes**, `-1` is an integer. Integers include all whole numbers — positive, negative, and zero.
+```
+... -3, -2, -1, 0, 1, 2, 3 ...
+```
+
+---
+
+## In Java ✅
+**Yes**, `-1` is a valid `int` / `Integer` value in Java.
+
+```java
+int a = -1;           // ✅ valid primitive int
+Integer b = -1;       // ✅ valid Integer object (autoboxing)
+Integer c = -1;       // ✅ perfectly fine
+
+System.out.println(a); // -1
+System.out.println(b); // -1
+```
+
+---
+
+## Why I Used `-1` in the Callable Demo
+
+In the failing task:
+```java
+Callable<Integer> failingTask = () -> {
+    if (true) throw new Exception("Something went wrong!");
+    return -1; // ✅ this line is NEVER reached
+};
+```
+
+The `return -1` was just a **placeholder** to satisfy the compiler. Since `Callable<Integer>` must return an Integer, the compiler requires a return statement — even though in this case the exception is always thrown before reaching it.
+
+```
+if (true) throw exception   <-- always happens
+return -1;                  <-- compiler requires this, but NEVER executes
+```
+
+---
+
+## Integer Range in Java
+
+| Type | Min Value | Max Value |
+|---|---|---|
+| `int` / `Integer` | `-2,147,483,648` | `2,147,483,647` |
+
+So `-1` is well within the valid range of an Integer in Java. ✅
+
+---
+
+**Bottom line** — `-1` is absolutely a valid Integer, no issues there!
+
+---
+---
+______________________________________________________________________________________________________________
+
+==> Callable vs Runnable
+
+Both `Callable` and `Runnable` are functional interfaces in Java used to represent tasks, but they differ in a key way:
+
+**Runnable**
+- Method: `void run()`
+- Returns **nothing**
+- Cannot throw checked exceptions
+- Used when you just need to execute some code
+
+```java
+Runnable r = () -> System.out.println("Running!");
+new Thread(r).start();
+```
+
+**Callable**
+- Method: `V call() throws Exception`
+- Returns a **value** (generic type `V`)
+- Can throw **checked exceptions**
+- Used with `ExecutorService` and `Future` to get a result
+
+```java
+Callable<Integer> c = () -> 42;
+Future<Integer> future = executor.submit(c);
+Integer result = future.get(); // 42
+```
+
+**Quick Comparison**
+
+| Feature | Runnable | Callable |
+|---|---|---|
+| Return value | `void` | Generic `V` |
+| Checked exceptions | ❌ | ✅ |
+| Used with `Future` | ❌ | ✅ |
+| Package | `java.lang` | `java.util.concurrent` |
+
+**When to use which:**
+- Use **Runnable** for fire-and-forget tasks where you don't need a result.
+- Use **Callable** when you need the task to return a value or propagate checked exceptions, typically in combination with `ExecutorService`.
+
+---
+---
+______________________________________________________________________________________________________________
+
+==> What is a deadlock? How can it be avoided?
+        Deadlock occurs when two or more threads are waiting for each other's resources indefinitely.
+        Avoid using nested locks and maintain consistent lock ordering.
+
+
+Yes, your answer is correct! It covers the two most important points. You could strengthen it a bit more:
+
+**What is a Deadlock?**
+
+Deadlock occurs when two or more threads are blocked forever, each waiting for a resource held by the other. Four conditions must all be true for a deadlock to occur (the **Coffman Conditions**):
+
+1. **Mutual Exclusion** – a resource is held by only one thread at a time
+2. **Hold and Wait** – a thread holds one resource while waiting for another
+3. **No Preemption** – resources can't be forcibly taken away
+4. **Circular Wait** – Thread A waits for Thread B, which waits for Thread A
+
+**How to Avoid It** — your two points are spot on, plus a few more:
+
+- **Consistent lock ordering** ✅ — always acquire locks in the same order across all threads
+- **Avoid nested locks** ✅ — don't acquire a lock while already holding one if possible
+- **Use `tryLock()` with timeout** — instead of blocking indefinitely, try to acquire a lock and give up after a timeout (`ReentrantLock.tryLock(timeout, unit)`)
+- **Use higher-level concurrency utilities** — `java.util.concurrent` classes like `Semaphore`, `CountDownLatch`, or `ConcurrentHashMap` reduce the need for manual locking
+- **Deadlock detection** — some systems periodically check for circular wait conditions and break them
+
+For an interview, your original answer is solid. Mentioning the Coffman Conditions and `tryLock()` would make it stand out.
+
 
 ---
 ---

@@ -1,0 +1,55 @@
+==> Here's a real-world example using `Integer::valueOf` as a method reference:
+
+**Parsing user input / CSV data into a list of integers:**
+
+```
+import java.util.List;
+import java.util.stream.Stream;
+
+public class Main {
+    public static void main(String[] args) {
+        // Parsing CSV string of order quantities
+        String csvQuantities = "5,12,3,8,20";
+        List<Integer> quantities = Stream.of(csvQuantities.split(","))
+                .map(String::trim)
+                .map(Integer::valueOf)
+                .toList();
+
+        System.out.println(quantities); // [5, 12, 3, 8, 20]
+
+        // Parsing config values
+        List<String> rawPorts = List.of("8080", "8443", "9090");
+        List<Integer> ports = rawPorts.stream()
+                .map(Integer::valueOf)
+                .toList();
+
+        System.out.println(ports); // [8080, 8443, 9090]
+
+        // Filtering valid product IDs from string input
+        List<String> rawIds = List.of("101", "abc", "202", "xyz", "303");
+        List<Integer> validProductIds = rawIds.stream()
+                .filter(s -> s.matches("\\d+"))   // Keep only numeric strings
+                .map(Integer::valueOf)
+                .toList();
+
+        System.out.println(validProductIds); // [101, 202, 303]
+    }
+}
+```
+
+### Why `Integer::valueOf` instead of `Integer::parseInt`?
+
+| Method | Returns | Caching |
+|--------|---------|---------|
+| `Integer::valueOf` | `Integer` (boxed) | ✅ Caches values \-128 to 127 |
+| `Integer::parseInt` | `int` (primitive) | ❌ No caching |
+
+In a stream's `.map()`, both work since the result gets autoboxed anyway. However, `Integer::valueOf` is preferred when you need `Integer` objects because it reuses cached instances for small values, reducing object creation.
+
+### What's happening
+
+`Integer::valueOf` is a **method reference** equivalent to the lambda `s -> Integer.valueOf(s)`. It converts each `String` element into an `Integer`, which is the most common real-world use — parsing string data (CSV files, API responses, config values, form inputs) into numeric types.
+
+---
+---
+__________________________________________________________________________________________________________

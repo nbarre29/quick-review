@@ -1486,6 +1486,8 @@ return db.values().stream()
  Vector           TreeSet         ArrayDeque
 
 
+---
+---
 ______________________________________________________________________________________________________
 
 ==> Another example to demonstrating Optional.empty() from findFirst()
@@ -1550,6 +1552,66 @@ Output:
 FOUND: P101 - iPhone 15 ($999.99)
 NOT FOUND!
 ```
+
+#### MyNotes:
+a) Product.java : Replace the string concatenation with `String.format`:
+
+```java
+@Override
+public String toString() {
+    return String.format("%s - %s ($%.2f)", id, name, price);
+}
+```
+
+This uses `%.2f` to format the price to 2 decimal places, which is more appropriate for currency values.
+
+b) `BigDecimal` is strongly preferred over `double` for prices/currency values.
+
+### Why `double` is problematic for money:
+
+```java
+System.out.println(0.1 + 0.2); // prints 0.30000000000000004
+```
+
+`double` uses binary floating-point (IEEE 754), which **cannot represent many decimal fractions exactly**, leading to rounding errors in financial calculations.
+
+### Product.java
+
+```
+import java.math.BigDecimal;
+
+public record Product(String id, String name, BigDecimal price) {
+
+    @Override
+    public String toString() {
+        return String.format("%s - %s ($%s)", id, name, price.toPlainString());
+    }
+}
+```
+### ProductSearchDemo.java
+```
+ // Create inventory (List<Product>)
+        List<Product> inventory = Arrays.asList(
+                new Product("P101", "iPhone 15", new BigDecimal("999.99")),
+                new Product("P102", "Samsung Galaxy S24", new BigDecimal("899.99")),
+                new Product("P103", "Google Pixel 9", new BigDecimal("799.99"))
+        );
+```
+
+### Key reasons to use `BigDecimal` for money:
+
+| Concern | `double` | `BigDecimal` |
+|---------|----------|--------------|
+| **Exact decimal representation** | ❌ No | ✅ Yes |
+| **Rounding control** | ❌ Manual | ✅ Built-in (`RoundingMode`) |
+| **Arithmetic precision** | ❌ Accumulates errors | ✅ Exact |
+| **Financial/legal compliance** | ❌ Unsuitable | ✅ Standard practice |
+| **Performance** | ✅ Faster | ❌ Slower (but negligible for business apps) |
+
+For any application handling money, taxes, invoices, or pricing — always use `BigDecimal`.
+
+---
+---
 ______________________________________________________________________________________________________
 
 -> Few alternatives to using Optional in Java?

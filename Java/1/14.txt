@@ -50,9 +50,12 @@ Explanation:
     We create two boxes, one for Integer and another for String.
 
     Each box is used to store and retrieve data of its specific type (Integer or String), all verified at compile time
+
+---
+---
+______________________________________________________________________________________________________________
 	
-	
--> Example of Generic method.
+==> Example of Generic method.
 
 public class GenericMethodDemo {
 
@@ -100,8 +103,11 @@ Explanation:
 
     In the main method, we create different arrays—Integer[], Double[], and String[]—then call the same printArray method on each one.
 
+---
+---
+______________________________________________________________________________________________________________
 
--> A simplified Java example demonstrating different ways of declaring generics, wildcards, and their bounds. Read through the comments carefully to understand each case.
+==> A simplified Java example demonstrating different ways of declaring generics, wildcards, and their bounds. Read through the comments carefully to understand each case.
 
 import java.util.ArrayList;
 import java.util.List;
@@ -199,7 +205,8 @@ Explanation Recap
 	
 	
 Use the above patterns whenever you need more flexible APIs, depending on whether you want to consume values (write into a collection) or produce values (read from a collection).
-______________________________________________________________________________________________________________________
+
+---
 
 Mnemonic: PECS
     Producer Extends, Consumer Super
@@ -209,7 +216,10 @@ Purpose					Use this wildcard
 Read from a producer	? extends T
 Write to a consumer		? super T
 
-______________________________________________________________________________________________________________________
+
+---
+---
+______________________________________________________________________________________________________________
 
 import java.util.ArrayList;
 import java.util.List;
@@ -267,7 +277,9 @@ Why?
 ----------------------------------------------
 		   
 
-______________________________________________________________________________________________________________________
+---
+---
+______________________________________________________________________________________________________________
 
 ? extends T
 
@@ -289,10 +301,12 @@ ________________________________________________________________________________
 
     Can Read As? ❌ No — you can't safely read elements as T, only as Object, because the actual type could be any supertype of T.
 
-______________________________________________________________________________________________________________________
+---
+---
+______________________________________________________________________________________________________________
 
 
--> import java.util.HashMap;
+==> import java.util.HashMap;
 import java.util.Map;
 
 public class WildcardExample {
@@ -355,7 +369,7 @@ public class WildcardExample {
     }
 }
 ----------------------------------------------------------------------------------------------------------------------
--> Convert inner classes from above to lambda expressions.
+==> Convert inner classes from above to lambda expressions.
 
 The EmailLogin and GoogleLogin classes can be converted to lambda expressions since they implement a functional interface (Login).
 
@@ -420,7 +434,10 @@ public class WildcardExample {
     }
 }
 
-______________________________________________________________________________________________________________________
+---
+---
+______________________________________________________________________________________________________________
+
 
 https://docs.oracle.com/javase/tutorial/java/generics/upperBounded.html
 
@@ -478,7 +495,11 @@ https://docs.oracle.com/en/java/javase/23/docs/api/java.base/java/lang/Integer.h
 https://docs.oracle.com/en/java/javase/23/docs/api/java.base/java/lang/Double.html
 https://docs.oracle.com/en/java/javase/23/docs/api/java.base/java/lang/Float.html
 https://docs.oracle.com/en/java/javase/23/docs/api/java.base/java/lang/Number.html
-______________________________________________________________________________________________________________________
+
+---
+---
+______________________________________________________________________________________________________________
+
 
 https://docs.oracle.com/javase/tutorial/java/generics/lowerBounded.html
 
@@ -586,9 +607,13 @@ The `main` method demonstrates the usage of the above methods. It creates a `Lis
 1. **Generics with Wildcards**: The use of `List<? super Integer>` allows flexibility in the types of lists that can be passed to the methods.
 2. **Type Checking**: The `sumOfList` method uses `instanceof` to ensure that only numeric elements are included in the sum.
 3. **Reusability**: The methods are designed to work with a variety of list types, making them reusable in different contexts.
-______________________________________________________________________________________________________________________
 
--> 
+---
+---
+______________________________________________________________________________________________________________
+
+
+==> 
 
 import java.util.ArrayList;
 import java.util.List;
@@ -643,7 +668,11 @@ Output:
 Hello
 42
 3.14
-______________________________________________________________________________________________________________________
+
+---
+---
+______________________________________________________________________________________________________________
+
 
 🔼 Upper-Bounded Wildcards (? extends T)
 

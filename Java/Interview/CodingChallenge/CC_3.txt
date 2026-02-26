@@ -423,9 +423,13 @@ public class Test {
 a) String[] names = {"Bill", "Connor", "Joe", "John", "Mark"};
 Use the array initializer shorthand when declaring and initializing in the same statement; it's equivalent at runtime and more concise. If you assign to an already-declared variable later, you must use `new String[] { ... }`.
 
-______________________________________________________________________________________
+---
+---
+_________________________________________________________________________________________________________
 
-//Fibonacci
+==>  Fibonacci
+
+```
 public class Test {
 
     private static void fibonacci(int n) {
@@ -450,7 +454,136 @@ public class Test {
 
     }
 }
-____________________________________________________
+```
+
+---
+---
+_________________________________________________________________________________________________________
+
+==> refactor the above
+
+Here are several refactoring improvements for the Fibonacci code:
+
+1. Use a `for` loop instead of `while` with a manual counter
+2. Use more descriptive variable names
+3. Return a list instead of printing directly (separation of concerns)
+
+```
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class Test {
+
+    private static List<Integer> fibonacci(int count) {
+        List<Integer> series = new ArrayList<>();
+        int previous = 0;
+        int current = 1;
+
+        for (int i = 0; i < count; i++) {
+            series.add(previous);
+            int next = previous + current;
+            previous = current;
+            current = next;
+        }
+
+        return series;
+    }
+
+    public static void main(String[] args) {
+        List<Integer> result = fibonacci(10);
+        String output = result.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(" "));
+        System.out.println(output);
+    }
+}
+```
+
+**Changes made:**
+- **`num1`/`num2`/`num3`** → **`previous`/`current`/`next`** for clarity
+- **`while` + manual counter** → **`for` loop** (more idiomatic)
+- **Returns `List<Integer>`** instead of printing inside the method (better separation of concerns, easier to test)
+- **Stream-based formatting** in `main` for clean output
+- **`counter = counter + 1`** → handled by `i++` in the for loop
+
+
+#### MyNotes:
+a) do we need to remove the `next` declaration outside for loop above?
+
+No, you should **not** move `next` above the for loop. Declaring it inside the loop is the better practice here because:
+
+- **`next` is a temporary variable** — it's only used within a single iteration to facilitate the swap, then recalculated in the next iteration.
+- **Minimizing variable scope** is a best practice — declare variables in the narrowest scope possible.
+- Moving it above the loop would give it a wider scope than needed, implying it has meaning outside the loop, which it doesn't.
+
+If you moved it outside:
+```java
+int next; // unnecessary wider scope
+for (int i = 0; i < count; i++) {
+    series.add(previous);
+    next = previous + current;
+    previous = current;
+    current = next;
+}
+```
+
+This works functionally but is **less clean** — `next` has no relevance outside the loop body. Keeping `int next = previous + current;` inside the loop is the correct approach.
+
+b) so it does not declare `next` on every iteration ?
+No, declaring `int next` inside the loop **does not** cause a performance concern. Here's why:
+
+- **Primitive variables like `int`** are allocated on the **stack**, which is extremely fast.
+- The JVM does **not** allocate new memory each iteration — it simply **reuses the same stack slot** for `next` on every iteration.
+- The compiled bytecode is essentially identical whether you declare it inside or outside the loop.
+
+So this:
+```java
+for (int i = 0; i < count; i++) {
+    int next = previous + current; // reuses same stack slot
+}
+```
+
+and this:
+```java
+int next;
+for (int i = 0; i < count; i++) {
+    next = previous + current; // same stack slot
+}
+```
+
+produce **virtually the same bytecode**. There is no repeated "declaration" at runtime — `int next` is just a compile-time instruction telling the compiler the variable's type and scope. At runtime, it's just a value assignment to an existing stack position.
+
+**Bottom line:** Keep it inside the loop for cleaner scoping — there is no performance penalty.
+
+c) then previous and current also have the scope inside the for loop only right? why did we declare outside for loop
+
+Great question. `previous` and `current` are declared **outside** the loop because they need to **retain their values across iterations**.
+
+- **`previous` and `current`** are updated at the end of each iteration (`previous = current; current = next;`) and their updated values are **used in the next iteration**. If declared inside the loop, they would be reset every iteration and the Fibonacci logic would break.
+
+- **`next`** is a temporary value computed and fully consumed **within the same iteration**. It has no need to carry state to the next iteration.
+
+If you tried declaring them inside:
+```java
+for (int i = 0; i < count; i++) {
+    int previous = 0; // reset every iteration — WRONG
+    int current = 1;  // reset every iteration — WRONG
+    series.add(previous);
+    int next = previous + current;
+    previous = current;
+    current = next;
+}
+```
+
+This would output `0 0 0 0 0 0 0 0 0 0` because `previous` and `current` are re-initialized to `0` and `1` on every iteration, losing the accumulated state.
+
+**Rule of thumb:**
+- Declare **outside** the loop → when the variable must **persist across iterations**
+- Declare **inside** the loop → when the variable is only needed **within a single iteration**
+---
+---
+_________________________________________________________________________________________________________
 
 //check if a number is a Palindrome
 public class PalindromeNumber {
