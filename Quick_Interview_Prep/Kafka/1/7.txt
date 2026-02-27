@@ -1,0 +1,125 @@
+==> claude: provide me few quiz questions with multiple choice answers on Kafka
+
+Here are some Kafka quiz questions for you:
+
+## Question 1: Offset Management
+A consumer in a Kafka consumer group crashes before committing its offset. What happens when it restarts with `enable.auto.commit=true`?
+
+A) It starts reading from the beginning of the topic  
+B) It may reprocess some messages that were already consumed  
+C) It automatically skips to the latest message  
+D) The messages are lost permanently
+
+<details>
+<summary>Answer</summary>
+**B) It may reprocess some messages that were already consumed**
+
+With auto-commit enabled, offsets are committed periodically. If the consumer crashes between commits, it will restart from the last committed offset and reprocess messages that were consumed but not yet committed.
+</details>
+
+
+chatgpt:
+
+**Correct answer: B) It may reprocess some messages that were already consumed**
+
+Because the consumer **crashed before its last offset was committed**, Kafka has no saved “checkpoint” for the newest records it already read/processed. When it restarts (and rejoins the group), it will resume from the **last committed offset** for each partition. That offset is **behind** where it had gotten to, so it will **read those records again** → duplicates / reprocessing (this is the typical **at-least-once** behavior).
+
+Why the others are wrong:
+
+* **A)** Only happens if there is **no committed offset at all** and `auto.offset.reset=earliest` applies.
+* **C)** “Skip to latest” only happens if there’s no committed offset and `auto.offset.reset=latest`, or you explicitly seek.
+* **D)** The messages are still in Kafka (until retention/compaction rules remove them). They aren’t “lost permanently” just because a consumer crashed.
+
+One extra nuance: with `enable.auto.commit=true`, commits happen periodically (based on `auto.commit.interval.ms`). So whether reprocessing happens depends on **when it last auto-committed** relative to the crash.
+
+
+---
+
+## Question 2: Partition Assignment
+A topic has 6 partitions and a consumer group has 4 consumers. How are partitions distributed?
+
+A) Each consumer gets 1.5 partitions  
+B) 2 consumers get 2 partitions each, 2 consumers get 1 partition each  
+C) Only 4 partitions are used, 2 remain idle  
+D) The consumer group won't work with unequal numbers
+
+<details>
+<summary>Answer</summary>
+**B) 2 consumers get 2 partitions each, 2 consumers get 1 partition each**
+
+Kafka distributes partitions as evenly as possible. With 6 partitions and 4 consumers, some consumers will handle 2 partitions while others handle 1.
+</details>
+
+---
+
+## Question 3: Message Ordering
+Which statement about message ordering in Kafka is TRUE?
+
+A) Kafka guarantees ordering across all partitions in a topic  
+B) Kafka guarantees ordering within a single partition only  
+C) Kafka provides no ordering guarantees at all  
+D) Ordering is only guaranteed if you use a single broker
+
+<details>
+<summary>Answer</summary>
+**B) Kafka guarantees ordering within a single partition only**
+
+Kafka maintains the order of messages within each partition, but there's no ordering guarantee across different partitions of the same topic.
+</details>
+
+---
+
+## Question 4: Replication Factor
+A topic is created with `replication-factor=3` and you have 5 brokers. One broker fails. What happens?
+
+A) The topic becomes unavailable  
+B) Messages are lost from failed broker  
+C) The topic continues to work normally as replicas exist on other brokers  
+D) The replication factor automatically increases to 4
+
+<details>
+<summary>Answer</summary>
+**C) The topic continues to work normally as replicas exist on other brokers**
+
+With a replication factor of 3, each partition has 3 copies across different brokers. If one broker fails, the other replicas can still serve requests. The topic remains available as long as at least one replica is alive.
+</details>
+
+---
+
+## Question 5: Consumer Groups
+Three different consumer groups (A, B, C) are reading from the same topic. Consumer group A commits offset 100. What offset do groups B and C see?
+
+A) They all share offset 100  
+B) Groups B and C have their own independent offsets  
+C) Groups B and C must wait for group A to finish  
+D) Only one consumer group can read a topic at a time
+
+<details>
+<summary>Answer</summary>
+**B) Groups B and C have their own independent offsets**
+
+Each consumer group maintains its own offset independently. Group A committing offset 100 has no effect on groups B and C, which track their own positions in the topic.
+</details>
+
+---
+
+## Question 6: Producers and Keys
+What happens when you send messages to Kafka WITHOUT specifying a key?
+
+A) The message is rejected  
+B) Messages are distributed round-robin across partitions  
+C) All messages go to partition 0  
+D) Kafka automatically generates a key
+
+<details>
+<summary>Answer</summary>
+**B) Messages are distributed round-robin across partitions**
+
+When no key is provided, Kafka uses a round-robin strategy to distribute messages evenly across available partitions. When a key IS provided, Kafka uses hash(key) to determine the partition, ensuring all messages with the same key go to the same partition.
+</details>
+
+---
+
+---
+--- 
+_____________________________________________________________________________________________
