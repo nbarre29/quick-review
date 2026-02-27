@@ -1,0 +1,24 @@
+Yes and No — it depends on **how** you update the AMI and what the new AMI contains.
+
+**It will clear them if:**
+
+The new AMI you build or use includes patched versions of those libraries. This typically happens when you:
+
+- Rebuild your AMI from a fresh base (e.g., latest Amazon Linux 2023, Ubuntu 24.04, etc.) that already ships with patched package versions, AND run a full `yum update` / `apt upgrade` during the AMI build process before baking it.
+- Your AMI build pipeline (e.g., via Packer) runs package updates as part of the build, pulling in the fixed versions of `libcurl`, `openssl`, `libpng`, `libcap`, `openssh`, `gnupg2`, `alsa-lib`, and `expat`.
+
+**It will NOT clear them if:**
+
+- You simply replace the AMI but the new AMI was built from the same outdated base image without applying patches — the same vulnerabilities will reappear.
+- The scanner is detecting vulnerabilities in application-bundled libraries (e.g., libraries shipped inside a Docker container, a Python virtualenv, or a compiled application binary) rather than OS-level packages. Updating the AMI won't fix those.
+- You update the AMI but don't replace the running instances — existing instances won't be affected until they are recycled/replaced with the new AMI.
+
+**Recommended approach:**
+
+1. Start from the latest base AMI (AWS publishes updated AMIs regularly with patches).
+2. Run a full OS package update during your AMI build (`sudo yum update -y` or `sudo apt-get upgrade -y`).
+3. Verify the patched versions satisfy the scanner's requirements before baking.
+4. Replace running instances with the new AMI (via ASG refresh, blue/green deploy, etc.).
+5. Re-run the vulnerability scan to confirm findings are resolved.
+
+All eight packages you listed (`libcurl`, `openssl`, `libpng`, `libcap`, `openssh`, `gnupg2`, `alsa-lib`, `expat`) are OS-level libraries, so a properly patched AMI **should** clear them — as long as the scanner is looking at OS packages and not application-bundled copies.
