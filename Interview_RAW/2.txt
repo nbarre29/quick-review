@@ -1,0 +1,280 @@
+Congrats on the interview! AI-assisted screening interviews for a Java Developer role typically focus on gauging your fundamentals quickly (since it's only 15–30 mins). Here's what to expect:
+
+**Core Java Fundamentals**
+- OOP concepts — inheritance, polymorphism, encapsulation, abstraction
+- Difference between abstract class vs interface
+- String pool, immutability of String
+- `==` vs `.equals()`
+- Access modifiers
+
+**Collections & Data Structures**
+- HashMap vs HashTable vs ConcurrentHashMap
+- ArrayList vs LinkedList
+- How HashMap works internally (hashing, collision)
+- Comparable vs Comparator
+
+**Java 8+ Features**
+- Lambda expressions and Functional interfaces
+- Stream API (filter, map, reduce)
+- Optional class
+- Default methods in interfaces
+
+**Exception Handling**
+- Checked vs unchecked exceptions
+- try-with-resources
+- Custom exceptions
+
+**Multithreading Basics**
+- Thread lifecycle
+- synchronized keyword
+- wait/notify
+- volatile keyword
+
+**JVM Internals (basics)**
+- Stack vs Heap memory
+- Garbage collection basics
+
+**Possible Coding Questions**
+Since it's AI-assisted, you may be asked to write or trace simple code like reversing a string, finding duplicates in a list, or a basic Stream API operation.
+
+**Tips for AI-Assisted Interviews:**
+- Speak clearly and confidently — AI tools assess your verbal responses
+- Don't rush; structure your answers (define → explain → example)
+- If asked to code, think out loud
+- Avoid very long pauses
+
+Good luck! Would you like me to do a mock Q&A to help you prepare?
+
+
+---
+---
+________________________________________________________________________________________________________________
+
+==> chatgpt: how **AI-assisted screening rounds** work, especially for large clients like **Bank of America** via vendors like Collabera.
+
+Since it’s:
+
+* ⏱ 15–30 minutes
+* 🎥 Video + Audio
+* 🤖 AI-assisted
+* 📌 Round 1 (Screening)
+
+This is typically a **structured technical + behavioral screening**, not deep architecture yet.
+
+---
+
+# 🔎 What To Expect
+
+AI screening tools usually evaluate:
+
+1. ✅ Core Java fundamentals
+2. ✅ Spring / Backend basics
+3. ✅ SQL / Database knowledge
+4. ✅ REST API understanding
+5. ✅ Problem solving approach
+6. ✅ Communication clarity
+7. ✅ Confidence & structured answers
+
+They are scoring:
+
+* Technical correctness
+* Clarity of explanation
+* Structure of thinking
+* Conciseness
+
+---
+
+# 💻 Technical Questions You Should Expect (Java Developer – Banking Client)
+
+## 1️⃣ Core Java (Very Common)
+
+You WILL likely get 2–4 of these:
+
+* Difference between `HashMap` and `ConcurrentHashMap`
+* Difference between `ArrayList` and `LinkedList`
+* What is `volatile`?
+* What is the difference between `synchronized` and `ReentrantLock`?
+* Explain `equals()` vs `hashCode()`
+* What is immutability?
+* What is the difference between `Runnable` and `Callable`?
+* What is Executor framework?
+* What is ForkJoinPool?
+* How does garbage collection work?
+* What are Java 8 features?
+* What is Stream API?
+* What is Optional?
+
+👉 Since this is Bank of America, **multithreading questions are VERY common.**
+
+---
+
+## 2️⃣ Spring / Spring Boot
+
+Expect at least 1–2:
+
+* What is dependency injection?
+* Constructor vs Setter injection?
+* What is @RestController?
+* What is @Autowired?
+* What is Spring Boot auto-configuration?
+* How does Spring Security work?
+* What is JWT authentication?
+* How does transaction management work?
+* What is @Transactional?
+
+---
+
+## 3️⃣ REST & Microservices
+
+* What is REST?
+* What is idempotency?
+* Difference between PUT and POST?
+* How do you handle exceptions globally?
+* How do you secure APIs?
+* What is stateless architecture?
+* How does OAuth2 work?
+
+---
+
+## 4️⃣ Database / SQL
+
+Since it's Bank of America:
+
+* Difference between INNER JOIN and LEFT JOIN
+* What is indexing?
+* What is normalization?
+* What is ACID?
+* What is isolation level?
+* How do you prevent deadlocks?
+* What is optimistic vs pessimistic locking?
+
+---
+
+## 5️⃣ Banking Domain Type Questions
+
+Sometimes they test:
+
+* What is transaction consistency?
+* How would you design a payment system?
+* How do you prevent duplicate transactions?
+* How do you ensure idempotency in banking APIs?
+
+---
+
+## 6️⃣ Behavioral / Situational
+
+AI screening almost always includes:
+
+* Tell me about yourself.
+* Describe a challenging issue you solved.
+* How do you handle production issues?
+* Describe a time you handled a conflict.
+* Why do you want to work on this project?
+
+They check:
+
+* Structured answer
+* Confidence
+* Clear storytelling
+* No rambling
+
+Use **STAR method** for behavioral.
+
+---
+
+# 🎯 AI-Specific Tips (Very Important)
+
+Since this is AI evaluated:
+
+### ✅ Speak clearly
+
+### ✅ Short structured answers
+
+### ✅ Don’t ramble
+
+### ✅ Avoid fillers (umm, like, basically)
+
+### ✅ Look at camera
+
+### ✅ Use structured answers:
+
+> "There are three main differences..."
+
+AI scoring favors structure.
+
+---
+
+# 📌 They May Also Ask 1 Coding Question
+
+Sometimes:
+
+* Reverse a string
+* Find duplicate in array
+* Check palindrome
+* Print Fibonacci
+* Use Java 8 to filter list
+
+Keep solutions clean and explain while coding.
+
+---
+
+# 🔥 Based On YOUR Profile
+
+Since you:
+
+* Work with Spring
+* Work with Cassandra
+* Work with Redis
+* Work with JWT
+* Work with Kafka
+
+Be ready for:
+
+* Concurrent processing
+* REST security
+* Caching
+* Microservices communication
+* Thread pools
+
+---
+
+# 🚨 What They Usually DON’T Ask In Round 1
+
+* Deep system design
+* Very complex DSA
+* Architecture patterns in depth
+* Distributed system deep dive
+
+That’s Round 2+.
+
+---
+
+# 💡 If I Had To Predict Top 10 Most Likely Questions
+
+1. Difference between HashMap and ConcurrentHashMap
+2. What is dependency injection?
+3. Explain multithreading in Java
+4. What is REST?
+5. What is Spring Boot?
+6. What is JWT?
+7. Difference between List and Set
+8. What is ACID?
+9. Explain exception handling in Spring Boot
+10. Tell me about yourself
+
+---
+
+If you'd like, I can:
+
+* 🔥 Conduct a **mock AI-style interview simulation**
+* 📋 Give you a **rapid revision cheat sheet**
+* 🎯 Give you **Bank-of-America style practical questions**
+* 🧠 Ask you likely questions and refine your answers
+
+Tell me your experience level (years + tech stack), and I’ll tailor it exactly for you.
+
+
+---
+---
+________________________________________________________________________________________________________________
+

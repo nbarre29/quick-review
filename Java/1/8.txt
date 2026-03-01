@@ -646,7 +646,106 @@ Here are the differences between synchronized and volatile
     Locks Required:
         synchronized: Uses locks internally.
         volatile: Does not use locks.
-		
+
+---
+---
+------------------------------------------------------------------------------------------------------		
+
+==> Demonstrates `volatile` **does not guarantee atomicity** using a classic lost-update scenario with increment operations:
+
+```java
+public class VolatileExample {
+    private static volatile int counter = 0; // volatile but NOT atomic
+
+    public static void main(String[] args) throws InterruptedException {
+        int numberOfThreads = 10;
+        int incrementsPerThread = 10_000;
+
+        Thread[] threads = new Thread[numberOfThreads];
+
+        for (int i = 0; i < numberOfThreads; i++) {
+            threads[i] = new Thread(() -> {
+                for (int j = 0; j < incrementsPerThread; j++) {
+                    counter++; // NOT atomic: read → increment → write (3 steps)
+                }
+            });
+            threads[i].start();
+        }
+
+        // Wait for all threads to finish
+        for (Thread t : threads) {
+            t.join();
+        }
+
+        int expected = numberOfThreads * incrementsPerThread; // 100,000
+        System.out.println("Expected: " + expected);
+        System.out.println("Actual:   " + counter);
+        System.out.println("Lost updates: " + (expected - counter));
+    }
+}
+```
+
+### Why this proves non-atomicity
+
+`counter++` is **not a single operation** — it's three steps:
+1. **Read** the current value of `counter`
+2. **Increment** the value
+3. **Write** the new value back
+
+Even though `volatile` ensures every thread reads the **latest value** (visibility), two threads can still:
+
+```
+Thread A: reads counter = 50
+Thread B: reads counter = 50       ← both see 50
+Thread A: writes counter = 51
+Thread B: writes counter = 51      ← update from A is lost!
+```
+
+### Expected output
+
+```
+Expected: 100000
+Actual:   87463    ← some number less than 100,000
+Lost updates: 12537
+```
+
+The actual value will almost always be **less than 100,000**, proving that updates were lost due to the non-atomic read-modify-write cycle.
+
+### Fix: use `AtomicInteger`
+
+```java
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class VolatileExample {
+    private static final AtomicInteger counter = new AtomicInteger(0); // atomic + volatile
+
+    public static void main(String[] args) throws InterruptedException {
+        int numberOfThreads = 10;
+        int incrementsPerThread = 10_000;
+
+        Thread[] threads = new Thread[numberOfThreads];
+
+        for (int i = 0; i < numberOfThreads; i++) {
+            threads[i] = new Thread(() -> {
+                for (int j = 0; j < incrementsPerThread; j++) {
+                    counter.incrementAndGet(); // atomic operation
+                }
+            });
+            threads[i].start();
+        }
+
+        for (Thread t : threads) {
+            t.join();
+        }
+
+        System.out.println("Expected: " + (numberOfThreads * incrementsPerThread));
+        System.out.println("Actual:   " + counter.get()); // always 100,000
+    }
+}
+```
+
+`AtomicInteger.incrementAndGet()` uses **CAS (Compare-And-Swap)** under the hood, making the read-modify-write a single atomic operation — guaranteeing the result is always **100,000**.
+
 ______________________________________________________________________________________________________
 
 -> Use CountDownLatch, CyclicBarrier, Semaphore, and Future to solve common concurrency problems.

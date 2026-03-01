@@ -1,0 +1,305 @@
+
+==> What is Optional?
+
+`Optional` is a **container object introduced in Java 8** that may or may not contain a non-null value.
+
+Instead of returning `null`, we return:
+
+```java
+Optional<T>
+```
+
+It represents:
+
+* ✅ A value is present
+* ❌ A value is absent (empty)
+
+---
+
+# 🔹 Why Was It Introduced?
+
+To reduce **NullPointerException (NPE)**.
+
+Before Java 8:
+
+```java
+String name = user.getName();
+if (name != null) {
+    System.out.println(name.toUpperCase());
+}
+```
+
+If we forget the null check → 💥 NPE.
+
+---
+
+# 🔹 With Optional
+
+```java
+Optional<String> name = Optional.ofNullable(user.getName());
+
+name.ifPresent(n -> 
+    System.out.println(n.toUpperCase())
+);
+```
+
+Cleaner. Safer. More expressive.
+
+---
+
+
+# 🔹 Example: Safe Default Value
+
+```java
+Optional<String> name = Optional.ofNullable(null);
+
+String result = name.orElse("Default Name");
+System.out.println(result); // Default Name
+```
+
+---
+
+# 🔹 Example: Throw Exception If Missing
+
+```java
+String name = Optional.ofNullable(user.getName())
+        .orElseThrow(() -> new RuntimeException("Name not found"));
+```
+
+---
+
+# 🔹 Why Should We Use Optional?
+
+### ✅ 1. Avoid NullPointerException
+
+### ✅ 2. Make API more expressive
+
+### ✅ 3. Force caller to handle absence
+
+### ✅ 4. Cleaner functional style with Streams
+
+### ✅ 5. Improves code readability
+
+---
+
+# 🔥 Important Interview Clarification
+
+`Optional` is meant for:
+
+✔ Return types
+❌ Not for fields
+❌ Not for method parameters
+❌ Not for serialization
+
+They may test this.
+
+---
+
+# 🔹 When NOT To Use Optional
+
+Bad usage:
+
+```java
+class User {
+    Optional<String> name;   // ❌ Not recommended
+}
+```
+
+Good usage:
+
+```java
+public Optional<User> findUserById(Long id)
+```
+
+---
+
+# 🔥 Interview-Perfect Answer (Short Version)
+
+If asked:
+
+> What is Optional and why do we use it?
+
+Say:
+
+> Optional is a container object introduced in Java 8 that may or may not contain a value. It is used to avoid NullPointerException and make the absence of a value explicit in method return types. It encourages safer and more expressive code by forcing callers to handle missing values instead of returning null.
+
+Clean. Structured. Professional.
+
+---
+
+If you'd like, I can also explain:
+
+* Difference between `orElse()` and `orElseGet()` (very common trick question)
+* When Optional becomes anti-pattern
+* Optional vs null performance impact
+* How Optional works with Streams
+
+https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html
+
+---
+---
+_________________________________________________________________________________________________________
+
+==> How does garbage collection work?
+
+This is a **very common core Java screening question**, especially for banking clients.
+
+They don’t expect JVM internals — but they do expect clear understanding.
+
+Here’s the structured way to answer it.
+
+---
+
+# 🔹 What is Garbage Collection?
+
+Garbage Collection (GC) is the process by which the **JVM automatically removes unused objects from memory (heap)**.
+
+Its goal is to:
+
+* Free memory
+* Prevent memory leaks
+* Avoid manual memory management (like C/C++)
+
+---
+
+# 🔹 Where Does It Work?
+
+GC works in the **Heap memory**, not stack.
+
+```text
+Stack → method calls, local variables  
+Heap  → objects created using new
+```
+
+Example:
+
+```java
+User user = new User();
+```
+
+That object lives in the heap.
+
+---
+
+# 🔹 When Is an Object Eligible for GC?
+
+An object becomes eligible when:
+
+✔ No active references point to it.
+
+Example:
+
+```java
+User user = new User();
+user = null;   // Now eligible for GC
+```
+
+Or:
+
+```java
+createUser();  // object created inside method
+// method ends → reference lost → eligible
+```
+
+---
+
+# 🔹 How Does GC Know an Object Is Unused?
+
+Java uses **Reachability Analysis**.
+
+It starts from:
+
+* Static variables
+* Local variables in stack
+* Active threads
+* JNI references
+
+If an object cannot be reached from these “GC roots” → it is eligible for collection.
+
+---
+
+# 🔹 Generational Garbage Collection (Very Important)
+
+Heap is divided into:
+
+### 1️⃣ Young Generation
+
+* Eden space
+* Survivor spaces (S0, S1)
+* Most objects die here
+* Minor GC happens here
+
+### 2️⃣ Old (Tenured) Generation
+
+* Long-living objects
+* Major GC happens here
+
+### 3️⃣ Metaspace
+
+* Class metadata (since Java 8)
+* Replaced PermGen
+
+---
+
+# 🔹 How It Works Step-by-Step
+
+1. Objects created → go to Eden
+2. Minor GC runs → removes unused objects
+3. Surviving objects move to Survivor space
+4. After several cycles → promoted to Old generation
+5. Major GC runs occasionally → cleans Old generation
+
+---
+
+# 🔹 Types of Garbage Collectors (Mention 1–2 Only)
+
+* Serial GC
+* Parallel GC
+* CMS (Concurrent Mark Sweep)
+* G1 GC (default in modern Java)
+* ZGC (low latency)
+
+In interviews, mentioning **G1 GC** is good enough.
+
+---
+
+# 🔥 Short Interview-Ready Answer
+
+If asked:
+
+> How does garbage collection work in Java?
+
+You can say:
+
+> Java uses automatic garbage collection to manage heap memory. It uses reachability analysis to determine which objects are no longer referenced from GC roots. The heap is divided into young and old generations. Most objects are created in the young generation and collected during minor GC. Long-lived objects move to the old generation, where major GC occurs. Modern JVMs typically use the G1 garbage collector for efficient memory management.
+
+That is strong and professional.
+
+---
+
+# 🔎 Common Follow-Up Questions
+
+They may ask:
+
+* What causes memory leaks in Java?
+* What is Stop-The-World?
+* What is GC tuning?
+* Difference between Minor and Major GC?
+* What is Metaspace?
+* Can GC guarantee immediate cleanup?
+
+If you’d like, I can now:
+
+* Give you memory leak examples (very common question)
+* Explain Stop-The-World clearly
+* Simulate a rapid-fire GC interview round
+
+Your call.
+
+
+---
+---
+_________________________________________________________________________________________________________
+
+
+

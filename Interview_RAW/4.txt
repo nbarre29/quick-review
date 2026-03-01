@@ -1,0 +1,144 @@
+
+==> Difference between PUT and POST?
+
+**PUT vs POST** — in the context of RESTful APIs:
+
+| Aspect | **PUT** | **POST** |
+|---|---|---|
+| **Purpose** | Update/replace a resource (or create at a known URI) | Create a new resource |
+| **Idempotent?** | ✅ Yes — calling it multiple times produces the same result | ❌ No — calling it multiple times may create duplicates |
+| **Client knows URI?** | Yes — client specifies the exact resource URI | No — server determines the new resource's URI |
+| **Effect** | Replaces the **entire** resource | Adds a **new** resource to a collection |
+
+**Examples:**
+
+```
+PUT /api/persons/42
+```
+Updates (or creates) the person with ID 42. Calling it 10 times → same result.
+
+```
+POST /api/persons
+```
+Creates a new person. Calling it 10 times → 10 new persons created.
+
+**Key distinction — idempotency:**
+
+```
+// PUT: same call, same outcome every time
+PUT /api/persons/42  { "name": "Alice", "age": 30 }
+PUT /api/persons/42  { "name": "Alice", "age": 30 }
+// Result: person 42 is "Alice, 30" — no matter how many times you call it
+
+// POST: each call creates a new resource
+POST /api/persons   { "name": "Alice", "age": 30 }
+POST /api/persons   { "name": "Alice", "age": 30 }
+// Result: two separate persons created
+```
+
+**In short:** Use **PUT** when you know the exact resource to update/replace. Use **POST** when you want the server to create a new resource.
+
+
+---
+---
+___________________________________________________________________________________________________________________
+
+==> How do you secure REST APIs?
+
+## Securing REST APIs
+
+There are multiple layers to securing a REST API:
+
+### 1. Authentication & Authorization
+- **OAuth 2.0 / JWT** — Use tokens instead of sending credentials with every request
+- **Role-Based Access Control (RBAC)** — Restrict endpoints by user role
+
+```java
+@RestController
+@RequestMapping("/api/admin")
+@PreAuthorize("hasRole('ADMIN')")
+public class AdminController {
+    // only accessible by ADMIN role
+}
+```
+
+### 2. HTTPS (TLS)
+- **Always use HTTPS** — encrypts data in transit, prevents man-in-the-middle attacks
+
+### 3. Input Validation
+- Validate and sanitize all input to prevent **SQL injection**, **XSS**, etc.
+
+```java
+public ResponseEntity<?> createPerson(@Valid @RequestBody PersonDTO dto) {
+    // @Valid triggers bean validation
+}
+```
+
+### 4. Rate Limiting & Throttling
+- Prevent abuse/DDoS by limiting requests per client (e.g., using API gateways or libraries like Bucket4j)
+
+### 5. CORS Configuration
+- Restrict which origins can call your API
+
+```java
+@Configuration
+public class CorsConfig implements WebMvcConfigurer {
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/api/**")
+                .allowedOrigins("https://trusted-domain.com")
+                .allowedMethods("GET", "POST", "PUT", "DELETE");
+    }
+}
+```
+
+### 6. CSRF Protection
+- Enable for **session-based** auth; can be disabled for **stateless JWT-based** APIs
+
+### 7. Security Headers
+- `X-Content-Type-Options: nosniff`
+- `X-Frame-Options: DENY`
+- `Strict-Transport-Security` (HSTS)
+
+### 8. Principle of Least Privilege
+- Tokens/keys should have **minimal scope** and **short expiry**
+- Use refresh tokens for long-lived sessions
+
+### 9. Logging & Monitoring
+- Log authentication failures, unusual patterns
+- Use tools like **ELK stack**, **Spring Boot Actuator**, or **API gateways** for observability
+
+### 10. API Versioning & Key Management
+- Version your API (`/api/v1/...`) to avoid breaking changes
+- Rotate API keys and secrets regularly
+- Never hardcode secrets — use **environment variables** or a **vault** (e.g., HashiCorp Vault)
+
+### Spring Security Example (JWT-based)
+
+```java
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable()) // stateless, so no CSRF needed
+            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/public/**").permitAll()
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
+}
+```
+
+**In short:** Secure REST APIs through a combination of **authentication (who you are)**, **authorization (what you can do)**, **encryption (HTTPS)**, **input validation**, **rate limiting**, and **monitoring** — no single measure is sufficient on its own.
+
+
+---
+---
+___________________________________________________________________________________________________________________
